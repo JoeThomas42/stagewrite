@@ -30,7 +30,7 @@ $tables = [
 ];
 
 // Pagination and sorting logic
-$results_per_page = 20;
+$results_per_page = 10;
 $output = '<div id="content">';
 
 foreach ($tables as $table => $primary_key) {
@@ -83,11 +83,34 @@ foreach ($tables as $table => $primary_key) {
     $total_count = get_total_rows($conn, $table);
     $total_pages = ceil($total_count / $results_per_page);
     $output .= "<div class='pagination' id='pagination-$table'>";
-    for ($i = 1; $i <= $total_pages; $i++) {
+
+    // Pages per group
+    $pages_per_group = 8;
+    $current_group = ceil($page / $pages_per_group);
+    $start_page = ($current_group - 1) * $pages_per_group + 1;
+    $end_page = min($start_page + $pages_per_group - 1, $total_pages);
+
+    // Previous button
+    if ($current_group > 1) {
+        $prev_page = ($current_group - 1) * $pages_per_group;
+        $output .= "<a href='database_test.php?page_$table=$prev_page&sort_$table=" . 
+            urlencode($sort_column) . "' class='pagination-nav' data-table='$table' data-page='$prev_page'>Previous</a>";
+    }
+
+    // Display page numbers
+    for ($i = $start_page; $i <= $end_page; $i++) {
         $active = ($i == $page) ? "active" : "";
         $output .= "<a href='database_test.php?page_$table=$i&sort_$table=" . 
             urlencode($sort_column) . "' class='$active' data-table='$table' data-page='$i'>$i</a>";
     }
+
+    // Next button
+    if ($current_group < ceil($total_pages / $pages_per_group)) {
+        $next_page = $current_group * $pages_per_group + 1;
+        $output .= "<a href='database_test.php?page_$table=$next_page&sort_$table=" . 
+            urlencode($sort_column) . "' class='pagination-nav' data-table='$table' data-page='$next_page'>Next</a>";
+    }
+
     $output .= "</div>";
 }
 
