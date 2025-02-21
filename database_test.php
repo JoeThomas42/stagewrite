@@ -15,6 +15,14 @@ $is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
 // Create database connection
 $conn = create_db_connection();
 
+// Display connection information
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+} else {
+    echo "Connected to database: " . $conn->host_info . "<br>";
+    echo "Connection status: " . ($conn->ping() ? "Active" : "Inactive") . "<br>";
+}
+
 // Define tables to display with their primary key columns
 $tables = [
     'elements' => 'element_id',
