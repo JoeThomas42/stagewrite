@@ -1,17 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon</title>
-    <link rel="stylesheet" href="css/coming_soon.css">
+    <title>Login - Web App</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/script.js" defer></script>
+  </head>
 
-</head>
-<body>
+  <body>
     <div class="container">
-        <h1>Coming Soon!</h1>
-        <p>An intuitive new app for creating and sharing your stage plots!</p>
-        <img src="images/Wireframe.png" alt="A wireframe concept of the stage plot web app being developed.">
+      <div id="form-wrapper">
+        <!-- Login Form -->
+        <div id="login-form" class="form">
+          <h2>Login</h2>
+          <form action="php/login.php" method="POST">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+          </form>
+          <p>Don't have an account? <a href="#" id="switch-to-signup">Create one</a></p>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signup-form" class="form hidden">
+          <h2>Create Account</h2>
+          <form action="php/signup.php" method="POST">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" required>
+
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" required>
+
+            <label for="email_signup">Email:</label>
+            <input type="email" id="email_signup" name="email" required>
+
+            <label for="password_signup">Password:</label>
+            <input type="password" id="password_signup" name="password" required>
+
+            <label for="confirm_password">Confirm Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+
+            <button type="submit">Sign Up</button>
+          </form>
+          <p>Already have an account? <a href="#" id="switch-to-login">Login</a></p>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
+
 </html>
