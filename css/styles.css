@@ -143,7 +143,7 @@ ul li a {
 }
 
 ul li a:hover {
-    text-decoration: underline;
+    /* text-decoration: underline; */
 }
 
 /* Table Styles */
@@ -185,22 +185,7 @@ table tr:hover {
 }
 
 .action-links a:hover {
-    text-decoration: underline;
-}
-
-/* Logout Link */
-.logout-link {
-    color: #d9534f;
-    display: inline-block;
-    font-weight: bold;
-    margin: 20px 0;
-    text-align: center;
-    text-decoration: none;
-}
-
-.logout-link:hover {
-    color: #c9302c;
-    text-decoration: underline;
+    color: #434190;
 }
 
 .error-message {
@@ -210,6 +195,107 @@ table tr:hover {
     margin-top: 10px;
     padding: 8px;
     text-align: center;
+}
+
+/* Logout Link */
+.logout-link {
+    display: inline-block;
+    font-weight: bold;
+    margin: 20px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.logout-link:hover {
+    text-decoration: underline;
+}
+
+/* Header and Navigation */
+.header-container {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding: 20px;
+  width: 100%;
+}
+
+.welcome-message {
+  color: #444;
+  font-size: 24px;
+  margin: 0;
+}
+
+.logout-link {
+  background-color: #5a67d8;
+  border-radius: 4px;
+  color: white;
+  font-weight: normal;
+  opacity: 0.9;
+  padding: 8px 16px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.logout-link:hover {
+  background-color: #434190;
+  opacity: 1;
+}
+
+/* List Styles */
+.plots-list {
+  list-style: none;
+  margin: 20px 0;
+  padding: 0;
+}
+
+.plots-list li {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 12px 0;
+  transition: all 0.2s ease;
+}
+
+.plots-list li:hover {
+  background-color: #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.plot-link {
+  color: inherit;
+  display: block;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.plot-name {
+  color: #5a67d8;
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.plot-details {
+  color: #666;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 14px;
+  gap: 16px;
+}
+
+.plot-details span {
+  align-items: center;
+  display: inline-flex;
+}
+
+.plot-details span::before {
+  content: '•';
+  display: inline-block;
+  margin-right: 16px;
+}
+
+.plot-details span:first-child::before {
+  display: none;
 }
 
 /* Keyframes */

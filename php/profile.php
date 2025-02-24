@@ -1,6 +1,7 @@
 <?php
 // Include external configuration
 require_once 'config.php';
+require_once 'functions.php';
 
 session_start();
 if (!isset($_SESSION['user_id'])) {
@@ -40,27 +41,55 @@ echo "<div class='page-wrapper'>";
 // Role-based logic
 if ($user['role_id'] == 1) {
     // Member Page
-    $savedPlotsStmt = $pdo->prepare("SELECT plot_name FROM saved_plots WHERE user_id = :user_id");
+    $savedPlotsStmt = $pdo->prepare("
+        SELECT 
+            sp.plot_name,
+            v.venue_name,
+            v.venue_city,
+            s.state_name,
+            sp.event_date_start,    /* Changed from event_start_date */
+            sp.event_date_end       /* Changed from event_stop_date */
+        FROM saved_plots sp
+        JOIN venues v ON sp.venue_id = v.venue_id
+        JOIN states s ON v.venue_state_id = s.state_id
+        WHERE sp.user_id = :user_id
+        ORDER BY sp.event_date_start DESC  /* Changed from event_start_date */
+    ");
     $savedPlotsStmt->bindParam(':user_id', $user_id);
     $savedPlotsStmt->execute();
     $savedPlots = $savedPlotsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo "<div class='profile-container'>";
-    echo "<h1>Welcome, {$user['first_name']}!</h1>";
-    echo "<h2>Your Saved Stage Plots:</h2>";
-    echo "<ul>";
-    foreach ($savedPlots as $plot) {
-        echo "<li><a href='#'>{$plot['plot_name']}</a></li>";
-    }
-    echo "</ul>";
+    echo "<div class='header-container'>";
+    echo "<h1 class='welcome-message'>Welcome, {$user['first_name']}!</h1>";
     echo "<a class='logout-link' href='logout.php'>Logout</a>";
     echo "</div>";
     
+    echo "<h2>Your Saved Stage Plots:</h2>";
+    echo "<ul class='plots-list'>";
+    foreach ($savedPlots as $plot) {
+        $dateDisplay = formatEventDate($plot['event_date_start'], $plot['event_date_end']);  // Updated parameter names
+        echo "<li>";
+        echo "<a href='#' class='plot-link'>";
+        echo "<div class='plot-name'>{$plot['plot_name']}</div>";
+        echo "<div class='plot-details'>";
+        echo "<span class='venue'>{$plot['venue_name']}</span>";
+        echo "<span class='location'>{$plot['venue_city']}, {$plot['state_name']}</span>";
+        echo "<span class='date'>$dateDisplay</span>";
+        echo "</div>";
+        echo "</a>";
+        echo "</li>";
+    }
+    echo "</ul>";
+    echo "</div>";
 
 } elseif ($user['role_id'] == 2) {
     // Admin Page
     echo "<div class='profile-container'>";
-    echo "<h1>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
+    echo "<div class='header-container'>";
+    echo "<h1 class='welcome-message'>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
+    echo "<a class='logout-link' href='logout.php'>Logout</a>";
+    echo "</div>";
 
     // Fetch members
     $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1");
@@ -100,13 +129,16 @@ if ($user['role_id'] == 1) {
               </tr>";
     }
     echo "</table>";
-    echo "<a href='logout.php'>Logout</a>";
+    
     echo "</div>";
 
 } elseif ($user['role_id'] == 3) {
     // Super Admin Page
     echo "<div class='profile-container'>";
-    echo "<h1>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
+    echo "<div class='header-container'>";
+    echo "<h1 class='welcome-message'>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
+    echo "<a class='logout-link' href='logout.php'>Logout</a>";
+    echo "</div>";
 
     // Fetch admins
     $adminsStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 2");
@@ -172,9 +204,7 @@ if ($user['role_id'] == 1) {
               </tr>";
     }
     echo "</table>";
-    
-    // Logout Link
-    echo "<a class='logout-link' href='logout.php'>Logout</a>";
+
     echo "</div>";
     
 } else {
@@ -184,4 +214,5 @@ if ($user['role_id'] == 1) {
 echo "</div>";
 echo "</body>";
 echo "</html>";
+
 ?>
