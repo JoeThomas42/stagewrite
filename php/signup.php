@@ -32,7 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
 
     if ($stmt->rowCount() > 0) {
-        echo "Email is already registered.";
+        // Return JSON response instead of plain text
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'email_exists']);
         exit;
     }
 

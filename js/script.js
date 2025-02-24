@@ -42,4 +42,38 @@ document.addEventListener("DOMContentLoaded", () => {
           }
       });
   });
+
+  document.querySelector('#signup-form form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      
+      try {
+          const response = await fetch('php/signup.php', {
+              method: 'POST',
+              body: formData
+          });
+          
+          const data = await response.json();
+          
+          if (data.error === 'email_exists') {
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'error-message';
+              errorDiv.textContent = 'This email already has an account associated with it';
+              
+              // Remove any existing error messages
+              const existingError = document.querySelector('.error-message');
+              if (existingError) {
+                  existingError.remove();
+              }
+              
+              // Insert error message after the submit button
+              const submitButton = e.target.querySelector('button[type="submit"]');
+              submitButton.parentNode.insertBefore(errorDiv, submitButton.nextSibling);
+          } else {
+              window.location.href = '/stagewrite/php/profile.php';
+          }
+      } catch (error) {
+          console.error('Error:', error);
+      }
+  });
 });
