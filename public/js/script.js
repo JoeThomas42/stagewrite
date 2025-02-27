@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const formData = new FormData(e.target);
       
       try {
-          const response = await fetch('php/signup.php', {
+          const response = await fetch('/handlers/signup_handler.php', {
               method: 'POST',
               body: formData
           });
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
               const submitButton = e.target.querySelector('button[type="submit"]');
               submitButton.parentNode.insertBefore(errorDiv, submitButton.nextSibling);
           } else {
-              window.location.href = '/stagewrite/php/profile.php';
+              window.location.href = 'profile.php';
           }
       } catch (error) {
           console.error('Error:', error);

@@ -1,33 +1,4 @@
 <?php
-// Include external configuration
-require_once 'config.php';
-require_once 'functions.php';
-
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /index.html');
-    exit;
-}
-
-try {
-    $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
-
-// Fetch user details
-$user_id = $_SESSION['user_id'];
-$stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = :user_id");
-$stmt->bindParam(':user_id', $user_id);
-$stmt->execute();
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$user) {
-    echo "User not found.";
-    exit;
-}
-
 echo "<!DOCTYPE html>";
 echo "<html>";
 echo "<head>";
@@ -62,7 +33,7 @@ if ($user['role_id'] == 1) {
     echo "<div class='profile-container'>";
     echo "<div class='header-container'>";
     echo "<h1 class='welcome-message'>Welcome, {$user['first_name']}!</h1>";
-    echo "<a class='logout-link' href='logout.php'>Logout</a>";
+    echo "<a class='logout-link' href='/logout.php'>Logout</a>";
     echo "</div>";
     
     echo "<h2>Your Saved Stage Plots:</h2>";
@@ -88,7 +59,7 @@ if ($user['role_id'] == 1) {
     echo "<div class='profile-container'>";
     echo "<div class='header-container'>";
     echo "<h1 class='welcome-message'>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
-    echo "<a class='logout-link' href='logout.php'>Logout</a>";
+    echo "<a class='logout-link' href='/logout.php'>Logout</a>";
     echo "</div>";
 
     // Fetch members
@@ -137,7 +108,7 @@ if ($user['role_id'] == 1) {
     echo "<div class='profile-container'>";
     echo "<div class='header-container'>";
     echo "<h1 class='welcome-message'>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
-    echo "<a class='logout-link' href='logout.php'>Logout</a>";
+    echo "<a class='logout-link' href='/logout.php'>Logout</a>";
     echo "</div>";
 
     // Fetch admins
@@ -214,5 +185,3 @@ if ($user['role_id'] == 1) {
 echo "</div>";
 echo "</body>";
 echo "</html>";
-
-?>

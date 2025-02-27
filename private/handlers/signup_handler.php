@@ -1,11 +1,10 @@
 <?php
+require_once '../../private/bootstrap.php';
+
 // Enable error reporting for debugging
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-// Include external configuration
-require_once 'config.php';
 
 try {
     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
@@ -50,10 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bindParam(':role_id', $roleId);
 
     if ($stmt->execute()) {
-        header('Location: /stagewrite/php/profile.php');
+        header('Location: ../profile.php');
     } else {
         echo "An error occurred. Please try again.";
     }
 }
-?>
-

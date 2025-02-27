@@ -1,0 +1,11 @@
+# Deny direct access to this directory
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^ - [F,L]
+</IfModule>
+
+# Fallback for servers not using mod_rewrite
+<IfModule !mod_rewrite.c>
+    Order deny,allow
+    Deny from all
+</IfModule>

@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stagewrite - Login</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="js/script.js" defer></script>
-  </head>
-
-  <body>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/script.js" defer></script>
+</head>
+<body>
     <div class="container">
       <div id="form-wrapper">
         <!-- Login Form -->
         <div id="login-form" class="form">
           <h2>Login</h2>
-          <form action="php/login.php" method="POST">
+          <form action="/handlers/login_handler.php" method="POST">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
@@ -24,13 +22,13 @@
 
             <button type="submit">Login</button>
           </form>
-          <p>Don't have an account? <a href="#" id="switch-to-signup signup-link">Create one</a></p>
+          <p>Don't have an account? <a href="#" id="switch-to-signup">Create one</a></p>
         </div>
 
         <!-- Signup Form -->
         <div id="signup-form" class="form hidden">
           <h2>Create Account</h2>
-          <form action="php/signup.php" method="POST" novalidate>
+          <form action="/handlers/signup_handler.php" method="POST" novalidate>
             <label for="first_name">First Name:</label>
             <input type="text" id="first_name" name="first_name" required>
 
@@ -52,6 +50,6 @@
         </div>
       </div>
     </div>
-  </body>
-
+</body>
 </html>
+
