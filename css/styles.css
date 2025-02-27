@@ -87,31 +87,31 @@ p {
 }
 
 p a {
-    color: #5a67d8;
-    text-decoration: none;
+  color: #5a67d8;
+  text-decoration: none;
 }
 
 p a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Hidden Forms */
 .hidden {
-    display: none;
+  display: none;
 }
 
 /* General Page Layout for Profile Page */
 .profile-container {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    flex: 1;
-    margin: 0 auto;
-    max-width: 1200px;
-    padding: 20px;
-    position: relative;
-    width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  flex: 1;
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 20px;
+  position: relative;
+  width: 100%;
 }
 
 .profile-container h1 {

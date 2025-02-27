@@ -5,13 +5,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const switchToSignup = document.getElementById("switch-to-signup");
   const switchToLogin = document.getElementById("switch-to-login");
 
-  switchToSignup.addEventListener("click", (e) => {
+  switchToSignup.addEventListener("click", e => {
       e.preventDefault();
       loginForm.classList.add("hidden");
       signupForm.classList.remove("hidden");
   });
 
-  switchToLogin.addEventListener("click", (e) => {
+  switchToLogin.addEventListener("click", e => {
       e.preventDefault();
       signupForm.classList.add("hidden");
       loginForm.classList.remove("hidden");
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmPassword = document.getElementById("confirm_password");
   const signupFormElement = signupForm.querySelector("form");
 
-  signupFormElement.addEventListener("submit", (e) => {
+  signupFormElement.addEventListener("submit", e => {
       if (signupPassword.value !== confirmPassword.value) {
           e.preventDefault();
           alert("Passwords do not match!");
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Prevent empty fields submission
   document.querySelectorAll("form").forEach((form) => {
-      form.addEventListener("submit", (e) => {
+      form.addEventListener("submit", e => {
           const inputs = form.querySelectorAll("input[required]");
           for (const input of inputs) {
               if (!input.value.trim()) {
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  document.querySelector('#signup-form form').addEventListener('submit', async (e) => {
+  document.querySelector('#signup-form form').addEventListener('submit', async e => {
       e.preventDefault();
       const formData = new FormData(e.target);
       
