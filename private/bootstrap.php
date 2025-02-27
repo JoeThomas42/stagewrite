@@ -1,5 +1,5 @@
 <?php
-// Define base paths - absolute paths are more reliable
+// Define base paths
 define('BASE_PATH', dirname(__DIR__));
 define('PRIVATE_PATH', BASE_PATH . '/private');
 define('PUBLIC_PATH', BASE_PATH . '/public');
