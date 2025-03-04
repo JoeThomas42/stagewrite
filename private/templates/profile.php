@@ -76,7 +76,7 @@ if ($user['role_id'] == 1) {
                 <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
                     <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
-                    <a href='#' class='remove-user' data-user-id='{$member['user_id']}'>Remove</a>
+                    <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
                 </td>
               </tr>";
     }
@@ -130,7 +130,7 @@ if ($user['role_id'] == 1) {
                 <td>" . ($admin['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
                     <a href='#' class='toggle-status' data-user-id='{$admin['user_id']}' data-status='{$admin['is_active']}'>Toggle Status</a>
-                    <a href='#' class='remove-user' data-user-id='{$admin['user_id']}'>Remove</a>
+                    <a href='#' class='remove-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Remove</a>
                 </td>
               </tr>";
     }
@@ -148,7 +148,7 @@ if ($user['role_id'] == 1) {
                 <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
                     <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
-                    <a href='#' class='remove-user' data-user-id='{$member['user_id']}'>Remove</a>
+                    <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
                 </td>
               </tr>";
     }

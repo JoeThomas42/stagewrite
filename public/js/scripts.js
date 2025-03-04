@@ -121,7 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.remove-user').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
-      if (confirm('Are you sure you want to remove this user?')) {
+      const userName = link.getAttribute('data-user-name');
+      if (confirm(`Are you sure you want to remove ${userName}?\nThis action cannot be undone.`)) {
         const userId = link.getAttribute('data-user-id');
         fetch('/handlers/delete_user.php', {
           method: 'POST',
@@ -131,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
           body: `user_id=${encodeURIComponent(userId)}`
         })
         .then(response => response.json())
-        .then(data => {
+        .then(data => {''
           if (data.success) {
             // Remove the row from the table
             link.closest('tr').remove();
@@ -147,4 +148,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
-
