@@ -1,14 +1,6 @@
 <?php
-echo "<!DOCTYPE html>";
-echo "<html>";
-echo "<head>";
-echo "<title>StageWrite - Profile</title>";
-echo "<link rel='stylesheet' href='../css/styles.css'>";
-echo "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-echo "<script src='/js/profile.js' defer></script>";
-echo "</head>";
-echo "<body>";
-echo "<div class='page-wrapper'>";
+
+include 'header.php';
 
 // Role-based logic
 if ($user['role_id'] == 1) {
@@ -81,7 +73,7 @@ if ($user['role_id'] == 1) {
                 <td>{$member['email']}</td>
                 <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
-                    <a href='/toggle_status.php?user_id={$member['user_id']}'>Toggle Status</a>
+                    <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
                     <a href='#' class='remove-user' data-user-id='{$member['user_id']}'>Remove</a>
                 </td>
               </tr>";
@@ -135,7 +127,7 @@ if ($user['role_id'] == 1) {
                 <td>{$admin['email']}</td>
                 <td>" . ($admin['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
-                    <a href='/toggle_status.php?user_id={$admin['user_id']}'>Toggle Status</a>
+                    <a href='#' class='toggle-status' data-user-id='{$admin['user_id']}' data-status='{$admin['is_active']}'>Toggle Status</a>
                     <a href='#' class='remove-user' data-user-id='{$admin['user_id']}'>Remove</a>
                 </td>
               </tr>";
@@ -153,7 +145,7 @@ if ($user['role_id'] == 1) {
                 <td>{$member['email']}</td>
                 <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
-                    <a href='/toggle_status.php?user_id={$member['user_id']}'>Toggle Status</a>
+                    <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
                     <a href='#' class='remove-user' data-user-id='{$member['user_id']}'>Remove</a>
                 </td>
               </tr>";
@@ -183,6 +175,4 @@ if ($user['role_id'] == 1) {
     echo "Invalid role.";
 }
 
-echo "</div>";
-echo "</body>";
-echo "</html>";
+include 'footer.php';

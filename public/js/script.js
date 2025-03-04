@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   // Toggle between Login and Signup forms
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
@@ -76,14 +77,53 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error('Error:', error);
       }
   });
+});
 
-  // User removal functionality
+// User status toggle functionality
+document.querySelectorAll('.toggle-status').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    
+    const userId = link.getAttribute('data-user-id');
+    const currentStatus = link.getAttribute('data-status');
+    const newStatus = currentStatus === '1' ? 0 : 1;
+    
+    fetch('/handlers/toggle_status.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `user_id=${encodeURIComponent(userId)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update the status cell in the table
+        const row = link.closest('tr');
+        const statusCell = row.querySelector('td:nth-child(4)');
+        statusCell.textContent = data.status_text;
+        
+        // Update the data attribute on the link
+        link.setAttribute('data-status', data.is_active);
+      } else {
+        alert(data.error || 'An error occurred while toggling user status');
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      alert('An unexpected error occurred');
+    });
+  });
+});
+
+// User removal functionality
+document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.remove-user').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       if (confirm('Are you sure you want to remove this user?')) {
         const userId = link.getAttribute('data-user-id');
-        fetch('/private/handlers/production/delete.php', {
+        fetch('/handlers/delete_user.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -107,3 +147,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
