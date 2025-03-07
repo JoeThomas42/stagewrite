@@ -1,19 +1,28 @@
 <?php
 require_once '../../private/bootstrap.php';
 
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Always return JSON
+header('Content-Type: application/json');
 
 try {
     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+    echo json_encode(['error' => 'database_error', 'message' => 'Database connection failed']);
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errors = [];
+    
+    // Validate required fields
+    $required_fields = ['first_name', 'last_name', 'email', 'password', 'confirm_password'];
+    foreach ($required_fields as $field) {
+        if (empty($_POST[$field])) {
+            $errors[$field] = 'required';
+        }
+    }
+    
     $firstName = $_POST['first_name'];
     $lastName = $_POST['last_name'];
     $email = $_POST['email'];
@@ -21,8 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirmPassword = $_POST['confirm_password'];
     $roleId = 1; // Default role ID
 
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'invalid';
+    }
+    
+    if (!empty($errors)) {
+        echo json_encode(['errors' => $errors]);
+        exit;
+    }
+
     if ($password !== $confirmPassword) {
-        echo "Passwords do not match.";
+        echo json_encode(['errors' => ['confirm_password' => 'mismatch']]);
         exit;
     }
 
@@ -31,9 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
 
     if ($stmt->rowCount() > 0) {
-        // Return JSON response instead of plain text
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'email_exists']);
+        echo json_encode(['errors' => ['email' => 'exists']]);
         exit;
     }
 
@@ -49,8 +66,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bindParam(':role_id', $roleId);
 
     if ($stmt->execute()) {
-        header('Location: ../profile.php');
+        // Get the newly created user
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Set session variables
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['last_name'] = $user['last_name'];
+        $_SESSION['role_id'] = $user['role_id'];
+        
+        echo json_encode(['success' => true]);
     } else {
-        echo "An error occurred. Please try again.";
+        echo json_encode(['errors' => ['general' => 'database_error']]);
     }
 }

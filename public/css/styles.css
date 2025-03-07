@@ -41,13 +41,14 @@ body {
   max-width: 400px;
   padding: 20px;
   width: 100%;
+  
+  h2 {
+    color: #444;
+    margin-bottom: 20px;
+    text-align: center;
+  }
 }
 
-h2 {
-  color: #444;
-  margin-bottom: 20px;
-  text-align: center;
-}
 
 /* Form Styles */
 form {

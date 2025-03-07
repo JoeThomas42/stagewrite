@@ -1,82 +1,136 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   // Toggle between Login and Signup forms
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
   const switchToSignup = document.getElementById("switch-to-signup");
   const switchToLogin = document.getElementById("switch-to-login");
 
-  switchToSignup.addEventListener("click", e => {
+  if (switchToSignup) {
+    switchToSignup.addEventListener("click", e => {
       e.preventDefault();
       loginForm.classList.add("hidden");
       signupForm.classList.remove("hidden");
-  });
+    });
+  }
 
-  switchToLogin.addEventListener("click", e => {
+  if (switchToLogin) {
+    switchToLogin.addEventListener("click", e => {
       e.preventDefault();
       signupForm.classList.add("hidden");
       loginForm.classList.remove("hidden");
-  });
+    });
+  }
 
-  // Form validation for Signup
-  const signupPassword = document.getElementById("password_signup");
-  const confirmPassword = document.getElementById("confirm_password");
-  const signupFormElement = signupForm.querySelector("form");
+  // Helper function to show field errors
+  function showFieldError(field, message) {
+    // Remove any previous error
+    clearFieldError(field);
+    
+    // Add error class to the input
+    field.classList.add('error-input');
+    
+    // Create and add error message
+    const errorSpan = document.createElement('span');
+    errorSpan.className = 'field-error';
+    errorSpan.textContent = message;
+    errorSpan.style.color = 'red';
+    errorSpan.style.fontSize = '12px';
+    errorSpan.style.display = 'block';
+    errorSpan.style.marginTop = '-10px';
+    errorSpan.style.marginBottom = '10px';
+    
+    field.parentNode.insertBefore(errorSpan, field.nextSibling);
+  }
 
-  signupFormElement.addEventListener("submit", e => {
-      if (signupPassword.value !== confirmPassword.value) {
-          e.preventDefault();
-          alert("Passwords do not match!");
-      }
-  });
+  // Helper function to clear field errors
+  function clearFieldError(field) {
+    field.classList.remove('error-input');
+    const existingError = field.nextElementSibling;
+    if (existingError && existingError.className === 'field-error') {
+      existingError.remove();
+    }
+  }
 
-  // Prevent empty fields submission
-  document.querySelectorAll("form").forEach((form) => {
-      form.addEventListener("submit", e => {
-          const inputs = form.querySelectorAll("input[required]");
-          for (const input of inputs) {
-              if (!input.value.trim()) {
-                  e.preventDefault();
-                  alert("Please fill in all required fields.");
-                  return;
-              }
-          }
-      });
-  });
-
-  document.querySelector('#signup-form form').addEventListener('submit', async e => {
+  // Helper function to clear all form errors
+  function clearAllErrors(form) {
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+      clearFieldError(input);
+    });
+    
+    const generalError = form.querySelector('.error-message');
+    if (generalError) {
+      generalError.remove();
+    }
+  }
+  
+  // Signup form submission with validation
+  const signupFormElement = document.querySelector('#signup-form form');
+  if (signupFormElement) {
+    signupFormElement.addEventListener('submit', async e => {
       e.preventDefault();
+      
+      // Clear any existing error messages
+      clearAllErrors(signupFormElement);
+      
       const formData = new FormData(e.target);
       
       try {
-          const response = await fetch('/handlers/signup_handler.php', {
-              method: 'POST',
-              body: formData
-          });
-          
-          const data = await response.json();
-          
-          if (data.error === 'email_exists') {
-              const errorDiv = document.createElement('div');
-              errorDiv.className = 'error-message';
-              errorDiv.textContent = 'This email already has an account associated with it';
-              
-              // Remove any existing error messages
-              const existingError = document.querySelector('.error-message');
-              if (existingError) {
-                  existingError.remove();
-              }
-              
-              // Insert error message after the submit button
-              const submitButton = e.target.querySelector('button[type="submit"]');
-              submitButton.parentNode.insertBefore(errorDiv, submitButton.nextSibling);
-          } else {
-              window.location.href = 'profile.php';
+        const response = await fetch('/handlers/signup_handler.php', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.errors) {
+          // Handle field-specific errors
+          for (const [field, errorType] of Object.entries(data.errors)) {
+            const inputField = document.getElementById(field === 'email' ? 'email_signup' : field);
+            
+            if (errorType === 'required') {
+              showFieldError(inputField, 'Required');
+            } else if (field === 'confirm_password' && errorType === 'mismatch') {
+              showFieldError(inputField, 'Passwords do not match');
+            } else if (field === 'email' && errorType === 'exists') {
+              showFieldError(inputField, 'Email already registered');
+            } else if (field === 'email' && errorType === 'invalid') {
+              showFieldError(inputField, 'Invalid email format');
+            }
           }
+        } else if (data.error === 'database_error') {
+          // Handle general errors
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.textContent = 'A database error occurred. Please try again.';
+          
+          const submitButton = e.target.querySelector('button[type="submit"]');
+          submitButton.parentNode.insertBefore(errorDiv, submitButton.nextSibling);
+        } else if (data.success) {
+          // Redirect on success
+          window.location.href = '/profile.php';
+        }
       } catch (error) {
-          console.error('Error:', error);
+        console.error('Error:', error);
+        alert('An unexpected error occurred');
       }
-  });
+    });
+  }
+  
+  // Add CSS for error styling
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .error-input {
+      border: 1px solid #dc3545 !important;
+    }
+    .field-error {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: -10px;
+      margin-bottom: 10px;
+    }
+  `;
+  document.head.appendChild(style);
 });
 
 // User status toggle functionality
