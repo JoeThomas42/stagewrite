@@ -26,10 +26,6 @@ if ($user['role_id'] == 1) {
     $savedPlots = $savedPlotsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo "<div class='profile-container'>";
-    echo "<div class='header-container'>";
-    echo "<h1 class='welcome-message'>Welcome, {$user['first_name']}!</h1>";
-    echo "<a class='logout-link' href='/logout.php'>Logout</a>";
-    echo "</div>";
     
     echo "<h2>Your Saved Stage Plots:</h2>";
     echo "<ul class='plots-list'>";
@@ -52,11 +48,7 @@ if ($user['role_id'] == 1) {
 } elseif ($user['role_id'] == 2) {
     // Admin Page
     echo "<div class='profile-container'>";
-    echo "<div class='header-container'>";
-    echo "<h1 class='welcome-message'>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
-    echo "<a class='logout-link' href='/logout.php'>Logout</a>";
-    echo "</div>";
-
+    
     // Fetch members
     $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1");
     $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -101,11 +93,7 @@ if ($user['role_id'] == 1) {
 } elseif ($user['role_id'] == 3) {
     // Super Admin Page
     echo "<div class='profile-container'>";
-    echo "<div class='header-container'>";
-    echo "<h1 class='welcome-message'>Welcome, {$user['first_name']} {$user['last_name']}!</h1>";
-    echo "<a class='logout-link' href='/logout.php'>Logout</a>";
-    echo "</div>";
-
+    
     // Fetch admins
     $adminsStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 2");
     $admins = $adminsStmt->fetchAll(PDO::FETCH_ASSOC);
