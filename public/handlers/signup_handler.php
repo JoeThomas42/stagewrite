@@ -1,5 +1,4 @@
 <?php
-// filepath: m:\ABTech\StageWrite\stagewrite\public\handlers\signup_handler.php
 require_once '../../private/bootstrap.php';
  
 // Forward the request to the private handler
