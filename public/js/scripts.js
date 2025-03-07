@@ -117,6 +117,49 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   
+  // Login form submission with validation
+  const loginFormElement = document.querySelector('#login-form form');
+  if (loginFormElement) {
+    loginFormElement.addEventListener('submit', async e => {
+      e.preventDefault();
+      
+      // Clear any existing error messages
+      clearAllErrors(loginFormElement);
+      
+      const formData = new FormData(e.target);
+      
+      try {
+        const response = await fetch('/handlers/login_handler.php', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.errors) {
+          // Handle field-specific errors
+          for (const [field, errorType] of Object.entries(data.errors)) {
+            const inputField = document.getElementById(field);
+            
+            if (errorType === 'required') {
+              showFieldError(inputField, 'Required');
+            } else if (field === 'email' && errorType === 'invalid') {
+              showFieldError(inputField, 'Invalid email format');
+            } else if (errorType === 'invalid_credentials') {
+              showFieldError(inputField, 'Invalid email or password');
+            }
+          }
+        } else if (data.success) {
+          // Redirect on success
+          window.location.href = '/profile.php';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An unexpected error occurred');
+      }
+    });
+  }
+  
   // Add CSS for error styling
   const style = document.createElement('style');
   style.innerHTML = `

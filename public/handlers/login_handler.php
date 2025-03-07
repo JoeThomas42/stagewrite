@@ -1,10 +1,34 @@
 <?php
 require_once '../../private/bootstrap.php';
 
-// This file forwards the request to the actual handler
+// Always return JSON
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errors = [];
+    
+    // Validate required fields
+    if (empty($_POST['email'])) {
+        $errors['email'] = 'required';
+    }
+    if (empty($_POST['password'])) {
+        $errors['password'] = 'required';
+    }
+    
+    if (!empty($errors)) {
+        echo json_encode(['errors' => $errors]);
+        exit;
+    }
+    
     $email = $_POST['email'];
     $password = $_POST['password'];
+    
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'invalid';
+        echo json_encode(['errors' => $errors]);
+        exit;
+    }
 
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email AND is_active = 1");
     $stmt->bindParam(':email', $email);
@@ -17,11 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['last_name'] = $user['last_name'];
         $_SESSION['role_id'] = $user['role_id'];
         
-        header('Location: /profile.php');
+        echo json_encode(['success' => true]);
         exit;
     } else {
-        echo "Invalid email or password.";
+        // Invalid email or password
+        $errors['email'] = 'invalid_credentials';
+        echo json_encode(['errors' => $errors]);
+        exit;
     }
 }
-
-require_once PRIVATE_PATH . '/handlers/login_handler.php';
