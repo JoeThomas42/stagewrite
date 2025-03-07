@@ -1,11 +1,11 @@
 <?php
 require_once '../private/bootstrap.php';
 
-// Check if user is already logged in
-if (isset($_SESSION['user_id'])) {
-    header('Location: profile.php');
-    exit;
-}
+$current_page = "Home";
+include PRIVATE_PATH . '/templates/header.php';
+echo "<div class='page-wrapper'>";
 
-// Include the login template
-require_once PRIVATE_PATH . '/templates/login.php';
+echo "<h2>This is the plotter</h1>";
+
+echo "</div>";
+include PRIVATE_PATH . '/templates/footer.php';

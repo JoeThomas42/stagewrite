@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
           submitButton.parentNode.insertBefore(errorDiv, submitButton.nextSibling);
         } else if (data.success) {
           // Redirect on success
-          window.location.href = '/profile.php';
+          window.location.href = '/index.php';
         }
       } catch (error) {
         console.error('Error:', error);
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         } else if (data.success) {
           // Redirect on success
-          window.location.href = '/profile.php';
+          window.location.href = '/index.php';
         }
       } catch (error) {
         console.error('Error:', error);

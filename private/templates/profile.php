@@ -13,8 +13,8 @@ if ($user['role_id'] == 1) {
             v.venue_name,
             v.venue_city,
             s.state_name,
-            sp.event_date_start,    /* Changed from event_start_date */
-            sp.event_date_end       /* Changed from event_stop_date */
+            sp.event_date_start,
+            sp.event_date_end
         FROM saved_plots sp
         JOIN venues v ON sp.venue_id = v.venue_id
         JOIN states s ON v.venue_state_id = s.state_id
@@ -30,7 +30,7 @@ if ($user['role_id'] == 1) {
     echo "<h2>Your Saved Stage Plots:</h2>";
     echo "<ul class='plots-list'>";
     foreach ($savedPlots as $plot) {
-        $dateDisplay = formatEventDate($plot['event_date_start'], $plot['event_date_end']);  // Updated parameter names
+        $dateDisplay = formatEventDate($plot['event_date_start'], $plot['event_date_end']);
         echo "<li>";
         echo "<a href='#' class='plot-link'>";
         echo "<div class='plot-name'>{$plot['plot_name']}</div>";
