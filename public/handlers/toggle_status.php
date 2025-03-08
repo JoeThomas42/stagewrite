@@ -1,3 +1,5 @@
 <?php
 
-require_once '../../private/handlers/production/toggle_status.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
+
+require_once HANDLERS_PATH . '/production/toggle_status.php';

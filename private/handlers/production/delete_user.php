@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../bootstrap.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
 // Ensure JSON response
 header('Content-Type: application/json');

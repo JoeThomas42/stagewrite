@@ -1,5 +1,6 @@
 <?php
-require_once '../../private/bootstrap.php';
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
 // Always return JSON
 header('Content-Type: application/json');

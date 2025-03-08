@@ -1,8 +1,9 @@
 <?php
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
+
 $current_page = "Profile";
 include 'header.php';
-echo "<div class='page-wrapper'>";
 
 // Role-based logic
 if ($user['role_id'] == 1) {
@@ -165,5 +166,4 @@ if ($user['role_id'] == 1) {
     echo "Invalid role.";
 }
 
-echo "</div>";
-include 'footer.php';
+include PRIVATE_PATH . '/templates/footer.php';

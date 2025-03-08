@@ -29,7 +29,7 @@ if (isset($_SESSION['user_id'])) {
     
     echo "<div class='user-controls'>";
     echo "<span class='welcome-message'>Welcome, " . htmlspecialchars($_SESSION['first_name']) . "!</span>";
-    echo "<a class='log-link' href='/logout.php'>Logout</a>";
+    echo "<a class='log-link' href='" . HANDLERS_URL . "/logout_handler.php'>Logout</a>";
     echo "</div>";
 } else if ($current_page !== "Login") {
     // Show login button for non-logged in users, but only if not already on login page
@@ -42,5 +42,5 @@ echo "</div>"; // Close nav-container
 echo "</div>"; // Close header-content
 echo "</header>"; // Close header-container
 
-// Start page-wrapper after the header
+// Start page-wrapper
 echo "<div class='page-wrapper'>";
