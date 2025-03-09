@@ -78,8 +78,8 @@ body {
   justify-content: center;
   margin: 0 auto;
   max-width: 1200px;
-  padding: var(--spacing-xl);
   min-width: 90%;
+  padding: var(--spacing-xl);
 }
 
 .login-container {
@@ -198,9 +198,9 @@ ul {
 }
 
 .heading-action-row {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-top: var(--spacing-xxl);
   margin-bottom: var(--spacing-lg);
 
@@ -421,8 +421,8 @@ table {
   z-index: 1000;
 
   &.visible {
-    display: flex;
     align-items: center;
+    display: flex;
     justify-content: center;
     animation: fadeIn 0.3s;
   }
