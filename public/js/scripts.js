@@ -183,7 +183,7 @@ document.querySelectorAll('.toggle-status').forEach(link => {
     
     const userId = link.getAttribute('data-user-id');
     const currentStatus = link.getAttribute('data-status');
-    const newStatus = currentStatus === '1' ? 0 : 1;
+    // const newStatus = currentStatus === '1' ? 0 : 1;
     
     fetch('/handlers/toggle_status.php', {
       method: 'POST',
