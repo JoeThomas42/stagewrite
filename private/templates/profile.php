@@ -240,5 +240,5 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
 
 <?php 
 endif;
-include PRIVATE_PATH . '/templates/footer.php';
+require_once 'footer.php';
 ?>
