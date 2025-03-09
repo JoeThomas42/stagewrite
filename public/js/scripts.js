@@ -353,3 +353,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// Venue removal functionality
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.remove-venue').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const venueName = link.getAttribute('data-venue-name');
+      if (confirm(`Are you sure you want to delete ${venueName}?\nThis action cannot be undone!`)) {
+        const venueId = link.getAttribute('data-venue-id');
+        fetch('/handlers/venue_handler.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `action=delete&venue_id=${encodeURIComponent(venueId)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Remove the row from the table
+            link.closest('tr').remove();
+          } else {
+            alert(data.error || 'An error occurred while trying to delete the venue');
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          alert('An unexpected error occurred');
+        });
+      }
+    });
+  });
+});

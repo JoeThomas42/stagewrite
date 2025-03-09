@@ -114,3 +114,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
     }
 }
+
+// POST request to delete venue
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
+    if (empty($_POST['venue_id'])) {
+        echo json_encode(['success' => false, 'error' => 'Missing venue ID']);
+        exit;
+    }
+    
+    $venueId = filter_var($_POST['venue_id'], FILTER_VALIDATE_INT);
+    if (!$venueId) {
+        echo json_encode(['success' => false, 'error' => 'Invalid venue ID']);
+        exit;
+    }
+    
+    try {
+        // First check if this venue is used in any saved plots
+        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM saved_plots WHERE venue_id = :venue_id");
+        $checkStmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
+        $checkStmt->execute();
+        $usageCount = $checkStmt->fetchColumn();
+        
+        if ($usageCount > 0) {
+            // Update saved plots to use the default venue (ID 1)
+            $updateStmt = $pdo->prepare("UPDATE saved_plots SET venue_id = 1 WHERE venue_id = :venue_id");
+            $updateStmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
+            $updateStmt->execute();
+        }
+        
+        // Now delete the venue
+        $stmt = $pdo->prepare("DELETE FROM venues WHERE venue_id = :venue_id");
+        $stmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Venue not found']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+    }
+}

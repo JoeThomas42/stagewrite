@@ -90,6 +90,7 @@ if ($user['role_id'] == 1) {
                 <td>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
                 <td class='action-links'>
                     <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
+                    <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
                 </td>
               </tr>";
     }
@@ -165,6 +166,7 @@ if ($user['role_id'] == 1) {
                 <td>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
                 <td class='action-links'>
                     <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
+                    <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
                 </td>
               </tr>";
     }
@@ -222,6 +224,8 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
     </form>
   </div>
 </div>
-<?php endif; ?>
 
+<?php 
+endif;
 include PRIVATE_PATH . '/templates/footer.php';
+?>
