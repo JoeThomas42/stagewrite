@@ -15,6 +15,7 @@ define('HANDLERS_PATH', PRIVATE_PATH . '/handlers');
 define('WEB_ROOT', '');
 define('CSS_PATH', WEB_ROOT . '/css');
 define('JS_PATH', WEB_ROOT . '/public/js');
+define('IMG_PATH', WEB_ROOT . '/public/images');
 define('HANDLERS_URL', WEB_ROOT . '/handlers');
 
 // Include necessary files
