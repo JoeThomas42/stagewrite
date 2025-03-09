@@ -138,6 +138,7 @@ if ($user['role_id'] == 1) {
                 <td>" . ($admin['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
                     <a href='#' class='toggle-status' data-user-id='{$admin['user_id']}' data-status='{$admin['is_active']}'>Toggle Status</a>
+                    <a href='#' class='demote-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Demote to Member</a>
                     <a href='#' class='remove-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Remove</a>
                 </td>
               </tr>";

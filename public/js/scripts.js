@@ -288,6 +288,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // User demotion functionality
+  document.querySelectorAll('.demote-user').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const userName = link.getAttribute('data-user-name');
+      if (confirm(`Are you sure you want to demote ${userName} to Member?\nThis will remove their administrative privileges.`)) {
+        const userId = link.getAttribute('data-user-id');
+        fetch('/handlers/demote_user.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `user_id=${encodeURIComponent(userId)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success message and reload to update both tables
+            alert(`${userName} has been demoted to Member successfully.`);
+            window.location.reload();
+          } else {
+            alert(data.error || 'An error occurred while trying to demote the user');
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          alert('An unexpected error occurred');
+        });
+      }
+    });
+  });
+
   // SECTION: Venue Management Functionality
   // Venue Edit Modal Functionality
   const modal = document.getElementById('venue-edit-modal');
