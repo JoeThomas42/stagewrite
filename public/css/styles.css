@@ -389,13 +389,13 @@ table {
   top: 0;
   width: 100%;
   z-index: 1000;
-}
 
-.modal.visible {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s;
+  &.visible {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s;
+  }
 }
 
 .modal-content {
@@ -417,10 +417,10 @@ table {
   position: absolute;
   right: 15px;
   top: 10px;
-}
 
-.close-button:hover {
-  color: #333;
+  &:hover {
+    color: #333;
+  }
 }
 
 .form-actions {
