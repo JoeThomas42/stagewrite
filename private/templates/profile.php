@@ -2,7 +2,12 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-$current_page = "Profile";
+// Update the page title based on role
+if ($user['role_id'] == 2 || $user['role_id'] == 3) {
+    $current_page = "Data Management";
+} else {
+    $current_page = "Profile";
+}
 include 'header.php';
 
 // Role-based logic

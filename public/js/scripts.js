@@ -86,33 +86,39 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.errors) {
           // Handle field-specific errors
           for (const [field, errorType] of Object.entries(data.errors)) {
-            const inputField = document.getElementById(field === 'email' ? 'email_signup' : field);
+            // Map field names to element IDs
+            let fieldId = field;
+            if (field === 'password') fieldId = 'password_signup';
+            if (field === 'email') fieldId = 'email_signup';
+            
+            const inputField = document.getElementById(fieldId);
+            
+            if (!inputField) {
+              console.error(`Could not find element with ID: ${fieldId}`);
+              continue;
+            }
             
             if (errorType === 'required') {
-              showFieldError(inputField, 'Required');
+              showFieldError(inputField, 'This field is required');
+            } else if (field === 'email' && errorType === 'invalid') {
+              showFieldError(inputField, 'Please enter a valid email address');
+            } else if (field === 'email' && errorType === 'exists') {
+              showFieldError(inputField, 'This email is already registered');
+            } else if (field === 'password' && (errorType === 'too_short' || errorType === 'no_number')) {
+              showFieldError(inputField, 'Must be 8 characters and include at least one number');
+            } else if (field === 'password' && errorType.startsWith('invalid_char:')) {
+              const invalidChar = errorType.split(':')[1];
+              showFieldError(inputField, `'${invalidChar}' cannot be used`);
             } else if (field === 'confirm_password' && errorType === 'mismatch') {
               showFieldError(inputField, 'Passwords do not match');
-            } else if (field === 'email' && errorType === 'exists') {
-              showFieldError(inputField, 'Email already registered');
-            } else if (field === 'email' && errorType === 'invalid') {
-              showFieldError(inputField, 'Invalid email format');
             }
           }
-        } else if (data.error === 'database_error') {
-          // Handle general errors
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'error-message';
-          errorDiv.textContent = 'A database error occurred. Please try again.';
-          
-          const submitButton = e.target.querySelector('button[type="submit"]');
-          submitButton.parentNode.insertBefore(errorDiv, submitButton.nextSibling);
         } else if (data.success) {
-          // Redirect on success
+          // Redirect to home page
           window.location.href = '/index.php';
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('An unexpected error occurred');
       }
     });
   }
@@ -150,8 +156,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         } else if (data.success) {
-          // Redirect on success
-          window.location.href = '/index.php';
+          // Redirect based on user role
+          if (data.role_id == 2 || data.role_id == 3) {
+            // Admin or Super Admin - go directly to management page
+            window.location.href = '/profile.php';
+          } else {
+            // Regular user - go to home page
+            window.location.href = '/index.php';
+          }
         }
       } catch (error) {
         console.error('Error:', error);

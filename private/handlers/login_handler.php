@@ -42,7 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['last_name'] = $user['last_name'];
         $_SESSION['role_id'] = $user['role_id'];
         
-        echo json_encode(['success' => true]);
+        echo json_encode([
+            'success' => true,
+            'role_id' => $user['role_id']
+        ]);
         exit;
     } else {
         // Invalid email or password

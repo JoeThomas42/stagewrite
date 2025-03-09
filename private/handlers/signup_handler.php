@@ -35,7 +35,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'invalid';
     }
-    
+
+    // Password validation
+    if (strlen($password) < 8) {
+        $errors['password'] = 'too_short';
+    } else if (!preg_match('/[0-9]/', $password)) {
+        $errors['password'] = 'no_number';
+    } else {
+        // Check for invalid characters
+        $allowedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};:\'",./<>?|`~';
+        for ($i = 0; $i < strlen($password); $i++) {
+            $char = $password[$i];
+            if (strpos($allowedChars, $char) === false) {
+                $errors['password'] = 'invalid_char:' . $char;
+                break;
+            }
+        }
+    }
+
     if (!empty($errors)) {
         echo json_encode(['errors' => $errors]);
         exit;
