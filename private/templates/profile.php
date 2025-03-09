@@ -84,8 +84,8 @@ if ($user['role_id'] == 1) {
     }
     echo "</table>";
 
+    echo "<div class='heading-action-row'>";
     echo "<h2>Manage Venues:</h2>";
-    echo "<div class='action-button-container'>";
     echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
     echo "</div>";
     echo "<table border='1'>";
@@ -164,8 +164,8 @@ if ($user['role_id'] == 1) {
     echo "</table>";
     
     // Display Venues
+    echo "<div class='heading-action-row'>";
     echo "<h2>Manage Venues:</h2>";
-    echo "<div class='action-button-container'>";
     echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
     echo "</div>";
     echo "<table>";
@@ -210,7 +210,7 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
       
       <label for="venue_state_id">State:</label>
       <select id="venue_state_id" name="venue_state_id">
-        <option value="" disabled>Select State</option>
+        <option value="" selected disabled>Select State</option>
         <?php
         $statesStmt = $pdo->query("SELECT state_id, state_name FROM states ORDER BY state_name");
         $states = $statesStmt->fetchAll(PDO::FETCH_ASSOC);

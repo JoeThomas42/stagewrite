@@ -400,11 +400,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById('add-venue-button')) {
     document.getElementById('add-venue-button').addEventListener('click', () => {
       // Clear the form for a new venue
-      document.getElementById('venue-edit-form').reset();
+      const form = document.getElementById('venue-edit-form');
+      form.reset();
       document.getElementById('venue_id').value = '';
+      
+      // Reset the state dropdown to the default "Select State" option
+      const stateDropdown = document.getElementById('venue_state_id');
+      stateDropdown.selectedIndex = 0;
+      
+      // Update modal title
       document.querySelector('#venue-edit-modal h2').textContent = 'Add New Venue';
       
-      // Show modal
+      // Add save button if not present (or just show the form)
+      const modal = document.getElementById('venue-edit-modal');
       modal.classList.remove('hidden');
       modal.classList.add('visible');
     });
