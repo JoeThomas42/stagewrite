@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Toggle between Login and Signup forms
+  // SECTION: Login/Signup Form Functionality
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
   const switchToSignup = document.getElementById("switch-to-signup");
@@ -174,47 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   `;
   document.head.appendChild(style);
-});
 
-// User status toggle functionality
-document.querySelectorAll('.toggle-status').forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    
-    const userId = link.getAttribute('data-user-id');
-    const currentStatus = link.getAttribute('data-status');
-    // const newStatus = currentStatus === '1' ? 0 : 1;
-    
-    fetch('/handlers/toggle_status.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: `user_id=${encodeURIComponent(userId)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Update the status cell in the table
-        const row = link.closest('tr');
-        const statusCell = row.querySelector('td:nth-child(4)');
-        statusCell.textContent = data.status_text;
-        
-        // Update the data attribute on the link
-        link.setAttribute('data-status', data.is_active);
-      } else {
-        alert(data.error || 'An error occurred while toggling user status');
-      }
-    })
-    .catch(err => {
-      console.error('Error:', err);
-      alert('An unexpected error occurred');
-    });
-  });
-});
-
-// User removal functionality
-document.addEventListener('DOMContentLoaded', () => {
+  // SECTION: User Management Functionality
+  // User removal functionality
   document.querySelectorAll('.remove-user').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
@@ -244,118 +206,152 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-});
-
-// Venue Edit Modal Functionality
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('venue-edit-modal');
-  if (!modal) return;
   
-  const closeBtn = modal.querySelector('.close-button');
-  const cancelBtn = modal.querySelector('.cancel-button');
-  const editForm = document.getElementById('venue-edit-form');
-  
-  // Show modal when Edit button is clicked
-  document.querySelectorAll('.edit-venue').forEach(link => {
-    link.addEventListener('click', async (e) => {
+  // User status toggle functionality
+  document.querySelectorAll('.toggle-status').forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
-      const venueId = link.getAttribute('data-venue-id');
+      
+      const userId = link.getAttribute('data-user-id');
+      const currentStatus = link.getAttribute('data-status');
+      // const newStatus = currentStatus === '1' ? 0 : 1;
+      
+      fetch('/handlers/toggle_status.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `user_id=${encodeURIComponent(userId)}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Update the status cell in the table
+          const row = link.closest('tr');
+          const statusCell = row.querySelector('td:nth-child(4)');
+          statusCell.textContent = data.status_text;
+          
+          // Update the data attribute on the link
+          link.setAttribute('data-status', data.is_active);
+        } else {
+          alert(data.error || 'An error occurred while toggling user status');
+        }
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        alert('An unexpected error occurred');
+      });
+    });
+  });
+
+  // SECTION: Venue Management Functionality
+  // Venue Edit Modal Functionality
+  const modal = document.getElementById('venue-edit-modal');
+  if (modal) {
+    const closeBtn = modal.querySelector('.close-button');
+    const cancelBtn = modal.querySelector('.cancel-button');
+    const editForm = document.getElementById('venue-edit-form');
+    
+    // Show modal when Edit button is clicked
+    document.querySelectorAll('.edit-venue').forEach(link => {
+      link.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const venueId = link.getAttribute('data-venue-id');
+        
+        try {
+          // Fetch venue data
+          const response = await fetch(`/handlers/venue_handler.php?action=get&venue_id=${venueId}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            // Populate form with venue data
+            document.getElementById('venue_id').value = data.venue.venue_id;
+            document.getElementById('venue_name').value = data.venue.venue_name || '';
+            document.getElementById('venue_street').value = data.venue.venue_street || '';
+            document.getElementById('venue_city').value = data.venue.venue_city || '';
+            document.getElementById('venue_state_id').value = data.venue.venue_state_id || '';
+            document.getElementById('venue_zip').value = data.venue.venue_zip || '';
+            document.getElementById('stage_width').value = data.venue.stage_width || '';
+            document.getElementById('stage_depth').value = data.venue.stage_depth || '';
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            modal.classList.add('visible');
+          } else {
+            alert('Error loading venue information');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An unexpected error occurred');
+        }
+      });
+    });
+    
+    // Close modal functions
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('visible');
+      editForm.reset();
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Close when clicking outside the modal
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    
+    // Handle form submission
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Clear any previous error messages
+      const errorElements = editForm.querySelectorAll('.field-error');
+      errorElements.forEach(el => el.remove());
+      
+      const formData = new FormData(editForm);
+      formData.append('action', 'update');
       
       try {
-        // Fetch venue data
-        const response = await fetch(`/handlers/venue_handler.php?action=get&venue_id=${venueId}`);
+        const response = await fetch('/handlers/venue_handler.php', {
+          method: 'POST',
+          body: formData
+        });
+        
         const data = await response.json();
         
         if (data.success) {
-          // Populate form with venue data
-          document.getElementById('venue_id').value = data.venue.venue_id;
-          document.getElementById('venue_name').value = data.venue.venue_name || '';
-          document.getElementById('venue_street').value = data.venue.venue_street || '';
-          document.getElementById('venue_city').value = data.venue.venue_city || '';
-          document.getElementById('venue_state_id').value = data.venue.venue_state_id || '';
-          document.getElementById('venue_zip').value = data.venue.venue_zip || '';
-          document.getElementById('stage_width').value = data.venue.stage_width || '';
-          document.getElementById('stage_depth').value = data.venue.stage_depth || '';
-          
-          // Show modal
-          modal.classList.remove('hidden');
-          modal.classList.add('visible');
-        } else {
-          alert('Error loading venue information');
+          // Close modal and refresh page to show updated data
+          closeModal();
+          window.location.reload();
+        } else if (data.errors) {
+          // Display field-specific errors
+          for (const [field, message] of Object.entries(data.errors)) {
+            const inputField = document.getElementById(field);
+            if (inputField) {
+              // Create error message element
+              const errorSpan = document.createElement('span');
+              errorSpan.className = 'field-error';
+              errorSpan.textContent = message;
+              errorSpan.style.color = 'red';
+              errorSpan.style.fontSize = '12px';
+              errorSpan.style.display = 'block';
+              errorSpan.style.marginTop = '-10px';
+              errorSpan.style.marginBottom = '10px';
+              
+              inputField.parentNode.insertBefore(errorSpan, inputField.nextSibling);
+            }
+          }
         }
       } catch (error) {
         console.error('Error:', error);
         alert('An unexpected error occurred');
       }
     });
-  });
-  
-  // Close modal functions
-  function closeModal() {
-    modal.classList.add('hidden');
-    modal.classList.remove('visible');
-    editForm.reset();
   }
-  
-  closeBtn.addEventListener('click', closeModal);
-  cancelBtn.addEventListener('click', closeModal);
-  
-  // Close when clicking outside the modal
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-  
-  // Handle form submission
-  editForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // Clear any previous error messages
-    const errorElements = editForm.querySelectorAll('.field-error');
-    errorElements.forEach(el => el.remove());
-    
-    const formData = new FormData(editForm);
-    formData.append('action', 'update');
-    
-    try {
-      const response = await fetch('/handlers/venue_handler.php', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Close modal and refresh page to show updated data
-        closeModal();
-        window.location.reload();
-      } else if (data.errors) {
-        // Display field-specific errors
-        for (const [field, message] of Object.entries(data.errors)) {
-          const inputField = document.getElementById(field);
-          if (inputField) {
-            // Create error message element
-            const errorSpan = document.createElement('span');
-            errorSpan.className = 'field-error';
-            errorSpan.textContent = message;
-            errorSpan.style.color = 'red';
-            errorSpan.style.fontSize = '12px';
-            errorSpan.style.display = 'block';
-            errorSpan.style.marginTop = '-10px';
-            errorSpan.style.marginBottom = '10px';
-            
-            inputField.parentNode.insertBefore(errorSpan, inputField.nextSibling);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An unexpected error occurred');
-    }
-  });
-});
 
-// Venue removal functionality
-document.addEventListener('DOMContentLoaded', () => {
+  // Venue removal functionality
   document.querySelectorAll('.remove-venue').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
