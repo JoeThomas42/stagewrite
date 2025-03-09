@@ -84,7 +84,9 @@ if ($user['role_id'] == 1) {
                 <td>{$venue['venue_name']}</td>
                 <td>{$venue['venue_city']}</td>
                 <td>{$venue['venue_state_id']}</td>
-                <td><a href='/edit_venue.php?venue_id={$venue['venue_id']}'>Edit</a></td>
+                <td class='action-links'>
+                    <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
+                </td>
               </tr>";
     }
     echo "</table>";
@@ -154,7 +156,7 @@ if ($user['role_id'] == 1) {
                 <td>{$venue['venue_city']}</td>
                 <td>{$venue['venue_state_id']}</td>
                 <td class='action-links'>
-                    <a href='/edit_venue.php?venue_id={$venue['venue_id']}'>Edit</a>
+                    <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
                 </td>
               </tr>";
     }
@@ -165,5 +167,53 @@ if ($user['role_id'] == 1) {
 } else {
     echo "Invalid role.";
 }
+
+if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
+<!-- Venue Edit Modal -->
+<div id="venue-edit-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <h2>Edit Venue</h2>
+    <form id="venue-edit-form">
+      <input type="hidden" id="venue_id" name="venue_id">
+      
+      <label for="venue_name">Venue Name:</label>
+      <input type="text" id="venue_name" name="venue_name" required>
+      
+      <label for="venue_street">Street Address:</label>
+      <input type="text" id="venue_street" name="venue_street">
+      
+      <label for="venue_city">City:</label>
+      <input type="text" id="venue_city" name="venue_city">
+      
+      <label for="venue_state_id">State:</label>
+      <select id="venue_state_id" name="venue_state_id">
+        <option value="" disabled>Select State</option>
+        <?php
+        $statesStmt = $pdo->query("SELECT state_id, state_name FROM states ORDER BY state_name");
+        $states = $statesStmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($states as $state) {
+            echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
+        }
+        ?>
+      </select>
+      
+      <label for="venue_zip">ZIP Code:</label>
+      <input type="text" id="venue_zip" name="venue_zip" pattern="[0-9]{5}" title="Five digit zip code">
+      
+      <label for="stage_width">Stage Width (ft):</label>
+      <input type="number" id="stage_width" name="stage_width" min="1" max="200" required>
+      
+      <label for="stage_depth">Stage Depth (ft):</label>
+      <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" required>
+      
+      <div class="form-actions">
+        <button type="submit" class="save-button">Save Changes</button>
+        <button type="button" class="cancel-button">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<?php endif; ?>
 
 include PRIVATE_PATH . '/templates/footer.php';

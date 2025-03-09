@@ -60,9 +60,11 @@ label {
   margin-bottom: 5px;
 }
 
-input[type='text'],
+/* input[type='text'],
 input[type='email'],
-input[type='password'] {
+input[type='password'], */
+input,
+select {
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
@@ -377,6 +379,66 @@ table {
       display: none;
     }
   }
+}
+
+/* Venue Edit Modal Styles */
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  height: 100%;
+  left: 0;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.modal.visible {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  margin: 0 auto;
+  max-width: 600px;
+  padding: 20px;
+  position: relative;
+  width: 90%;
+}
+
+.close-button {
+  color: #aaa;
+  cursor: pointer;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.save-button {
+  background-color: #5a67d8;
+}
+
+.cancel-button {
+  background-color: #6c757d;
 }
 
 /* Media query for responsive navigation */
