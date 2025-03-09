@@ -18,23 +18,23 @@
   --color-card-hover: #e9ecef;
 
   /* Font Sizes */
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-md: 16px; 
-  --font-size-lg: 18px;
-  --font-size-xl: 20px;
-  --font-size-xxl: 24px;
-  --font-size-icon: 28px;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-xxl: 1.5rem;
+  --font-size-icon: 1.75rem;
 
   /* Spacing */
-  --spacing-xs: 5px;
-  --spacing-sm: 8px;
-  --spacing-md: 10px;
-  --spacing-lg: 15px;
-  --spacing-xl: 20px;
-  --spacing-xxl: 30px;
+  --spacing-xs: 0.3125rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.625rem;
+  --spacing-lg: 0.9375rem;
+  --spacing-xl: 1.25rem;
+  --spacing-xxl: 1.875rem;
 
-  /* Border Radius */
+
   --border-radius-sm: 4px;
   --border-radius-lg: 8px;
 
@@ -51,6 +51,7 @@
 /* General Styles */
 html {
   box-sizing: border-box;
+  font-size: 16px;
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
@@ -87,7 +88,7 @@ body {
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   margin: 2rem auto;
-  max-width: 400px;
+  max-width: 25rem;
   padding: var(--spacing-xl);
   width: 100%;
 
@@ -209,6 +210,29 @@ ul {
   }
 }
 
+.action-links {
+  white-space: nowrap;
+
+  a {
+    border: 1px solid var(--color-text-secondary);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    margin-right: var(--spacing-lg);
+    padding: var(--spacing-xs);
+    text-decoration: none;
+
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      }
+
+    &:active {
+      background-color: var(--color-primary-dark);
+    }
+  }
+}
+
 /* Header */
 .header-container {
   background-color: var(--color-header);
@@ -310,22 +334,6 @@ table {
 
   tr:hover {
     background-color: var(--color-table-hover);
-  }
-}
-
-.action-links {
-  white-space: nowrap;
-
-  a {
-    color: var(--color-primary);
-    margin-right: var(--spacing-lg);
-    text-decoration: none;
-  }
-
-  &:hover {
-    a {
-      color: var(--color-primary-dark);
-    }
   }
 }
 
@@ -469,7 +477,7 @@ table {
 }
 
 /* Media query for responsive navigation */
-@media (max-width: 768px) {
+@media (max-width: 48em) {
   .header-content {
     flex-direction: column;
     align-items: flex-start;
