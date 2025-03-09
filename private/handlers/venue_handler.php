@@ -79,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $venueName = htmlspecialchars(trim($_POST['venue_name']));
     $venueStreet = htmlspecialchars(trim($_POST['venue_street'] ?? ''));
     $venueCity = htmlspecialchars(trim($_POST['venue_city'] ?? ''));
+    // Fix the variable name to match what's used in the SQL binding
     $venueStateId = !empty($_POST['venue_state_id']) ? filter_var($_POST['venue_state_id'], FILTER_VALIDATE_INT) : null;
     $venueZip = !empty($_POST['venue_zip']) ? htmlspecialchars(trim($_POST['venue_zip'])) : null;
     $stageWidth = filter_var($_POST['stage_width'], FILTER_VALIDATE_INT);

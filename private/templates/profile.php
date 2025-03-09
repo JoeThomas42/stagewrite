@@ -54,8 +54,12 @@ if ($user['role_id'] == 1) {
     $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1");
     $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch venues
-    $venuesStmt = $pdo->query("SELECT * FROM venues");
+    // Fetch venues with state abbreviations
+    $venuesStmt = $pdo->query("
+        SELECT v.*, s.state_abbr, s.state_name 
+        FROM venues v
+        LEFT JOIN states s ON v.venue_state_id = s.state_id
+    ");
     $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo "<h2>Manage Members:</h2>";
@@ -83,7 +87,7 @@ if ($user['role_id'] == 1) {
                 <td>{$venue['venue_id']}</td>
                 <td>{$venue['venue_name']}</td>
                 <td>{$venue['venue_city']}</td>
-                <td>{$venue['venue_state_id']}</td>
+                <td>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
                 <td class='action-links'>
                     <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
                 </td>
@@ -105,8 +109,12 @@ if ($user['role_id'] == 1) {
     $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1");
     $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch venues
-    $venuesStmt = $pdo->query("SELECT * FROM venues");
+    // Fetch venues with state abbreviations
+    $venuesStmt = $pdo->query("
+        SELECT v.*, s.state_abbr, s.state_name 
+        FROM venues v
+        LEFT JOIN states s ON v.venue_state_id = s.state_id
+    ");
     $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Display Admins
@@ -154,7 +162,7 @@ if ($user['role_id'] == 1) {
                 <td>{$venue['venue_id']}</td>
                 <td>{$venue['venue_name']}</td>
                 <td>{$venue['venue_city']}</td>
-                <td>{$venue['venue_state_id']}</td>
+                <td>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
                 <td class='action-links'>
                     <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
                 </td>
