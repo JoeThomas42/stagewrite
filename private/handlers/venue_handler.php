@@ -44,9 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // Validate required fields
     $errors = [];
     
-    if (empty($_POST['venue_id'])) {
-        $errors['venue_id'] = 'Venue ID is required';
-    }
+    // Don't require venue_id for new venues
+    $isNewVenue = empty($_POST['venue_id']);
     
     if (empty($_POST['venue_name'])) {
         $errors['venue_name'] = 'Venue name is required';
@@ -75,30 +74,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     
     // Sanitize inputs
-    $venueId = filter_var($_POST['venue_id'], FILTER_VALIDATE_INT);
+    $venueId = !$isNewVenue ? filter_var($_POST['venue_id'], FILTER_VALIDATE_INT) : null;
     $venueName = htmlspecialchars(trim($_POST['venue_name']));
     $venueStreet = htmlspecialchars(trim($_POST['venue_street'] ?? ''));
     $venueCity = htmlspecialchars(trim($_POST['venue_city'] ?? ''));
-    // Fix the variable name to match what's used in the SQL binding
     $venueStateId = !empty($_POST['venue_state_id']) ? filter_var($_POST['venue_state_id'], FILTER_VALIDATE_INT) : null;
     $venueZip = !empty($_POST['venue_zip']) ? htmlspecialchars(trim($_POST['venue_zip'])) : null;
     $stageWidth = filter_var($_POST['stage_width'], FILTER_VALIDATE_INT);
     $stageDepth = filter_var($_POST['stage_depth'], FILTER_VALIDATE_INT);
     
     try {
-        $stmt = $pdo->prepare(
-            "UPDATE venues SET 
-                venue_name = :venue_name,
-                venue_street = :venue_street,
-                venue_city = :venue_city,
-                venue_state_id = :venue_state_id,
-                venue_zip = :venue_zip,
-                stage_width = :stage_width,
-                stage_depth = :stage_depth
-             WHERE venue_id = :venue_id"
-        );
+        if ($isNewVenue) {
+            // Insert new venue
+            $stmt = $pdo->prepare(
+                "INSERT INTO venues (venue_name, venue_street, venue_city, venue_state_id, venue_zip, stage_width, stage_depth) 
+                 VALUES (:venue_name, :venue_street, :venue_city, :venue_state_id, :venue_zip, :stage_width, :stage_depth)"
+            );
+        } else {
+            // Update existing venue
+            $stmt = $pdo->prepare(
+                "UPDATE venues SET 
+                    venue_name = :venue_name,
+                    venue_street = :venue_street,
+                    venue_city = :venue_city,
+                    venue_state_id = :venue_state_id,
+                    venue_zip = :venue_zip,
+                    stage_width = :stage_width,
+                    stage_depth = :stage_depth
+                 WHERE venue_id = :venue_id"
+            );
+            $stmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
+        }
         
-        $stmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
         $stmt->bindParam(':venue_name', $venueName);
         $stmt->bindParam(':venue_street', $venueStreet);
         $stmt->bindParam(':venue_city', $venueCity);

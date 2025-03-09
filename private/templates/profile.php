@@ -85,6 +85,9 @@ if ($user['role_id'] == 1) {
     echo "</table>";
 
     echo "<h2>Manage Venues:</h2>";
+    echo "<div class='action-button-container'>";
+    echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
+    echo "</div>";
     echo "<table border='1'>";
     echo "<tr><th>ID</th><th>Name</th><th>City</th><th>State</th><th>Actions</th></tr>";
     foreach ($venues as $venue) {
@@ -153,6 +156,7 @@ if ($user['role_id'] == 1) {
                 <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
                 <td class='action-links'>
                     <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
+                    <a href='#' class='promote-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Promote to Admin</a>
                     <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
                 </td>
               </tr>";
@@ -161,6 +165,9 @@ if ($user['role_id'] == 1) {
     
     // Display Venues
     echo "<h2>Manage Venues:</h2>";
+    echo "<div class='action-button-container'>";
+    echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
+    echo "</div>";
     echo "<table>";
     echo "<tr><th>ID</th><th>Name</th><th>City</th><th>State</th><th>Actions</th></tr>";
     foreach ($venues as $venue) {
@@ -183,8 +190,8 @@ if ($user['role_id'] == 1) {
     echo "Invalid role.";
 }
 
+// Venue Edit Modal
 if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
-<!-- Venue Edit Modal -->
 <div id="venue-edit-modal" class="modal hidden">
   <div class="modal-content">
     <span class="close-button">&times;</span>

@@ -256,6 +256,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // User promotion functionality
+  document.querySelectorAll('.promote-user').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const userName = link.getAttribute('data-user-name');
+      if (confirm(`Are you sure you want to promote ${userName} to Admin?\nThis will give them administrative privileges.`)) {
+        const userId = link.getAttribute('data-user-id');
+        fetch('/handlers/promote_user.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `user_id=${encodeURIComponent(userId)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Remove the row from the members table (it will need to be in admins table)
+            alert(`${userName} has been promoted to Admin successfully.`);
+            window.location.reload(); // Reload to update both tables
+          } else {
+            alert(data.error || 'An error occurred while trying to promote the user');
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          alert('An unexpected error occurred');
+        });
+      }
+    });
+  });
+
   // SECTION: Venue Management Functionality
   // Venue Edit Modal Functionality
   const modal = document.getElementById('venue-edit-modal');
@@ -268,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.edit-venue').forEach(link => {
       link.addEventListener('click', async (e) => {
         e.preventDefault();
+        document.querySelector('#venue-edit-modal h2').textContent = 'Edit Venue';
         const venueId = link.getAttribute('data-venue-id');
         
         try {
@@ -360,6 +393,20 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error('Error:', error);
         alert('An unexpected error occurred');
       }
+    });
+  }
+
+  // Add New Venue button click handler
+  if (document.getElementById('add-venue-button')) {
+    document.getElementById('add-venue-button').addEventListener('click', () => {
+      // Clear the form for a new venue
+      document.getElementById('venue-edit-form').reset();
+      document.getElementById('venue_id').value = '';
+      document.querySelector('#venue-edit-modal h2').textContent = 'Add New Venue';
+      
+      // Show modal
+      modal.classList.remove('hidden');
+      modal.classList.add('visible');
     });
   }
 
