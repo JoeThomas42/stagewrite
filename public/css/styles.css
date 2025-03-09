@@ -1,3 +1,4 @@
+/* --------------- Variables ---------------- */
 :root {
   /* Colors */
   --color-background: #f4f4f9;
@@ -48,7 +49,7 @@
   --transition-medium: 0.3s ease;
 }
 
-/* General Styles */
+/* ----------------- General Styles -------------------- */
 html {
   box-sizing: border-box;
   font-size: 16px;
@@ -71,6 +72,10 @@ body {
   min-height: 100%;
   overflow-y: scroll;
   position: relative;
+
+  &.menu-open {
+    overflow: hidden;
+  }
 }
 
 .page-wrapper {
@@ -156,7 +161,7 @@ p {
   display: none;
 }
 
-/* General Page Layout for Profile Page */
+/* Profile Page */
 .profile-container {
   background-color: var(--color-white);
   border-radius: var(--border-radius-lg);
@@ -507,38 +512,147 @@ table {
   background-color: var(--color-secondary);
 }
 
-/* Media query for responsive navigation */
-@media (max-width: 48em) {
+/* ----------------- Mobile menu toggle button ------------------ */
+.mobile-menu-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: none;
+  height: 30px;
+  padding: 0;
+  position: relative;
+  width: 30px;
+  z-index: 1010;
+}
+
+.mobile-menu-toggle span {
+  background-color: var(--color-white);
+  display: block;
+  height: 3px;
+  left: 0;
+  margin: 5px 0;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+}
+
+/* Logo container */
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+/* ------------- Responsive Styles ---------------- */
+
+@media screen and (max-width: 768px) {
+
+  /* Header layout */
+  .header-container {
+    padding: 0.75rem;
+  }
+  
   .header-content {
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
   }
   
+  .logo-container h1 {
+    font-size: 1.5rem;
+  }
+  
+  /* Mobile menu button */
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  /* Mobile navigation */
   .nav-container {
+    background-color: var(--color-header);
+    box-shadow: var(--shadow-lg);
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    margin-top: var(--spacing-lg);
+    height: 100vh;
+    opacity: 0;
+    padding: 5rem 1.5rem 2rem;
+    position: fixed;
+    right: 0;
+    top: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    width: 75%;
+    z-index: 1000;
   }
   
-  .user-controls {
-    margin-top: var(--spacing-lg);
-    width: 100%;
+  .nav-container.active {
+    opacity: 1;
+    transform: translateX(0);
   }
   
+  /* When menu is open, transform hamburger to X */
+  .mobile-menu-toggle.active span:nth-child(1) {
+    top: 8px;
+    transform: rotate(45deg);
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(3) {
+    top: -8px;
+    transform: rotate(-45deg);
+  }
+  
+  /* Main navigation */
   .main-nav {
     margin-right: 0;
+    margin-bottom: 2rem;
     width: 100%;
-    margin-bottom: var(--spacing-md);
   }
   
   .main-nav ul {
+    flex-direction: column;
     width: 100%;
   }
-}
+  
+  .main-nav li {
+    margin: 0;
+    width: 100%;
+  }
+  
+  .main-nav a {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: block;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+  }
+  
+  .main-nav a.current-page {
+    background-color: transparent;
+    border-left: 3px solid var(--color-primary);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* User controls */
+  .user-controls {
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    flex-direction: column;
+    padding-top: 1.5rem;
+    width: 100%;
+  }
+  
+  .welcome-message {
+    margin: 0 0 1.5rem 0;
+  }
+  
+  .log-link {
+    padding: 0.75rem 5rem;
+    text-align: center;
+  }
 
-/* Responsive Admin Tables */
-@media screen and (max-width: 768px) {
+  /* Profile */
 
   .profile-container h2 {
     margin: 0;
@@ -550,42 +664,42 @@ table {
     th {
       display: none;
     }
-  }
-  
-  table thead {
-    border: none;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
-  }
-  
-  table tr {
-    display: block;
-    margin-bottom: var(--spacing-lg);
-  }
-  
-  table td {
-    border-bottom: 1px solid var(--color-border);
-    display: block;
-    font-size: var(--font-size-sm);
-    text-align: right;
 
-    &:nth-child(1),
-    &:nth-child(2),
-    &:nth-child(3) {
-      border-bottom: none;
+    thead {
+      border: none;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
     }
-  }
+
+    tr {
+      display: block;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    td {
+      border-bottom: 1px solid var(--color-border);
+      display: block;
+      font-size: var(--font-size-sm);
+      text-align: right;
   
-  table td::before {
-    content: attr(data-label);
-    float: left;
-    font-weight: bold;
-    text-transform: uppercase;
+      &:nth-child(1),
+      &:nth-child(2),
+      &:nth-child(3) {
+        border-bottom: none;
+      }
+
+      &::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+    }
   }
   
   .action-cell {
@@ -602,6 +716,7 @@ table {
 
 /* Keyframes */
 @keyframes fadeIn {
+
   from {
     opacity: 0;
     transform: translateY(-10px);

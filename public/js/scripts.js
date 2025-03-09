@@ -528,3 +528,33 @@ document.querySelectorAll('.dropdown-toggle').forEach(button => {
     }
   });
 });
+
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileToggle = document.querySelector('.mobile-menu-toggle');
+  const navContainer = document.getElementById('nav-container');
+  
+  if (mobileToggle && navContainer) {
+    mobileToggle.addEventListener('click', function() {
+      this.classList.toggle('active');
+      navContainer.classList.toggle('active');
+      
+      // Toggle body scroll when menu is open
+      document.body.classList.toggle('menu-open');
+      
+      // Set aria-expanded attribute for accessibility
+      const isExpanded = navContainer.classList.contains('active');
+      this.setAttribute('aria-expanded', isExpanded);
+    });
+    
+    // Close mobile menu when clicking links
+    const navLinks = navContainer.querySelectorAll('a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        mobileToggle.classList.remove('active');
+        navContainer.classList.remove('active');
+        document.body.classList.remove('menu-open');
+      });
+    });
+  }
+});

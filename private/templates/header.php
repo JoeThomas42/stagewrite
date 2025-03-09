@@ -12,10 +12,17 @@ echo "</head>";
 echo "<body>";
 echo "<header class='header-container'>";
 echo "<div class='header-content'>";
+echo "<div class='logo-container'>";
 echo "<h1>StageWrite</h1>";
+echo "</div>";
+
+// Mobile menu toggle button
+echo "<button class='mobile-menu-toggle' aria-label='Toggle navigation menu'>";
+echo "<span></span><span></span><span></span>";
+echo "</button>";
 
 // Navigation menu
-echo "<div class='nav-container'>";
+echo "<div class='nav-container' id='nav-container'>";
 
 if (isset($_SESSION['user_id'])) {
     // Show navigation options for logged-in users
