@@ -481,3 +481,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+// Dropdown menu functionality
+document.addEventListener('click', function(e) {
+  // Toggle dropdown when clicking dropdown toggle button
+  if (e.target.classList.contains('dropdown-toggle') || 
+      e.target.parentNode.classList.contains('dropdown-toggle')) {
+    
+    // Close all other dropdowns first
+    document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+      if (!menu.closest('.dropdown').contains(e.target)) {
+        menu.classList.remove('active');
+      }
+    });
+    
+    // Toggle clicked dropdown
+    const dropdown = e.target.closest('.dropdown');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    menu.classList.toggle('active');
+    
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
+  // Close all dropdowns when clicking outside
+  else if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+      menu.classList.remove('active');
+    });
+  }
+});
+
+// Make dropdowns work with keyboard navigation
+document.querySelectorAll('.dropdown-toggle').forEach(button => {
+  button.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const menu = this.nextElementSibling;
+      menu.classList.toggle('active');
+      
+      if (menu.classList.contains('active')) {
+        const firstLink = menu.querySelector('a');
+        if (firstLink) firstLink.focus();
+      }
+      
+      e.preventDefault();
+    }
+  });
+});

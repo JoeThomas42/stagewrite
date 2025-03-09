@@ -72,13 +72,18 @@ if ($user['role_id'] == 1) {
     echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>";
     foreach ($members as $member) {
         echo "<tr>
-                <td>{$member['user_id']}</td>
-                <td>{$member['first_name']} {$member['last_name']}</td>
-                <td>{$member['email']}</td>
-                <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
-                <td class='action-links'>
-                    <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
-                    <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
+                <td data-label='ID'>{$member['user_id']}</td>
+                <td data-label='Name'>{$member['first_name']} {$member['last_name']}</td>
+                <td data-label='Email'>{$member['email']}</td>
+                <td data-label='Status'>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
+                <td data-label='Actions' class='action-cell'>
+                    <div class='dropdown'>
+                        <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
+                        <div class='dropdown-menu'>
+                            <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
+                            <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
+                        </div>
+                    </div>
                 </td>
               </tr>";
     }
@@ -92,13 +97,18 @@ if ($user['role_id'] == 1) {
     echo "<tr><th>ID</th><th>Name</th><th>City</th><th>State</th><th>Actions</th></tr>";
     foreach ($venues as $venue) {
         echo "<tr>
-                <td>{$venue['venue_id']}</td>
-                <td>{$venue['venue_name']}</td>
-                <td>{$venue['venue_city']}</td>
-                <td>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
-                <td class='action-links'>
-                    <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
-                    <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
+                <td data-label='ID'>{$venue['venue_id']}</td>
+                <td data-label='Name'>{$venue['venue_name']}</td>
+                <td data-label='City'>{$venue['venue_city']}</td>
+                <td data-label='State'>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
+                <td data-label='Actions' class='action-cell'>
+                    <div class='dropdown'>
+                        <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
+                        <div class='dropdown-menu'>
+                            <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
+                            <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
+                        </div>
+                    </div>
                 </td>
               </tr>";
     }
@@ -132,14 +142,19 @@ if ($user['role_id'] == 1) {
     echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>";
     foreach ($admins as $admin) {
         echo "<tr>
-                <td>{$admin['user_id']}</td>
-                <td>{$admin['first_name']} {$admin['last_name']}</td>
-                <td>{$admin['email']}</td>
-                <td>" . ($admin['is_active'] ? "Active" : "Inactive") . "</td>
-                <td class='action-links'>
-                    <a href='#' class='toggle-status' data-user-id='{$admin['user_id']}' data-status='{$admin['is_active']}'>Toggle Status</a>
-                    <a href='#' class='demote-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Demote to Member</a>
-                    <a href='#' class='remove-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Remove</a>
+                <td data-label='ID'>{$admin['user_id']}</td>
+                <td data-label='Name'>{$admin['first_name']} {$admin['last_name']}</td>
+                <td data-label='Email'>{$admin['email']}</td>
+                <td data-label='Status'>" . ($admin['is_active'] ? "Active" : "Inactive") . "</td>
+                <td data-label='Actions' class='action-cell'>
+                    <div class='dropdown'>
+                        <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
+                        <div class='dropdown-menu'>
+                            <a href='#' class='toggle-status' data-user-id='{$admin['user_id']}' data-status='{$admin['is_active']}'>Toggle Status</a>
+                            <a href='#' class='demote-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Demote to Member</a>
+                            <a href='#' class='remove-user' data-user-id='{$admin['user_id']}' data-user-name='{$admin['first_name']} {$admin['last_name']}'>Remove</a>
+                        </div>
+                    </div>
                 </td>
               </tr>";
     }
@@ -151,14 +166,22 @@ if ($user['role_id'] == 1) {
     echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>";
     foreach ($members as $member) {
         echo "<tr>
-                <td>{$member['user_id']}</td>
-                <td>{$member['first_name']} {$member['last_name']}</td>
-                <td>{$member['email']}</td>
-                <td>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
-                <td class='action-links'>
-                    <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>
-                    <a href='#' class='promote-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Promote to Admin</a>
-                    <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
+                <td data-label='ID'>{$member['user_id']}</td>
+                <td data-label='Name'>{$member['first_name']} {$member['last_name']}</td>
+                <td data-label='Email'>{$member['email']}</td>
+                <td data-label='Status'>" . ($member['is_active'] ? "Active" : "Inactive") . "</td>
+                <td data-label='Actions' class='action-cell'>
+                    <div class='dropdown'>
+                        <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
+                        <div class='dropdown-menu'>
+                            <a href='#' class='toggle-status' data-user-id='{$member['user_id']}' data-status='{$member['is_active']}'>Toggle Status</a>";
+        // Only show promote option for super admins                    
+        if ($user['role_id'] == 3) {
+            echo "<a href='#' class='promote-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Promote to Admin</a>";
+        }
+        echo "      <a href='#' class='remove-user' data-user-id='{$member['user_id']}' data-user-name='{$member['first_name']} {$member['last_name']}'>Remove</a>
+                        </div>
+                    </div>
                 </td>
               </tr>";
     }
@@ -173,13 +196,18 @@ if ($user['role_id'] == 1) {
     echo "<tr><th>ID</th><th>Name</th><th>City</th><th>State</th><th>Actions</th></tr>";
     foreach ($venues as $venue) {
         echo "<tr>
-                <td>{$venue['venue_id']}</td>
-                <td>{$venue['venue_name']}</td>
-                <td>{$venue['venue_city']}</td>
-                <td>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
-                <td class='action-links'>
-                    <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
-                    <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
+                <td data-label='ID'>{$venue['venue_id']}</td>
+                <td data-label='Name'>{$venue['venue_name']}</td>
+                <td data-label='City'>{$venue['venue_city']}</td>
+                <td data-label='State'>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
+                <td data-label='Actions' class='action-cell'>
+                    <div class='dropdown'>
+                        <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
+                        <div class='dropdown-menu'>
+                            <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
+                            <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
+                        </div>
+                    </div>
                 </td>
               </tr>";
     }
