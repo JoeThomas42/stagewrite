@@ -413,6 +413,10 @@ th.sortable {
   right: 0.5rem;
 }
 
+.table-row-highlight {
+  animation: highlightRow 2s ease-out;
+}
+
 /* Error styles */
 .error-message {
   animation: fadeIn 0.5s ease-in;
@@ -837,4 +841,9 @@ th.sortable {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes highlightRow {
+  0% { background-color: rgba(255, 255, 130, 0.5); }
+  100% { background-color: transparent; }
 }

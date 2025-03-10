@@ -572,13 +572,26 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Table sorting functionality
+// Table sorting with position preservation
 document.addEventListener('DOMContentLoaded', function() {
+  // Check if we need to restore scroll position
+  if (sessionStorage.getItem('scrollPosition')) {
+    // Restore scroll position after a short delay to ensure page is fully loaded
+    setTimeout(function() {
+      window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition')));
+      // Clear the stored position after using it
+      sessionStorage.removeItem('scrollPosition');
+    }, 100);
+  }
+
   // Find all sortable column headers
   const sortableHeaders = document.querySelectorAll('th.sortable');
   
   sortableHeaders.forEach(header => {
-    header.addEventListener('click', function() {
+    header.addEventListener('click', function(e) {
+      // Store current scroll position before navigating
+      sessionStorage.setItem('scrollPosition', window.pageYOffset);
+      
       const column = this.getAttribute('data-column');
       
       // Get current URL and params
