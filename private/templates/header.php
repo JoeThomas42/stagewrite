@@ -1,7 +1,7 @@
 <?php
 
 echo "<!DOCTYPE html>";
-echo "<html>";
+echo "<html lang='en'>";
 echo "<head>";
 echo "<title>StageWrite - " . htmlspecialchars($current_page) . "</title>";
 echo "<link rel='stylesheet' href='" . CSS_PATH . "/styles.css'>";

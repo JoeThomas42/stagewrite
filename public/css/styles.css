@@ -597,6 +597,11 @@ table {
 
 
 /* ------------- Responsive Styles ---------------- */
+@media screen and (max-width: 960px) {
+  .action-cell {
+    padding: 1rem;
+  }
+}
 
 @media screen and (max-width: 768px) {
 
@@ -617,6 +622,7 @@ table {
   /* Mobile menu button */
   .mobile-menu-toggle {
     display: block;
+    margin-right: var(--spacing-md);
 
     &.active {
       span:nth-child(1) {
@@ -706,7 +712,7 @@ table {
     text-align: center;
   }
 
-  /* Profile */
+  /* Profile - Management */
   .profile-container h2 {
     margin: 0;
   }
@@ -756,6 +762,7 @@ table {
   }
   
   .action-cell {
+    align-items: center;
     border-bottom: 1px solid var(--color-border);
     border-top: none;
     justify-content: space-between;
@@ -763,6 +770,15 @@ table {
   
   .dropdown {
     display: block;
+  }
+
+  .dropdown-toggle {
+    padding: 1rem;
+  }
+
+  .dropdown-menu a{
+    padding: var(--spacing-xl) var(--spacing-xxl);
+    width: 8rem;
   }
 
   .footer-content {
