@@ -2,6 +2,9 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
+// Check if sort parameters are explicitly set in the URL (vs. using defaults)
+$explicitSort = isset($_GET['sort']);
+
 $sortColumn = isset($_GET['sort']) ? $_GET['sort'] : 'last_name';
 $sortOrder = isset($_GET['order']) ? $_GET['order'] : 'asc';
 
@@ -11,6 +14,7 @@ $allowedVenueColumns = ['venue_name', 'venue_city', 'state_name'];
 
 if (!in_array($sortColumn, array_merge($allowedUserColumns, $allowedVenueColumns))) {
     $sortColumn = 'last_name';  // Default
+    $explicitSort = false;
 }
 
 if ($sortOrder !== 'asc' && $sortOrder !== 'desc') {
@@ -100,7 +104,13 @@ if ($user['role_id'] == 1) {
             </div>
           </div>";
     echo "<table id='members-table'>";
-    echo "<tr><th>ID</th><th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th><th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th><th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th><th>Actions</th></tr>";
+    echo "<tr>
+            <th>ID</th>
+            <th class='sortable' data-column='last_name' title='Click to cycle: ascending → descending → default'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th class='sortable' data-column='email' title='Click to cycle: ascending → descending → default'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th class='sortable' data-column='is_active' title='Click to cycle: ascending → descending → default'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th>Actions</th>
+          </tr>";
     foreach ($members as $member) {
         echo "<tr>
                 <td data-label='ID'>{$member['user_id']}</td>
@@ -142,7 +152,7 @@ if ($user['role_id'] == 1) {
         echo "<tr>
                 <td data-label='ID'>{$venue['venue_id']}</td>
                 <td data-label='Name'>{$venue['venue_name']}</td>
-                <td data-label='City'>{$venue['venue_city']}</td>
+                <td data-label='City'>" . (empty($venue['venue_city']) ? '—' : htmlspecialchars($venue['venue_city'])) . "</td>
                 <td data-label='State'>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
                 <td data-label='Actions' class='action-cell'>
                     <div class='dropdown'>
@@ -207,9 +217,9 @@ if ($user['role_id'] == 1) {
     echo "<table id='admins-table'>";
     echo "<tr>
             <th>ID</th>
-            <th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th>
-            <th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th>
-            <th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='last_name' title='Click to cycle: ascending → descending → default'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th class='sortable' data-column='email' title='Click to cycle: ascending → descending → default'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th class='sortable' data-column='is_active' title='Click to cycle: ascending → descending → default'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
             <th>Actions</th>
           </tr>";
     foreach ($admins as $admin) {
@@ -243,9 +253,9 @@ if ($user['role_id'] == 1) {
     echo "<table id='members-table'>";
     echo "<tr>
             <th>ID</th>
-            <th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th>
-            <th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th>
-            <th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='last_name' title='Click to cycle: ascending → descending → default'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th class='sortable' data-column='email' title='Click to cycle: ascending → descending → default'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
+            <th class='sortable' data-column='is_active' title='Click to cycle: ascending → descending → default'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder, $explicitSort) . "</span></th>
             <th>Actions</th>
           </tr>";
     foreach ($members as $member) {
@@ -294,7 +304,7 @@ if ($user['role_id'] == 1) {
         echo "<tr>
                 <td data-label='ID'>{$venue['venue_id']}</td>
                 <td data-label='Name'>{$venue['venue_name']}</td>
-                <td data-label='City'>{$venue['venue_city']}</td>
+                <td data-label='City'>" . (empty($venue['venue_city']) ? '—' : htmlspecialchars($venue['venue_city'])) . "</td>
                 <td data-label='State'>" . (empty($venue['state_abbr']) ? '—' : htmlspecialchars($venue['state_abbr'])) . "</td>
                 <td data-label='Actions' class='action-cell'>
                     <div class='dropdown'>

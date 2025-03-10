@@ -806,15 +806,20 @@ function initSortableTables() {
       const currentSort = url.searchParams.get('sort');
       const currentOrder = url.searchParams.get('order');
       
-      // Determine new sort order
-      let newOrder = 'asc';
+      // Determine new sort state (3-state toggle)
       if (currentSort === column && currentOrder === 'asc') {
-        newOrder = 'desc';
+        // First click on this column -> sort descending
+        url.searchParams.set('sort', column);
+        url.searchParams.set('order', 'desc');
+      } else if (currentSort === column && currentOrder === 'desc') {
+        // Second click on this column -> reset to default sort
+        url.searchParams.delete('sort');
+        url.searchParams.delete('order');
+      } else {
+        // Either first time clicking or coming from reset state -> sort ascending
+        url.searchParams.set('sort', column);
+        url.searchParams.set('order', 'asc');
       }
-      
-      // Update URL params
-      url.searchParams.set('sort', column);
-      url.searchParams.set('order', newOrder);
       
       // Add a small delay to ensure the overlay is visible
       setTimeout(function() {
