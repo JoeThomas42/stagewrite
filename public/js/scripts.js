@@ -700,12 +700,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Add clear button functionality
-    searchInput.parentNode.addEventListener('click', function(e) {
-      if (e.target.classList.contains('search-icon') && searchInput.value) {
+    const clearIcon = searchInput.parentNode.querySelector('.clear-icon');
+    if (clearIcon) {
+      clearIcon.addEventListener('click', function() {
         searchInput.value = '';
-        searchInput.dispatchEvent(new Event('input'));
+        searchInput.dispatchEvent(new Event('input')); // Trigger filtering
         searchInput.focus();
-      }
-    });
+      });
+    }
   }
 });

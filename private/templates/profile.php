@@ -96,7 +96,7 @@ if ($user['role_id'] == 1) {
             <h2>Manage Members:</h2>
             <div class='search-container'>
                 <input type='text' class='search-input' id='member-search' placeholder='Search members...' autocomplete='off'>
-                <span class='search-icon'>🔍</span>
+                <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
             </div>
           </div>";
     echo "<table id='members-table'>";
@@ -125,7 +125,7 @@ if ($user['role_id'] == 1) {
             <div class='search-actions'>
                 <div class='search-container'>
                     <input type='text' class='search-input' id='venue-search' placeholder='Search venues...' autocomplete='off'>
-                    <span class='search-icon'>🔍</span>
+                    <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
                 </div>
                 <button id='add-venue-button' class='action-button'>+ Add New Venue</button>
             </div>
@@ -201,7 +201,7 @@ if ($user['role_id'] == 1) {
             <h2>Manage Admins:</h2>
             <div class='search-container'>
                 <input type='text' class='search-input' id='admin-search' placeholder='Search admins...' autocomplete='off'>
-                <span class='search-icon'>🔍</span>
+                <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
             </div>
           </div>";
     echo "<table id='admins-table'>";
@@ -237,7 +237,7 @@ if ($user['role_id'] == 1) {
             <h2>Manage Members:</h2>
             <div class='search-container'>
                 <input type='text' class='search-input' id='member-search' placeholder='Search members...' autocomplete='off'>
-                <span class='search-icon'>🔍</span>
+                <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
             </div>
           </div>";
     echo "<table id='members-table'>";
@@ -277,7 +277,7 @@ if ($user['role_id'] == 1) {
             <div class='search-actions'>
                 <div class='search-container'>
                     <input type='text' class='search-input' id='venue-search' placeholder='Search venues...' autocomplete='off'>
-                    <span class='search-icon'>🔍</span>
+                    <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
                 </div>
                 <button id='add-venue-button' class='action-button'>+ Add New Venue</button>
             </div>
