@@ -6,15 +6,15 @@
   --color-text: #333;
   --color-text-secondary: #555;
   --color-text-light: #666;
-  --color-primary: #5a67d8;
-  --color-primary-dark: #434190;
+  --color-primary: #526C81;
+  --color-primary-dark: #3E5262;
+  --color-secondary: #6c757d;
   --color-header: #2a3843;
   --color-error: #dc3545;
   --color-border: #ddd;
   --color-input-border: #ccc;
   --color-table-alt: #f9f9f9;
   --color-table-hover: #f1f1f1;
-  --color-secondary: #6c757d;
   --color-card: #f8f9fa;
   --color-card-hover: #e9ecef;
 
@@ -560,9 +560,10 @@ table {
 }
 
 .footer-content {
+  align-items: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 1rem;
   justify-content: center;
   margin: 0 auto;
   max-width: 1200px;
@@ -572,7 +573,7 @@ table {
   h3 {
     color: var(--color-white);
     font-size: var(--font-size-xl);
-    margin-bottom: var(--spacing-md);
+    margin: 0;
   }
   
   p {
