@@ -377,6 +377,11 @@ table {
   }
 }
 
+.action-cell {
+  display: flex;
+  justify-content: space-around;
+}
+
 /* Error styles */
 .error-message {
   animation: fadeIn 0.5s ease-in;
@@ -741,7 +746,6 @@ table {
   .action-cell {
     border-bottom: 1px solid var(--color-border);
     border-top: none;
-    display: flex;
     justify-content: space-between;
   }
   
