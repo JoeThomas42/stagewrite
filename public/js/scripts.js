@@ -572,16 +572,26 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Table sorting with position preservation
+// Improved sorting with better scroll position preservation
 document.addEventListener('DOMContentLoaded', function() {
+  // Try to prevent browser's automatic scroll restoration
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
   // Check if we need to restore scroll position
   if (sessionStorage.getItem('scrollPosition')) {
-    // Restore scroll position after a short delay to ensure page is fully loaded
+    // Prevent the flash of content at the top by setting position immediately
+    document.documentElement.style.opacity = '0';
+    
+    // Restore scroll position right away
+    window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition')));
+    
+    // Fade the content back in
     setTimeout(function() {
-      window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition')));
-      // Clear the stored position after using it
+      document.documentElement.style.opacity = '1';
       sessionStorage.removeItem('scrollPosition');
-    }, 100);
+    }, 10);
   }
 
   // Find all sortable column headers
@@ -591,6 +601,11 @@ document.addEventListener('DOMContentLoaded', function() {
     header.addEventListener('click', function(e) {
       // Store current scroll position before navigating
       sessionStorage.setItem('scrollPosition', window.pageYOffset);
+      
+      // Show loading overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'sort-loading-overlay';
+      document.body.appendChild(overlay);
       
       const column = this.getAttribute('data-column');
       
@@ -609,8 +624,11 @@ document.addEventListener('DOMContentLoaded', function() {
       url.searchParams.set('sort', column);
       url.searchParams.set('order', newOrder);
       
-      // Navigate to the new URL
-      window.location = url.toString();
+      // Add a small delay to ensure the overlay is visible
+      setTimeout(function() {
+        // Navigate to the new URL
+        window.location = url.toString();
+      }, 50);
     });
   });
 });

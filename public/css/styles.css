@@ -7,6 +7,8 @@
   --color-text-secondary: #555;
   --color-text-light: #666;
   --color-primary: #526C81;
+  --color-primary-light: #67869F;
+  --color-primary-dark: #3E5262;
   --color-primary-dark: #3E5262;
   --color-secondary: #6c757d;
   --color-header: #2a3843;
@@ -55,7 +57,7 @@ html {
   font-size: 16px;
   margin: 0;
   padding: 0;
-  scroll-behavior: smooth;
+  transition: opacity 0.2s;
 }
 
 body {
@@ -401,8 +403,19 @@ th.sortable {
   user-select: none;
   
   &:hover {
-    background-color: var(--color-table-hover);
+    background-color: var(--color-primary-light);
+    color: var(--color-white);
   }
+}
+
+.sort-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
 }
 
 .sort-icon {
