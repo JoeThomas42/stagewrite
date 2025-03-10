@@ -20,6 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
+ * Central function to save scroll position before any page reload
+ */
+function saveScrollPosition() {
+  sessionStorage.setItem('scrollPosition', window.pageYOffset);
+}
+
+/**
  * Sets up scroll position preservation between page loads
  */
 function setupScrollRestoration() {
@@ -361,6 +368,8 @@ function initUserPromotion() {
       e.preventDefault();
       const userName = link.getAttribute('data-user-name');
       if (confirm(`Are you sure you want to promote ${userName} to Admin?\nThis will give them administrative privileges.`)) {
+        saveScrollPosition();
+        
         const userId = link.getAttribute('data-user-id');
         fetch('/handlers/promote_user.php', {
           method: 'POST',
@@ -373,7 +382,7 @@ function initUserPromotion() {
         .then(data => {
           if (data.success) {
             alert(`${userName} has been promoted to Admin successfully.`);
-            window.location.reload(); // Reload to update both tables
+            window.location.reload();
           } else {
             alert(data.error || 'An error occurred while trying to promote the user');
           }
@@ -396,6 +405,8 @@ function initUserDemotion() {
       e.preventDefault();
       const userName = link.getAttribute('data-user-name');
       if (confirm(`Are you sure you want to demote ${userName} to Member?\nThis will remove their administrative privileges.`)) {
+        saveScrollPosition();
+        
         const userId = link.getAttribute('data-user-id');
         fetch('/handlers/demote_user.php', {
           method: 'POST',
@@ -454,6 +465,50 @@ function initVenueEditModal() {
   const closeBtn = modal.querySelector('.close-button');
   const cancelBtn = modal.querySelector('.cancel-button');
   const editForm = document.getElementById('venue-edit-form');
+  const saveButton = modal.querySelector('.save-button');
+  
+  // Store original venue data
+  let originalVenueData = {};
+  
+  // Function to check if form has been modified
+  function checkFormChanges() {
+    // For a new venue (no original data), always enable the save button
+    if (Object.keys(originalVenueData).length === 0) {
+      saveButton.disabled = false;
+      return;
+    }
+    
+    // Compare current form values with original values
+    const currentVenue = {
+      venue_name: document.getElementById('venue_name').value,
+      venue_street: document.getElementById('venue_street').value,
+      venue_city: document.getElementById('venue_city').value,
+      venue_state_id: document.getElementById('venue_state_id').value,
+      venue_zip: document.getElementById('venue_zip').value,
+      stage_width: document.getElementById('stage_width').value,
+      stage_depth: document.getElementById('stage_depth').value
+    };
+    
+    // Check if any value has changed
+    let hasChanges = false;
+    Object.keys(currentVenue).forEach(key => {
+      if (currentVenue[key] != originalVenueData[key]) {
+        hasChanges = true;
+      }
+    });
+    
+    // Enable or disable save button based on changes
+    saveButton.disabled = !hasChanges;
+  }
+  
+  // Add input event listeners to all form fields
+  function addChangeListeners() {
+    const formInputs = editForm.querySelectorAll('input, select');
+    formInputs.forEach(input => {
+      input.addEventListener('input', checkFormChanges);
+      input.addEventListener('change', checkFormChanges);
+    });
+  }
   
   // Show modal when Edit button is clicked
   document.querySelectorAll('.edit-venue').forEach(link => {
@@ -478,6 +533,23 @@ function initVenueEditModal() {
           document.getElementById('stage_width').value = data.venue.stage_width || '';
           document.getElementById('stage_depth').value = data.venue.stage_depth || '';
           
+          // Store original data for comparison
+          originalVenueData = {
+            venue_name: data.venue.venue_name || '',
+            venue_street: data.venue.venue_street || '',
+            venue_city: data.venue.venue_city || '',
+            venue_state_id: data.venue.venue_state_id || '',
+            venue_zip: data.venue.venue_zip || '',
+            stage_width: data.venue.stage_width || '',
+            stage_depth: data.venue.stage_depth || ''
+          };
+          
+          // Initially disable save button since no changes made yet
+          saveButton.disabled = true;
+          
+          // Add change listeners to all form fields
+          addChangeListeners();
+          
           // Show modal
           modal.classList.remove('hidden');
           modal.classList.add('visible');
@@ -496,6 +568,8 @@ function initVenueEditModal() {
     modal.classList.add('hidden');
     modal.classList.remove('visible');
     editForm.reset();
+    originalVenueData = {}; // Clear original data
+    saveButton.disabled = false; // Reset button state
   }
   
   closeBtn.addEventListener('click', closeModal);
@@ -509,6 +583,14 @@ function initVenueEditModal() {
   // Handle form submission
   editForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Don't submit if save button is disabled (no changes)
+    if (saveButton.disabled) {
+      return;
+    }
+    
+    // Save scroll position before potential page reload
+    saveScrollPosition();
     
     // Clear any previous error messages
     const errorElements = editForm.querySelectorAll('.field-error');
@@ -569,6 +651,13 @@ function initVenueEditModal() {
       // Update modal title
       document.querySelector('#venue-edit-modal h2').textContent = 'Add New Venue';
       
+      // Clear original data for new venue (enable save button by default)
+      originalVenueData = {};
+      saveButton.disabled = false;
+      
+      // Add change listeners to all form fields
+      addChangeListeners();
+      
       // Show the form
       modal.classList.remove('hidden');
       modal.classList.add('visible');
@@ -585,6 +674,7 @@ function initVenueRemoval() {
       e.preventDefault();
       const venueName = link.getAttribute('data-venue-name');
       if (confirm(`Are you sure you want to delete ${venueName}?\nThis action cannot be undone!`)) {
+        
         const venueId = link.getAttribute('data-venue-id');
         fetch('/handlers/venue_handler.php', {
           method: 'POST',
