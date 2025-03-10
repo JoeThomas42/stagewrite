@@ -13,9 +13,11 @@ echo "</head>";
 echo "<body>";
 echo "<header class='header-container'>";
 echo "<div class='header-content'>";
+echo "<a href='" . WEB_ROOT . "/index.php' class='logo-link'>";
 echo "<div class='logo-container'>";
 echo "<h1>StageWrite</h1>";
 echo "</div>";
+echo "</a>";
 
 // Mobile menu toggle button
 echo "<button class='mobile-menu-toggle' aria-label='Toggle navigation menu'>";
