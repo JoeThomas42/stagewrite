@@ -18,6 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     }
     
     $venueId = filter_var($_GET['venue_id'], FILTER_VALIDATE_INT);
+    
+    // Prevent accessing venue ID 1
+    if ($venueId == 1) {
+        echo json_encode(['error' => 'Default venue cannot be edited']);
+        exit;
+    }
+    
     if (!$venueId) {
         echo json_encode(['error' => 'Invalid venue ID']);
         exit;
@@ -70,6 +77,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     if (!empty($errors)) {
         echo json_encode(['success' => false, 'errors' => $errors]);
+        exit;
+    }
+    
+    // Check if trying to edit the default venue
+    if (isset($_POST['venue_id']) && $_POST['venue_id'] == 1) {
+        echo json_encode(['error' => 'Default venue cannot be modified']);
         exit;
     }
     
@@ -130,6 +143,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
     
     $venueId = filter_var($_POST['venue_id'], FILTER_VALIDATE_INT);
+    
+    // Prevent deleting venue ID 1
+    if ($venueId == 1) {
+        echo json_encode(['error' => 'Default venue cannot be deleted']);
+        exit;
+    }
+    
     if (!$venueId) {
         echo json_encode(['success' => false, 'error' => 'Invalid venue ID']);
         exit;

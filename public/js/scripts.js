@@ -322,6 +322,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // SECTION: Venue Management Functionality
   // Venue Edit Modal Functionality
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('edit-venue')) {
+      const venueId = e.target.getAttribute('data-venue-id');
+      
+      // Prevent editing venue ID 1
+      if (venueId == 1) {
+        alert('The default venue cannot be edited.');
+        e.preventDefault();
+        return;
+      }
+    }
+  });
+  
   const modal = document.getElementById('venue-edit-modal');
   if (modal) {
     const closeBtn = modal.querySelector('.close-button');

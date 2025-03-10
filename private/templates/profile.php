@@ -104,10 +104,17 @@ if ($user['role_id'] == 1) {
                 <td data-label='Actions' class='action-cell'>
                     <div class='dropdown'>
                         <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
-                        <div class='dropdown-menu'>
-                            <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
-                            <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
-                        </div>
+                        <div class='dropdown-menu'>";
+    
+        // Only show edit option if venue_id is not 1
+        if ($venue['venue_id'] != 1) {
+            echo "<a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>";
+            echo "<a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>";
+        } else {
+            echo "<span class='disabled-action'>Default Venue (Cannot Edit)</span>";
+        }
+    
+        echo "      </div>
                     </div>
                 </td>
               </tr>";
@@ -203,10 +210,17 @@ if ($user['role_id'] == 1) {
                 <td data-label='Actions' class='action-cell'>
                     <div class='dropdown'>
                         <button class='dropdown-toggle'>Actions <span class='dropdown-arrow'>▼</span></button>
-                        <div class='dropdown-menu'>
-                            <a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>
-                            <a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>
-                        </div>
+                        <div class='dropdown-menu'>";
+    
+        // Only show edit option if venue_id is not 1
+        if ($venue['venue_id'] != 1) {
+            echo "<a href='#' class='edit-venue' data-venue-id='{$venue['venue_id']}'>Edit</a>";
+            echo "<a href='#' class='remove-venue' data-venue-id='{$venue['venue_id']}' data-venue-name='{$venue['venue_name']}'>Delete</a>";
+        } else {
+            echo "<span class='disabled-action'>Default Venue (Cannot Edit)</span>";
+        }
+    
+        echo "      </div>
                     </div>
                 </td>
               </tr>";
