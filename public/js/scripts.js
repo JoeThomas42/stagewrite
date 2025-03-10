@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Improved sorting with better scroll position preservation
+// Sorting with scroll position preservation
 document.addEventListener('DOMContentLoaded', function() {
   // Try to prevent browser's automatic scroll restoration
   if ('scrollRestoration' in history) {
@@ -631,4 +631,81 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 50);
     });
   });
+
+  // Table search/filter functionality
+  // Setup filter functionality for each search field
+  setupTableFilter('admin-search', 'admins-table', [1, 2]); // Name and Email columns
+  setupTableFilter('member-search', 'members-table', [1, 2]); // Name and Email columns
+  setupTableFilter('venue-search', 'venues-table', [1, 2, 3]); // Name, City, State columns
+
+  // Function to set up filtering for a specific table
+  function setupTableFilter(searchId, tableId, columnIndexes) {
+    const searchInput = document.getElementById(searchId);
+    if (!searchInput) return; // Skip if element doesn't exist on current page
+    
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    
+    // Get all rows except the header
+    const rows = Array.from(table.querySelectorAll('tr')).slice(1);
+    
+    // Add event listener for real-time filtering
+    searchInput.addEventListener('input', function() {
+      const searchQuery = this.value.toLowerCase().trim();
+      
+      // Show all rows if search is empty
+      if (searchQuery === '') {
+        rows.forEach(row => row.style.display = '');
+        return;
+      }
+      
+      // Filter rows
+      rows.forEach(row => {
+        let match = false;
+        
+        // Check each relevant column
+        columnIndexes.forEach(index => {
+          const cell = row.cells[index];
+          if (cell) {
+            const text = cell.textContent.toLowerCase();
+            if (text.includes(searchQuery)) {
+              match = true;
+            }
+          }
+        });
+        
+        // Show/hide row based on match
+        row.style.display = match ? '' : 'none';
+      });
+      
+      // Display message if no results found
+      const visibleRowCount = rows.filter(row => row.style.display !== 'none').length;
+      let noResultsMsg = table.querySelector('.no-results-message');
+      
+      if (visibleRowCount === 0) {
+        if (!noResultsMsg) {
+          noResultsMsg = document.createElement('tr');
+          noResultsMsg.className = 'no-results-message';
+          const cell = document.createElement('td');
+          cell.colSpan = table.rows[0].cells.length;
+          cell.textContent = 'No matching results found';
+          cell.style.textAlign = 'center';
+          cell.style.padding = '1rem';
+          noResultsMsg.appendChild(cell);
+          table.appendChild(noResultsMsg);
+        }
+      } else if (noResultsMsg) {
+        noResultsMsg.remove();
+      }
+    });
+    
+    // Add clear button functionality
+    searchInput.parentNode.addEventListener('click', function(e) {
+      if (e.target.classList.contains('search-icon') && searchInput.value) {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.focus();
+      }
+    });
+  }
 });

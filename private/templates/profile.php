@@ -92,8 +92,14 @@ if ($user['role_id'] == 1) {
     }
     $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo "<h2>Manage Members:</h2>";
-    echo "<table>";
+    echo "<div class='table-actions'>
+            <h2>Manage Members:</h2>
+            <div class='search-container'>
+                <input type='text' class='search-input' id='member-search' placeholder='Search members...' autocomplete='off'>
+                <span class='search-icon'>🔍</span>
+            </div>
+          </div>";
+    echo "<table id='members-table'>";
     echo "<tr><th>ID</th><th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th><th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th><th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th><th>Actions</th></tr>";
     foreach ($members as $member) {
         echo "<tr>
@@ -114,11 +120,17 @@ if ($user['role_id'] == 1) {
     }
     echo "</table>";
 
-    echo "<div class='heading-action-row'>";
-    echo "<h2>Manage Venues:</h2>";
-    echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
-    echo "</div>";
-    echo "<table border='1'>";
+    echo "<div class='table-actions'>
+            <h2>Manage Venues:</h2>
+            <div class='search-actions'>
+                <div class='search-container'>
+                    <input type='text' class='search-input' id='venue-search' placeholder='Search venues...' autocomplete='off'>
+                    <span class='search-icon'>🔍</span>
+                </div>
+                <button id='add-venue-button' class='action-button'>+ Add New Venue</button>
+            </div>
+          </div>";
+    echo "<table id='venues-table'>";
     echo "<tr>
             <th>ID</th>
             <th class='sortable' data-column='venue_name'>Name <span class='sort-icon'>" . getSortIcon('venue_name', $sortColumn, $sortOrder) . "</span></th>
@@ -185,8 +197,14 @@ if ($user['role_id'] == 1) {
     $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Display Admins
-    echo "<h2>Manage Admins:</h2>";
-    echo "<table>";
+    echo "<div class='table-actions'>
+            <h2>Manage Admins:</h2>
+            <div class='search-container'>
+                <input type='text' class='search-input' id='admin-search' placeholder='Search admins...' autocomplete='off'>
+                <span class='search-icon'>🔍</span>
+            </div>
+          </div>";
+    echo "<table id='admins-table'>";
     echo "<tr>
             <th>ID</th>
             <th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th>
@@ -215,8 +233,14 @@ if ($user['role_id'] == 1) {
     echo "</table>";
     
     // Display Members
-    echo "<h2>Manage Members:</h2>";
-    echo "<table>";
+    echo "<div class='table-actions'>
+            <h2>Manage Members:</h2>
+            <div class='search-container'>
+                <input type='text' class='search-input' id='member-search' placeholder='Search members...' autocomplete='off'>
+                <span class='search-icon'>🔍</span>
+            </div>
+          </div>";
+    echo "<table id='members-table'>";
     echo "<tr>
             <th>ID</th>
             <th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th>
@@ -248,11 +272,17 @@ if ($user['role_id'] == 1) {
     echo "</table>";
     
     // Display Venues
-    echo "<div class='heading-action-row'>";
-    echo "<h2>Manage Venues:</h2>";
-    echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
-    echo "</div>";
-    echo "<table>";
+    echo "<div class='table-actions'>
+            <h2>Manage Venues:</h2>
+            <div class='search-actions'>
+                <div class='search-container'>
+                    <input type='text' class='search-input' id='venue-search' placeholder='Search venues...' autocomplete='off'>
+                    <span class='search-icon'>🔍</span>
+                </div>
+                <button id='add-venue-button' class='action-button'>+ Add New Venue</button>
+            </div>
+          </div>";
+    echo "<table id='venues-table'>";
     echo "<tr>
             <th>ID</th>
             <th class='sortable' data-column='venue_name'>Name <span class='sort-icon'>" . getSortIcon('venue_name', $sortColumn, $sortOrder) . "</span></th>
