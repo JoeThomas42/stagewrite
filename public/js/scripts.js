@@ -571,3 +571,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// Table sorting functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Find all sortable column headers
+  const sortableHeaders = document.querySelectorAll('th.sortable');
+  
+  sortableHeaders.forEach(header => {
+    header.addEventListener('click', function() {
+      const column = this.getAttribute('data-column');
+      
+      // Get current URL and params
+      const url = new URL(window.location);
+      const currentSort = url.searchParams.get('sort');
+      const currentOrder = url.searchParams.get('order');
+      
+      // Determine new sort order
+      let newOrder = 'asc';
+      if (currentSort === column && currentOrder === 'asc') {
+        newOrder = 'desc';
+      }
+      
+      // Update URL params
+      url.searchParams.set('sort', column);
+      url.searchParams.set('order', newOrder);
+      
+      // Navigate to the new URL
+      window.location = url.toString();
+    });
+  });
+});

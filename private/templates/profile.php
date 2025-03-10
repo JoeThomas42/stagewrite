@@ -2,6 +2,21 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
+$sortColumn = isset($_GET['sort']) ? $_GET['sort'] : 'last_name';
+$sortOrder = isset($_GET['order']) ? $_GET['order'] : 'asc';
+
+// Validate sort parameters
+$allowedUserColumns = ['last_name', 'first_name', 'email', 'is_active'];
+$allowedVenueColumns = ['venue_name', 'venue_city', 'state_name'];
+
+if (!in_array($sortColumn, array_merge($allowedUserColumns, $allowedVenueColumns))) {
+    $sortColumn = 'last_name';  // Default
+}
+
+if ($sortOrder !== 'asc' && $sortOrder !== 'desc') {
+    $sortOrder = 'asc';  // Default
+}
+
 // Update the page title based on role
 if ($user['role_id'] == 2 || $user['role_id'] == 3) {
     $current_page = "Data Management";
@@ -56,20 +71,30 @@ if ($user['role_id'] == 1) {
     echo "<div class='profile-container'>";
     
     // Fetch members
-    $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1");
+    $sortSQL = in_array($sortColumn, $allowedUserColumns) ? "ORDER BY $sortColumn $sortOrder" : "";
+    $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1 $sortSQL");
     $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch venues with state abbreviations
-    $venuesStmt = $pdo->query("
-        SELECT v.*, s.state_abbr, s.state_name 
-        FROM venues v
-        LEFT JOIN states s ON v.venue_state_id = s.state_id
-    ");
+    if (in_array($sortColumn, $allowedVenueColumns)) {
+        $venuesStmt = $pdo->query("
+            SELECT v.*, s.state_abbr, s.state_name 
+            FROM venues v
+            LEFT JOIN states s ON v.venue_state_id = s.state_id
+            ORDER BY $sortColumn $sortOrder
+        ");
+    } else {
+        $venuesStmt = $pdo->query("
+            SELECT v.*, s.state_abbr, s.state_name 
+            FROM venues v
+            LEFT JOIN states s ON v.venue_state_id = s.state_id
+        ");
+    }
     $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo "<h2>Manage Members:</h2>";
     echo "<table>";
-    echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>";
+    echo "<tr><th>ID</th><th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th><th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th><th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th><th>Actions</th></tr>";
     foreach ($members as $member) {
         echo "<tr>
                 <td data-label='ID'>{$member['user_id']}</td>
@@ -94,7 +119,13 @@ if ($user['role_id'] == 1) {
     echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
     echo "</div>";
     echo "<table border='1'>";
-    echo "<tr><th>ID</th><th>Name</th><th>City</th><th>State</th><th>Actions</th></tr>";
+    echo "<tr>
+            <th>ID</th>
+            <th class='sortable' data-column='venue_name'>Name <span class='sort-icon'>" . getSortIcon('venue_name', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='venue_city'>City <span class='sort-icon'>" . getSortIcon('venue_city', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='state_name'>State <span class='sort-icon'>" . getSortIcon('state_name', $sortColumn, $sortOrder) . "</span></th>
+            <th>Actions</th>
+          </tr>";
     foreach ($venues as $venue) {
         echo "<tr>
                 <td data-label='ID'>{$venue['venue_id']}</td>
@@ -128,25 +159,41 @@ if ($user['role_id'] == 1) {
     echo "<div class='profile-container'>";
     
     // Fetch admins
-    $adminsStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 2");
+    $sortSQL = in_array($sortColumn, $allowedUserColumns) ? "ORDER BY $sortColumn $sortOrder" : "";
+    $adminsStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 2 $sortSQL");
     $admins = $adminsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch members
-    $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1");
+    $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1 $sortSQL");
     $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch venues with state abbreviations
-    $venuesStmt = $pdo->query("
-        SELECT v.*, s.state_abbr, s.state_name 
-        FROM venues v
-        LEFT JOIN states s ON v.venue_state_id = s.state_id
-    ");
+    if (in_array($sortColumn, $allowedVenueColumns)) {
+        $venuesStmt = $pdo->query("
+            SELECT v.*, s.state_abbr, s.state_name 
+            FROM venues v
+            LEFT JOIN states s ON v.venue_state_id = s.state_id
+            ORDER BY $sortColumn $sortOrder
+        ");
+    } else {
+        $venuesStmt = $pdo->query("
+            SELECT v.*, s.state_abbr, s.state_name 
+            FROM venues v
+            LEFT JOIN states s ON v.venue_state_id = s.state_id
+        ");
+    }
     $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Display Admins
     echo "<h2>Manage Admins:</h2>";
     echo "<table>";
-    echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>";
+    echo "<tr>
+            <th>ID</th>
+            <th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th>
+            <th>Actions</th>
+          </tr>";
     foreach ($admins as $admin) {
         echo "<tr>
                 <td data-label='ID'>{$admin['user_id']}</td>
@@ -170,7 +217,13 @@ if ($user['role_id'] == 1) {
     // Display Members
     echo "<h2>Manage Members:</h2>";
     echo "<table>";
-    echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr>";
+    echo "<tr>
+            <th>ID</th>
+            <th class='sortable' data-column='last_name'>Name <span class='sort-icon'>" . getSortIcon('last_name', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='email'>Email <span class='sort-icon'>" . getSortIcon('email', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='is_active'>Status <span class='sort-icon'>" . getSortIcon('is_active', $sortColumn, $sortOrder) . "</span></th>
+            <th>Actions</th>
+          </tr>";
     foreach ($members as $member) {
         echo "<tr>
                 <td data-label='ID'>{$member['user_id']}</td>
@@ -200,7 +253,13 @@ if ($user['role_id'] == 1) {
     echo "<button id='add-venue-button' class='action-button'>+ Add New Venue</button>";
     echo "</div>";
     echo "<table>";
-    echo "<tr><th>ID</th><th>Name</th><th>City</th><th>State</th><th>Actions</th></tr>";
+    echo "<tr>
+            <th>ID</th>
+            <th class='sortable' data-column='venue_name'>Name <span class='sort-icon'>" . getSortIcon('venue_name', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='venue_city'>City <span class='sort-icon'>" . getSortIcon('venue_city', $sortColumn, $sortOrder) . "</span></th>
+            <th class='sortable' data-column='state_name'>State <span class='sort-icon'>" . getSortIcon('state_name', $sortColumn, $sortOrder) . "</span></th>
+            <th>Actions</th>
+          </tr>";
     foreach ($venues as $venue) {
         echo "<tr>
                 <td data-label='ID'>{$venue['venue_id']}</td>

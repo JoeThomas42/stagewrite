@@ -29,3 +29,11 @@ function formatEventDate($startDate, $endDate) {
     // Different year event
     return $start->format('F j, Y') . ' - ' . $end->format('F j, Y');
 }
+
+// Helper function to generate sort icons
+function getSortIcon($column, $currentSort, $currentOrder) {
+  if ($currentSort === $column) {
+      return $currentOrder === 'asc' ? '▲' : '▼';
+  }
+  return '';
+}

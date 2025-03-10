@@ -10,6 +10,7 @@ define('BASE_PATH', dirname(__DIR__));
 define('PRIVATE_PATH', BASE_PATH . '/private');
 define('PUBLIC_PATH', BASE_PATH . '/public');
 define('HANDLERS_PATH', PRIVATE_PATH . '/handlers');
+define('INCLUDES_PATH', PRIVATE_PATH . '/includes');
 
 // Define web root paths for URLs
 define('WEB_ROOT', '');
@@ -20,6 +21,7 @@ define('HANDLERS_URL', WEB_ROOT . '/handlers');
 
 // Include necessary files
 require_once PRIVATE_PATH . '/config/config.php';
+require_once INCLUDES_PATH . '/functions.php';
 
 // Create a database connection
 try {
