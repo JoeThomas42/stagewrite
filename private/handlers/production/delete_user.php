@@ -6,7 +6,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 header('Content-Type: application/json');
 
 // Check that the user is logged in and is an admin or super admin
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role_id'], [2, 3])) {
+$currentUser = new User();
+if (!$currentUser->hasRole([2, 3])) {
     http_response_code(403);
     echo json_encode(['error' => 'Unauthorized']);
     exit;
@@ -26,10 +27,10 @@ if (empty($_POST['user_id'])) {
     exit;
 }
 
-$memberId = $_POST['user_id'];
+$targetUserId = trim($_POST['user_id']);
+$currentRole = $_SESSION['role_id'];
 
 // Determine allowed roles based on current user's role
-$currentRole = $_SESSION['role_id'];
 if ($currentRole == 2) {
     // Admin can only remove members (role_id 1)
     $allowedRoles = [1];
@@ -39,21 +40,15 @@ if ($currentRole == 2) {
 }
 
 try {
-    // Build the query with allowed roles
-    $inQuery = implode(',', array_fill(0, count($allowedRoles), '?'));
-    $sql = "DELETE FROM users WHERE user_id = ? AND role_id IN ($inQuery)";
-    $stmt = $pdo->prepare($sql);
+    $userManager = new User();
+    $success = $userManager->deleteUser($targetUserId, $allowedRoles);
     
-    // Execute with memberId followed by allowed roles
-    $params = array_merge([$memberId], $allowedRoles);
-    $stmt->execute($params);
-
-    if ($stmt->rowCount() > 0) {
+    if ($success) {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'No user found or deletion not allowed']);
     }
-} catch (PDOException $e) {
+} catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }

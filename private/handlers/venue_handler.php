@@ -1,14 +1,19 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-// Ensure user is an admin or super admin
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role_id'], [2, 3])) {
+// Include VenueManager class 
+require_once INCLUDES_PATH . '/VenueManager.php';
+
+// Check permissions using User class
+$currentUser = new User();
+if (!$currentUser->hasRole([2, 3])) {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Unauthorized access']);
     exit;
 }
 
 header('Content-Type: application/json');
+$venueManager = new VenueManager();
 
 // GET request to retrieve venue data
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'get') {
@@ -19,118 +24,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     
     $venueId = filter_var($_GET['venue_id'], FILTER_VALIDATE_INT);
     
-    // Prevent accessing venue ID 1
-    if ($venueId == 1) {
-        echo json_encode(['error' => 'Default venue cannot be edited']);
-        exit;
-    }
-    
     if (!$venueId) {
         echo json_encode(['error' => 'Invalid venue ID']);
         exit;
     }
     
     try {
-        $stmt = $pdo->prepare("SELECT * FROM venues WHERE venue_id = :venue_id");
-        $stmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
-        $stmt->execute();
-        $venue = $stmt->fetch(PDO::FETCH_ASSOC);
+        $venue = $venueManager->getVenue($venueId);
         
         if ($venue) {
             echo json_encode(['success' => true, 'venue' => $venue]);
         } else {
-            echo json_encode(['error' => 'Venue not found']);
+            echo json_encode(['error' => 'Venue not found or cannot be edited']);
         }
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
     }
 }
 
 // POST request to update venue
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
-    // Validate required fields
-    $errors = [];
+    // Sanitize inputs
+    $venueData = [
+        'venue_id' => !empty($_POST['venue_id']) ? filter_var($_POST['venue_id'], FILTER_VALIDATE_INT) : null,
+        'venue_name' => htmlspecialchars(trim($_POST['venue_name'] ?? '')),
+        'venue_street' => htmlspecialchars(trim($_POST['venue_street'] ?? '')),
+        'venue_city' => htmlspecialchars(trim($_POST['venue_city'] ?? '')),
+        'venue_state_id' => !empty($_POST['venue_state_id']) ? filter_var($_POST['venue_state_id'], FILTER_VALIDATE_INT) : null,
+        'venue_zip' => !empty($_POST['venue_zip']) ? htmlspecialchars(trim($_POST['venue_zip'])) : null,
+        'stage_width' => filter_var($_POST['stage_width'] ?? 0, FILTER_VALIDATE_INT),
+        'stage_depth' => filter_var($_POST['stage_depth'] ?? 0, FILTER_VALIDATE_INT)
+    ];
     
-    // Don't require venue_id for new venues
-    $isNewVenue = empty($_POST['venue_id']);
-    
-    if (empty($_POST['venue_name'])) {
-        $errors['venue_name'] = 'Venue name is required';
-    }
-    
-    if (empty($_POST['stage_width'])) {
-        $errors['stage_width'] = 'Stage width is required';
-    } else if (!filter_var($_POST['stage_width'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 200]])) {
-        $errors['stage_width'] = 'Stage width must be between 1 and 200';
-    }
-    
-    if (empty($_POST['stage_depth'])) {
-        $errors['stage_depth'] = 'Stage depth is required';
-    } else if (!filter_var($_POST['stage_depth'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 200]])) {
-        $errors['stage_depth'] = 'Stage depth must be between 1 and 200';
-    }
-    
-    // ZIP code validation if provided
-    if (!empty($_POST['venue_zip']) && !preg_match('/^\d{5}$/', $_POST['venue_zip'])) {
-        $errors['venue_zip'] = 'ZIP code must be 5 digits';
-    }
+    // Validate venue data
+    $errors = $venueManager->validateVenueData($venueData);
     
     if (!empty($errors)) {
         echo json_encode(['success' => false, 'errors' => $errors]);
         exit;
     }
     
-    // Check if trying to edit the default venue
-    if (isset($_POST['venue_id']) && $_POST['venue_id'] == 1) {
-        echo json_encode(['error' => 'Default venue cannot be modified']);
-        exit;
-    }
-    
-    // Sanitize inputs
-    $venueId = !$isNewVenue ? filter_var($_POST['venue_id'], FILTER_VALIDATE_INT) : null;
-    $venueName = htmlspecialchars(trim($_POST['venue_name']));
-    $venueStreet = htmlspecialchars(trim($_POST['venue_street'] ?? ''));
-    $venueCity = htmlspecialchars(trim($_POST['venue_city'] ?? ''));
-    $venueStateId = !empty($_POST['venue_state_id']) ? filter_var($_POST['venue_state_id'], FILTER_VALIDATE_INT) : null;
-    $venueZip = !empty($_POST['venue_zip']) ? htmlspecialchars(trim($_POST['venue_zip'])) : null;
-    $stageWidth = filter_var($_POST['stage_width'], FILTER_VALIDATE_INT);
-    $stageDepth = filter_var($_POST['stage_depth'], FILTER_VALIDATE_INT);
-    
     try {
-        if ($isNewVenue) {
-            // Insert new venue
-            $stmt = $pdo->prepare(
-                "INSERT INTO venues (venue_name, venue_street, venue_city, venue_state_id, venue_zip, stage_width, stage_depth) 
-                 VALUES (:venue_name, :venue_street, :venue_city, :venue_state_id, :venue_zip, :stage_width, :stage_depth)"
-            );
+        $success = $venueManager->saveVenue($venueData);
+        
+        if ($success) {
+            echo json_encode(['success' => true]);
         } else {
-            // Update existing venue
-            $stmt = $pdo->prepare(
-                "UPDATE venues SET 
-                    venue_name = :venue_name,
-                    venue_street = :venue_street,
-                    venue_city = :venue_city,
-                    venue_state_id = :venue_state_id,
-                    venue_zip = :venue_zip,
-                    stage_width = :stage_width,
-                    stage_depth = :stage_depth
-                 WHERE venue_id = :venue_id"
-            );
-            $stmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
+            echo json_encode(['success' => false, 'error' => 'Failed to save venue']);
         }
-        
-        $stmt->bindParam(':venue_name', $venueName);
-        $stmt->bindParam(':venue_street', $venueStreet);
-        $stmt->bindParam(':venue_city', $venueCity);
-        $stmt->bindParam(':venue_state_id', $venueStateId, $venueStateId ? PDO::PARAM_INT : PDO::PARAM_NULL);
-        $stmt->bindParam(':venue_zip', $venueZip);
-        $stmt->bindParam(':stage_width', $stageWidth, PDO::PARAM_INT);
-        $stmt->bindParam(':stage_depth', $stageDepth, PDO::PARAM_INT);
-        
-        $stmt->execute();
-        
-        echo json_encode(['success' => true]);
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
     }
 }
@@ -144,42 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $venueId = filter_var($_POST['venue_id'], FILTER_VALIDATE_INT);
     
-    // Prevent deleting venue ID 1
-    if ($venueId == 1) {
-        echo json_encode(['error' => 'Default venue cannot be deleted']);
-        exit;
-    }
-    
     if (!$venueId) {
         echo json_encode(['success' => false, 'error' => 'Invalid venue ID']);
         exit;
     }
     
     try {
-        // First check if this venue is used in any saved plots
-        $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM saved_plots WHERE venue_id = :venue_id");
-        $checkStmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
-        $checkStmt->execute();
-        $usageCount = $checkStmt->fetchColumn();
+        $success = $venueManager->deleteVenue($venueId);
         
-        if ($usageCount > 0) {
-            // Update saved plots to use the default venue (ID 1)
-            $updateStmt = $pdo->prepare("UPDATE saved_plots SET venue_id = 1 WHERE venue_id = :venue_id");
-            $updateStmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
-            $updateStmt->execute();
-        }
-        
-        // Now delete the venue
-        $stmt = $pdo->prepare("DELETE FROM venues WHERE venue_id = :venue_id");
-        $stmt->bindParam(':venue_id', $venueId, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        if ($stmt->rowCount() > 0) {
+        if ($success) {
             echo json_encode(['success' => true]);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Venue not found']);
+            echo json_encode(['success' => false, 'error' => 'Venue not found or cannot be deleted']);
         }
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
     }
 }

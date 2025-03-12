@@ -67,41 +67,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $pdo->prepare("SELECT email FROM users WHERE email = :email");
-    $stmt->bindParam(':email', $email);
-    $stmt->execute();
-
-    if ($stmt->rowCount() > 0) {
-        echo json_encode(['errors' => ['email' => 'exists']]);
-        exit;
-    }
-
-    $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-    $stmt = $pdo->prepare(
-        "INSERT INTO users (user_id, first_name, last_name, email, password_hash, role_id, created_at, is_active) 
-         VALUES (UUID(), :first_name, :last_name, :email, :password_hash, :role_id, NOW(), 1)"
-    );
-    $stmt->bindParam(':first_name', $firstName);
-    $stmt->bindParam(':last_name', $lastName);
-    $stmt->bindParam(':email', $email);
-    $stmt->bindParam(':password_hash', $passwordHash);
-    $stmt->bindParam(':role_id', $roleId);
-
-    if ($stmt->execute()) {
-        // Get the newly created user
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Set session variables
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['first_name'] = $user['first_name'];
-        $_SESSION['last_name'] = $user['last_name'];
-        $_SESSION['role_id'] = $user['role_id'];
-        
+    // Use User class for registration
+    $userObj = new User();
+    
+    // Create user data array
+    $userData = [
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'email' => $email,
+        'password' => $password,
+        'role_id' => $roleId
+    ];
+    
+    $userId = $userObj->register($userData);
+    
+    if ($userId) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['errors' => ['general' => 'database_error']]);
+        // Check if the failure was due to existing email
+        $db = Database::getInstance();
+        $emailExists = $db->fetchOne(
+            "SELECT email FROM users WHERE email = ?", 
+            [$email]
+        );
+        
+        if ($emailExists) {
+            echo json_encode(['errors' => ['email' => 'exists']]);
+        } else {
+            echo json_encode(['errors' => ['general' => 'database_error']]);
+        }
     }
 }

@@ -2,6 +2,9 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
+// Get database instance
+$db = Database::getInstance();
+
 // Check if sort parameters are explicitly set in the URL (vs. using defaults)
 $explicitSort = isset($_GET['sort']);
 
@@ -32,7 +35,7 @@ include 'header.php';
 // Role-based logic
 if ($user['role_id'] == 1) {
     // Member Page
-    $savedPlotsStmt = $pdo->prepare("
+    $savedPlots = $db->fetchAll("
         SELECT 
             sp.plot_name,
             v.venue_name,
@@ -43,12 +46,9 @@ if ($user['role_id'] == 1) {
         FROM saved_plots sp
         JOIN venues v ON sp.venue_id = v.venue_id
         JOIN states s ON v.venue_state_id = s.state_id
-        WHERE sp.user_id = :user_id
-        ORDER BY sp.event_date_start DESC  /* Changed from event_start_date */
-    ");
-    $savedPlotsStmt->bindParam(':user_id', $user_id);
-    $savedPlotsStmt->execute();
-    $savedPlots = $savedPlotsStmt->fetchAll(PDO::FETCH_ASSOC);
+        WHERE sp.user_id = ?
+        ORDER BY sp.event_date_start DESC
+    ", [$user_id]);
 
     echo "<div class='profile-container'>";
     
@@ -76,25 +76,23 @@ if ($user['role_id'] == 1) {
     
     // Fetch members
     $sortSQL = in_array($sortColumn, $allowedUserColumns) ? "ORDER BY $sortColumn $sortOrder" : "";
-    $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1 $sortSQL");
-    $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
+    $members = $db->fetchAll("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1 $sortSQL");
 
     // Fetch venues with state abbreviations
     if (in_array($sortColumn, $allowedVenueColumns)) {
-        $venuesStmt = $pdo->query("
+        $venues = $db->fetchAll("
             SELECT v.*, s.state_abbr, s.state_name 
             FROM venues v
             LEFT JOIN states s ON v.venue_state_id = s.state_id
             ORDER BY $sortColumn $sortOrder
         ");
     } else {
-        $venuesStmt = $pdo->query("
+        $venues = $db->fetchAll("
             SELECT v.*, s.state_abbr, s.state_name 
             FROM venues v
             LEFT JOIN states s ON v.venue_state_id = s.state_id
         ");
     }
-    $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo "<div class='table-actions'>
             <h2>Manage Members:</h2>
@@ -182,29 +180,26 @@ if ($user['role_id'] == 1) {
     
     // Fetch admins
     $sortSQL = in_array($sortColumn, $allowedUserColumns) ? "ORDER BY $sortColumn $sortOrder" : "";
-    $adminsStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 2 $sortSQL");
-    $admins = $adminsStmt->fetchAll(PDO::FETCH_ASSOC);
+    $admins = $db->fetchAll("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 2 $sortSQL");
 
     // Fetch members
-    $membersStmt = $pdo->query("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1 $sortSQL");
-    $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
+    $members = $db->fetchAll("SELECT user_id, first_name, last_name, email, is_active FROM users WHERE role_id = 1 $sortSQL");
 
     // Fetch venues with state abbreviations
     if (in_array($sortColumn, $allowedVenueColumns)) {
-        $venuesStmt = $pdo->query("
+        $venues = $db->fetchAll("
             SELECT v.*, s.state_abbr, s.state_name 
             FROM venues v
             LEFT JOIN states s ON v.venue_state_id = s.state_id
             ORDER BY $sortColumn $sortOrder
         ");
     } else {
-        $venuesStmt = $pdo->query("
+        $venues = $db->fetchAll("
             SELECT v.*, s.state_abbr, s.state_name 
             FROM venues v
             LEFT JOIN states s ON v.venue_state_id = s.state_id
         ");
     }
-    $venues = $venuesStmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Display Admins
     echo "<div class='table-actions'>
@@ -354,8 +349,7 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
       <select id="venue_state_id" name="venue_state_id">
         <option value="" selected disabled>Select State</option>
         <?php
-        $statesStmt = $pdo->query("SELECT state_id, state_name FROM states ORDER BY state_name");
-        $states = $statesStmt->fetchAll(PDO::FETCH_ASSOC);
+        $states = $db->fetchAll("SELECT state_id, state_name FROM states ORDER BY state_name");
         foreach ($states as $state) {
             echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
         }
@@ -363,12 +357,12 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
       </select>
       
       <label for="venue_zip">ZIP Code:</label>
-      <input type="text" id="venue_zip" name="venue_zip" pattern="[0-9]{5}" title="Five digit zip code">
+      <input type="text" id="venue_zip" name="venue_zip">
       
-      <label for="stage_width">Stage Width (ft):</label>
+      <label for="stage_width">Stage Width (feet):</label>
       <input type="number" id="stage_width" name="stage_width" min="1" max="200" required>
       
-      <label for="stage_depth">Stage Depth (ft):</label>
+      <label for="stage_depth">Stage Depth (feet):</label>
       <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" required>
       
       <div class="form-actions">

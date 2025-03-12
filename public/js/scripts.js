@@ -2,18 +2,47 @@
  * Main initialization function
  */
 document.addEventListener("DOMContentLoaded", () => {
-  // Set up manual scroll restoration
-  setupScrollRestoration();
-  
-  // Initialize main feature areas
-  initAuthForms();
-  initUserManagement();
-  initVenueManagement();  
-  initSortableTables();
-  initTableFilters();
-  initMobileMenu();
-  initDropdownMenus();
+  try {
+    console.log("Initializing application...");
+    
+    // Set up manual scroll restoration
+    setupScrollRestoration();
+    
+    // Initialize each feature independently with error handling
+    safeInit(initAuthForms, "Auth Forms");
+    safeInit(initUserManagement, "User Management");
+    safeInit(initVenueManagement, "Venue Management");  
+    safeInit(initSortableTables, "Sortable Tables");
+    safeInit(initTableFilters, "Table Filters");
+    safeInit(initMobileMenu, "Mobile Menu");
+    safeInit(initDropdownMenus, "Dropdown Menus");
+    safeInit(initTableInteractions, "Table Interactions");
+    
+    console.log("Initialization complete!");
+  } catch (e) {
+    console.error("Error during initialization:", e);
+  }
 });
+
+/**
+ * Safely initialize a module with error handling
+ * @param {Function} initFunction - The initialization function to call
+ * @param {string} moduleName - Name of the module for logging
+ */
+function safeInit(initFunction, moduleName) {
+  try {
+    if (typeof initFunction === 'function') {
+      console.log(`Initializing ${moduleName}...`);
+      initFunction();
+      console.log(`${moduleName} initialized successfully`);
+    } else {
+      console.warn(`${moduleName} initialization function not found`);
+    }
+  } catch (err) {
+    console.error(`Error initializing ${moduleName}:`, err);
+    // Continue with other initializations despite this error
+  }
+}
 
 /**
  * Central function to save scroll position before any page reload
@@ -935,4 +964,33 @@ function filterTable(searchQuery, rows, columnIndexes, table) {
   } else if (noResultsMsg) {
     noResultsMsg.remove();
   }
+}
+
+/**
+ * Initializes table interactions including pagination
+ */
+function initTableInteractions() {
+  // Set up pagination links to preserve scroll position
+  document.querySelectorAll('.pagination-link:not(.disabled)').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Store current scroll position before navigating
+      sessionStorage.setItem('scrollPosition', window.pageYOffset);
+      
+      // Show loading overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'sort-loading-overlay';
+      document.body.appendChild(overlay);
+      
+      // Get the destination URL
+      const destinationUrl = this.getAttribute('href');
+      
+      // Add a small delay to ensure the overlay is visible
+      setTimeout(function() {
+        // Continue with navigation to the pagination URL
+        window.location.href = destinationUrl;
+      }, 50);
+    });
+  });
 }

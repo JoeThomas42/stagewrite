@@ -32,26 +32,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email AND is_active = 1");
-    $stmt->bindParam(':email', $email);
-    $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Use User class for authentication
+    $userObj = new User();
+    $user = $userObj->login($email, $password);
 
-    if ($user && password_verify($password, $user['password_hash'])) {
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['first_name'] = $user['first_name'];
-        $_SESSION['last_name'] = $user['last_name'];
-        $_SESSION['role_id'] = $user['role_id'];
-        
+    if ($user) {
+        // User class automatically sets session variables
         echo json_encode([
             'success' => true,
             'role_id' => $user['role_id']
         ]);
-        exit;
     } else {
         // Invalid email or password
         $errors['email'] = 'invalid_credentials';
         echo json_encode(['errors' => $errors]);
-        exit;
     }
 }
