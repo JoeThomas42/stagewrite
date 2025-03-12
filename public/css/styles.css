@@ -356,8 +356,7 @@ table {
 }
 
 .action-cell {
-  display: flex;
-  justify-content: space-around;
+  text-align: center;
 }
 
 /* ----------------- Popout Menu Styles -------------------- */
@@ -926,8 +925,8 @@ th.sortable .sort-icon {
   
   .action-cell {
     align-items: center;
-    border-bottom: 1px solid var(--color-border);
     border-top: none;
+    display: flex;
     justify-content: space-between;
   }
   
