@@ -1,9 +1,5 @@
 /**
- * StageWrite Application JavaScript
- */
-
-/**
- * Main initialization function - called when DOM is fully loaded
+ * Main initialization function
  */
 document.addEventListener("DOMContentLoaded", () => {
   // Set up manual scroll restoration
@@ -98,6 +94,12 @@ function initSignupForm() {
     
     // Clear any existing error messages
     clearAllErrors(signupFormElement);
+    
+    // Trim inputs before submission (except passwords)
+    const inputs = signupFormElement.querySelectorAll('input:not([type="password"])');
+    inputs.forEach(input => {
+      input.value = input.value.trim();
+    });
     
     const formData = new FormData(e.target);
     

@@ -8,11 +8,15 @@ header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
     
+    // Trim email
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    
     // Validate required fields
-    if (empty($_POST['email'])) {
+    if (empty($email)) {
         $errors['email'] = 'required';
     }
-    if (empty($_POST['password'])) {
+    if (empty($password)) {
         $errors['password'] = 'required';
     }
     
@@ -20,9 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['errors' => $errors]);
         exit;
     }
-    
-    $email = $_POST['email'];
-    $password = $_POST['password'];
     
     // Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

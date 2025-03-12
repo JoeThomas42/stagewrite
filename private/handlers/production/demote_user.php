@@ -26,7 +26,7 @@ if (empty($_POST['user_id'])) {
     exit;
 }
 
-$userId = $_POST['user_id'];
+$userId = trim($_POST['user_id']);
 
 try {
     // Verify the user is an admin (role_id = 2)

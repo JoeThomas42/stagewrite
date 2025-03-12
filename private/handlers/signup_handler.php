@@ -16,19 +16,23 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = [];
     
+    // Trim all inputs first
+    $inputs = array_map('trim', $_POST);
+    
     // Validate required fields
     $required_fields = ['first_name', 'last_name', 'email', 'password', 'confirm_password'];
     foreach ($required_fields as $field) {
-        if (empty($_POST[$field])) {
+        if (empty($inputs[$field])) {
             $errors[$field] = 'required';
         }
     }
     
-    $firstName = $_POST['first_name'];
-    $lastName = $_POST['last_name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirmPassword = $_POST['confirm_password'];
+    // Use trimmed values
+    $firstName = $inputs['first_name'];
+    $lastName = $inputs['last_name'];
+    $email = $inputs['email'];
+    $password = $inputs['password'];
+    $confirmPassword = $inputs['confirm_password'];
     $roleId = 1; // Default role ID
 
     // Validate email format
