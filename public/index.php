@@ -68,7 +68,7 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
         
         <div class="stage-area">
             <div class="stage-controls">
-                <h2>Stage Plot</h2>
+                <h2 id="plot-title">New Plot</h2>
                 
                 <!-- New: Plot configuration panel -->
                 <div class="plot-config-panel">

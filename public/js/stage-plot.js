@@ -8,7 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
     elements: [],
     nextZIndex: 1,
     currentDragId: null,
-    selectedElement: null
+    selectedElement: null,
+    currentPlotName: null,
+    currentPlotId: null
   };
   
   // DOM Elements
@@ -656,6 +658,18 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(data => {
       if (data.success) {
         alert('Plot saved successfully!');
+        
+        // Update plot title and state for new plots
+        if (isNew && data.plot_id) {
+          plotState.currentPlotId = data.plot_id;
+          plotState.currentPlotName = plotData.plot_name;
+          
+          const plotTitle = document.getElementById('plot-title');
+          if (plotTitle) {
+            plotTitle.textContent = plotData.plot_name;
+          }
+        }
+        
         closeModal(saveModal);
       } else {
         alert('Error saving plot: ' + (data.error || 'Unknown error'));
@@ -745,6 +759,16 @@ document.addEventListener("DOMContentLoaded", () => {
           // Clear current stage
           clearStage();
           
+          // Update plot title and state
+          const plotTitle = document.getElementById('plot-title');
+          if (plotTitle) {
+            plotTitle.textContent = data.plot.plot_name;
+          }
+          
+          // Store current plot info
+          plotState.currentPlotName = data.plot.plot_name;
+          plotState.currentPlotId = data.plot.plot_id;
+          
           // Update stage size if venue is different
           if (stage && data.plot.venue_id) {
             stage.setAttribute('data-venue-id', data.plot.venue_id);
@@ -819,6 +843,16 @@ document.addEventListener("DOMContentLoaded", () => {
     plotState.elements = [];
     plotState.nextZIndex = 1;
     plotState.selectedElement = null;
+    
+    // Reset plot info
+    plotState.currentPlotName = null;
+    plotState.currentPlotId = null;
+    
+    // Reset plot title
+    const plotTitle = document.getElementById('plot-title');
+    if (plotTitle) {
+      plotTitle.textContent = 'New Plot';
+    }
   }
   
   /**
@@ -887,5 +921,11 @@ document.addEventListener("DOMContentLoaded", () => {
         loadSavedPlots();
       });
     }
+  }
+
+  // Initialize plot title
+  const plotTitle = document.getElementById('plot-title');
+  if (plotTitle) {
+    plotTitle.textContent = 'New Plot';
   }
 });
