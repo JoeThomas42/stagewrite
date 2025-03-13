@@ -7,8 +7,7 @@ include PRIVATE_PATH . '/templates/header.php';
 
 <div class='page-wrapper'>
 
-  <h2>Coming soon!</h1>
-  <img src="<?= IMG_PATH . "/Wireframe.png" ?>" alt="An image of the wireframe concept of this site.">
+
 
 </div>
 
