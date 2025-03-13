@@ -99,6 +99,7 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                 <div class="control-buttons">
                     <?php if ($isLoggedIn): ?>
                         <button id="save-plot" class="action-button">Save Plot</button>
+                        <button id="save-changes" class="action-button hidden">Save Changes</button>
                         <button id="load-plot" class="action-button">Load Plot</button>
                     <?php endif; ?>
                     <button id="clear-plot" class="action-button">Clear Stage</button>

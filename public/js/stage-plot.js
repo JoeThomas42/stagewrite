@@ -10,13 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
     currentDragId: null,
     selectedElement: null,
     currentPlotName: null,
-    currentPlotId: null
+    currentPlotId: null,
+    isModified: false    // Add this line to track modifications
   };
   
   // DOM Elements
   const stage = document.getElementById('stage');
   const categoryFilter = document.getElementById('category-filter');
   const saveButton = document.getElementById('save-plot');
+  const saveChangesButton = document.getElementById('save-changes');
   const loadButton = document.getElementById('load-plot');
   const clearButton = document.getElementById('clear-plot');
   const saveModal = document.getElementById('save-plot-modal');
@@ -61,7 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const venueId = venueSelect.value;
       // Fetch venue details from server
       fetch(`/handlers/get_venue.php?id=${venueId}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.success && data.venue) {
             // Update stage dimensions
@@ -74,12 +81,37 @@ document.addEventListener("DOMContentLoaded", () => {
             if (dimensionsLabel) {
               dimensionsLabel.textContent = `${data.venue.stage_width}' × ${data.venue.stage_depth}'`;
             }
+            
+            // Mark plot as modified if we're editing an existing plot
+            if (plotState.currentPlotId) {
+              markPlotAsModified();
+            }
           }
         })
-        .catch(error => console.error('Error fetching venue:', error));
+        .catch(error => {
+          console.error('Error fetching venue:', error);
+          alert('Failed to load venue information. Please try again.');
+        });
     });
   }
   
+  // Add event listeners for date/time changes
+  if (eventStartInput) {
+    eventStartInput.addEventListener('change', () => {
+      if (plotState.currentPlotId) {
+        markPlotAsModified();
+      }
+    });
+  }
+
+  if (eventEndInput) {
+    eventEndInput.addEventListener('change', () => {
+      if (plotState.currentPlotId) {
+        markPlotAsModified();
+      }
+    });
+  }
+
   /**
    * Initialize drag and drop functionality
    */
@@ -174,6 +206,9 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Create element in DOM
     createPlacedElement(newElement);
+    
+    // Mark as modified if we're editing an existing plot
+    markPlotAsModified();
   }
   
   /**
@@ -326,6 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (elementIndex !== -1) {
         plotState.elements[elementIndex].x = constrainedLeft;
         plotState.elements[elementIndex].y = constrainedTop;
+        markPlotAsModified();
       }
     }
     
@@ -459,6 +495,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Close the modal
     closeModal(propsModal);
+    
+    markPlotAsModified();
   }
   
   /**
@@ -476,6 +514,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (elementIndex !== -1) {
       plotState.elements.splice(elementIndex, 1);
     }
+    
+    markPlotAsModified();
   }
   
   /**
@@ -559,6 +599,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === loadModal) closeModal(loadModal);
       });
     }
+    
+    // Add event handler for the save changes button
+    if (saveChangesButton) {
+      saveChangesButton.addEventListener('click', () => {
+        if (plotState.currentPlotId) {
+          // Save changes directly without showing modal
+          savePlot(false, plotState.currentPlotId);
+        }
+      });
+    }
   }
   
   /**
@@ -602,7 +652,12 @@ document.addEventListener("DOMContentLoaded", () => {
    * Save plot to database
    */
   function savePlot(isNew = true, existingPlotId = null) {
-    const plotName = document.getElementById('plot_name').value.trim();
+    // When saving changes to an existing plot (not showing the modal)
+    // we need to use the current plot name instead of looking for the input field
+    const plotName = isNew 
+      ? document.getElementById('plot_name').value.trim() 
+      : plotState.currentPlotName;
+      
     const venueId = venueSelect ? venueSelect.value : document.getElementById('venue_id').value;
     const eventDateStart = eventStartInput ? eventStartInput.value : document.getElementById('event_date_start').value;
     const eventDateEnd = eventEndInput ? eventEndInput.value : document.getElementById('event_date_end').value;
@@ -612,14 +667,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     
-    if (!venueId || !eventDateStart || !eventDateEnd) {
+    if (!plotName || !venueId || !eventDateStart || !eventDateEnd) {
       alert('Please fill all required fields.');
       return;
     }
     
     // Create plot data
     const plotData = {
-      plot_name: plotName,
+      plot_name: plotName,  // This will now work for both new plots and updates
       venue_id: venueId,
       event_date_start: eventDateStart,
       event_date_end: eventDateEnd,
@@ -644,7 +699,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     console.log('Sending plot data:', plotData);
     
-    // Send data to server
+    // Rest of the function remains the same
+    // ...
     fetch('/handlers/save_plot.php', {
       method: 'POST',
       headers: {
@@ -668,8 +724,22 @@ document.addEventListener("DOMContentLoaded", () => {
           if (plotTitle) {
             plotTitle.textContent = plotData.plot_name;
           }
+          
+          // Change save button text to "Save As"
+          if (saveButton) {
+            saveButton.textContent = 'Save As';
+          }
         }
         
+        // Reset modified state
+        plotState.isModified = false;
+        
+        // Hide save changes button
+        if (saveChangesButton) {
+          saveChangesButton.classList.add('hidden');
+        }
+        
+        // Close modal if we're showing one
         closeModal(saveModal);
       } else {
         alert('Error saving plot: ' + (data.error || 'Unknown error'));
@@ -769,8 +839,22 @@ document.addEventListener("DOMContentLoaded", () => {
           plotState.currentPlotName = data.plot.plot_name;
           plotState.currentPlotId = data.plot.plot_id;
           
-          // Update stage size if venue is different
-          if (stage && data.plot.venue_id) {
+          // Update venue dropdown to match the plot's venue
+          if (venueSelect && data.plot.venue_id) {
+            venueSelect.value = data.plot.venue_id;
+          }
+          
+          // Update event dates
+          if (eventStartInput && data.plot.event_date_start) {
+            eventStartInput.value = data.plot.event_date_start.replace(' ', 'T');
+          }
+          
+          if (eventEndInput && data.plot.event_date_end) {
+            eventEndInput.value = data.plot.event_date_end.replace(' ', 'T');
+          }
+          
+          // Update stage dimensions
+          if (stage) {
             stage.setAttribute('data-venue-id', data.plot.venue_id);
             stage.setAttribute('data-stage-width', data.plot.stage_width);
             stage.setAttribute('data-stage-depth', data.plot.stage_depth);
@@ -781,48 +865,26 @@ document.addEventListener("DOMContentLoaded", () => {
               dimensionsLabel.textContent = `${data.plot.stage_width}' × ${data.plot.stage_depth}'`;
             }
           }
-          
-          // Load elements
-          if (data.elements && data.elements.length > 0) {
-            let maxZIndex = 0;
-            
-            data.elements.forEach(el => {
-              // Create element object for state
-              const newElement = {
-                id: plotState.elements.length + 1,
-                elementId: el.element_id,
-                elementName: el.element_name,
-                categoryId: el.category_id,
-                image: el.element_image,
-                x: el.x_position,
-                y: el.y_position,
-                width: el.width,
-                height: el.height,
-                rotation: el.rotation,
-                flipped: el.flipped === 1,
-                zIndex: el.z_index,
-                label: el.label || '',
-                notes: el.notes || ''
-              };
-              
-              // Track highest z-index
-              maxZIndex = Math.max(maxZIndex, el.z_index);
-              
-              // Add to state
-              plotState.elements.push(newElement);
-              
-              // Create element in DOM
-              createPlacedElement(newElement);
-            });
-            
-            // Set next z-index
-            plotState.nextZIndex = maxZIndex + 1;
+
+          // Update button text to "Save As" since we're editing an existing plot
+          if (saveButton) {
+            saveButton.textContent = 'Save As';
           }
           
-          // Close modal
+          // Hide the save changes button initially
+          if (saveChangesButton) {
+            saveChangesButton.classList.add('hidden');
+          }
+          
+          // Reset modified flag
+          plotState.isModified = false;
+
+          // Load placed elements
+          if (data.elements && data.elements.length > 0) {
+            loadPlacedElements(data.elements);
+          }
+          
           closeModal(loadModal);
-        } else {
-          alert('Error loading plot: ' + (data.error || 'Plot not found'));
         }
       })
       .catch(error => {
@@ -847,11 +909,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // Reset plot info
     plotState.currentPlotName = null;
     plotState.currentPlotId = null;
+    plotState.isModified = false;
     
     // Reset plot title
     const plotTitle = document.getElementById('plot-title');
     if (plotTitle) {
       plotTitle.textContent = 'New Plot';
+    }
+    
+    // Reset buttons
+    if (saveButton) {
+      saveButton.textContent = 'Save Plot';
+    }
+    
+    if (saveChangesButton) {
+      saveChangesButton.classList.add('hidden');
     }
   }
   
@@ -923,9 +995,67 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  /**
+   * Mark the plot as modified
+   */
+  function markPlotAsModified() {
+    if (!plotState.isModified && plotState.currentPlotId !== null) {
+      plotState.isModified = true;
+      
+      // Show the save changes button
+      if (saveChangesButton) {
+        saveChangesButton.classList.remove('hidden');
+      }
+    }
+  }
+
   // Initialize plot title
   const plotTitle = document.getElementById('plot-title');
   if (plotTitle) {
     plotTitle.textContent = 'New Plot';
+  }
+
+    /**
+   * Load placed elements from server data
+   */
+  function loadPlacedElements(elements) {
+    // Clear existing elements first
+    const placedElements = stage.querySelectorAll('.placed-element');
+    placedElements.forEach(element => element.remove());
+    
+    // Reset state but keep z-index counter
+    const nextZ = plotState.nextZIndex;
+    plotState.elements = [];
+    plotState.nextZIndex = nextZ;
+    
+    // Create each element from the saved data
+    elements.forEach((element, index) => {
+      // Map database field names to local state format
+      const elementData = {
+        id: index + 1, // Generate new sequential IDs
+        elementId: element.element_id,
+        elementName: element.element_name,
+        categoryId: element.category_id,
+        image: element.element_image,
+        x: element.x_position,
+        y: element.y_position,
+        width: element.width,
+        height: element.height,
+        rotation: element.rotation,
+        flipped: element.flipped === 1,
+        zIndex: element.z_index,
+        label: element.label || '',
+        notes: element.notes || ''
+      };
+      
+      // Add to state
+      plotState.elements.push(elementData);
+      
+      // Create DOM element
+      createPlacedElement(elementData);
+      
+      // Update next z-index if needed
+      plotState.nextZIndex = Math.max(plotState.nextZIndex, element.z_index + 1);
+    });
   }
 });

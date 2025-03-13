@@ -177,7 +177,7 @@ img {
 
 /* Hidden Forms */
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 /* --------------------------- Header -------------------------------- */
