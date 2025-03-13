@@ -36,16 +36,10 @@ include 'header.php';
 if ($user['role_id'] == 1) {
     // Member Page
     $savedPlots = $db->fetchAll("
-        SELECT 
-            sp.plot_name,
-            v.venue_name,
-            v.venue_city,
-            s.state_name,
-            sp.event_date_start,
-            sp.event_date_end
+        SELECT sp.plot_id, sp.plot_name, sp.event_date_start, sp.event_date_end, 
+               v.venue_name, v.venue_id
         FROM saved_plots sp
         JOIN venues v ON sp.venue_id = v.venue_id
-        JOIN states s ON v.venue_state_id = s.state_id
         WHERE sp.user_id = ?
         ORDER BY sp.event_date_start DESC
     ", [$user_id]);

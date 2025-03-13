@@ -69,6 +69,33 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
         <div class="stage-area">
             <div class="stage-controls">
                 <h2>Stage Plot</h2>
+                
+                <!-- New: Plot configuration panel -->
+                <div class="plot-config-panel">
+                    <div class="config-row">
+                        <div class="config-field">
+                            <label for="venue_select">Venue:</label>
+                            <select id="venue_select" name="venue_id">
+                                <?php foreach ($venues as $venue): ?>
+                                    <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($venue['venue_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        
+                        <div class="config-field">
+                            <label for="event_start">Event Start:</label>
+                            <input type="datetime-local" id="event_start" name="event_date_start">
+                        </div>
+                        
+                        <div class="config-field">
+                            <label for="event_end">Event End:</label>
+                            <input type="datetime-local" id="event_end" name="event_date_end">
+                        </div>
+                    </div>
+                </div>
+            
                 <div class="control-buttons">
                     <?php if ($isLoggedIn): ?>
                         <button id="save-plot" class="action-button">Save Plot</button>
@@ -123,30 +150,31 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2>Save Plot</h2>
-            <form id="save-plot-form">
-                <label for="plot_name">Plot Name:</label>
-                <input type="text" id="plot_name" name="plot_name" maxlength="20" required>
-                
-                <label for="venue_id">Venue:</label>
-                <select id="venue_id" name="venue_id" required>
-                    <?php foreach ($venues as $venue): ?>
-                        <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($venue['venue_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                
-                <label for="event_date_start">Event Start:</label>
-                <input type="datetime-local" id="event_date_start" name="event_date_start" required>
-                
-                <label for="event_date_end">Event End:</label>
-                <input type="datetime-local" id="event_date_end" name="event_date_end" required>
-                
-                <div class="form-actions">
-                    <button type="submit" class="save-button">Save</button>
-                    <button type="button" class="cancel-button">Cancel</button>
+            
+            <!-- New plot name input -->
+            <div class="save-section new-plot-section">
+                <h3>Save as New Plot</h3>
+                <form id="save-new-plot-form">
+                    <label for="plot_name">Plot Name:</label>
+                    <input type="text" id="plot_name" name="plot_name" maxlength="20" required>
+                    <div class="form-actions">
+                        <button type="submit" class="save-button">Save as New</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Existing plots section -->
+            <div class="save-section existing-plots-section">
+                <h3>Overwrite Existing Plot</h3>
+                <div class="existing-plots-list">
+                    <!-- Will be populated via JavaScript -->
+                    <p class="loading-message">Loading your saved plots...</p>
                 </div>
-            </form>
+            </div>
+            
+            <div class="form-actions modal-bottom-actions">
+                <button type="button" class="cancel-button">Cancel</button>
+            </div>
         </div>
     </div>
     
@@ -157,6 +185,7 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
             <h2>Load Saved Plot</h2>
             <div class="saved-plots-list">
                 <!-- Will be populated via AJAX -->
+                <p class="loading-message">Loading your saved plots...</p>
             </div>
             <div class="form-actions">
                 <button type="button" class="cancel-button">Cancel</button>

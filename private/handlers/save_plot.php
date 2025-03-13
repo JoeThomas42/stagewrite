@@ -38,21 +38,47 @@ try {
     // Begin transaction
     $db->getConnection()->beginTransaction();
     
-    // Insert plot
-    $stmt = $db->query(
-        "INSERT INTO saved_plots (user_id, plot_name, venue_id, event_date_start, event_date_end, created_at) 
-         VALUES (?, ?, ?, ?, ?, NOW())",
-        [
-            $_SESSION['user_id'],
-            $data['plot_name'],
-            $data['venue_id'],
-            $data['event_date_start'],
-            $data['event_date_end']
-        ]
-    );
-    
-    // Get the new plot ID
-    $plotId = $db->getConnection()->lastInsertId();
+    if (!empty($data['plot_id'])) {
+        // This is an update to an existing plot
+        // First, delete existing placed elements
+        $db->query(
+            "DELETE FROM placed_elements WHERE plot_id = ?",
+            [$data['plot_id']]
+        );
+        
+        // Then update the plot details
+        $db->query(
+            "UPDATE saved_plots SET 
+             venue_id = ?, event_date_start = ?, event_date_end = ?, updated_at = NOW()
+             WHERE plot_id = ? AND user_id = ?",
+            [
+                $data['venue_id'],
+                $data['event_date_start'],
+                $data['event_date_end'],
+                $data['plot_id'],
+                $_SESSION['user_id']
+            ]
+        );
+        
+        // Use the existing plot_id
+        $plotId = $data['plot_id'];
+    } else {
+        // This is a new plot - continue with the INSERT as before
+        $stmt = $db->query(
+            "INSERT INTO saved_plots (user_id, plot_name, venue_id, event_date_start, event_date_end, created_at) 
+             VALUES (?, ?, ?, ?, ?, NOW())",
+            [
+                $_SESSION['user_id'],
+                $data['plot_name'],
+                $data['venue_id'],
+                $data['event_date_start'],
+                $data['event_date_end']
+            ]
+        );
+        
+        // Get the new plot ID
+        $plotId = $db->getConnection()->lastInsertId();
+    }
     
     // Insert placed elements
     foreach ($data['elements'] as $element) {

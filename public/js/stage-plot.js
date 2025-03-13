@@ -20,11 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveModal = document.getElementById('save-plot-modal');
   const loadModal = document.getElementById('load-plot-modal');
   const propsModal = document.getElementById('element-props-modal');
+  const venueSelect = document.getElementById('venue_select');
+  const eventStartInput = document.getElementById('event_start');
+  const eventEndInput = document.getElementById('event_end');
   
   // Initialize
   initDragAndDrop();
   initModalControls();
   initCategoryFilter();
+  initLoadPlotModal();
   
   // Set up initial stage dimensions based on default venue
   if (stage) {
@@ -39,6 +43,39 @@ document.addEventListener("DOMContentLoaded", () => {
     dimensionsLabel.className = 'stage-dimensions';
     dimensionsLabel.textContent = `${stageWidth}' × ${stageDepth}'`;
     stage.appendChild(dimensionsLabel);
+  }
+  
+  // Set current date and time for event dates when the page loads
+  if (eventStartInput && eventEndInput) {
+    const now = new Date();
+    const formattedDate = now.toISOString().slice(0, 16); // Format for datetime-local input
+    eventStartInput.value = formattedDate;
+    eventEndInput.value = formattedDate;
+  }
+  
+  // Update venue select change handler
+  if (venueSelect) {
+    venueSelect.addEventListener('change', () => {
+      const venueId = venueSelect.value;
+      // Fetch venue details from server
+      fetch(`/handlers/get_venue.php?id=${venueId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.venue) {
+            // Update stage dimensions
+            stage.setAttribute('data-venue-id', data.venue.venue_id);
+            stage.setAttribute('data-stage-width', data.venue.stage_width);
+            stage.setAttribute('data-stage-depth', data.venue.stage_depth);
+            
+            // Update stage dimensions label
+            const dimensionsLabel = stage.querySelector('.stage-dimensions');
+            if (dimensionsLabel) {
+              dimensionsLabel.textContent = `${data.venue.stage_width}' × ${data.venue.stage_depth}'`;
+            }
+          }
+        })
+        .catch(error => console.error('Error fetching venue:', error));
+    });
   }
   
   /**
@@ -450,19 +487,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (plotState.elements.length > 0) {
           openModal(saveModal);
           
-          // Set current date and time for event dates
-          const now = new Date();
-          const formattedDate = now.toISOString().slice(0, 16); // Format for datetime-local input
+          // Load existing plots for overwrite options
+          loadExistingPlotsForOverwrite();
           
-          document.getElementById('event_date_start').value = formattedDate;
-          document.getElementById('event_date_end').value = formattedDate;
-          
-          // Handle form submission
-          const saveForm = document.getElementById('save-plot-form');
+          // Handle form submission for new plot
+          const saveForm = document.getElementById('save-new-plot-form');
           if (saveForm) {
             saveForm.onsubmit = (e) => {
               e.preventDefault();
-              savePlot(saveForm);
+              savePlot(true); // Save as new plot
             };
           }
         } else {
@@ -505,6 +538,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
+
+    // Add specific handlers for the load plot modal
+    if (loadModal) {
+      const closeBtn = loadModal.querySelector('.close-button');
+      const cancelBtn = loadModal.querySelector('.cancel-button');
+      
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => closeModal(loadModal));
+      }
+      
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => closeModal(loadModal));
+      }
+      
+      // Close when clicking outside the modal
+      loadModal.addEventListener('click', (e) => {
+        if (e.target === loadModal) closeModal(loadModal);
+      });
+    }
   }
   
   /**
@@ -547,13 +599,18 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Save plot to database
    */
-  function savePlot(form) {
+  function savePlot(isNew = true, existingPlotId = null) {
     const plotName = document.getElementById('plot_name').value.trim();
-    const venueId = document.getElementById('venue_id').value;
-    const eventDateStart = document.getElementById('event_date_start').value;
-    const eventDateEnd = document.getElementById('event_date_end').value;
+    const venueId = venueSelect ? venueSelect.value : document.getElementById('venue_id').value;
+    const eventDateStart = eventStartInput ? eventStartInput.value : document.getElementById('event_date_start').value;
+    const eventDateEnd = eventEndInput ? eventEndInput.value : document.getElementById('event_date_end').value;
     
-    if (!plotName || !venueId || !eventDateStart || !eventDateEnd) {
+    if (isNew && !plotName) {
+      alert('Please enter a plot name.');
+      return;
+    }
+    
+    if (!venueId || !eventDateStart || !eventDateEnd) {
       alert('Please fill all required fields.');
       return;
     }
@@ -578,6 +635,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }))
     };
     
+    // For overwrite, add plot_id
+    if (!isNew && existingPlotId) {
+      plotData.plot_id = existingPlotId;
+    }
+    
     console.log('Sending plot data:', plotData);
     
     // Send data to server
@@ -589,19 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify(plotData)
     })
     .then(response => {
-      // First log the raw response for debugging
-      return response.text().then(text => {
-        console.log('Raw server response:', text);
-        
-        try {
-          // Try to parse as JSON
-          return JSON.parse(text);
-        } catch (e) {
-          console.error('JSON parse error:', e);
-          console.error('Response was:', text);
-          throw new Error('Invalid server response');
-        }
-      });
+      return response.json();
     })
     .then(data => {
       if (data.success) {
@@ -769,5 +819,73 @@ document.addEventListener("DOMContentLoaded", () => {
     plotState.elements = [];
     plotState.nextZIndex = 1;
     plotState.selectedElement = null;
+  }
+  
+  /**
+   * Add new function to load existing plots for the save dialog
+   */
+  function loadExistingPlotsForOverwrite() {
+    const plotsList = document.querySelector('.existing-plots-list');
+    if (!plotsList) return;
+    
+    // Show loading message
+    plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
+    
+    // Fetch saved plots
+    fetch('/handlers/get_plots.php')
+      .then(response => response.json())
+      .then(data => {
+        if (data.plots && data.plots.length > 0) {
+          // Create plots list
+          let html = '<ul class="plots-list">';
+          data.plots.forEach(plot => {
+            const formattedDate = new Date(plot.event_date_start).toLocaleDateString();
+            html += `<li class="existing-plot-item">
+              <div class="plot-info">
+                <div class="plot-name">${plot.plot_name}</div>
+                <div class="plot-details">
+                  <span class="venue">${plot.venue_name}</span>
+                  <span class="date">${formattedDate}</span>
+                </div>
+              </div>
+              <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}">Overwrite</button>
+            </li>`;
+          });
+          html += '</ul>';
+          plotsList.innerHTML = html;
+          
+          // Add click handlers for overwrite buttons
+          document.querySelectorAll('.overwrite-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              const plotId = btn.getAttribute('data-plot-id');
+              if (confirm('Are you sure you want to overwrite this plot? This cannot be undone.')) {
+                savePlot(false, plotId); // Save as overwrite
+              }
+            });
+          });
+        } else {
+          plotsList.innerHTML = '<p class="no-plots-message">You have no saved plots.</p>';
+        }
+      })
+      .catch(error => {
+        console.error('Error loading plots:', error);
+        plotsList.innerHTML = '<p class="error-message">Error loading plots. Please try again.</p>';
+      });
+  }
+
+  /**
+   * Initialize load plot modal
+   */
+  function initLoadPlotModal() {
+    if (loadButton && loadModal) {
+      loadButton.addEventListener('click', () => {
+        // First show the modal
+        openModal(loadModal);
+        
+        // Then populate it with plots
+        loadSavedPlots();
+      });
+    }
   }
 });

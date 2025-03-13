@@ -954,6 +954,22 @@ th.sortable .sort-icon {
         font-size: var(--font-size-xs);
       }
   }
+
+  /* Plotter */
+
+  .stage-plot-container {
+    flex-direction: column;
+  }
+  
+  .elements-panel {
+    max-width: none;
+  }
+  
+  .stage {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 5/6;
+  }
 }
 
 /* Keyframes */
@@ -1053,7 +1069,7 @@ th.sortable .sort-icon {
 }
 
 .stage-controls {
-  display: flex;
+  /* display: flex; */
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-md);
@@ -1257,18 +1273,67 @@ th.sortable .sort-icon {
   color: var(--color-text-light);
 }
 
-@media screen and (max-width: 768px) {
-  .stage-plot-container {
-    flex-direction: column;
-  }
-  
-  .elements-panel {
-    max-width: none;
-  }
-  
-  .stage {
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 5/6;
-  }
+.plot-config-panel {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.config-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+}
+
+.config-field {
+  flex: 1;
+  min-width: 150px;
+}
+
+.config-field label {
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.config-field select,
+.config-field input {
+  width: 100%;
+  padding: var(--spacing-xs);
+}
+
+.save-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.save-section h3 {
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-md);
+}
+
+.existing-plots-section .plots-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.existing-plot-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.existing-plot-item:hover {
+  background-color: var(--color-background-light);
+}
+
+.modal-bottom-actions {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-md);
 }
