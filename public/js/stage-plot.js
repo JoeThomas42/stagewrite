@@ -33,28 +33,35 @@ document.addEventListener("DOMContentLoaded", () => {
   initModalControls();
   initCategoryFilter();
   initLoadPlotModal();
+  initPageNavigation();
   
-  // Set up initial stage dimensions based on default venue
-  if (stage) {
-    const stageWidth = stage.getAttribute('data-stage-width');
-    const stageDepth = stage.getAttribute('data-stage-depth');
-    
-    // Scale the stage size proportionally to fit our 500x600 container
-    const scaleFactor = Math.min(500 / stageWidth, 600 / stageDepth);
-    
-    // Display stage dimensions
-    const dimensionsLabel = document.createElement('div');
-    dimensionsLabel.className = 'stage-dimensions';
-    dimensionsLabel.textContent = `${stageWidth}' × ${stageDepth}'`;
-    stage.appendChild(dimensionsLabel);
-  }
+  // Try to restore state from localStorage first
+  const stateRestored = restoreStateFromStorage();
   
-  // Set current date and time for event dates when the page loads
-  if (eventStartInput && eventEndInput) {
-    const now = new Date();
-    const formattedDate = now.toISOString().slice(0, 16); // Format for datetime-local input
-    eventStartInput.value = formattedDate;
-    eventEndInput.value = formattedDate;
+  // Only set up initial state if we didn't restore from storage
+  if (!stateRestored) {
+    // Set up initial stage dimensions based on default venue
+    if (stage) {
+      const stageWidth = stage.getAttribute('data-stage-width');
+      const stageDepth = stage.getAttribute('data-stage-depth');
+      
+      // Scale the stage size proportionally to fit our 500x600 container
+      const scaleFactor = Math.min(500 / stageWidth, 600 / stageDepth);
+      
+      // Display stage dimensions
+      const dimensionsLabel = document.createElement('div');
+      dimensionsLabel.className = 'stage-dimensions';
+      dimensionsLabel.textContent = `${stageWidth}' × ${stageDepth}'`;
+      stage.appendChild(dimensionsLabel);
+    }
+    
+    // Set current date and time for event dates when the page loads
+    if (eventStartInput && eventEndInput) {
+      const now = new Date();
+      const formattedDate = now.toISOString().slice(0, 16); // Format for datetime-local input
+      eventStartInput.value = formattedDate;
+      eventEndInput.value = formattedDate;
+    }
   }
   
   // Update venue select change handler
@@ -756,6 +763,9 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Close modal if we're showing one
         closeModal(saveModal);
+        
+        // Update the saved state in localStorage
+        saveStateToStorage();
       } else {
         alert('Error saving plot: ' + (data.error || 'Unknown error'));
       }
@@ -940,6 +950,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (saveChangesButton) {
       saveChangesButton.classList.add('hidden');
     }
+    
+    // Clear saved state from localStorage
+    clearSavedState();
   }
   
   /**
@@ -1077,5 +1090,154 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update next z-index if needed
       plotState.nextZIndex = Math.max(plotState.nextZIndex, element.z_index + 1);
     });
+  }
+
+  /**
+   * Initialize page navigation handlers
+   */
+  function initPageNavigation() {
+    // Save state when navigating away from the page
+    window.addEventListener('beforeunload', function(e) {
+      // Only prompt if there are unsaved changes
+      if (plotState.elements.length > 0 && (plotState.isModified || !plotState.currentPlotId)) {
+        // Save current state to localStorage
+        saveStateToStorage();
+        
+        // Show confirmation dialog for unsaved changes
+        const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
+        e.returnValue = confirmationMessage;
+        return confirmationMessage;
+      }
+    });
+    
+    // Add click handlers to all navigation links to save state
+    document.querySelectorAll('nav a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        // Don't intercept the current page link
+        if (this.classList.contains('active')) {
+          return;
+        }
+        
+        // Save state before navigating
+        saveStateToStorage();
+      });
+    });
+  }
+  
+  /**
+   * Save current state to localStorage
+   */
+  function saveStateToStorage() {
+    if (!stage) return;
+    
+    try {
+      // Create a serializable state object
+      const stateToSave = {
+        elements: plotState.elements,
+        nextZIndex: plotState.nextZIndex,
+        currentPlotName: plotState.currentPlotName,
+        currentPlotId: plotState.currentPlotId,
+        isModified: plotState.isModified,
+        venueId: venueSelect ? venueSelect.value : null,
+        eventStart: eventStartInput ? eventStartInput.value : null,
+        eventEnd: eventEndInput ? eventEndInput.value : null
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('stageplot_state', JSON.stringify(stateToSave));
+    } catch (e) {
+      console.error('Error saving state to localStorage:', e);
+    }
+  }
+  
+  /**
+   * Restore state from localStorage if available
+   */
+  function restoreStateFromStorage() {
+    if (!stage) return false;
+    
+    try {
+      // Check if we have a saved state
+      const savedState = localStorage.getItem('stageplot_state');
+      if (!savedState) return false;
+      
+      // Parse the saved state
+      const state = JSON.parse(savedState);
+      
+      // Only restore if we have elements
+      if (state.elements && state.elements.length > 0) {
+        // Update plot title
+        const plotTitle = document.getElementById('plot-title');
+        if (plotTitle && state.currentPlotName) {
+          plotTitle.textContent = state.currentPlotName;
+        } else if (plotTitle) {
+          plotTitle.textContent = 'Restored Plot';
+        }
+        
+        // Restore state values
+        plotState.elements = [];
+        plotState.nextZIndex = state.nextZIndex || 1;
+        plotState.currentPlotName = state.currentPlotName;
+        plotState.currentPlotId = state.currentPlotId;
+        plotState.isModified = state.isModified;
+        
+        // Restore form inputs
+        if (venueSelect && state.venueId) {
+          venueSelect.value = state.venueId;
+        }
+        
+        if (eventStartInput && state.eventStart) {
+          eventStartInput.value = state.eventStart;
+        }
+        
+        if (eventEndInput && state.eventEnd) {
+          eventEndInput.value = state.eventEnd;
+        }
+        
+        // Update save button text
+        if (saveButton && state.currentPlotId) {
+          saveButton.textContent = 'Save As';
+        }
+        
+        // Show save changes button if needed
+        if (saveChangesButton && state.isModified) {
+          saveChangesButton.classList.remove('hidden');
+        }
+        
+        // Create all elements on stage
+        state.elements.forEach(elementData => {
+          plotState.elements.push(elementData);
+          createPlacedElement(elementData);
+        });
+        
+        // Add stage dimensions label if it doesn't exist
+        if (!stage.querySelector('.stage-dimensions')) {
+          const stageWidth = stage.getAttribute('data-stage-width');
+          const stageDepth = stage.getAttribute('data-stage-depth');
+          const dimensionsLabel = document.createElement('div');
+          dimensionsLabel.className = 'stage-dimensions';
+          dimensionsLabel.textContent = `${stageWidth}' × ${stageDepth}'`;
+          stage.appendChild(dimensionsLabel);
+        }
+        
+        console.log('Stage plot state restored from localStorage');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Error restoring state from localStorage:', e);
+      return false;
+    }
+  }
+  
+  /**
+   * Clear the saved state from localStorage
+   */
+  function clearSavedState() {
+    try {
+      localStorage.removeItem('stageplot_state');
+    } catch (e) {
+      console.error('Error clearing state from localStorage:', e);
+    }
   }
 });
