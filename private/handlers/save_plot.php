@@ -47,11 +47,13 @@ try {
         );
         
         // Then update the plot details
+        // Include plot_name in the update query to allow name changes when overwriting
         $db->query(
             "UPDATE saved_plots SET 
-             venue_id = ?, event_date_start = ?, event_date_end = ?, updated_at = NOW()
+             plot_name = ?, venue_id = ?, event_date_start = ?, event_date_end = ?, updated_at = NOW()
              WHERE plot_id = ? AND user_id = ?",
             [
+                $data['plot_name'],
                 $data['venue_id'],
                 $data['event_date_start'],
                 $data['event_date_end'],

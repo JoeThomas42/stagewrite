@@ -651,18 +651,27 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Save plot to database
    */
-  function savePlot(isNew = true, existingPlotId = null) {
-    // When saving changes to an existing plot (not showing the modal)
-    // we need to use the current plot name instead of looking for the input field
-    const plotName = isNew 
-      ? document.getElementById('plot_name').value.trim() 
-      : plotState.currentPlotName;
+  function savePlot(isNew = true, existingPlotId = null, newName = null) {
+    // When saving changes to an existing plot or overwriting with a new name
+    // we need to determine what name to use
+    let plotName;
+    
+    if (isNew) {
+      // New plot - always use the input field
+      plotName = document.getElementById('plot_name').value.trim();
+    } else if (newName) {
+      // Overwriting with a new name
+      plotName = newName;
+    } else {
+      // Saving changes to existing plot - use current name
+      plotName = plotState.currentPlotName;
+    }
       
     const venueId = venueSelect ? venueSelect.value : document.getElementById('venue_id').value;
     const eventDateStart = eventStartInput ? eventStartInput.value : document.getElementById('event_date_start').value;
     const eventDateEnd = eventEndInput ? eventEndInput.value : document.getElementById('event_date_end').value;
     
-    if (isNew && !plotName) {
+    if ((isNew || newName) && !plotName) {
       alert('Please enter a plot name.');
       return;
     }
@@ -715,11 +724,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.success) {
         alert('Plot saved successfully!');
         
-        // Update plot title and state for new plots
-        if (isNew && data.plot_id) {
-          plotState.currentPlotId = data.plot_id;
+        // Update plot title and state for new plots or when overwriting with a new name
+        if ((isNew && data.plot_id) || newName) {
+          // Update the current plot ID if this is a new plot
+          if (isNew && data.plot_id) {
+            plotState.currentPlotId = data.plot_id;
+          }
+          
+          // Update the current plot name
           plotState.currentPlotName = plotData.plot_name;
           
+          // Update the visible plot title
           const plotTitle = document.getElementById('plot-title');
           if (plotTitle) {
             plotTitle.textContent = plotData.plot_name;
@@ -965,8 +980,13 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener('click', (e) => {
               e.preventDefault();
               const plotId = btn.getAttribute('data-plot-id');
+              
+              // Check if there's a new name entered
+              const newNameInput = document.getElementById('plot_name');
+              const newName = newNameInput && newNameInput.value.trim() ? newNameInput.value.trim() : null;
+              
               if (confirm('Are you sure you want to overwrite this plot? This cannot be undone.')) {
-                savePlot(false, plotId); // Save as overwrite
+                savePlot(false, plotId, newName); // Save as overwrite with optional new name
               }
             });
           });
