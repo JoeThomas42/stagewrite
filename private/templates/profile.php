@@ -35,34 +35,10 @@ include 'header.php';
 // Role-based logic
 if ($user['role_id'] == 1) {
     // Member Page
-    $savedPlots = $db->fetchAll("
-        SELECT sp.plot_id, sp.plot_name, sp.event_date_start, sp.event_date_end, 
-               v.venue_name, v.venue_id
-        FROM saved_plots sp
-        JOIN venues v ON sp.venue_id = v.venue_id
-        WHERE sp.user_id = ?
-        ORDER BY sp.event_date_start DESC
-    ", [$user_id]);
+  echo "<div class='profile-container'>
+        <h2>Coming soon!</h2>
+        </div>";
 
-    echo "<div class='profile-container'>";
-    
-    echo "<h2>Your Saved Stage Plots:</h2>";
-    echo "<ul class='plots-list'>";
-    foreach ($savedPlots as $plot) {
-        $dateDisplay = formatEventDate($plot['event_date_start'], $plot['event_date_end']);
-        echo "<li>";
-        echo "<a href='#' class='plot-link'>";
-        echo "<div class='plot-name'>{$plot['plot_name']}</div>";
-        echo "<div class='plot-details'>";
-        echo "<span class='venue'>{$plot['venue_name']}</span>";
-        echo "<span class='location'>{$plot['venue_city']}, {$plot['state_name']}</span>";
-        echo "<span class='date'>$dateDisplay</span>";
-        echo "</div>";
-        echo "</a>";
-        echo "</li>";
-    }
-    echo "</ul>";
-    echo "</div>";
 
 } elseif ($user['role_id'] == 2) {
     // Admin Page

@@ -800,25 +800,35 @@ document.addEventListener("DOMContentLoaded", () => {
           let html = '<ul class="plots-list">';
           data.plots.forEach(plot => {
             const formattedDate = new Date(plot.event_date_start).toLocaleDateString();
-            html += `<li>
-              <a href="#" class="plot-item" data-plot-id="${plot.plot_id}">
+            html += `<li class ="plot-item">
+              <a href="#" class="plot-info" data-plot-id="${plot.plot_id}">
                 <div class="plot-name">${plot.plot_name}</div>
                 <div class="plot-details">
                   <span class="venue">${plot.venue_name}</span>
                   <span class="date">${formattedDate}</span>
                 </div>
               </a>
+              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot">×</button>
             </li>`;
           });
           html += '</ul>';
           plotsList.innerHTML = html;
           
           // Add click handlers
-          document.querySelectorAll('.plot-item').forEach(item => {
+          document.querySelectorAll('.plot-info').forEach(item => {
             item.addEventListener('click', (e) => {
               e.preventDefault();
               const plotId = item.getAttribute('data-plot-id');
               loadPlot(plotId);
+            });
+          });
+          
+          // Add delete button handlers
+          document.querySelectorAll('.delete-plot-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const plotId = btn.getAttribute('data-plot-id');
+              deletePlot(plotId);
             });
           });
         } else {
@@ -974,7 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
           let html = '<ul class="plots-list">';
           data.plots.forEach(plot => {
             const formattedDate = new Date(plot.event_date_start).toLocaleDateString();
-            html += `<li class="existing-plot-item">
+            html += `<li class="plot-item">
               <div class="plot-info">
                 <div class="plot-name">${plot.plot_name}</div>
                 <div class="plot-details">
@@ -982,7 +992,10 @@ document.addEventListener("DOMContentLoaded", () => {
                   <span class="date">${formattedDate}</span>
                 </div>
               </div>
-              <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}">Overwrite</button>
+              <div class="plot-actions">
+                <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}">Overwrite</button>
+                <button type="button" class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot">×</button>
+              </div>
             </li>`;
           });
           html += '</ul>';
@@ -1001,6 +1014,15 @@ document.addEventListener("DOMContentLoaded", () => {
               if (confirm('Are you sure you want to overwrite this plot? This cannot be undone.')) {
                 savePlot(false, plotId, newName); // Save as overwrite with optional new name
               }
+            });
+          });
+          
+          // Add delete button handlers
+          document.querySelectorAll('.existing-plots-list .delete-plot-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const plotId = btn.getAttribute('data-plot-id');
+              deletePlot(plotId);
             });
           });
         } else {
@@ -1239,5 +1261,47 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.error('Error clearing state from localStorage:', e);
     }
+  }
+
+  /**
+   * Delete a saved plot
+   */
+  function deletePlot(plotId) {
+    if (!confirm('Are you sure you want to delete this plot? This action cannot be undone.')) {
+      return;
+    }
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('plot_id', plotId);
+    
+    // Send deletion request to server
+    fetch('/handlers/delete_plot.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // If we're currently viewing the plot that was deleted, clear the stage
+        if (plotState.currentPlotId && plotState.currentPlotId == plotId) {
+          clearStage();
+        }
+        
+        // Reload the plots list
+        loadSavedPlots();
+        
+        // Also reload the overwrite list if the save modal is open
+        if (!saveModal.classList.contains('hidden')) {
+          loadExistingPlotsForOverwrite();
+        }
+      } else {
+        alert('Error deleting plot: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting plot:', error);
+      alert('Error deleting plot. Please try again.');
+    });
   }
 });

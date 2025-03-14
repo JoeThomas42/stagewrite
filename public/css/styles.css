@@ -23,6 +23,8 @@
   --color-table-hover: #f1f1f1;
   --color-card: #f8f9fa;
   --color-card-hover: #e9ecef;
+  --color-danger: #8E4F44;
+  --color-danger-light: #D92637;
 
   /* Font Sizes */
   --font-size-xs: 0.75rem;
@@ -40,6 +42,7 @@
   --spacing-lg: 0.9375rem;
   --spacing-xl: 1.25rem;
   --spacing-xxl: 1.875rem;
+  --spacing-xxxl: 3rem;
 
 
   --border-radius-sm: 4px;
