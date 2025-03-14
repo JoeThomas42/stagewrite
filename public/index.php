@@ -152,7 +152,6 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
             
             <!-- New plot name input -->
             <div class="save-section new-plot-section">
-                <h3>Save as New Plot</h3>
                 <form id="save-new-plot-form">
                     <label for="plot_name">Plot Name:</label>
                     <input type="text" id="plot_name" name="plot_name" maxlength="20" required>
