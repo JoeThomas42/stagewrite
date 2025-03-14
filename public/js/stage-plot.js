@@ -55,10 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
       stage.appendChild(dimensionsLabel);
     }
     
-    // Set current date and time for event dates when the page loads
+    // Set current date for event dates when the page loads
     if (eventStartInput && eventEndInput) {
       const now = new Date();
-      const formattedDate = now.toISOString().slice(0, 16); // Format for datetime-local input
+      const formattedDate = now.toISOString().split('T')[0]; // Format for date input (YYYY-MM-DD)
       eventStartInput.value = formattedDate;
       eventEndInput.value = formattedDate;
     }
@@ -707,17 +707,17 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     
-    if (!plotName || !venueId || !eventDateStart || !eventDateEnd) {
+    if (!plotName || !venueId) {
       alert('Please fill all required fields.');
       return;
     }
     
     // Create plot data
     const plotData = {
-      plot_name: plotName,  // This will now work for both new plots and updates
+      plot_name: plotName,
       venue_id: venueId,
-      event_date_start: eventDateStart,
-      event_date_end: eventDateEnd,
+      event_date_start: eventDateStart || null,
+      event_date_end: eventDateEnd || null,
       elements: plotState.elements.map(el => ({
         element_id: el.elementId,
         x_position: el.x,
@@ -823,7 +823,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Create plots list
           let html = '<ul class="plots-list">';
           data.plots.forEach(plot => {
-            const formattedDate = new Date(plot.event_date_start).toLocaleDateString();
+            const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
             html += `<li class ="plot-item">
               <a href="#" class="plot-info" data-plot-id="${plot.plot_id}">
                 <div class="plot-name">${plot.plot_name}</div>
@@ -905,11 +905,11 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Update event dates
           if (eventStartInput && data.plot.event_date_start) {
-            eventStartInput.value = data.plot.event_date_start.replace(' ', 'T');
+            eventStartInput.value = data.plot.event_date_start;
           }
           
           if (eventEndInput && data.plot.event_date_end) {
-            eventEndInput.value = data.plot.event_date_end.replace(' ', 'T');
+            eventEndInput.value = data.plot.event_date_end;
           }
           
           // Update stage dimensions
@@ -1007,7 +1007,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Create plots list
           let html = '<ul class="plots-list">';
           data.plots.forEach(plot => {
-            const formattedDate = new Date(plot.event_date_start).toLocaleDateString();
+            const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
             html += `<li class="plot-item">
               <div class="plot-info">
                 <div class="plot-name">${plot.plot_name}</div>

@@ -85,12 +85,12 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                     
                     <div class="config-field">
                         <label for="event_start">Event Start:</label>
-                        <input type="datetime-local" id="event_start" name="event_date_start">
+                        <input type="date" id="event_start" name="event_date_start">
                     </div>
                     
                     <div class="config-field">
                         <label for="event_end">Event End:</label>
-                        <input type="datetime-local" id="event_end" name="event_date_end">
+                        <input type="date" id="event_end" name="event_date_end">
                     </div>
                 </div>
             

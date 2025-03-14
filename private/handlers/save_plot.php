@@ -30,8 +30,7 @@ try {
     
     // Validate required data
     if (empty($data['plot_name']) || empty($data['venue_id']) || 
-        empty($data['event_date_start']) || empty($data['event_date_end']) ||
-        empty($data['elements']) || !is_array($data['elements'])) {
+        !isset($data['elements']) || !is_array($data['elements'])) {
         throw new Exception('Missing required data');
     }
     
@@ -55,8 +54,8 @@ try {
             [
                 $data['plot_name'],
                 $data['venue_id'],
-                $data['event_date_start'],
-                $data['event_date_end'],
+                !empty($data['event_date_start']) ? $data['event_date_start'] : null,
+                !empty($data['event_date_end']) ? $data['event_date_end'] : null,
                 $data['plot_id'],
                 $_SESSION['user_id']
             ]
@@ -73,8 +72,8 @@ try {
                 $_SESSION['user_id'],
                 $data['plot_name'],
                 $data['venue_id'],
-                $data['event_date_start'],
-                $data['event_date_end']
+                !empty($data['event_date_start']) ? $data['event_date_start'] : null,
+                !empty($data['event_date_end']) ? $data['event_date_end'] : null
             ]
         );
         
