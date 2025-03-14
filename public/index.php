@@ -72,27 +72,25 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                 
                 <!-- New: Plot configuration panel -->
                 <div class="plot-config-panel">
-                    <div class="config-row">
-                        <div class="config-field">
-                            <label for="venue_select">Venue:</label>
-                            <select id="venue_select" name="venue_id">
-                                <?php foreach ($venues as $venue): ?>
-                                    <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($venue['venue_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        
-                        <div class="config-field">
-                            <label for="event_start">Event Start:</label>
-                            <input type="datetime-local" id="event_start" name="event_date_start">
-                        </div>
-                        
-                        <div class="config-field">
-                            <label for="event_end">Event End:</label>
-                            <input type="datetime-local" id="event_end" name="event_date_end">
-                        </div>
+                    <div class="config-field">
+                        <label for="venue_select">Venue:</label>
+                        <select id="venue_select" name="venue_id">
+                            <?php foreach ($venues as $venue): ?>
+                                <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($venue['venue_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="config-field">
+                        <label for="event_start">Event Start:</label>
+                        <input type="datetime-local" id="event_start" name="event_date_start">
+                    </div>
+                    
+                    <div class="config-field">
+                        <label for="event_end">Event End:</label>
+                        <input type="datetime-local" id="event_end" name="event_date_end">
                     </div>
                 </div>
             

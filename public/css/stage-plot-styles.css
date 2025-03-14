@@ -289,32 +289,35 @@
 .plot-config-panel {
   background-color: var(--color-background-light);
   border-radius: var(--border-radius-md);
-  padding: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
-}
-
-.config-row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-md);
   align-items: flex-end;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .config-field {
   flex: 1;
   min-width: 150px;
+  text-align: left;
 }
 
 .config-field label {
   display: block;
   font-size: var(--font-size-sm);
-  margin-bottom: var (--spacing-xs);
+  margin-bottom: var(--spacing-xs);
 }
 
 .config-field select,
 .config-field input {
+  box-sizing: border-box;
   width: 100%;
   padding: var(--spacing-xs);
+}
+
+input[type="datetime-local"] {
+  min-width: 0;
 }
 
 .save-section {
@@ -338,7 +341,7 @@
   padding: var(--spacing-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var (--spacing-xs);
 
   &:hover {
     background-color: var(--color-background-light);
@@ -347,7 +350,7 @@
 
 .modal-bottom-actions {
   border-top: 1px solid var(--color-border);
-  padding-top: var(--spacing-md);
+  padding-top: var (--spacing-md);
   margin-top: var(--spacing-md);
 }
 
