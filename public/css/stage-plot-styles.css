@@ -165,23 +165,19 @@
   right: 2px;
   top: 2px;
   transition: opacity 0.2s;
-}
-
-.placed-element:hover .element-actions {
-  opacity: 1;
-}
-
-.element-actions button {
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.8);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  font-size: 10px;
-  height: 16px;
-  justify-content: center;
-  width: 16px;
+  
+  button {
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    font-size: 10px;
+    height: 16px;
+    justify-content: center;
+    width: 16px;
+  }
 }
 
 /* ---------------- Modals -----------------*/

@@ -199,8 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
       image: imageSrc,
       x: x,
       y: y,
-      width: 80, // Default width
-      height: 50, // Default height
+      width: 75, // Initial default width that will be adjusted when image loads
+      height: 75, // Fixed height
       rotation: 0,
       flipped: false,
       zIndex: plotState.nextZIndex++,
@@ -231,9 +231,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Position element
     element.style.left = `${elementData.x}px`;
     element.style.top = `${elementData.y}px`;
-    element.style.width = `${elementData.width}px`;
     element.style.height = `${elementData.height}px`;
     element.style.zIndex = elementData.zIndex;
+    
+    // Initially set width, will be adjusted when image loads
+    element.style.width = `${elementData.width}px`;
     
     // Apply rotation if any
     if (elementData.rotation) {
@@ -251,6 +253,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const img = document.createElement('img');
     img.src = `/images/elements/${elementData.image}`;
     img.alt = elementData.elementName;
+    
+    // Add onload handler to adjust width based on actual image dimensions
+    img.onload = function() {
+      // Calculate the appropriate width based on the image's aspect ratio
+      const aspectRatio = this.naturalWidth / this.naturalHeight;
+      const newWidth = Math.round(elementData.height * aspectRatio);
+      
+      // Update the element width in the DOM
+      element.style.width = `${newWidth}px`;
+      
+      // Update the element width in state
+      const elementIndex = plotState.elements.findIndex(el => el.id === elementData.id);
+      if (elementIndex !== -1) {
+        plotState.elements[elementIndex].width = newWidth;
+      }
+      
+      // Only mark as modified if not loading an existing plot
+      if (plotState.currentPlotId && plotState.isModified) {
+        markPlotAsModified();
+      }
+    };
+    
     element.appendChild(img);
     
     // Add label if present
