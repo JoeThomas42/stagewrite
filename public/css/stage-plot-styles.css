@@ -2,6 +2,7 @@
  * StageWrite Plotter CSS
  */
 
+ /* -------------- Elements Area ---------------- */
 .stage-plot-container {
   display: flex;
   flex-wrap: wrap;
@@ -64,15 +65,7 @@
   }
 }
 
-.element-name {
-  font-size: var(--font-size-sm);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  white-space: nowrap;
-  width: 100%;
-}
-
+/* --------------- Stage Area ------------------ */
 .stage-area {
   flex: 2;
   min-width: 600px;
@@ -109,6 +102,18 @@
   width: 100%;
 }
 
+.stage-dimensions {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: var(--border-radius-xs);
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  padding: 2px 5px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+/* ----------------- Placed Elements ------------------ */
 .placed-element {
   align-items: center;
   background-color: white;
@@ -129,6 +134,15 @@
   &:hover .element-actions {
     opacity: 1;
   }
+}
+
+.element-name {
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .element-label {
@@ -170,18 +184,7 @@
   width: 16px;
 }
 
-.stage-dimensions {
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: var(--border-radius-xs);
-  color: var(--color-text-light);
-  font-size: var(--font-size-sm);
-  padding: 2px 5px;
-  position: absolute;
-  right: 5px;
-  top: 5px;
-}
-
-/* Modal styles for properties and save/load */
+/* ---------------- Modals -----------------*/
 .modal {
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
