@@ -100,6 +100,7 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                         <button id="save-changes" class="action-button hidden">Save Changes</button>
                         <button id="load-plot" class="action-button">Load Plot</button>
                     <?php endif; ?>
+                    <button id="new-plot" class="action-button">New Plot</button>
                     <button id="clear-plot" class="action-button">Clear Stage</button>
                 </div>
             </div>

@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const venueSelect = document.getElementById('venue_select');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
+  const newPlotButton = document.getElementById('new-plot');
   
   // Initialize
   initDragAndDrop();
@@ -588,8 +589,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Setup clear button
     if (clearButton) {
       clearButton.addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear the stage? All unsaved changes will be lost.')) {
-          clearStage();
+        if (confirm('Are you sure you want to clear all elements from the stage?')) {
+          clearElements();
+        }
+      });
+    }
+    
+    // Setup new plot button
+    if (newPlotButton) {
+      newPlotButton.addEventListener('click', () => {
+        if (confirm('Are you sure you want to create a new plot? All unsaved changes will be lost.')) {
+          newPlot();
         }
       });
     }
@@ -956,37 +966,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * Clear all elements from the stage
    */
   function clearStage() {
-    // Clear all placed elements from DOM
-    const placedElements = stage.querySelectorAll('.placed-element');
-    placedElements.forEach(element => element.remove());
-    
-    // Reset state
-    plotState.elements = [];
-    plotState.nextZIndex = 1;
-    plotState.selectedElement = null;
-    
-    // Reset plot info
-    plotState.currentPlotName = null;
-    plotState.currentPlotId = null;
-    plotState.isModified = false;
-    
-    // Reset plot title
-    const plotTitle = document.getElementById('plot-title');
-    if (plotTitle) {
-      plotTitle.textContent = 'New Plot';
-    }
-    
-    // Reset buttons
-    if (saveButton) {
-      saveButton.textContent = 'Save Plot';
-    }
-    
-    if (saveChangesButton) {
-      saveChangesButton.classList.add('hidden');
-    }
-    
-    // Clear saved state from localStorage
-    clearSavedState();
+    newPlot(); // Use the new function for complete reset
   }
   
   /**
@@ -1327,5 +1307,68 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error('Error deleting plot:', error);
       alert('Error deleting plot. Please try again.');
     });
+  }
+
+  /**
+   * Clear only elements from the stage
+   */
+  function clearElements() {
+    // Clear all placed elements from DOM
+    const placedElements = stage.querySelectorAll('.placed-element');
+    placedElements.forEach(element => element.remove());
+    
+    // Reset elements state
+    plotState.elements = [];
+    plotState.nextZIndex = 1;
+    plotState.selectedElement = null;
+    
+    // Mark as modified if there's a current plot
+    if (plotState.currentPlotId) {
+      markPlotAsModified();
+    }
+  }
+  
+  /**
+   * Create a completely new plot (reset everything)
+   */
+  function newPlot() {
+    // Clear all elements
+    clearElements();
+    
+    // Reset plot info
+    plotState.currentPlotName = null;
+    plotState.currentPlotId = null;
+    plotState.isModified = false;
+    
+    // Reset plot title
+    const plotTitle = document.getElementById('plot-title');
+    if (plotTitle) {
+      plotTitle.textContent = 'New Plot';
+    }
+    
+    // Reset buttons
+    if (saveButton) {
+      saveButton.textContent = 'Save Plot';
+    }
+    
+    if (saveChangesButton) {
+      saveChangesButton.classList.add('hidden');
+    }
+    
+    // Clear saved state from localStorage
+    clearSavedState();
+    
+    // Set default dates
+    if (eventStartInput && eventEndInput) {
+      const now = new Date();
+      const formattedDate = now.toISOString().split('T')[0]; // Format for date input (YYYY-MM-DD)
+      eventStartInput.value = formattedDate;
+      eventEndInput.value = formattedDate;
+    }
+    
+    // Reset to default venue if available
+    if (venueSelect && venueSelect.options.length > 0) {
+      venueSelect.selectedIndex = 0;
+    }
   }
 });
