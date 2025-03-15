@@ -83,6 +83,18 @@
   gap: var(--spacing-sm);
 }
 
+#load-plot {
+  margin-right: auto;
+}
+
+#clear-plot {
+  background-color: var(--color-danger);
+
+  &:hover {
+    background-color: var(--color-danger-dark);
+  }
+}
+
 .stage {
   background-color: #f5f5f5;
   border: 2px solid var(--color-text);
