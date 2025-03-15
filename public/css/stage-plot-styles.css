@@ -354,6 +354,71 @@ input[type="datetime-local"] {
   margin-top: var(--spacing-md);
 }
 
+/* Add venue */
+
+.venue-field {
+  position: relative;
+}
+
+.venue-select-container {
+  display: flex;
+  align-items: center;
+}
+
+.venue-select-container select {
+  flex-grow: 1;
+  margin-right: 5px;
+}
+
+.add-venue-button {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  height: 24px;
+  line-height: 1;
+  padding: 0;
+  width: 24px;
+}
+
+.venue-details {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-size-sm);
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+}
+
+#add-venue-modal .modal-content {
+  max-width: 600px;
+}
+
+#add-venue-modal label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#add-venue-modal input,
+#add-venue-modal select {
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  padding: 8px;
+  width: 100%;
+}
+
+.field-error {
+  color: var(--color-danger);
+  display: block;
+  font-size: 12px;
+  margin-bottom: 15px;
+  margin-top: -10px;
+}
 
 /* -------------------- Responsive styles ---------------------- */ 
 @media screen and (max-width: 768px) {

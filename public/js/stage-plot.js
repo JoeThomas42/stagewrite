@@ -11,7 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedElement: null,
     currentPlotName: null,
     currentPlotId: null,
-    isModified: false    // Add this line to track modifications
+    isModified: false,
+    isLoading: false,
+    venueChangedByLoading: false
   };
   
   // DOM Elements
@@ -27,6 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const venueSelect = document.getElementById('venue_select');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
+  const newPlotButton = document.getElementById('new-plot');
+  const addVenueButton = document.getElementById('add-venue-btn');
+  const venueAddModal = document.getElementById('add-venue-modal');
+  const venueAddressEl = document.getElementById('venue-address');
+  const venueDimensionsEl = document.getElementById('venue-dimensions');
   
   // Initialize
   initDragAndDrop();
@@ -34,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initCategoryFilter();
   initLoadPlotModal();
   initPageNavigation();
+  initAddVenueModal();
+  updateVenueDetails(); // Load initial venue details
   
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage();
@@ -89,10 +98,16 @@ document.addEventListener("DOMContentLoaded", () => {
               dimensionsLabel.textContent = `${data.venue.stage_width}' × ${data.venue.stage_depth}'`;
             }
             
-            // Mark plot as modified if we're editing an existing plot
-            if (plotState.currentPlotId) {
+            // Update venue details display
+            updateVenueDetails();
+            
+            // Only mark as modified if not triggered by loading and has a current plot
+            if (!plotState.isLoading && !plotState.venueChangedByLoading && plotState.currentPlotId) {
               markPlotAsModified();
             }
+            
+            // Reset the venue loading flag after handling the change
+            plotState.venueChangedByLoading = false;
           }
         })
         .catch(error => {
@@ -105,7 +120,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add event listeners for date/time changes
   if (eventStartInput) {
     eventStartInput.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
+      // Only mark as modified if we're not loading a plot
+      if (!plotState.isLoading && plotState.currentPlotId) {
         markPlotAsModified();
       }
     });
@@ -113,7 +129,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (eventEndInput) {
     eventEndInput.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
+      // Only mark as modified if we're not loading a plot
+      if (!plotState.isLoading && plotState.currentPlotId) {
         markPlotAsModified();
       }
     });
@@ -221,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Create a placed element on the stage
    */
-  function createPlacedElement(elementData) {
+  function createPlacedElement(elementData, isFromLoad = false) {
     // Create element
     const element = document.createElement('div');
     element.className = 'placed-element';
@@ -247,10 +264,38 @@ document.addEventListener("DOMContentLoaded", () => {
         : 'scaleX(-1)';
     }
     
+    // Store the original width for comparison later
+    const originalWidth = elementData.width;
+    
     // Create image
     const img = document.createElement('img');
     img.src = `/images/elements/${elementData.image}`;
     img.alt = elementData.elementName;
+    
+    // Add onload handler to adjust width based on actual image dimensions
+    img.onload = function() {
+      // Calculate the appropriate width based on the image's aspect ratio
+      const aspectRatio = this.naturalWidth / this.naturalHeight;
+      const newWidth = Math.round(elementData.height * aspectRatio);
+      
+      // Update the element width in the DOM
+      element.style.width = `${newWidth}px`;
+      
+      // Update the element width in state
+      const elementIndex = plotState.elements.findIndex(el => el.id === elementData.id);
+      if (elementIndex !== -1) {
+        plotState.elements[elementIndex].width = newWidth;
+      }
+      
+      // Only mark as modified if:
+      // 1. We have a current plot ID
+      // 2. We're NOT currently loading a plot (check current global state)
+      // 3. The width actually changed (indicating a real modification)
+      if (plotState.currentPlotId && !plotState.isLoading && originalWidth !== newWidth) {
+        markPlotAsModified();
+      }
+    };
+    
     element.appendChild(img);
     
     // Add label if present
@@ -264,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Add edit button
     const actions = document.createElement('div');
     actions.className = 'element-actions';
-    
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-element';
     editBtn.innerHTML = '⚙';
@@ -835,6 +879,9 @@ document.addEventListener("DOMContentLoaded", () => {
    * Load a specific plot
    */
   function loadPlot(plotId) {
+    // Set loading flag to prevent marking as modified during loading
+    plotState.isLoading = true;
+    
     fetch(`/handlers/get_plot.php?id=${plotId}`)
       .then(response => {
         if (!response.ok) {
@@ -847,6 +894,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Confirm if we should clear the current stage
           if (plotState.elements.length > 0) {
             if (!confirm('Loading this plot will replace your current stage. Continue?')) {
+              plotState.isLoading = false; // Reset loading flag if cancelled
               return;
             }
           }
@@ -866,31 +914,22 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Update venue dropdown to match the plot's venue
           if (venueSelect && data.plot.venue_id) {
+            // Set flag to indicate this venue change is from loading
+            plotState.venueChangedByLoading = true;
             venueSelect.value = data.plot.venue_id;
+            // Trigger venue change to update stage dimensions and venue details
+            venueSelect.dispatchEvent(new Event('change'));
           }
           
-          // Update event dates
-          if (eventStartInput && data.plot.event_date_start) {
-            eventStartInput.value = data.plot.event_date_start.replace(' ', 'T');
+          // Update event dates - handle null/empty values properly
+          if (eventStartInput) {
+            eventStartInput.value = data.plot.event_date_start || '';
           }
           
-          if (eventEndInput && data.plot.event_date_end) {
-            eventEndInput.value = data.plot.event_date_end.replace(' ', 'T');
+          if (eventEndInput) {
+            eventEndInput.value = data.plot.event_date_end || '';
           }
           
-          // Update stage dimensions
-          if (stage) {
-            stage.setAttribute('data-venue-id', data.plot.venue_id);
-            stage.setAttribute('data-stage-width', data.plot.stage_width);
-            stage.setAttribute('data-stage-depth', data.plot.stage_depth);
-            
-            // Update stage dimensions label
-            const dimensionsLabel = stage.querySelector('.stage-dimensions');
-            if (dimensionsLabel) {
-              dimensionsLabel.textContent = `${data.plot.stage_width}' × ${data.plot.stage_depth}'`;
-            }
-          }
-
           // Update button text to "Save As" since we're editing an existing plot
           if (saveButton) {
             saveButton.textContent = 'Save As';
@@ -915,6 +954,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(error => {
         console.error('Error loading plot:', error);
         alert('Error loading plot. Please try again.');
+      })
+      .finally(() => {
+        // Reset loading flag when done
+        plotState.isLoading = false;
       });
   }
   
@@ -1084,8 +1127,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Add to state
       plotState.elements.push(elementData);
       
-      // Create DOM element
-      createPlacedElement(elementData);
+      // Create DOM element - pass true to indicate this is from a load operation
+      createPlacedElement(elementData, true);
       
       // Update next z-index if needed
       plotState.nextZIndex = Math.max(plotState.nextZIndex, element.z_index + 1);
@@ -1166,6 +1209,10 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Only restore if we have elements
       if (state.elements && state.elements.length > 0) {
+        // Set loading flag to prevent marking as modified during restoration
+        plotState.isLoading = true;
+        plotState.venueChangedByLoading = true;
+        
         // Update plot title
         const plotTitle = document.getElementById('plot-title');
         if (plotTitle && state.currentPlotName) {
@@ -1181,17 +1228,18 @@ document.addEventListener("DOMContentLoaded", () => {
         plotState.currentPlotId = state.currentPlotId;
         plotState.isModified = state.isModified;
         
-        // Restore form inputs
+        // Restore form inputs and update venue details
         if (venueSelect && state.venueId) {
           venueSelect.value = state.venueId;
+          updateVenueDetails();
         }
         
-        if (eventStartInput && state.eventStart) {
-          eventStartInput.value = state.eventStart;
+        if (eventStartInput) {
+          eventStartInput.value = state.eventStart || '';
         }
         
-        if (eventEndInput && state.eventEnd) {
-          eventEndInput.value = state.eventEnd;
+        if (eventEndInput) {
+          eventEndInput.value = state.eventEnd || '';
         }
         
         // Update save button text
@@ -1204,10 +1252,10 @@ document.addEventListener("DOMContentLoaded", () => {
           saveChangesButton.classList.remove('hidden');
         }
         
-        // Create all elements on stage
+        // Create all elements on stage - pass true to indicate this is from storage (like a load)
         state.elements.forEach(elementData => {
           plotState.elements.push(elementData);
-          createPlacedElement(elementData);
+          createPlacedElement(elementData, true);
         });
         
         // Add stage dimensions label if it doesn't exist
@@ -1220,11 +1268,17 @@ document.addEventListener("DOMContentLoaded", () => {
           stage.appendChild(dimensionsLabel);
         }
         
+        // Reset flags when done
+        plotState.isLoading = false;
+        plotState.venueChangedByLoading = false;
+        
         console.log('Stage plot state restored from localStorage');
         return true;
       }
       return false;
     } catch (e) {
+      plotState.isLoading = false;
+      plotState.venueChangedByLoading = false; // Reset in case of error
       console.error('Error restoring state from localStorage:', e);
       return false;
     }
@@ -1239,5 +1293,266 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.error('Error clearing state from localStorage:', e);
     }
+  }
+
+  /**
+   * Delete a saved plot
+   */
+  function deletePlot(plotId) {
+    if (!confirm('Are you sure you want to delete this plot? This action cannot be undone.')) {
+      return;
+    }
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('plot_id', plotId);
+    
+    // Send deletion request to server
+    fetch('/handlers/delete_plot.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // If we're currently viewing the plot that was deleted, clear the stage
+        if (plotState.currentPlotId && plotState.currentPlotId == plotId) {
+          clearStage();
+        }
+        
+        // Reload the plots list
+        loadSavedPlots();
+        
+        // Also reload the overwrite list if the save modal is open
+        if (!saveModal.classList.contains('hidden')) {
+          loadExistingPlotsForOverwrite();
+        }
+      } else {
+        alert('Error deleting plot: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting plot:', error);
+      alert('Error deleting plot. Please try again.');
+    });
+  }
+
+  /**
+   * Clear only elements from the stage
+   */
+  function clearElements() {
+    // Clear all placed elements from DOM
+    const placedElements = stage.querySelectorAll('.placed-element');
+    placedElements.forEach(element => element.remove());
+    
+    // Reset elements state
+    plotState.elements = [];
+    plotState.nextZIndex = 1;
+    plotState.selectedElement = null;
+    
+    // Mark as modified if there's a current plot
+    if (plotState.currentPlotId) {
+      markPlotAsModified();
+    }
+  }
+  
+  /**
+   * Create a completely new plot (reset everything)
+   */
+  function newPlot() {
+    // Clear all elements
+    clearElements();
+    
+    // Reset plot info
+    plotState.currentPlotName = null;
+    plotState.currentPlotId = null;
+    plotState.isModified = false;
+    
+    // Reset plot title
+    const plotTitle = document.getElementById('plot-title');
+    if (plotTitle) {
+      plotTitle.textContent = 'New Plot';
+    }
+    
+    // Reset buttons
+    if (saveButton) {
+      saveButton.textContent = 'Save Plot';
+    }
+    
+    if (saveChangesButton) {
+      saveChangesButton.classList.add('hidden');
+    }
+    
+    // Clear saved state from localStorage
+    clearSavedState();
+    
+    // Set default dates
+    if (eventStartInput && eventEndInput) {
+      const now = new Date();
+      const formattedDate = now.toISOString().split('T')[0]; // Format for date input (YYYY-MM-DD)
+      eventStartInput.value = formattedDate;
+      eventEndInput.value = formattedDate;
+    }
+    
+    // Set to default venue (id 1)
+    if (venueSelect) {
+      // Find option with value 1
+      const defaultOption = venueSelect.querySelector('option[value="1"]');
+      if (defaultOption) {
+        venueSelect.value = "1";
+        
+        // Update the stage dimensions and venue info
+        const event = new Event('change');
+        venueSelect.dispatchEvent(event);
+      }
+    }
+  }
+
+  /**
+   * Initialize add venue modal
+   */
+  function initAddVenueModal() {
+    if (!addVenueButton || !venueAddModal) return;
+    
+    const venueForm = document.getElementById('venue-add-form');
+    const closeBtn = venueAddModal.querySelector('.close-button');
+    const cancelBtn = venueAddModal.querySelector('.cancel-button');
+    
+    // Show modal when add button is clicked
+    addVenueButton.addEventListener('click', () => {
+      // Clear any previous error messages
+      const errorElements = venueForm.querySelectorAll('.field-error');
+      errorElements.forEach(el => el.remove());
+      
+      // Reset form
+      venueForm.reset();
+      
+      // Show modal
+      openModal(venueAddModal);
+    });
+    
+    // Close modal events
+    if (closeBtn) closeBtn.addEventListener('click', () => closeModal(venueAddModal));
+    if (cancelBtn) cancelBtn.addEventListener('click', () => closeModal(venueAddModal));
+    
+    // Close when clicking outside modal
+    venueAddModal.addEventListener('click', (e) => {
+      if (e.target === venueAddModal) closeModal(venueAddModal);
+    });
+    
+    // Handle form submission
+    venueForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Clear any previous error messages
+      const errorElements = venueForm.querySelectorAll('.field-error');
+      errorElements.forEach(el => el.remove());
+      
+      try {
+        const formData = new FormData(venueForm);
+        
+        const response = await fetch('/handlers/user_venue_handler.php', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Add new venue to the dropdown
+          const option = document.createElement('option');
+          option.value = data.venue.venue_id;
+          option.textContent = data.venue.venue_name;
+          
+          // Add to select and select it
+          venueSelect.appendChild(option);
+          venueSelect.value = data.venue.venue_id;
+          
+          // Update stage dimensions
+          stage.setAttribute('data-venue-id', data.venue.venue_id);
+          stage.setAttribute('data-stage-width', data.venue.stage_width);
+          stage.setAttribute('data-stage-depth', data.venue.stage_depth);
+          
+          // Update dimensions label
+          const dimensionsLabel = stage.querySelector('.stage-dimensions');
+          if (dimensionsLabel) {
+            dimensionsLabel.textContent = `${data.venue.stage_width}' × ${data.venue.stage_depth}'`;
+          }
+          
+          // Update venue details display
+          updateVenueDetails();
+          
+          // Close modal
+          closeModal(venueAddModal);
+          
+          // Mark as modified if editing an existing plot
+          if (plotState.currentPlotId) {
+            markPlotAsModified();
+          }
+        } else if (data.errors) {
+          // Display field-specific errors
+          for (const [field, message] of Object.entries(data.errors)) {
+            const inputField = document.getElementById(field);
+            if (inputField) {
+              // Create error message element
+              const errorSpan = document.createElement('span');
+              errorSpan.className = 'field-error';
+              errorSpan.textContent = message;
+              
+              inputField.parentNode.insertBefore(errorSpan, inputField.nextSibling);
+            }
+          }
+        } else {
+          alert('Error creating venue: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error creating venue:', error);
+        alert('Error creating venue. Please try again.');
+      }
+    });
+  }
+  
+  /**
+   * Update venue details display
+   */
+  function updateVenueDetails() {
+    if (!venueSelect || !venueAddressEl || !venueDimensionsEl) return;
+    
+    const venueId = venueSelect.value;
+    
+    fetch(`/handlers/user_venue_handler.php?id=${venueId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.venue) {
+          // Format and display address
+          let address = 'Address: ';
+          const addressParts = [];
+          
+          if (data.venue.venue_street) addressParts.push(data.venue.venue_street);
+          
+          let cityStateZip = '';
+          if (data.venue.venue_city) cityStateZip += data.venue.venue_city;
+          if (data.venue.state_abbr) cityStateZip += cityStateZip ? ', ' + data.venue.state_abbr : data.venue.state_abbr;
+          if (data.venue.venue_zip) cityStateZip += ' ' + data.venue.venue_zip;
+          
+          if (cityStateZip) addressParts.push(cityStateZip);
+          
+          if (addressParts.length > 0) {
+            address += addressParts.join(', ');
+          } else {
+            address += 'Not specified';
+          }
+          
+          venueAddressEl.textContent = address;
+          
+          // Display stage dimensions
+          venueDimensionsEl.textContent = `Stage: ${data.venue.stage_width}' × ${data.venue.stage_depth}'`;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching venue details:', error);
+        venueAddressEl.textContent = 'Address: Not available';
+        venueDimensionsEl.textContent = 'Stage: Not available';
+      });
   }
 });

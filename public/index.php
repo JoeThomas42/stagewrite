@@ -70,17 +70,20 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
             <div class="stage-controls">
                 <h2 id="plot-title">New Plot</h2>
                 
-                <!-- New: Plot configuration panel -->
+                <!-- Plot configuration panel -->
                 <div class="plot-config-panel">
-                    <div class="config-field">
+                    <div class="config-field venue-field">
                         <label for="venue_select">Venue:</label>
-                        <select id="venue_select" name="venue_id">
-                            <?php foreach ($venues as $venue): ?>
-                                <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($venue['venue_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="venue-select-container">
+                            <select id="venue_select" name="venue_id">
+                                <?php foreach ($venues as $venue): ?>
+                                    <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($venue['venue_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="button" id="add-venue-btn" class="add-venue-button" title="Add New Venue">+</button>
+                        </div>
                     </div>
                     
                     <div class="config-field">
@@ -93,6 +96,12 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                         <input type="datetime-local" id="event_end" name="event_date_end">
                     </div>
                 </div>
+                
+                <!-- Venue details display -->
+                <div class="venue-details">
+                    <span id="venue-address">Address: </span>
+                    <span id="venue-dimensions">Stage: </span>
+                </div>
             
                 <div class="control-buttons">
                     <?php if ($isLoggedIn): ?>
@@ -100,7 +109,8 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                         <button id="save-changes" class="action-button hidden">Save Changes</button>
                         <button id="load-plot" class="action-button">Load Plot</button>
                     <?php endif; ?>
-                    <button id="clear-plot" class="action-button">Clear Stage</button>
+                    <button id="new-plot" class="action-button">New Plot</button>
+                    <button id="clear-plot" class="action-button">Clear Elements</button>
                 </div>
             </div>
             <div id="stage" class="stage" 
@@ -189,6 +199,51 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
             <div class="form-actions">
                 <button type="button" class="cancel-button">Cancel</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Add Venue Modal -->
+    <div id="add-venue-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Add New Venue</h2>
+            <form id="venue-add-form">
+                <input type="hidden" id="venue_id" name="venue_id" value="">
+                
+                <label for="venue_name">Venue Name:</label>
+                <input type="text" id="venue_name" name="venue_name" required>
+                
+                <label for="venue_street">Street Address:</label>
+                <input type="text" id="venue_street" name="venue_street">
+                
+                <label for="venue_city">City:</label>
+                <input type="text" id="venue_city" name="venue_city">
+                
+                <label for="venue_state_id">State:</label>
+                <select id="venue_state_id" name="venue_state_id">
+                    <option value="" selected disabled>Select State</option>
+                    <?php
+                    $states = $db->fetchAll("SELECT state_id, state_name FROM states ORDER BY state_name");
+                    foreach ($states as $state) {
+                        echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
+                    }
+                    ?>
+                </select>
+                
+                <label for="venue_zip">ZIP Code:</label>
+                <input type="text" id="venue_zip" name="venue_zip">
+                
+                <label for="stage_width">Stage Width (feet):</label>
+                <input type="number" id="stage_width" name="stage_width" required min="1" max="200">
+                
+                <label for="stage_depth">Stage Depth (feet):</label>
+                <input type="number" id="stage_depth" name="stage_depth" required min="1" max="200">
+                
+                <div class="form-actions">
+                    <button type="submit" class="save-button">Save Venue</button>
+                    <button type="button" class="cancel-button">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
     <?php endif; ?>
