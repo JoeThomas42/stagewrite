@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedElement: null,
     currentPlotName: null,
     currentPlotId: null,
-    isModified: false    // Add this line to track modifications
+    isModified: false
   };
   
   // DOM Elements
@@ -913,13 +913,13 @@ document.addEventListener("DOMContentLoaded", () => {
             venueSelect.value = data.plot.venue_id;
           }
           
-          // Update event dates
-          if (eventStartInput && data.plot.event_date_start) {
-            eventStartInput.value = data.plot.event_date_start;
+          // Update event dates - handle null/empty values properly
+          if (eventStartInput) {
+            eventStartInput.value = data.plot.event_date_start || '';
           }
           
-          if (eventEndInput && data.plot.event_date_end) {
-            eventEndInput.value = data.plot.event_date_end;
+          if (eventEndInput) {
+            eventEndInput.value = data.plot.event_date_end || '';
           }
           
           // Update stage dimensions
@@ -1367,8 +1367,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     // Reset to default venue if available
-    if (venueSelect && venueSelect.options.length > 0) {
-      venueSelect.selectedIndex = 0;
+    if (venueSelect) {
+      venueSelect.value = "1";
     }
   }
 });
