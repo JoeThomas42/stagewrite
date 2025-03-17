@@ -16,10 +16,12 @@
 
 
 -- Dumping database structure for jrtdesig_stagewrite
+DROP DATABASE IF EXISTS `jrtdesig_stagewrite`;
 CREATE DATABASE IF NOT EXISTS `jrtdesig_stagewrite` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `jrtdesig_stagewrite`;
 
 -- Dumping structure for table jrtdesig_stagewrite.elements
+DROP TABLE IF EXISTS `elements`;
 CREATE TABLE IF NOT EXISTS `elements` (
   `element_id` int NOT NULL AUTO_INCREMENT,
   `element_name` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -36,6 +38,7 @@ REPLACE INTO `elements` (`element_id`, `element_name`, `category_id`, `element_i
 	(2, 'Electric Guitar', 3, 'electric-guitar.png');
 
 -- Dumping structure for table jrtdesig_stagewrite.element_categories
+DROP TABLE IF EXISTS `element_categories`;
 CREATE TABLE IF NOT EXISTS `element_categories` (
   `category_id` int NOT NULL AUTO_INCREMENT,
   `category_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -56,6 +59,7 @@ REPLACE INTO `element_categories` (`category_id`, `category_name`) VALUES
 	(10, 'Personnel');
 
 -- Dumping structure for table jrtdesig_stagewrite.placed_elements
+DROP TABLE IF EXISTS `placed_elements`;
 CREATE TABLE IF NOT EXISTS `placed_elements` (
   `placed_id` int NOT NULL AUTO_INCREMENT,
   `element_id` int NOT NULL,
@@ -75,15 +79,22 @@ CREATE TABLE IF NOT EXISTS `placed_elements` (
   KEY `fk_placed_elements_element` (`element_id`),
   CONSTRAINT `fk_placed_elements_element` FOREIGN KEY (`element_id`) REFERENCES `elements` (`element_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_placed_elements_plot` FOREIGN KEY (`plot_id`) REFERENCES `saved_plots` (`plot_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=557 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=638 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table jrtdesig_stagewrite.placed_elements: ~3 rows (approximately)
+-- Dumping data for table jrtdesig_stagewrite.placed_elements: ~9 rows (approximately)
 REPLACE INTO `placed_elements` (`placed_id`, `element_id`, `plot_id`, `x_position`, `y_position`, `width`, `height`, `rotation`, `flipped`, `z_index`, `label`, `notes`) VALUES
-	(554, 2, 45, 161.5, 246.167, 113, 75, 0, 0, 3, '', ''),
-	(555, 2, 45, 412, 249, 113, 75, 0, 0, 5, '', ''),
-	(556, 1, 45, 306, 67, 75, 75, 0, 0, 7, '', '');
+	(625, 2, 49, 294.5, 268.167, 113, 75, 0, 0, 2, '', ''),
+	(626, 1, 49, 287, 69, 75, 75, 0, 0, 3, '', ''),
+	(631, 2, 50, 284, 258, 113, 75, 0, 0, 7, '', ''),
+	(632, 1, 50, 287, 77, 75, 75, 0, 0, 4, '', ''),
+	(633, 1, 50, 95.5, 133.167, 75, 75, 0, 0, 5, '', ''),
+	(634, 1, 50, 489.5, 126.167, 75, 75, 0, 0, 6, '', ''),
+	(635, 1, 48, 315, 91, 75, 75, 0, 0, 6, '', ''),
+	(636, 2, 48, 182.5, 235.567, 113, 75, 0, 0, 3, '', ''),
+	(637, 2, 48, 411, 231, 113, 75, 0, 0, 5, '', '');
 
 -- Dumping structure for table jrtdesig_stagewrite.plot_inputs
+DROP TABLE IF EXISTS `plot_inputs`;
 CREATE TABLE IF NOT EXISTS `plot_inputs` (
   `input_id` int NOT NULL AUTO_INCREMENT,
   `plot_id` int NOT NULL,
@@ -97,6 +108,7 @@ CREATE TABLE IF NOT EXISTS `plot_inputs` (
 -- Dumping data for table jrtdesig_stagewrite.plot_inputs: ~0 rows (approximately)
 
 -- Dumping structure for table jrtdesig_stagewrite.saved_plots
+DROP TABLE IF EXISTS `saved_plots`;
 CREATE TABLE IF NOT EXISTS `saved_plots` (
   `plot_id` int NOT NULL AUTO_INCREMENT,
   `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -111,13 +123,16 @@ CREATE TABLE IF NOT EXISTS `saved_plots` (
   KEY `venue_id` (`venue_id`),
   CONSTRAINT `fk_saved_plots_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_saved_plots_venue` FOREIGN KEY (`venue_id`) REFERENCES `venues` (`venue_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table jrtdesig_stagewrite.saved_plots: ~1 rows (approximately)
+-- Dumping data for table jrtdesig_stagewrite.saved_plots: ~3 rows (approximately)
 REPLACE INTO `saved_plots` (`plot_id`, `user_id`, `plot_name`, `event_date_start`, `event_date_end`, `venue_id`, `created_at`, `updated_at`) VALUES
-	(45, '840b812e-ec97-11ef-bb3f-0a0027000006', 'Event 1', '2025-03-21', '2025-03-21', 23, '2025-03-14 20:58:25', '2025-03-14 21:11:52');
+	(48, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Test For Button', '2025-03-31', '2025-03-31', 31, '2025-03-15 07:09:11', '2025-03-17 21:32:06'),
+	(49, '840b812e-ec97-11ef-bb3f-0a0027000006', 'No Date', NULL, NULL, 14, '2025-03-15 07:17:01', '2025-03-15 07:46:06'),
+	(50, '840b812e-ec97-11ef-bb3f-0a0027000006', 'DRUM FEST', '2025-03-31', NULL, 24, '2025-03-15 07:47:12', '2025-03-15 07:47:32');
 
 -- Dumping structure for table jrtdesig_stagewrite.states
+DROP TABLE IF EXISTS `states`;
 CREATE TABLE IF NOT EXISTS `states` (
   `state_id` int NOT NULL AUTO_INCREMENT,
   `state_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -180,6 +195,7 @@ REPLACE INTO `states` (`state_id`, `state_name`, `state_abbr`) VALUES
 	(52, 'District of Columbia', 'DC');
 
 -- Dumping structure for table jrtdesig_stagewrite.users
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -230,6 +246,7 @@ REPLACE INTO `users` (`user_id`, `password_hash`, `email`, `first_name`, `last_n
 	('fc5e35a4-fe71-11ef-b270-ac1f6bd8cd8c', '$2y$10$BPidut5VXijRcr0A6AqGC.3/xTzU8tfWkGgD08PvThNj.2HysNEjC', 'ashleerollice@students.abtech.edu', 'Ashlee ', 'Rollice', 1, '2025-03-11 12:11:25', 1);
 
 -- Dumping structure for table jrtdesig_stagewrite.user_favorites
+DROP TABLE IF EXISTS `user_favorites`;
 CREATE TABLE IF NOT EXISTS `user_favorites` (
   `favorite_id` int NOT NULL AUTO_INCREMENT,
   `user_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -248,6 +265,7 @@ REPLACE INTO `user_favorites` (`favorite_id`, `user_id`, `element_id`) VALUES
 	(154, '1d0b4cf5-e0b9-11ef-8f29-ac1f6bd8cd8c', 2);
 
 -- Dumping structure for table jrtdesig_stagewrite.user_roles
+DROP TABLE IF EXISTS `user_roles`;
 CREATE TABLE IF NOT EXISTS `user_roles` (
   `role_id` int NOT NULL AUTO_INCREMENT,
   `role_name` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -260,7 +278,30 @@ REPLACE INTO `user_roles` (`role_id`, `role_name`) VALUES
 	(2, 'admin'),
 	(3, 'super_admin');
 
+-- Dumping structure for table jrtdesig_stagewrite.user_venues
+DROP TABLE IF EXISTS `user_venues`;
+CREATE TABLE IF NOT EXISTS `user_venues` (
+  `user_venue_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `venue_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `venue_street` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `venue_city` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `venue_state_id` int DEFAULT NULL,
+  `venue_zip` char(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `stage_depth` int NOT NULL,
+  `stage_width` int NOT NULL,
+  PRIMARY KEY (`user_venue_id`) USING BTREE,
+  UNIQUE KEY `user_id` (`user_id`) USING BTREE,
+  KEY `venue_city` (`venue_city`) USING BTREE,
+  KEY `venue_state_id` (`venue_state_id`),
+  CONSTRAINT `fk_user_venues_state` FOREIGN KEY (`venue_state_id`) REFERENCES `states` (`state_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_venues_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dumping data for table jrtdesig_stagewrite.user_venues: ~0 rows (approximately)
+
 -- Dumping structure for table jrtdesig_stagewrite.venues
+DROP TABLE IF EXISTS `venues`;
 CREATE TABLE IF NOT EXISTS `venues` (
   `venue_id` int NOT NULL AUTO_INCREMENT,
   `venue_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -274,11 +315,10 @@ CREATE TABLE IF NOT EXISTS `venues` (
   KEY `venue_city` (`venue_city`),
   KEY `venue_state_id` (`venue_state_id`),
   CONSTRAINT `fk_venues_state` FOREIGN KEY (`venue_state_id`) REFERENCES `states` (`state_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table jrtdesig_stagewrite.venues: ~25 rows (approximately)
 REPLACE INTO `venues` (`venue_id`, `venue_name`, `venue_street`, `venue_city`, `venue_state_id`, `venue_zip`, `stage_depth`, `stage_width`) VALUES
-	(1, 'New Venue', NULL, NULL, NULL, NULL, 40, 60),
 	(2, 'The Orange Peel', '101 Biltmore Ave', 'Asheville', 1, '28801', 45, 45),
 	(3, 'Lincoln Theatre', '126 E Cabarrus St', 'Raleigh', 1, '27601', 25, 35),
 	(4, 'Neighborhood Theatre', '511 E 36th St', 'Charlotte', 1, '28205', 28, 42),
@@ -302,9 +342,11 @@ REPLACE INTO `venues` (`venue_id`, `venue_name`, `venue_street`, `venue_city`, `
 	(23, 'The Earl', '488 Flat Shoals Ave SE', 'Atlanta', 4, '30316', 20, 30),
 	(24, 'Buckhead Theatre', '3110 Roswell Rd', 'Atlanta', 4, '30305', 34, 52),
 	(25, 'Cat\'s Cradle', '300 E Main St', 'Carrboro', 1, '27510', 22, 38),
-	(26, 'Big Testies Sound Test', '123 Test', 'Testfield', 42, '12345', 25, 50);
+	(26, 'Big Testies Sound Test', '123 Test', 'Testfield', 42, '12345', 25, 50),
+	(31, 'New Venue From Mamber Test', '1234 Test Street', 'Testroit', 1, '', 50, 75);
 
 -- Dumping structure for trigger jrtdesig_stagewrite.before_insert_users
+DROP TRIGGER IF EXISTS `before_insert_users`;
 SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
 DELIMITER //
 CREATE TRIGGER `before_insert_users` BEFORE INSERT ON `users` FOR EACH ROW BEGIN
