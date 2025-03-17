@@ -1,5 +1,6 @@
 <?php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
 // Forward to the private handler
-require_once HANDLERS_PATH . '/delete_plot.php';
+require_once HANDLERS_PATH . '/production/delete_plot.php';
