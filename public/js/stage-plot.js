@@ -1323,9 +1323,7 @@ document.addEventListener("DOMContentLoaded", () => {
     plotState.selectedElement = null;
     
     // Mark as modified if there's a current plot
-    if (plotState.currentPlotId) {
-      markPlotAsModified();
-    }
+    if (plotState.currentPlotId) markPlotAsModified();
   }
   
   /**
@@ -1342,18 +1340,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Reset plot title
     const plotTitle = document.getElementById('plot-title');
-    if (plotTitle) {
-      plotTitle.textContent = 'New Plot';
-    }
+    if (plotTitle) plotTitle.textContent = 'New Plot';
     
     // Reset buttons
-    if (saveButton) {
-      saveButton.textContent = 'Save Plot';
-    }
+    if (saveButton) saveButton.textContent = 'Save Plot';
     
-    if (saveChangesButton) {
-      saveChangesButton.classList.add('hidden');
-    }
+    if (saveChangesButton) saveChangesButton.classList.add('hidden');
     
     // Clear saved state from localStorage
     clearSavedState();
@@ -1366,9 +1358,7 @@ document.addEventListener("DOMContentLoaded", () => {
       eventEndInput.value = formattedDate;
     }
     
-    // Reset to default venue if available
-    if (venueSelect) {
-      venueSelect.value = "1";
-    }
+    // Reset venue
+    if (venueSelect) venueSelect.value = "";
   }
 });

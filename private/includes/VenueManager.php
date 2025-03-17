@@ -20,10 +20,6 @@ class VenueManager {
      * @return array|false Venue data or false
      */
     public function getVenue($venueId) {
-        if ($venueId == 1) {
-            return false; // Default venue cannot be edited
-        }
-        
         return $this->db->fetchOne(
             "SELECT * FROM venues WHERE venue_id = ?",
             [$venueId]
@@ -36,12 +32,7 @@ class VenueManager {
      * @param array $venueData Venue data
      * @return bool Success or failure
      */
-    public function saveVenue($venueData) {
-        // Don't allow modifying venue 1 (default venue)
-        if (!empty($venueData['venue_id']) && $venueData['venue_id'] == 1) {
-            return false;
-        }
-        
+    public function saveVenue($venueData) { 
         // Determine if this is an update or insert
         $isNew = empty($venueData['venue_id']);
         
@@ -99,11 +90,7 @@ class VenueManager {
      * @param int $venueId Venue ID
      * @return bool Success or failure
      */
-    public function deleteVenue($venueId) {
-        if ($venueId == 1) {
-            return false; // Can't delete default venue
-        }
-        
+    public function deleteVenue($venueId) {     
         try {
             // Check if venue exists
             $exists = $this->db->fetchOne(

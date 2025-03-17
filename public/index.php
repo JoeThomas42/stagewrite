@@ -18,9 +18,6 @@ $elements = $db->fetchAll("SELECT e.*, c.category_name FROM elements e
 
 $categories = $db->fetchAll("SELECT * FROM element_categories ORDER BY category_name");
 
-// Get default venue
-$defaultVenue = $db->fetchOne("SELECT * FROM venues WHERE venue_id = 1");
-
 // Get all venues for the save dialog
 $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_name");
 ?>
@@ -70,13 +67,14 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
             <div class="stage-controls">
                 <h2 id="plot-title">New Plot</h2>
                 
-                <!-- New: Plot configuration panel -->
+                <!-- Plot configuration panel -->
                 <div class="plot-config-panel">
                     <div class="config-field">
                         <label for="venue_select">Venue:</label>
                         <select id="venue_select" name="venue_id">
+                            <option value="" selected disabled>Select a venue...</option>
                             <?php foreach ($venues as $venue): ?>
-                                <option value="<?= $venue['venue_id'] ?>" <?= ($venue['venue_id'] == $defaultVenue['venue_id']) ? 'selected' : '' ?>>
+                                <option value="<?= $venue['venue_id'] ?>">
                                     <?= htmlspecialchars($venue['venue_name']) ?>
                                 </option>
                             <?php endforeach; ?>
@@ -105,9 +103,9 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                 </div>
             </div>
             <div id="stage" class="stage" 
-                 data-venue-id="<?= $defaultVenue['venue_id'] ?>"
-                 data-stage-width="<?= $defaultVenue['stage_width'] ?>"
-                 data-stage-depth="<?= $defaultVenue['stage_depth'] ?>">
+                 data-venue-id="<?= $venue['venue_id'] ?>"
+                 data-stage-width="<?= $venue['stage_width'] ?>"
+                 data-stage-depth="<?= $venue['stage_depth'] ?>">
                 <div class="front-label">FRONT OF STAGE</div>
             </div>
         </div>
@@ -193,8 +191,5 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
     </div>
     <?php endif; ?>
 </div>
-
-<!-- Include the stage plot JavaScript -->
-<script src="/js/stage-plot.js"></script>
 
 <?php include PRIVATE_PATH . '/templates/footer.php'; ?>
