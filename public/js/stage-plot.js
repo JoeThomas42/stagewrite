@@ -711,7 +711,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Save plot to database
    */
-  function savePlot(isNew = true, existingPlotId = null, newName = null) {
+  function savePlot(isNew = true, existingPlotId = null, newName = null, existingName = null) {
     // When saving changes to an existing plot or overwriting with a new name
     // we need to determine what name to use
     let plotName;
@@ -722,6 +722,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (newName) {
       // Overwriting with a new name
       plotName = newName;
+    } else if (existingName) {
+      // Overwriting existing plot with its original name
+      plotName = existingName;
     } else {
       // Saving changes to existing plot - use current name
       plotName = plotState.currentPlotName;
@@ -784,8 +787,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.success) {
         alert('Plot saved successfully!');
         
-        // Update plot title and state for new plots or when overwriting with a new name
-        if ((isNew && data.plot_id) || newName) {
+        // Update plot title and state for new plots, when overwriting with a new name,
+        // or when overwriting an existing plot with its original name
+        if ((isNew && data.plot_id) || newName || existingPlotId) {
           // Update the current plot ID if this is a new plot
           if (isNew && data.plot_id) {
             plotState.currentPlotId = data.plot_id;
@@ -1018,7 +1022,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
               </div>
               <div class="plot-actions">
-                <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}">Overwrite</button>
+                <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}" data-plot-name="${plot.plot_name}">Overwrite</button>
                 <button type="button" class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot">×</button>
               </div>
             </li>`;
@@ -1031,13 +1035,14 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener('click', (e) => {
               e.preventDefault();
               const plotId = btn.getAttribute('data-plot-id');
+              const plotName = btn.getAttribute('data-plot-name');
               
               // Check if there's a new name entered
               const newNameInput = document.getElementById('plot_name');
               const newName = newNameInput && newNameInput.value.trim() ? newNameInput.value.trim() : null;
               
               if (confirm('Are you sure you want to overwrite this plot? This cannot be undone.')) {
-                savePlot(false, plotId, newName); // Save as overwrite with optional new name
+                savePlot(false, plotId, newName, plotName); // Pass the existing plot name
               }
             });
           });
