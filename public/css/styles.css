@@ -59,7 +59,7 @@
 
   /* Transitions */
   --transition-fast: 0.2s ease;
-  --transition-medium: 0.3s ease;
+  --transition-medium: 0.4s ease;
 }
 
 /* -------------------- General Styles --------------------- */
@@ -94,7 +94,6 @@ body {
   justify-content: flex-start;
   margin: 0 auto;
   max-width: 1200px;
-  min-width: 75%;
   padding: var(--spacing-xl);
 }
 
