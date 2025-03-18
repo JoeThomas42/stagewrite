@@ -184,6 +184,14 @@ img {
   display: none !important;
 }
 
+/* Required Fields */
+label:has(+ input:required)::after,
+label:has(> input:required)::after {
+  color: var(--color-danger-light);
+  content: " *";
+  font-weight: bold;
+}
+
 /* --------------------------- Header -------------------------------- */
 .header-container {
   background-color: var(--color-header);

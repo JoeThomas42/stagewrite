@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
   const newPlotButton = document.getElementById('new-plot');
+  const addVenueButton = document.getElementById('add-venue-button');
+  const addVenueModal = document.getElementById('add-venue-modal');
   
   // Initialize
   initDragAndDrop();
@@ -35,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCategoryFilter();
   initLoadPlotModal();
   initPageNavigation();
+  initAddVenueModal();
   
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage();
@@ -68,9 +71,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update venue select change handler
   if (venueSelect) {
     venueSelect.addEventListener('change', () => {
-      const venueId = venueSelect.value;
+      const venueValue = venueSelect.value;
+      let venueId, isUserVenue = false;
+      
+      // Check if this is a user venue
+      if (venueValue.startsWith('user_')) {
+        isUserVenue = true;
+        venueId = venueValue.replace('user_', '');
+      } else {
+        venueId = venueValue;
+      }
+      
       // Fetch venue details from server
-      fetch(`/handlers/get_venue.php?id=${venueId}`)
+      const endpoint = isUserVenue ? 
+        `/handlers/get_user_venue.php?id=${venueId}` : 
+        `/handlers/get_venue.php?id=${venueId}`;
+      
+      fetch(endpoint)
         .then(response => {
           if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -80,9 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
           if (data.success && data.venue) {
             // Update stage dimensions
-            stage.setAttribute('data-venue-id', data.venue.venue_id);
+            stage.setAttribute('data-venue-id', venueId);
             stage.setAttribute('data-stage-width', data.venue.stage_width);
             stage.setAttribute('data-stage-depth', data.venue.stage_depth);
+            stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
             
             // Update stage dimensions label
             const dimensionsLabel = stage.querySelector('.stage-dimensions');
@@ -1360,5 +1378,126 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Reset venue
     if (venueSelect) venueSelect.value = "";
+  }
+
+  /**
+   * Initialize the "Add Venue" modal and functionality for user venues
+   */
+  function initAddVenueModal() {
+    if (!addVenueButton || !addVenueModal) return;
+    
+    // Open modal when button is clicked
+    addVenueButton.addEventListener('click', () => {
+      openModal(addVenueModal);
+    });
+    
+    // Get form elements
+    const venueForm = document.getElementById('add-venue-form');
+    
+    // Close button functionality
+    const closeBtn = addVenueModal.querySelector('.close-button');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => closeModal(addVenueModal));
+    }
+    
+    // Cancel button functionality
+    const cancelBtn = addVenueModal.querySelector('.cancel-button');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => closeModal(addVenueModal));
+    }
+    
+    // Close when clicking outside the modal
+    addVenueModal.addEventListener('click', (e) => {
+      if (e.target === addVenueModal) closeModal(addVenueModal);
+    });
+    
+    // Handle form submission
+    if (venueForm) {
+      venueForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form values
+        const venueName = document.getElementById('venue_name').value.trim();
+        const stageWidth = document.getElementById('stage_width').value.trim();
+        const stageDepth = document.getElementById('stage_depth').value.trim();
+        const venueStreet = document.getElementById('venue_street').value.trim();
+        const venueCity = document.getElementById('venue_city').value.trim();
+        const venueStateId = document.getElementById('venue_state_id').value;
+        const venueZip = document.getElementById('venue_zip').value.trim();
+        
+        // Validate required fields - only venue name is required
+        if (!venueName) {
+          alert('The venue must have a name.');
+          return;
+        }
+        
+        // Create venue data - use empty values when appropriate to allow nulls in database
+        const venueData = {
+          venue_name: venueName,
+          venue_street: venueStreet || null,
+          venue_city: venueCity || null,
+          venue_state_id: venueStateId || null,
+          venue_zip: venueZip || null,
+          stage_width: stageWidth ? parseInt(stageWidth) : null,
+          stage_depth: stageDepth ? parseInt(stageDepth) : null
+        };
+        
+        // Send to server
+        fetch('/handlers/save_user_venue.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(venueData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Add new venue to dropdown
+            const userVenueGroup = venueSelect.querySelector('optgroup[label="My Venues"]');
+            
+            if (!userVenueGroup) {
+              // Create the optgroup if it doesn't exist
+              const newGroup = document.createElement('optgroup');
+              newGroup.label = "My Venues";
+              
+              // Create and add the new option
+              const newOption = document.createElement('option');
+              newOption.value = `user_${data.venue.user_venue_id}`;
+              newOption.textContent = data.venue.venue_name;
+              
+              newGroup.appendChild(newOption);
+              venueSelect.appendChild(newGroup);
+            } else {
+              // Add to existing group
+              const newOption = document.createElement('option');
+              newOption.value = `user_${data.venue.user_venue_id}`;
+              newOption.textContent = data.venue.venue_name;
+              userVenueGroup.appendChild(newOption);
+            }
+            
+            // Select the new venue
+            venueSelect.value = `user_${data.venue.user_venue_id}`;
+            
+            // Trigger change event to update stage dimensions
+            const changeEvent = new Event('change');
+            venueSelect.dispatchEvent(changeEvent);
+            
+            // Reset form and close modal
+            venueForm.reset();
+            closeModal(addVenueModal);
+            
+            // Show success message
+            alert('Custom venue added successfully!');
+          } else {
+            alert('Error adding venue: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          console.error('Error saving venue:', error);
+          alert('Error saving venue. Please try again.');
+        });
+      });
+    }
   }
 });

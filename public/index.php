@@ -20,6 +20,14 @@ $categories = $db->fetchAll("SELECT * FROM element_categories ORDER BY category_
 
 // Get all venues for the save dialog
 $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_name");
+
+// Get user's custom venues if logged in
+$userVenues = [];
+if ($isLoggedIn) {
+    $userVenues = $db->fetchAll("SELECT user_venue_id, venue_name, stage_width, stage_depth FROM user_venues 
+                               WHERE user_id = ? ORDER BY venue_name", 
+                               [$_SESSION['user_id']]);
+}
 ?>
 
 <div class='page-wrapper'>
@@ -69,16 +77,35 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
                 
                 <!-- Plot configuration panel -->
                 <div class="plot-config-panel">
-                    <div class="config-field">
+                    <div class="config-field venue-select-container">
                         <label for="venue_select">Venue:</label>
-                        <select id="venue_select" name="venue_id">
-                            <option value="" selected disabled>Select a venue...</option>
-                            <?php foreach ($venues as $venue): ?>
-                                <option value="<?= $venue['venue_id'] ?>">
-                                    <?= htmlspecialchars($venue['venue_name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="select-with-button">
+                            <select id="venue_select" name="venue_id">
+                                <option value="" selected disabled>Select a venue...</option>
+                                <?php if (count($venues) > 0): ?>
+                                <optgroup label="Official Venues">
+                                    <?php foreach ($venues as $venue): ?>
+                                        <option value="<?= $venue['venue_id'] ?>">
+                                            <?= htmlspecialchars($venue['venue_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                                <?php endif; ?>
+                                
+                                <?php if ($isLoggedIn && count($userVenues) > 0): ?>
+                                <optgroup label="My Venues">
+                                    <?php foreach ($userVenues as $venue): ?>
+                                        <option value="user_<?= $venue['user_venue_id'] ?>">
+                                            <?= htmlspecialchars($venue['venue_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                                <?php endif; ?>
+                            </select>
+                            <?php if ($isLoggedIn): ?>
+                            <button type="button" id="add-venue-button" class="icon-button" title="Add Custom Venue">+</button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     
                     <div class="config-field">
@@ -141,6 +168,67 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
             </form>
         </div>
     </div>
+    
+    <!-- Add Custom Venue Modal -->
+    <?php if ($isLoggedIn): ?>
+    <div id="add-venue-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Add Custom Venue</h2>
+            <form id="add-venue-form">
+                <div class="form-group">
+                    <label for="venue_name">Venue Name:</label>
+                    <input type="text" id="venue_name" name="venue_name" maxlength="100" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="venue_street">Street Address:</label>
+                    <input type="text" id="venue_street" name="venue_street" maxlength="100">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venue_city">City:</label>
+                        <input type="text" id="venue_city" name="venue_city" maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="venue_state_id">State:</label>
+                        <select id="venue_state_id" name="venue_state_id">
+                            <option value="" selected disabled>Select State</option>
+                            <?php
+                            $states = $db->fetchAll("SELECT state_id, state_name, state_abbr FROM states ORDER BY state_name");
+                            foreach ($states as $state) {
+                                echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="venue_zip">ZIP:</label>
+                        <input type="text" id="venue_zip" name="venue_zip" maxlength="5">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stage_width">Stage Width (feet):</label>
+                    <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="stage_depth">Stage Depth (feet):</label>
+                    <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="save-button">Save Venue</button>
+                    <button type="button" class="cancel-button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
     
     <!-- Save Plot Modal -->
     <?php if ($isLoggedIn): ?>
