@@ -6,6 +6,7 @@
 :root {
   /* Colors */
   --color-background: #f4f4f9;
+  --color-background-light: #f8f9fa;
   --color-white: #fff;
   --color-text: #333;
   --color-text-secondary: #555;
@@ -45,8 +46,10 @@
   --spacing-xxl: 1.875rem;
   --spacing-xxxl: 3rem;
 
-
+  /* Border Radius */
+  --border-radius-xs: 2px;
   --border-radius-sm: 4px;
+  --border-radius-md: 6px;
   --border-radius-lg: 8px;
 
   /* Box Shadows */
