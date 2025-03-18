@@ -186,7 +186,8 @@ img {
 
 /* Required Fields */
 label:has(+ input:required)::after,
-label:has(> input:required)::after {
+label:has(> input:required)::after,
+label:has(+ select:required)::after{
   color: var(--color-danger-light);
   content: " *";
   font-weight: bold;
@@ -607,7 +608,7 @@ th.sortable .sort-icon {
   }
 }
 
-/* ---------------- Venue Edit Modal Styles ----------------- */
+/* ---------------- Modals ----------------- */
 .modal {
   background-color: rgba(0, 0, 0, 0.5);
   display: none;

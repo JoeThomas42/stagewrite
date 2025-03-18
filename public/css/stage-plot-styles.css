@@ -387,7 +387,6 @@
   }
 }
 
-
 .small-button {
   height: 30px;
   width: 30px;
@@ -434,7 +433,7 @@
 optgroup {
   font-weight: bold;
   color: var(--color-text);
-  
+
   option {
     font-weight: normal;
     padding-left: var(--spacing-sm);
