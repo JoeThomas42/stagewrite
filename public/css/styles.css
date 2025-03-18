@@ -678,6 +678,15 @@ th.sortable .sort-icon {
   background-color: var(--color-secondary);
 }
 
+.delete-button {
+  background-color: var(--color-danger);
+  margin-right: auto;
+
+  &:hover {
+    background-color: var(--color-danger-dark);
+  }
+}
+
 /* ----------------- Mobile menu toggle button ------------------ */
 .mobile-menu-toggle {
   background: transparent;
