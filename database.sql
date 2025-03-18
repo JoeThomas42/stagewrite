@@ -115,21 +115,22 @@ CREATE TABLE IF NOT EXISTS `saved_plots` (
   `plot_name` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
   `event_date_start` date DEFAULT NULL,
   `event_date_end` date DEFAULT NULL,
-  `venue_id` int NOT NULL DEFAULT '1',
+  `venue_id` int DEFAULT NULL,
+  `user_venue_id` int DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT (now()),
   PRIMARY KEY (`plot_id`),
   KEY `user_plot` (`user_id`,`plot_name`),
   KEY `venue_id` (`venue_id`),
-  CONSTRAINT `fk_saved_plots_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_saved_plots_venue` FOREIGN KEY (`venue_id`) REFERENCES `venues` (`venue_id`)
+  KEY `fk_saved_plots_user_venue` (`user_venue_id`),
+  CONSTRAINT `fk_saved_plots_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table jrtdesig_stagewrite.saved_plots: ~3 rows (approximately)
-REPLACE INTO `saved_plots` (`plot_id`, `user_id`, `plot_name`, `event_date_start`, `event_date_end`, `venue_id`, `created_at`, `updated_at`) VALUES
-	(48, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Test For Button', '2025-03-31', '2025-03-31', 31, '2025-03-15 07:09:11', '2025-03-17 21:32:06'),
-	(49, '840b812e-ec97-11ef-bb3f-0a0027000006', 'No Date', NULL, NULL, 14, '2025-03-15 07:17:01', '2025-03-15 07:46:06'),
-	(50, '840b812e-ec97-11ef-bb3f-0a0027000006', 'DRUM FEST', '2025-03-31', NULL, 24, '2025-03-15 07:47:12', '2025-03-15 07:47:32');
+REPLACE INTO `saved_plots` (`plot_id`, `user_id`, `plot_name`, `event_date_start`, `event_date_end`, `venue_id`, `user_venue_id`, `created_at`, `updated_at`) VALUES
+	(48, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Test For Button', '2025-03-31', '2025-03-31', 31, NULL, '2025-03-15 07:09:11', '2025-03-17 21:32:06'),
+	(49, '840b812e-ec97-11ef-bb3f-0a0027000006', 'No Date', NULL, NULL, 14, NULL, '2025-03-15 07:17:01', '2025-03-15 07:46:06'),
+	(50, '840b812e-ec97-11ef-bb3f-0a0027000006', 'DRUM FEST', '2025-03-31', NULL, 24, NULL, '2025-03-15 07:47:12', '2025-03-15 07:47:32');
 
 -- Dumping structure for table jrtdesig_stagewrite.states
 DROP TABLE IF EXISTS `states`;
@@ -240,7 +241,7 @@ REPLACE INTO `users` (`user_id`, `password_hash`, `email`, `first_name`, `last_n
 	('1d0b4f03-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member34@example.com', 'Kimberly', 'Perez', 1, '2025-02-01 16:25:11', 1),
 	('6277c8a9-fe98-11ef-b270-ac1f6bd8cd8c', '$2y$10$eJy0mUvMyfgPlz9KjZMgX.G8o5liATif6hjzwlEOaBauawDG7D9c.', 'Testtest@gmail.com', 'test', 'last', 1, '2025-03-11 16:46:18', 1),
 	('7912f77d-fd1f-11ef-b270-ac1f6bd8cd8c', '$2y$10$mxRPu29c6RbfnGhNrZVYSe8K7Yg1RY8GcxEZykHujIXssU.kZ0mX6', 'qwe@asd.com', 'qwe', 'qwe', 1, '2025-03-09 19:48:17', 1),
-	('840b812e-ec97-11ef-bb3f-0a0027000006', '$2y$10$MXsbfRNyNc.0lKulbprB0etMUA7nq6JYFByPHscuiXCbGbU3UcKNG', 'joeblow@gmail.com', 'Joe', 'Blow', 1, '2025-02-16 18:54:57', 1),
+	('840b812e-ec97-11ef-bb3f-0a0027000006', '$2y$10$MXsbfRNyNc.0lKulbprB0etMUA7nq6JYFByPHscuiXCbGbU3UcKNG', 'joeblow@gmail.com', 'Joe', 'Blow', 3, '2025-02-16 18:54:57', 1),
 	('ab54fed4-fd02-11ef-b141-0a0027000006', '$2y$10$ApvmDH9Z67h9x29FwM8rh.qXQLa2SqdJyGWEty8DIdRBcl/QRg2G6', 'TestyTest@test.com', 'Testy', 'McTest', 1, '2025-03-09 16:22:17', 1),
 	('ce59b525-fe2a-11ef-b270-ac1f6bd8cd8c', '$2y$10$MbLuzPeycQaiDZge2vdweu/d1osaunP1M/9xywSnMPl7eLqYa5CKa', 'user@test.com', 'Kevin', 'Franklin', 1, '2025-03-11 03:41:54', 1),
 	('fc5e35a4-fe71-11ef-b270-ac1f6bd8cd8c', '$2y$10$BPidut5VXijRcr0A6AqGC.3/xTzU8tfWkGgD08PvThNj.2HysNEjC', 'ashleerollice@students.abtech.edu', 'Ashlee ', 'Rollice', 1, '2025-03-11 12:11:25', 1);
@@ -282,33 +283,36 @@ REPLACE INTO `user_roles` (`role_id`, `role_name`) VALUES
 DROP TABLE IF EXISTS `user_venues`;
 CREATE TABLE IF NOT EXISTS `user_venues` (
   `user_venue_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `user_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `venue_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `venue_street` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `venue_city` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `venue_state_id` int DEFAULT NULL,
   `venue_zip` char(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `stage_depth` int NOT NULL,
-  `stage_width` int NOT NULL,
+  `stage_depth` int DEFAULT NULL,
+  `stage_width` int DEFAULT NULL,
   PRIMARY KEY (`user_venue_id`) USING BTREE,
-  UNIQUE KEY `user_id` (`user_id`) USING BTREE,
   KEY `venue_city` (`venue_city`) USING BTREE,
-  KEY `venue_state_id` (`venue_state_id`),
+  KEY `venue_state_id` (`venue_state_id`) USING BTREE,
+  KEY `user_id` (`user_id`) USING BTREE,
   CONSTRAINT `fk_user_venues_state` FOREIGN KEY (`venue_state_id`) REFERENCES `states` (`state_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_user_venues_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table jrtdesig_stagewrite.user_venues: ~0 rows (approximately)
+REPLACE INTO `user_venues` (`user_venue_id`, `user_id`, `venue_name`, `venue_street`, `venue_city`, `venue_state_id`, `venue_zip`, `stage_depth`, `stage_width`) VALUES
+	(1, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Venue From Member Test - Name only', NULL, NULL, NULL, NULL, NULL, NULL),
+	(3, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Venue From Member Test - Full Info', '54 Danielwood Ct', 'Clyde', 1, '28721', 100, 50);
 
 -- Dumping structure for table jrtdesig_stagewrite.venues
 DROP TABLE IF EXISTS `venues`;
 CREATE TABLE IF NOT EXISTS `venues` (
   `venue_id` int NOT NULL AUTO_INCREMENT,
   `venue_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `venue_street` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `venue_city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `venue_state_id` int DEFAULT NULL,
-  `venue_zip` char(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `venue_street` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `venue_city` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `venue_state_id` int NOT NULL,
+  `venue_zip` char(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `stage_depth` int NOT NULL,
   `stage_width` int NOT NULL,
   PRIMARY KEY (`venue_id`),
@@ -341,9 +345,7 @@ REPLACE INTO `venues` (`venue_id`, `venue_name`, `venue_street`, `venue_city`, `
 	(22, 'Variety Playhouse', '1099 Euclid Ave NE', 'Atlanta', 4, '30307', 32, 48),
 	(23, 'The Earl', '488 Flat Shoals Ave SE', 'Atlanta', 4, '30316', 20, 30),
 	(24, 'Buckhead Theatre', '3110 Roswell Rd', 'Atlanta', 4, '30305', 34, 52),
-	(25, 'Cat\'s Cradle', '300 E Main St', 'Carrboro', 1, '27510', 22, 38),
-	(26, 'Big Testies Sound Test', '123 Test', 'Testfield', 42, '12345', 25, 50),
-	(31, 'New Venue From Mamber Test', '1234 Test Street', 'Testroit', 1, '', 50, 75);
+	(25, 'Cat\'s Cradle', '300 E Main St', 'Carrboro', 1, '27510', 22, 38);
 
 -- Dumping structure for trigger jrtdesig_stagewrite.before_insert_users
 DROP TRIGGER IF EXISTS `before_insert_users`;

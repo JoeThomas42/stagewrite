@@ -927,8 +927,9 @@ document.addEventListener("DOMContentLoaded", () => {
           plotState.currentPlotId = data.plot.plot_id;
           
           // Update venue dropdown to match the plot's venue
-          if (venueSelect && data.plot.venue_id) {
-            venueSelect.value = data.plot.venue_id;
+          // We're now using effective_venue_id which already includes the 'user_' prefix if needed
+          if (venueSelect && data.plot.effective_venue_id) {
+            venueSelect.value = data.plot.effective_venue_id;
           }
           
           // Update event dates - handle null/empty values properly
@@ -942,9 +943,10 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Update stage dimensions
           if (stage) {
-            stage.setAttribute('data-venue-id', data.plot.venue_id);
+            stage.setAttribute('data-venue-id', data.plot.effective_venue_id);
             stage.setAttribute('data-stage-width', data.plot.stage_width);
             stage.setAttribute('data-stage-depth', data.plot.stage_depth);
+            stage.setAttribute('data-is-user-venue', data.plot.is_user_venue);
             
             // Update stage dimensions label
             const dimensionsLabel = stage.querySelector('.stage-dimensions');

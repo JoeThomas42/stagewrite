@@ -310,13 +310,13 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
       <input type="text" id="venue_name" name="venue_name" required>
       
       <label for="venue_street">Street Address:</label>
-      <input type="text" id="venue_street" name="venue_street">
+      <input type="text" id="venue_street" name="venue_street" required>
       
       <label for="venue_city">City:</label>
-      <input type="text" id="venue_city" name="venue_city">
+      <input type="text" id="venue_city" name="venue_city" required>
       
       <label for="venue_state_id">State:</label>
-      <select id="venue_state_id" name="venue_state_id">
+      <select id="venue_state_id" name="venue_state_id" required>
         <option value="" selected disabled>Select State</option>
         <?php
         $states = $db->fetchAll("SELECT state_id, state_name FROM states ORDER BY state_name");
@@ -327,7 +327,7 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
       </select>
       
       <label for="venue_zip">ZIP Code:</label>
-      <input type="text" id="venue_zip" name="venue_zip">
+      <input type="text" id="venue_zip" name="venue_zip" required>
       
       <label for="stage_width">Stage Width (feet):</label>
       <input type="number" id="stage_width" name="stage_width" min="1" max="200" required>

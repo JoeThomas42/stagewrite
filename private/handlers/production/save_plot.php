@@ -37,6 +37,18 @@ try {
     // Begin transaction
     $db->getConnection()->beginTransaction();
     
+    // Determine if this is a standard venue or user venue
+    $venueId = null;
+    $userVenueId = null;
+    
+    if (strpos($data['venue_id'], 'user_') === 0) {
+        // This is a user venue
+        $userVenueId = (int)str_replace('user_', '', $data['venue_id']);
+    } else {
+        // This is a standard venue
+        $venueId = (int)$data['venue_id'];
+    }
+    
     if (!empty($data['plot_id'])) {
         // This is an update to an existing plot
         // First, delete existing placed elements
@@ -45,15 +57,15 @@ try {
             [$data['plot_id']]
         );
         
-        // Then update the plot details
-        // Include plot_name in the update query to allow name changes when overwriting
+        // Then update the plot details - now including both venue_id and user_venue_id
         $db->query(
             "UPDATE saved_plots SET 
-             plot_name = ?, venue_id = ?, event_date_start = ?, event_date_end = ?, updated_at = NOW()
+             plot_name = ?, venue_id = ?, user_venue_id = ?, event_date_start = ?, event_date_end = ?, updated_at = NOW()
              WHERE plot_id = ? AND user_id = ?",
             [
                 $data['plot_name'],
-                $data['venue_id'],
+                $venueId, // May be null if using user venue
+                $userVenueId, // May be null if using standard venue
                 !empty($data['event_date_start']) ? $data['event_date_start'] : null,
                 !empty($data['event_date_end']) ? $data['event_date_end'] : null,
                 $data['plot_id'],
@@ -64,14 +76,15 @@ try {
         // Use the existing plot_id
         $plotId = $data['plot_id'];
     } else {
-        // This is a new plot - continue with the INSERT as before
+        // This is a new plot - insert with venue_id or user_venue_id
         $stmt = $db->query(
-            "INSERT INTO saved_plots (user_id, plot_name, venue_id, event_date_start, event_date_end, created_at) 
-             VALUES (?, ?, ?, ?, ?, NOW())",
+            "INSERT INTO saved_plots (user_id, plot_name, venue_id, user_venue_id, event_date_start, event_date_end, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, NOW())",
             [
                 $_SESSION['user_id'],
                 $data['plot_name'],
-                $data['venue_id'],
+                $venueId, // May be null if using user venue
+                $userVenueId, // May be null if using standard venue
                 !empty($data['event_date_start']) ? $data['event_date_start'] : null,
                 !empty($data['event_date_end']) ? $data['event_date_end'] : null
             ]

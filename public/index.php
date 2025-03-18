@@ -103,7 +103,7 @@ if ($isLoggedIn) {
                                 <?php endif; ?>
                             </select>
                             <?php if ($isLoggedIn): ?>
-                            <button type="button" id="add-venue-button" class="icon-button" title="Add Custom Venue">+</button>
+                            <button type="button" id="add-venue-button" class="small-button" title="Add Custom Venue"><i class="fa-solid fa-plus"></i></button>
                             <?php endif; ?>
                         </div>
                     </div>
