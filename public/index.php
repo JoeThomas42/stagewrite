@@ -123,7 +123,7 @@ if ($isLoggedIn) {
                     <?php if ($isLoggedIn): ?>
                         <button id="save-plot" class="action-button">Save Plot</button>
                         <button id="save-changes" class="action-button hidden">Save Changes</button>
-                        <button id="load-plot" class="action-button">Load Plot</button>
+                        <button id="my-plots" class="action-button">My Plots</button>
                     <?php endif; ?>
                     <button id="new-plot" class="action-button">New Plot</button>
                     <button id="clear-plot" class="action-button">Clear Stage</button>
@@ -264,10 +264,10 @@ if ($isLoggedIn) {
     </div>
     
     <!-- Load Plot Modal -->
-    <div id="load-plot-modal" class="modal hidden">
+    <div id="my-plots-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Load Saved Plot</h2>
+            <h2>My Plots</h2>
             <div class="saved-plots-list">
                 <!-- Will be populated via AJAX -->
                 <p class="loading-message">Loading your saved plots...</p>
