@@ -381,11 +381,12 @@
 .select-with-button {
   display: flex;
   gap: var(--spacing-xs);
+
+  select {
+    flex: 1;
+  }
 }
 
-.select-with-button select {
-  flex: 1;
-}
 
 .small-button {
   height: 30px;
@@ -394,57 +395,52 @@
   padding: 0;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: var(--spacing-xs);
-  font-weight: 500;
-}
-
-.form-group input {
-  width: 100%;
-  padding: var(--spacing-xs);
-  box-sizing: border-box;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: var(--spacing-xs);
-  box-sizing: border-box;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
+.form-group {
+  label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+  }
+  
+  input,
+  select {
+    width: 100%;
+    padding: var(--spacing-xs);
+    box-sizing: border-box;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+  }
 }
 
 .form-row {
   display: flex;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
-}
-
-.form-row .form-group {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.form-row .form-group:nth-child(2) {
-  flex: 1.2; /* Increase width for state dropdown */
-}
-
-.form-row .form-group:nth-child(3) {
-  flex: 0 0 80px; /* Fixed width for ZIP */
+  
+  .form-group {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  
+  .form-group:nth-child(2) {
+    flex: 1.2;
+  }
+  
+  .form-group:nth-child(3) {
+    flex: 0 0 80px;
+  }
 }
 
 optgroup {
   font-weight: bold;
   color: var(--color-text);
+  
+  option {
+    font-weight: normal;
+    padding-left: var(--spacing-sm);
+  }
 }
 
-optgroup option {
-  font-weight: normal;
-  padding-left: var(--spacing-sm);
-}
 
 /* -------------------- Responsive styles ---------------------- */ 
 @media screen and (max-width: 768px) {
