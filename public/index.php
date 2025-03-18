@@ -31,9 +31,9 @@ if ($isLoggedIn) {
 ?>
 
 <div class='page-wrapper'>
-    <div class="stage-plot-container">
-        <div class="elements-panel">
-            <div class="elements-header">
+    <div id="stage-plot-container">
+        <div id="elements-panel">
+            <div id="elements-header">
                 <h2>Stage Elements</h2>
                 <select id="category-filter">
                     <option value="0">All Categories</option>
@@ -43,7 +43,7 @@ if ($isLoggedIn) {
                 </select>
             </div>
             
-            <div class="elements-list">
+            <div id="elements-list">
                 <?php foreach ($categories as $category): ?>
                     <div class="category-section" data-category-id="<?= $category['category_id'] ?>">
                         <h3><?= htmlspecialchars($category['category_name']) ?></h3>
@@ -71,8 +71,8 @@ if ($isLoggedIn) {
             </div>
         </div>
         
-        <div class="stage-area">
-            <div class="stage-controls">
+        <div id="stage-area">
+            <div id="stage-controls">
                 <h2 id="plot-title">New Plot</h2>
                 
                 <!-- Plot configuration panel -->
@@ -119,7 +119,7 @@ if ($isLoggedIn) {
                     </div>
                 </div>
             
-                <div class="control-buttons">
+                <div id="control-buttons">
                     <?php if ($isLoggedIn): ?>
                         <button id="save-plot" class="action-button">Save Plot</button>
                         <button id="save-changes" class="action-button hidden">Save Changes</button>
@@ -129,11 +129,11 @@ if ($isLoggedIn) {
                     <button id="clear-plot" class="action-button">Clear Stage</button>
                 </div>
             </div>
-            <div id="stage" class="stage" 
+            <div id="stage"
                  data-venue-id="<?= $venue['venue_id'] ?>"
                  data-stage-width="<?= $venue['stage_width'] ?>"
                  data-stage-depth="<?= $venue['stage_depth'] ?>">
-                <div class="front-label">FRONT OF STAGE</div>
+                <div id="front-label">FRONT OF STAGE</div>
             </div>
         </div>
     </div>

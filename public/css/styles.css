@@ -87,7 +87,7 @@ body {
   }
 }
 
-.page-wrapper {
+#page-wrapper {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -97,7 +97,7 @@ body {
   padding: var(--spacing-xl);
 }
 
-.login-container {
+#login-container {
   background: var(--color-white);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
@@ -196,7 +196,7 @@ label:has(+ select:required)::after{
 }
 
 /* --------------------------- Header -------------------------------- */
-.header-container {
+header {
   background-color: var(--color-header);
   padding: 1.25rem;
   box-shadow: var(--shadow-sm);
@@ -209,7 +209,7 @@ label:has(+ select:required)::after{
   }
 }
 
-.header-content {
+#header-content {
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -225,13 +225,13 @@ label:has(+ select:required)::after{
 }
 
 /* ------------------------ Navigation --------------------------- */
-.nav-container {
+#nav-container {
   align-items: center;
   display: flex;
   margin-left: auto;
 }
 
-.main-nav {
+#main-nav {
   margin-right: var(--spacing-xl);
 
   ul {
@@ -752,14 +752,14 @@ th.sortable .sort-icon {
 }
 
 /* ------------------- Footer Styles --------------------- */
-.footer-container {
+footer {
   background-color: var(--color-header);
   color: var(--color-white);
   padding: var(--spacing-xl) 0;
   width: 100%;
 }
 
-.footer-content {
+#footer-content {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -795,11 +795,11 @@ th.sortable .sort-icon {
 @media screen and (max-width: 768px) {
 
   /* Header layout */
-  .header-container {
+  header {
     padding: 0.75rem;
   }
   
-  .header-content {
+  #header-content {
     align-items: center;
     justify-content: space-between;
   }
@@ -831,7 +831,7 @@ th.sortable .sort-icon {
   }
   
   /* Mobile navigation */
-  .nav-container {
+  #nav-container {
     background-color: var(--color-header);
     box-shadow: var(--shadow-lg);
     display: flex;
@@ -853,7 +853,7 @@ th.sortable .sort-icon {
     }
   }
   
-  .main-nav {
+  #main-nav {
     margin-right: 0;
     margin-bottom: 2rem;
     width: 100%;
@@ -1000,7 +1000,7 @@ th.sortable .sort-icon {
     width: 8rem;
   }
 
-  .footer-content {
+  #footer-content {
     padding: 0 var(--spacing-lg);
 
     h3 {

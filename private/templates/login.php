@@ -4,7 +4,7 @@ $current_page = 'Login';
 require_once 'header.php'; 
 ?>
 
-<div class="login-container">
+<div id="login-container">
   <div id="form-wrapper">
     <!-- Login Form -->
     <div id="login-form" class="form">

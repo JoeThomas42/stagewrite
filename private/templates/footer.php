@@ -1,14 +1,14 @@
-<?php
+<?php ?>
 
-echo "</div>"; // Close page-wrapper
+</div> <!-- Close page-wrapper -->
 
-// Start footer section
-echo "<footer class='footer-container'>
-    <div class='footer-content'>
+
+<footer>
+    <div id='footer-content'>
         <h3>StageWrite</h3>
         <p>The ultimate stage plot management tool for event production.</p>
     </div>
-</footer>";
+</footer>
 
-echo "</body>";
-echo "</html>";
+</body>
+</html>

@@ -18,7 +18,7 @@
 
 <body>
     <header class="header-container">
-        <div class="header-content">
+        <div id="header-content">
             <a href="<?= WEB_ROOT ?>/index.php" class="logo-link">
                 <div class="logo-container">
                     <h1>StageWrite</h1>
@@ -31,10 +31,10 @@
             </button>
 
             <!-- Navigation menu -->
-            <div class="nav-container" id="nav-container">
+            <div id="nav-container">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <!-- Navigation for logged-in users -->
-                    <nav class="main-nav">
+                    <nav id="main-nav">
                         <ul>
                             <li>
                                 <a href="<?= WEB_ROOT ?>/index.php" class="<?= $current_page === 'Home' ? 'current-page' : '' ?>">
@@ -83,4 +83,4 @@
         </div>
     </header>
 
-    <div class="page-wrapper">
+    <div id="page-wrapper">

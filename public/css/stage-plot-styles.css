@@ -3,19 +3,19 @@
  */
 
  /* -------------- Elements Area ---------------- */
-.stage-plot-container {
+#stage-plot-container {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-lg);
   margin: var(--spacing-md) 0;
 }
 
-.elements-panel {
+#elements-panel {
   flex: 1;
   min-width: 300px;
 }
 
-.elements-header {
+#elements-header {
   align-items: center;
   display: flex;
   gap: var(--spacing-md);
@@ -23,7 +23,7 @@
   margin-bottom: var(--spacing-md);
 }
 
-.elements-list {
+#elements-list {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   max-height: 600px;
@@ -76,15 +76,15 @@
 }
 
 /* --------------- Stage Area ------------------ */
-.stage-area {
+#stage-area {
   flex: 2;
 }
 
-.stage-controls {
+#stage-controls {
   margin-bottom: var(--spacing-md);
 }
 
-.control-buttons {
+#control-buttons {
   display: flex;
   gap: var(--spacing-sm);
 }
@@ -101,7 +101,7 @@
   }
 }
 
-.stage {
+#stage {
   background-color: #f5f5f5;
   border: 2px solid var(--color-text);
   height: 500px;
@@ -110,7 +110,7 @@
   width: 700px;
 }
 
-.front-label {
+#front-label {
   bottom: 5px;
   color: var(--color-text-light);
   font-size: var(--font-size-sm);
@@ -333,15 +333,15 @@ optgroup {
 /* -------------------- Responsive styles ---------------------- */ 
 @media screen and (max-width: 768px) {
 
-  .stage-plot-container {
+  #stage-plot-container {
     flex-direction: column;
   }
   
-  .elements-panel {
+  #elements-panel {
     max-width: none;
   }
   
-  .stage {
+  #stage {
     max-width: 100%;
     height: auto;
     aspect-ratio: 5/6;
