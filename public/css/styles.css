@@ -552,7 +552,7 @@ th.sortable .sort-icon {
   font-style: italic;
 }
 
-/* -------------------- List Styles ----------------------- */
+/* -------------------- List and Plot Styles ----------------------- */
 .plots-list {
   list-style: none;
   margin: var(--spacing-xl) 0;
@@ -578,10 +578,24 @@ th.sortable .sort-icon {
   text-decoration: none;
 }
 
+.plot-item {
+  align-items: center;
+  border-radius: var(--border-radius-sm);
+  color: inherit;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+  }
+}
+
 .plot-name {
   color: var(--color-primary);
   font-size: var(--font-size-lg);
-  font-weight: 500;
+  font-weight: bold;
   margin-bottom: var(--spacing-md);
 }
 
@@ -608,7 +622,7 @@ th.sortable .sort-icon {
   }
 }
 
-/* ---------------- Modals ----------------- */
+/* ---------------- Modals and Action Buttons ----------------- */
 .modal {
   background-color: rgba(0, 0, 0, 0.5);
   display: none;
@@ -678,12 +692,31 @@ th.sortable .sort-icon {
   background-color: var(--color-secondary);
 }
 
-.delete-button {
+/* Consistent delete button styling */
+.delete-button,
+.delete-plot-btn {
   background-color: var(--color-danger);
   margin-right: auto;
 
   &:hover {
     background-color: var(--color-danger-dark);
+  }
+}
+
+.delete-plot-btn {
+  background: none;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0.2rem 0.5rem .4rem;
+
+  &:hover {
+    color: var(--color-white);
+    background-color: var(--color-danger);
   }
 }
 

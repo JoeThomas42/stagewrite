@@ -310,7 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-element';
-    editBtn.innerHTML = '⚙';
+    // editBtn.innerHTML = '⚙';
+    editBtn.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
     editBtn.title = 'Edit properties';
     editBtn.addEventListener('click', (e) => {
       e.stopPropagation();

@@ -241,7 +241,7 @@ if ($isLoggedIn) {
             <div class="save-section new-plot-section">
                 <form id="save-new-plot-form">
                     <label for="plot_name">Plot Name:</label>
-                    <input type="text" id="plot_name" name="plot_name" maxlength="20" required>
+                    <input type="text" id="plot_name" name="plot_name" maxlength="20">
                     <div class="form-actions">
                         <button type="submit" class="save-button">Save as New</button>
                     </div>
