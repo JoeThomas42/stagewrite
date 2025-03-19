@@ -865,7 +865,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <span class="date">${formattedDate}</span>
                 </div>
               </a>
-              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot">×</button>
+              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
             </li>`;
           });
           html += '</ul>';
@@ -884,8 +884,29 @@ document.addEventListener("DOMContentLoaded", () => {
           document.querySelectorAll('.delete-plot-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               e.stopPropagation();
-              const plotId = btn.getAttribute('data-plot-id');
-              deletePlot(plotId);
+              
+              if (btn.classList.contains('confirming')) {
+                // This is the second click (confirmation)
+                const plotId = btn.getAttribute('data-plot-id');
+                deletePlot(plotId, true);
+              } else {
+                // This is the first click - transform to confirmation state
+                btn.classList.add('confirming');
+                btn.textContent = 'Are you Sure?';
+                btn.setAttribute('title', 'Click again to confirm deletion');
+                
+                // Reset after a timeout if not clicked
+                setTimeout(() => {
+                  if (btn.classList.contains('confirming')) {
+                    btn.classList.remove('confirming');
+                    btn.innerHTML = '<i class="fa-solid fa-delete-left"></i>';
+                    btn.setAttribute('title', 'Delete plot');
+                  }
+                }, 3000); // Reset after 3 seconds
+                
+                // Stop event propagation
+                e.stopPropagation();
+              }
             });
           });
         } else {
@@ -1051,8 +1072,29 @@ document.addEventListener("DOMContentLoaded", () => {
           document.querySelectorAll('.existing-plots-list .delete-plot-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               e.stopPropagation();
-              const plotId = btn.getAttribute('data-plot-id');
-              deletePlot(plotId);
+              
+              if (btn.classList.contains('confirming')) {
+                // This is the second click (confirmation)
+                const plotId = btn.getAttribute('data-plot-id');
+                deletePlot(plotId, true);
+              } else {
+                // This is the first click - transform to confirmation state
+                btn.classList.add('confirming');
+                btn.textContent = 'Are you Sure?';
+                btn.setAttribute('title', 'Click again to confirm deletion');
+                
+                // Reset after a timeout if not clicked
+                setTimeout(() => {
+                  if (btn.classList.contains('confirming')) {
+                    btn.classList.remove('confirming');
+                    btn.textContent = '×';
+                    btn.setAttribute('title', 'Delete plot');
+                  }
+                }, 3000); // Reset after 3 seconds
+                
+                // Stop event propagation
+                e.stopPropagation();
+              }
             });
           });
         } else {
@@ -1296,8 +1338,10 @@ document.addEventListener("DOMContentLoaded", () => {
   /**
    * Delete a saved plot
    */
-  function deletePlot(plotId) {
-    if (!confirm('Are you sure you want to delete this plot? This action cannot be undone.')) {
+  function deletePlot(plotId, confirmed = false) {
+    // Skip confirmation if already confirmed
+    if (!confirmed) {
+      // The confirmation is now handled by the button itself
       return;
     }
     

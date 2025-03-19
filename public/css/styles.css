@@ -711,14 +711,31 @@ th.sortable .sort-icon {
   border-radius: var(--border-radius-sm);
   color: var(--color-danger);
   cursor: pointer;
-  font-size: 1.5rem;
-  font-weight: bold;
-  line-height: 1;
-  padding: 0.2rem 0.5rem .4rem;
-
+  font-size: 1rem;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+  min-width: 30px;
+  text-align: center;
+  
   &:hover {
     color: var(--color-white);
     background-color: var(--color-danger);
+  }
+  
+  &.confirming {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+    min-width: 85px;
+    animation: pulse 1s infinite alternate;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
