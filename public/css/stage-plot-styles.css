@@ -7,7 +7,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-lg);
-  margin: var(--spacing-md) 0;
+  margin: var(--spacing-md) 2rem;
+  padding: 0 var(--spacing-md);
 }
 
 #elements-panel {
@@ -81,7 +82,8 @@
 }
 
 #stage-controls {
-  margin-bottom: var(--spacing-md);
+  margin: 0 auto var(--spacing-md);
+  max-width: 700px;
 }
 
 #control-buttons {
@@ -155,6 +157,7 @@
   background-color: #f5f5f5;
   border: 2px solid var(--color-text);
   height: 500px;
+  margin: auto;
   overflow: hidden;
   position: relative;
   width: 700px;

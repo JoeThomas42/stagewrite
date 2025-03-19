@@ -94,8 +94,6 @@ body {
   justify-content: flex-start;
   margin: 0 auto;
   max-width: 1200px;
-  width: 100%;
-  padding: var(--spacing-xl);
 }
 
 #login-container {
@@ -734,6 +732,24 @@ th.sortable .sort-icon {
   }
 }
 
+/* Save Changes Button */
+#save-changes {
+  background-color: var(--color-primary);
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding-left: 0;
+  padding-right: 0;
+  transition: max-width 0.5s ease, opacity 0.3s ease, padding 0.5s ease;
+  white-space: nowrap;
+}
+
+#save-changes.visible {
+  max-width: 200px;
+  opacity: 1;
+  padding: var(--spacing-sm) var(--spacing-lg);
+}
+
 /* ----------------- Mobile menu toggle button ------------------ */
 .mobile-menu-toggle {
   background: transparent;
@@ -796,6 +812,53 @@ footer {
   }
 }
 
+/* -------------------- Notification System ---------------------- */
+.notification-area {
+  bottom: 0;
+  left: 0;
+  padding: var(--spacing-md);
+  pointer-events: none;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+}
+
+.notification {
+  background-color: var(--color-card);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--color-primary);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-sm);
+  margin: 0 auto;
+  max-width: 400px;
+  opacity: 0;
+  padding: var(--spacing-md) var(--spacing-xl);
+  pointer-events: auto;
+  text-align: center;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+  
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  &.success {
+    border-left-color: #28a745;
+  }
+  
+  &.error {
+    border-left-color: var(--color-danger);
+  }
+  
+  &.info {
+    border-left-color: var(--color-primary);
+  }
+  
+  &.warning {
+    border-left-color: #ffc107;
+  }
+}
 
 /* ---------------------- Responsive Styles ----------------------- */
 @media screen and (max-width: 960px) {

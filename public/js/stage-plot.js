@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLoadPlotModal();
   initPageNavigation();
   initAddVenueModal();
+  initNotificationSystem();
   
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage();
@@ -495,7 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * Apply properties from modal to element
    */
   function applyElementProperties() {
-    const form = document.getElementById('element-props-form');
+    // const form = document.getElementById('element-props-form');
     const elementIndex = parseInt(document.getElementById('element_index').value);
     const rotation = parseInt(document.getElementById('element_rotation').value);
     const flipped = document.getElementById('element_flipped').checked;
@@ -611,7 +612,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (clearButton.classList.contains('confirming')) {
           // This is the second click (confirmation)
           clearElements();
-          
+          showNotification('Stage cleared!', 'info');
+
           // Reset button appearance after action
           clearButton.classList.remove('confirming');
           
@@ -852,7 +854,8 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(data => {
       if (data.success) {
-        alert('Plot saved successfully!');
+        // Show notification instead of alert
+        showNotification('Plot saved!', 'success');
         
         // Update plot title and state for new plots, when overwriting with a new name,
         // or when overwriting an existing plot with its original name
@@ -879,9 +882,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // Reset modified state
         plotState.isModified = false;
         
-        // Hide save changes button
+        // Hide save changes button with animation
         if (saveChangesButton) {
-          saveChangesButton.classList.add('hidden');
+          saveChangesButton.classList.remove('visible');
+          // Remove hidden class after transition completes
+          setTimeout(() => {
+            saveChangesButton.classList.add('hidden');
+          }, 500);
         }
         
         // Close modal if we're showing one
@@ -890,12 +897,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update the saved state in localStorage
         saveStateToStorage();
       } else {
-        alert('Error saving plot: ' + (data.error || 'Unknown error'));
+        showNotification('Error saving plot: ' + (data.error || 'Unknown error'), 'error');
       }
     })
     .catch(error => {
       console.error('Error saving plot:', error);
-      alert('Error saving plot. Please try again.');
+      showNotification('Error saving plot. Please try again.', 'error');
     });
   }
   
@@ -1013,8 +1020,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
           
-          // Clear current stage
-          clearStage();
+          // Clear current elements
+          clearElements();
           
           // Update plot title and state
           const plotTitle = document.getElementById('plot-title');
@@ -1073,19 +1080,13 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           
           closeModal(loadModal);
+          showNotification('Plot loaded!', 'success');
         }
       })
       .catch(error => {
         console.error('Error loading plot:', error);
         alert('Error loading plot. Please try again.');
       });
-  }
-  
-  /**
-   * Clear all elements from the stage
-   */
-  function clearStage() {
-    newPlot(); // Use the new function for complete reset
   }
   
   /**
@@ -1214,9 +1215,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!plotState.isModified && plotState.currentPlotId !== null) {
       plotState.isModified = true;
       
-      // Show the save changes button
+      // Show the save changes button with animation
       if (saveChangesButton) {
         saveChangesButton.classList.remove('hidden');
+        // Use a small timeout to ensure the transition works
+        setTimeout(() => {
+          saveChangesButton.classList.add('visible');
+        }, 10);
       }
     }
   }
@@ -1442,9 +1447,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
+        // Show notification instead of alert
+        showNotification('Plot deleted!', 'success');
+        
         // If we're currently viewing the plot that was deleted, clear the stage
         if (plotState.currentPlotId && plotState.currentPlotId == plotId) {
-          clearStage();
+          clearElements();
         }
         
         // Reload the plots list
@@ -1455,12 +1463,12 @@ document.addEventListener("DOMContentLoaded", () => {
           loadExistingPlotsForOverwrite();
         }
       } else {
-        alert('Error deleting plot: ' + (data.error || 'Unknown error'));
+        showNotification('Error deleting plot: ' + (data.error || 'Unknown error'), 'error');
       }
     })
     .catch(error => {
       console.error('Error deleting plot:', error);
-      alert('Error deleting plot. Please try again.');
+      showNotification('Error deleting plot. Please try again.', 'error');
     });
   }
 
@@ -1500,8 +1508,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Reset buttons
     if (saveButton) saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
     
-    if (saveChangesButton) saveChangesButton.classList.add('hidden');
-    
+    if (saveChangesButton) {
+      saveChangesButton.classList.remove('visible');
+      // Remove hidden class after transition completes
+      setTimeout(() => {
+        saveChangesButton.classList.add('hidden');
+      }, 500);
+    }
+        
     // Clear saved state from localStorage
     clearSavedState();
     
@@ -1515,6 +1529,8 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Reset venue
     if (venueSelect) venueSelect.value = "";
+
+    showNotification('New plot created!', 'success');
   }
 
   /**
@@ -1625,16 +1641,64 @@ document.addEventListener("DOMContentLoaded", () => {
             closeModal(addVenueModal);
             
             // Show success message
-            alert('Custom venue added successfully!');
+            showNotification('Custom venue added!', 'success');
           } else {
-            alert('Error adding venue: ' + (data.error || 'Unknown error'));
+            showNotification('Error adding venue: ' + (data.error || 'Unknown error'), 'error');
           }
         })
         .catch(error => {
           console.error('Error saving venue:', error);
-          alert('Error saving venue. Please try again.');
+          showNotification('Error saving venue. Please try again.', 'error');
         });
       });
     }
+  }
+
+  /**
+   * Initialize notification system
+   */
+  function initNotificationSystem() {
+    // Make sure notification area exists
+    const notificationArea = document.getElementById('notification-area');
+    if (!notificationArea) {
+      const newNotificationArea = document.createElement('div');
+      newNotificationArea.id = 'notification-area';
+      newNotificationArea.className = 'notification-area';
+      document.body.appendChild(newNotificationArea);
+    }
+  }
+  
+  /**
+   * Show a notification message
+   * @param {string} message - Message to display
+   * @param {string} type - Type of notification (success, error, info, warning)
+   * @param {number} duration - Time in milliseconds to show notification
+   */
+  function showNotification(message, type = 'info', duration = 3000) {
+    const notificationArea = document.getElementById('notification-area');
+    if (!notificationArea) return;
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // Add to DOM
+    notificationArea.appendChild(notification);
+    
+    // Trigger animation after a brief delay
+    setTimeout(() => {
+      notification.classList.add('visible');
+    }, 10);
+    
+    // Remove after duration
+    setTimeout(() => {
+      notification.classList.remove('visible');
+      
+      // Remove from DOM after animation completes
+      setTimeout(() => {
+        notificationArea.removeChild(notification);
+      }, 300);
+    }, duration);
   }
 });
