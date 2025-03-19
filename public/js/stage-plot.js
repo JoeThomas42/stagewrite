@@ -854,8 +854,16 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(data => {
       if (data.success) {
-        // Show notification instead of alert
-        showNotification('Plot saved!', 'success');
+        // Show notification based on type of save
+        if (isNew) {
+        showNotification('New Plot Saved!', 'success');       // New plot saved
+        } else if (newName) {
+          showNotification('Plot Overwritten!', 'success');   // Overwriting with a new name
+        } else if (existingName) {
+          showNotification('Plot Overwritten!', 'success');   // Overwriting existing plot with its original name
+        } else {
+          showNotification('Changes Saved!', 'success');      // Saving changes to existing plot
+        }
         
         // Update plot title and state for new plots, when overwriting with a new name,
         // or when overwriting an existing plot with its original name
