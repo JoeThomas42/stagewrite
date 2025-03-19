@@ -593,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
             };
           }
         } else {
-          alert('Please add elements to the stage before saving.');
+          showNotification('There is nothing to save!', 'error');
         }
       });
     }
