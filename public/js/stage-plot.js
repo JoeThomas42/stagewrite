@@ -608,8 +608,44 @@ document.addEventListener("DOMContentLoaded", () => {
     // Setup clear button
     if (clearButton) {
       clearButton.addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear all elements from the stage?')) {
+        if (clearButton.classList.contains('confirming')) {
+          // This is the second click (confirmation)
           clearElements();
+          
+          // Reset button appearance after action
+          clearButton.classList.remove('confirming');
+          
+          // Restore the original icon after a small delay
+          setTimeout(() => {
+            clearButton.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            clearButton.setAttribute('title', 'Clear Stage');
+          }, 150);
+        } else {
+          // This is the first click - first add the class then change content
+          const originalContent = clearButton.innerHTML;
+          
+          // Add class first to trigger width transition
+          clearButton.classList.add('confirming');
+          
+          // Change content after a small delay to let width transition start
+          setTimeout(() => {
+            clearButton.textContent = 'Are you Sure?';
+            clearButton.setAttribute('title', 'Click again to confirm clearing the stage');
+          }, 50);
+          
+          // Reset after a timeout if not clicked
+          setTimeout(() => {
+            if (clearButton.classList.contains('confirming')) {
+              // First remove the class to trigger width transition
+              clearButton.classList.remove('confirming');
+              
+              // After transition starts, restore original content
+              setTimeout(() => {
+                clearButton.innerHTML = originalContent;
+                clearButton.setAttribute('title', 'Clear Stage');
+              }, 150);
+            }
+          }, 3000); // Reset after 3 seconds
         }
       });
     }
@@ -1083,7 +1119,6 @@ document.addEventListener("DOMContentLoaded", () => {
               } else {
                 // This is the first click - first add the class then change content
                 const originalContent = btn.innerHTML;
-                const originalTitle = btn.getAttribute('title');
                 
                 // Add class first to trigger width transition
                 btn.classList.add('confirming');
