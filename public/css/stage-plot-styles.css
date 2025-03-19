@@ -119,15 +119,15 @@
   }
 }
 
-#new-plot {
-  margin-right: auto;
+#clear-plot {
+  margin-left: auto;
 }
 
 #clear-plot {
-  background-color: transparent;
+  background-color: var(--color-danger);
   border: none;
   border-radius: var(--border-radius-sm);
-  color: var(--color-danger);
+  color: var(--color-white);
   cursor: pointer;
   font-size: var(--font-size-lg);
   font-weight: normal;
@@ -139,7 +139,7 @@
   width: 38px;
 
   &:hover {
-    background-color: var(--color-danger);
+    background-color: var(--color-danger-dark);
     color: var(--color-white);
   }
   

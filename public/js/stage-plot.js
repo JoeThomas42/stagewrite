@@ -931,7 +931,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <span class="date">${formattedDate}</span>
                 </div>
               </a>
-              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-square-minus"></i></button>
+              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
             </li>`;
           });
           html += '</ul>';
@@ -1117,7 +1117,7 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
               <div class="plot-actions">
                 <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}" data-plot-name="${plot.plot_name}">Overwrite</button>
-                <button type="button" class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-square-minus"></i></button>
+                <button type="button" class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
               </div>
             </li>`;
           });
@@ -1160,7 +1160,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Change content after a small delay to let width transition start
                 setTimeout(() => {
                   btn.textContent = 'Delete';
-                  btn.setAttribute('title', 'Click again to confirm deletion');
+                  btn.setAttribute('title', 'This is permanent!');
                 }, 50);
                 
                 // Reset after a timeout if not clicked
