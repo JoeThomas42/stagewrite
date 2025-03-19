@@ -94,7 +94,6 @@ body {
   justify-content: flex-start;
   margin: 0 auto;
   max-width: 1200px;
-  /* min-width: 30%; */
   width: 100%;
   padding: var(--spacing-xl);
 }
@@ -706,34 +705,6 @@ th.sortable .sort-icon {
     background-color: var(--color-danger-dark);
   }
 }
-
-/* .delete-plot-btn {
-  background-color: var(--color-danger);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: var(--color-white);
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  font-weight: normal;
-  overflow: hidden;
-  padding: var(--spacing-sm);
-  text-align: center;
-  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
-  white-space: nowrap;
-  width: 24px;
-
-  &:hover {
-    background-color: var(--color-danger-dark);
-    color: var(--color-white);
-  }
-  
-  &.confirming {
-    animation: pulse 1s infinite alternate;
-    background-color: var(--color-danger);
-    color: var(--color-white);
-    width: 120px;
-  }
-} */
 
 .delete-plot-btn {
   background-color: transparent;
