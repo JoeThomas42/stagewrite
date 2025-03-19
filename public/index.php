@@ -278,9 +278,6 @@ if ($isLoggedIn) {
     </div>
 </div>
 
-<!-- Add notification area for site-wide notifications -->
-<div class="notification-area" id="notification-area"></div>
-
 <?php 
 endif;
 

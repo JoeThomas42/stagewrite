@@ -1658,13 +1658,32 @@ document.addEventListener("DOMContentLoaded", () => {
    * Initialize notification system
    */
   function initNotificationSystem() {
-    // Make sure notification area exists
-    const notificationArea = document.getElementById('notification-area');
-    if (!notificationArea) {
-      const newNotificationArea = document.createElement('div');
-      newNotificationArea.id = 'notification-area';
-      newNotificationArea.className = 'notification-area';
-      document.body.appendChild(newNotificationArea);
+    // Find the control buttons area
+    const controlButtons = document.getElementById('control-buttons');
+    if (!controlButtons) return;
+    
+    // Check if notification area exists
+    let notificationArea = document.getElementById('notification-area');
+    
+    // If it doesn't exist or isn't in the right place, create/move it
+    if (!notificationArea || notificationArea.parentNode !== controlButtons) {
+      // Remove old notification area if it exists elsewhere
+      if (notificationArea) {
+        notificationArea.parentNode.removeChild(notificationArea);
+      }
+      
+      // Create new notification area inside control buttons
+      notificationArea = document.createElement('div');
+      notificationArea.id = 'notification-area';
+      notificationArea.className = 'notification-area';
+      
+      // Add it after the save-changes button if it exists, otherwise at the end
+      const saveChangesBtn = controlButtons.querySelector('#save-changes');
+      if (saveChangesBtn) {
+        saveChangesBtn.insertAdjacentElement('afterend', notificationArea);
+      } else {
+        controlButtons.appendChild(notificationArea);
+      }
     }
   }
   
@@ -1677,6 +1696,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function showNotification(message, type = 'info', duration = 3000) {
     const notificationArea = document.getElementById('notification-area');
     if (!notificationArea) return;
+    
+    // Remove any existing notifications
+    const existingNotifications = notificationArea.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => {
+      notification.classList.remove('visible');
+      notification.classList.add('exiting');
+      setTimeout(() => {
+        if (notification.parentNode === notificationArea) {
+          notificationArea.removeChild(notification);
+        }
+      }, 300);
+    });
     
     // Create notification element
     const notification = document.createElement('div');
@@ -1694,10 +1725,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Remove after duration
     setTimeout(() => {
       notification.classList.remove('visible');
+      notification.classList.add('exiting');
       
       // Remove from DOM after animation completes
       setTimeout(() => {
-        notificationArea.removeChild(notification);
+        if (notification.parentNode === notificationArea) {
+          notificationArea.removeChild(notification);
+        }
       }, 300);
     }, duration);
   }

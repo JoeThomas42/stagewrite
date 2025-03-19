@@ -122,10 +122,6 @@
 }
 
 #clear-plot {
-  margin-left: auto;
-}
-
-#clear-plot {
   background-color: var(--color-danger);
   border: none;
   border-radius: var(--border-radius-sm);
