@@ -630,7 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Change content after a small delay to let width transition start
           setTimeout(() => {
             clearButton.textContent = 'Clear Stage';
-            clearButton.setAttribute('title', 'Click again to confirm clearing the stage');
+            clearButton.setAttribute('title', 'Clear all placed elements');
           }, 50);
           
           // Reset after a timeout if not clicked
@@ -675,7 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Change content after a small delay to let width transition start
           setTimeout(() => {
             newPlotButton.textContent = 'New Plot';
-            newPlotButton.setAttribute('title', 'Click again to create a new plot');
+            newPlotButton.setAttribute('title', 'You will lose unsaved changes');
           }, 50);
           
           // Reset after a timeout if not clicked
@@ -871,9 +871,8 @@ document.addEventListener("DOMContentLoaded", () => {
             plotTitle.textContent = plotData.plot_name;
           }
           
-          // Change save button text to "Save As"
           if (saveButton) {
-            saveButton.textContent = 'Save As';
+            saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
           }
         }
         
@@ -964,7 +963,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Change content after a small delay to let width transition start
                 setTimeout(() => {
                   btn.textContent = 'Delete';
-                  btn.setAttribute('title', 'Click again to confirm deletion');
+                  btn.setAttribute('title', 'This is permanent!');
                 }, 50);
                 
                 // Reset after a timeout if not clicked
@@ -1056,9 +1055,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
 
-          // Update button text to "Save As" since we're editing an existing plot
           if (saveButton) {
-            saveButton.textContent = 'Save As';
+            saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
           }
           
           // Hide the save changes button initially
@@ -1377,7 +1375,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Update save button text
         if (saveButton && state.currentPlotId) {
-          saveButton.textContent = 'Save As';
+          saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
         }
         
         // Show save changes button if needed
@@ -1500,7 +1498,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (plotTitle) plotTitle.textContent = 'New Plot';
     
     // Reset buttons
-    if (saveButton) saveButton.textContent = 'Save As';
+    if (saveButton) saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
     
     if (saveChangesButton) saveChangesButton.classList.add('hidden');
     

@@ -89,12 +89,13 @@
   gap: var(--spacing-sm);
 }
 
+#save-plot,
+#my-plots,
 #new-plot {
-  margin-right: auto;
-  background-color: transparent;
+  background-color: var(--color-primary);
   border: none;
   border-radius: var(--border-radius-sm);
-  color: var(--color-primary);
+  color: var(--color-white);
   cursor: pointer;
   font-size: var(--font-size-lg);
   font-weight: normal;
@@ -103,10 +104,10 @@
   text-align: center;
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
   white-space: nowrap;
-  width: 35px;
+  width: 38px;
 
   &:hover {
-    background-color: var(--color-primary);
+    background-color: var(--color-primary-dark);
     color: var(--color-white);
   }
   
@@ -116,6 +117,10 @@
     color: var(--color-white);
     width: 120px;
   }
+}
+
+#new-plot {
+  margin-right: auto;
 }
 
 #clear-plot {
@@ -131,7 +136,7 @@
   text-align: center;
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
   white-space: nowrap;
-  width: 35px;
+  width: 38px;
 
   &:hover {
     background-color: var(--color-danger);

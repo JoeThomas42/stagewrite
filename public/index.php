@@ -121,9 +121,9 @@ if ($isLoggedIn) {
             
                 <div id="control-buttons">
                     <?php if ($isLoggedIn): ?>
-                        <button id="save-plot" class="action-button">Save Plot</button>
+                        <button id="save-plot" class="action-button"><i class="fa-solid fa-floppy-disk"></i></button>
                         <button id="save-changes" class="action-button hidden">Save Changes</button>
-                        <button id="my-plots" class="action-button">My Plots</button>
+                        <button id="my-plots" class="action-button" title="My Plots"><i class="fa-solid fa-folder-open"></i></button>
                     <?php endif; ?>
                     <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
                     <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
