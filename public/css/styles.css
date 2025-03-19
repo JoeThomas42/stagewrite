@@ -828,9 +828,15 @@ footer {
 }
 
 .notification {
-  background-color: var(--color-primary-dark);
+  background: linear-gradient(to right, 
+    var(--color-secondary) 0px,      /* Colored border starts */
+    var(--color-secondary) 10px,     /* Colored border ends */
+    white 10px,                    /* Start of white separation */
+    white 12px,                    /* End of white separation */
+    var(--color-primary-dark) 12px,  /* Main background starts */
+    var(--color-primary-dark) 100%   /* Main background ends */
+  );
   border-radius: var(--border-radius-md);
-  border-left: 4px solid var(--color-secondary);
   box-shadow: var(--shadow-md);
   color: var(--color-white);
   font-size: var(--font-size-sm);
@@ -860,19 +866,51 @@ footer {
   }
   
   &.success {
-    border-left-color: var(--color-success);
+    /* border-left-color: var(--color-success); */
+    background: linear-gradient(to right, 
+      var(--color-success) 0px, 
+      var(--color-success) 10px, 
+      white 10px, 
+      white 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+    );
   }
   
   &.error {
-    border-left-color: var(--color-error);
+    /* border-left-color: var(--color-error); */
+    background: linear-gradient(to right, 
+      var(--color-error) 0px, 
+      var(--color-error) 10px, 
+      white 10px, 
+      white 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+    );
   }
   
   &.info {
-    border-left-color: var(--color-secondary);
+    /* border-left-color: var(--color-secondary); */
+    background: linear-gradient(to right, 
+      var(--color-secondary) 0px, 
+      var(--color-secondary) 10px, 
+      white 10px, 
+      white 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+    );
   }
   
   &.warning {
-    border-left-color: var(--color-danger);
+    /* border-left-color: var(--color-danger); */
+    background: linear-gradient(to right, 
+      var(--color-danger) 0px, 
+      var(--color-danger) 10px, 
+      white 10px, 
+      white 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+    );
   }
 }
 

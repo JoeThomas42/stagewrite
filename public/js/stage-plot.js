@@ -593,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
             };
           }
         } else {
-          showNotification('There is nothing to save!', 'error');
+          showNotification('There is nothing to save!', 'warning');
         }
       });
     }
@@ -612,7 +612,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (clearButton.classList.contains('confirming')) {
           // This is the second click (confirmation)
           clearElements();
-          showNotification('Stage cleared!', 'info');
+          showNotification('Stage cleared!', 'success');
 
           // Reset button appearance after action
           clearButton.classList.remove('confirming');
