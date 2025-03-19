@@ -629,7 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Change content after a small delay to let width transition start
           setTimeout(() => {
-            clearButton.textContent = 'Are you Sure?';
+            clearButton.textContent = 'Clear Stage';
             clearButton.setAttribute('title', 'Click again to confirm clearing the stage');
           }, 50);
           
@@ -927,7 +927,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Change content after a small delay to let width transition start
                 setTimeout(() => {
-                  btn.textContent = 'Are you Sure?';
+                  btn.textContent = 'Delete';
                   btn.setAttribute('title', 'Click again to confirm deletion');
                 }, 50);
                 
@@ -1125,7 +1125,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 // Change content after a small delay to let width transition start
                 setTimeout(() => {
-                  btn.textContent = 'Are you Sure?';
+                  btn.textContent = 'Delete';
                   btn.setAttribute('title', 'Click again to confirm deletion');
                 }, 50);
                 
