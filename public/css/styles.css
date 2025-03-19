@@ -694,7 +694,7 @@ th.sortable .sort-icon {
   background-color: var(--color-secondary);
 }
 
-/* Consistent delete button styling */
+/* Delete button styling */
 .delete-button,
 .delete-plot-btn {
   background-color: var(--color-danger);
@@ -706,36 +706,30 @@ th.sortable .sort-icon {
 }
 
 .delete-plot-btn {
-  background: none;
+  background-color: transparent;
   border: none;
   border-radius: var(--border-radius-sm);
   color: var(--color-danger);
   cursor: pointer;
   font-size: 1rem;
+  font-weight: normal;
+  overflow: hidden;
   padding: 0.5rem;
-  transition: all 0.3s ease;
-  min-width: 30px;
   text-align: center;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
+  white-space: nowrap;
+  width: 35px;
   
   &:hover {
-    color: var(--color-white);
     background-color: var(--color-danger);
+    color: var(--color-white);
   }
   
   &.confirming {
+    animation: pulse 1s infinite alternate;
     background-color: var(--color-danger);
     color: var(--color-white);
-    min-width: 85px;
-    animation: pulse 1s infinite alternate;
-  }
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 1;
+    width: 120px;
   }
 }
 
@@ -1040,5 +1034,14 @@ footer {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
   }
 }

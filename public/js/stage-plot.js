@@ -712,12 +712,9 @@ document.addEventListener("DOMContentLoaded", () => {
    * Save plot to database
    */
   function savePlot(isNew = true, existingPlotId = null, newName = null, existingName = null) {
-    // When saving changes to an existing plot or overwriting with a new name
-    // we need to determine what name to use
     let plotName;
     
     if (isNew) {
-      // New plot - always use the input field
       plotName = document.getElementById('plot_name').value.trim();
     } else if (newName) {
       // Overwriting with a new name
@@ -771,8 +768,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     console.log('Sending plot data:', plotData);
     
-    // Rest of the function remains the same
-    // ...
     fetch('/handlers/save_plot.php', {
       method: 'POST',
       headers: {
@@ -865,7 +860,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <span class="date">${formattedDate}</span>
                 </div>
               </a>
-              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
+              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-square-minus"></i></button>
             </li>`;
           });
           html += '</ul>';
@@ -890,21 +885,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 const plotId = btn.getAttribute('data-plot-id');
                 deletePlot(plotId, true);
               } else {
-                // This is the first click - transform to confirmation state
+                // This is the first click - first add the class then change content
+                const originalContent = btn.innerHTML;
                 btn.classList.add('confirming');
-                btn.textContent = 'Are you Sure?';
-                btn.setAttribute('title', 'Click again to confirm deletion');
+
+                // Change content after a small delay to let width transition start
+                setTimeout(() => {
+                  btn.textContent = 'Are you Sure?';
+                  btn.setAttribute('title', 'Click again to confirm deletion');
+                }, 50);
                 
                 // Reset after a timeout if not clicked
                 setTimeout(() => {
                   if (btn.classList.contains('confirming')) {
                     btn.classList.remove('confirming');
-                    btn.innerHTML = '<i class="fa-solid fa-delete-left"></i>';
-                    btn.setAttribute('title', 'Delete plot');
+                    
+                    // After transition starts, restore original content
+                    setTimeout(() => {
+                      btn.innerHTML = originalContent;
+                      btn.setAttribute('title', 'Delete plot');
+                    }, 150);
                   }
                 }, 3000); // Reset after 3 seconds
                 
-                // Stop event propagation
                 e.stopPropagation();
               }
             });
@@ -1044,7 +1047,7 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
               <div class="plot-actions">
                 <button type="button" class="overwrite-btn" data-plot-id="${plot.plot_id}" data-plot-name="${plot.plot_name}">Overwrite</button>
-                <button type="button" class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot">×</button>
+                <button type="button" class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-square-minus"></i></button>
               </div>
             </li>`;
           });
@@ -1078,17 +1081,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 const plotId = btn.getAttribute('data-plot-id');
                 deletePlot(plotId, true);
               } else {
-                // This is the first click - transform to confirmation state
+                // This is the first click - first add the class then change content
+                const originalContent = btn.innerHTML;
+                const originalTitle = btn.getAttribute('title');
+                
+                // Add class first to trigger width transition
                 btn.classList.add('confirming');
-                btn.textContent = 'Are you Sure?';
-                btn.setAttribute('title', 'Click again to confirm deletion');
+                
+                // Change content after a small delay to let width transition start
+                setTimeout(() => {
+                  btn.textContent = 'Are you Sure?';
+                  btn.setAttribute('title', 'Click again to confirm deletion');
+                }, 50);
                 
                 // Reset after a timeout if not clicked
                 setTimeout(() => {
                   if (btn.classList.contains('confirming')) {
+                    // First remove the class to trigger width transition
                     btn.classList.remove('confirming');
-                    btn.textContent = '×';
-                    btn.setAttribute('title', 'Delete plot');
+                    
+                    // After transition starts, restore original content
+                    setTimeout(() => {
+                      btn.innerHTML = originalContent;
+                      btn.setAttribute('title', 'Delete plot');
+                    }, 150);
                   }
                 }, 3000); // Reset after 3 seconds
                 
