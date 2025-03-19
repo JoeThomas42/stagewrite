@@ -653,8 +653,44 @@ document.addEventListener("DOMContentLoaded", () => {
     // Setup new plot button
     if (newPlotButton) {
       newPlotButton.addEventListener('click', () => {
-        if (confirm('Are you sure you want to create a new plot? All unsaved changes will be lost.')) {
+        if (newPlotButton.classList.contains('confirming')) {
+          // This is the second click (confirmation)
           newPlot();
+          
+          // Reset button appearance after action
+          newPlotButton.classList.remove('confirming');
+          
+          // Restore the original icon after a small delay
+          setTimeout(() => {
+            newPlotButton.innerHTML = '<i class="fa-solid fa-file-circle-plus"></i>';
+            newPlotButton.setAttribute('title', 'New Plot');
+          }, 150);
+        } else {
+          // This is the first click - first add the class then change content
+          const originalContent = newPlotButton.innerHTML;
+          
+          // Add class first to trigger width transition
+          newPlotButton.classList.add('confirming');
+          
+          // Change content after a small delay to let width transition start
+          setTimeout(() => {
+            newPlotButton.textContent = 'New Plot';
+            newPlotButton.setAttribute('title', 'Click again to create a new plot');
+          }, 50);
+          
+          // Reset after a timeout if not clicked
+          setTimeout(() => {
+            if (newPlotButton.classList.contains('confirming')) {
+              // First remove the class to trigger width transition
+              newPlotButton.classList.remove('confirming');
+              
+              // After transition starts, restore original content
+              setTimeout(() => {
+                newPlotButton.innerHTML = originalContent;
+                newPlotButton.setAttribute('title', 'New Plot');
+              }, 150);
+            }
+          }, 3000); // Reset after 3 seconds
         }
       });
     }
@@ -1464,7 +1500,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (plotTitle) plotTitle.textContent = 'New Plot';
     
     // Reset buttons
-    if (saveButton) saveButton.textContent = 'Save Plot';
+    if (saveButton) saveButton.textContent = 'Save As';
     
     if (saveChangesButton) saveChangesButton.classList.add('hidden');
     

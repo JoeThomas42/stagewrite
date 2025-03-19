@@ -125,7 +125,7 @@ if ($isLoggedIn) {
                         <button id="save-changes" class="action-button hidden">Save Changes</button>
                         <button id="my-plots" class="action-button">My Plots</button>
                     <?php endif; ?>
-                    <button id="new-plot" class="action-button">New Plot</button>
+                    <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
                     <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
