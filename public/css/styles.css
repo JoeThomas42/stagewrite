@@ -743,12 +743,16 @@ th.sortable .sort-icon {
   padding-right: 0;
   transition: max-width 0.5s ease, opacity 0.3s ease, padding 0.5s ease;
   white-space: nowrap;
-}
 
-#save-changes.visible {
-  max-width: 200px;
-  opacity: 1;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &.visible {
+    max-width: 200px;
+    opacity: 1;
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
 }
 
 /* ----------------- Mobile menu toggle button ------------------ */
