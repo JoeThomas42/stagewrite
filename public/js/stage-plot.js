@@ -69,10 +69,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   
-  // Update venue select change handler
+  // Venue select change handler
   if (venueSelect) {
     venueSelect.addEventListener('change', () => {
       const venueValue = venueSelect.value;
+      
+      // If no venue is selected, set default stage dimensions
+      if (!venueValue) {
+        if (stage) {
+          // Set default stage dimensions (e.g., 20' x 15')
+          stage.setAttribute('data-venue-id', '');
+          stage.setAttribute('data-stage-width', '20');
+          stage.setAttribute('data-stage-depth', '15');
+          stage.setAttribute('data-is-user-venue', '0');
+          
+          // Update stage dimensions label
+          const dimensionsLabel = stage.querySelector('.stage-dimensions');
+          if (dimensionsLabel) {
+            dimensionsLabel.textContent = `20' × 15'`;
+          }
+          
+          // Mark plot as modified if we're editing an existing plot
+          if (plotState.currentPlotId) {
+            markPlotAsModified();
+          }
+        }
+        return;
+      }
+      
       let venueId, isUserVenue = false;
       
       // Check if this is a user venue
@@ -117,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => {
           console.error('Error fetching venue:', error);
-          alert('Failed to load venue information. Please try again.');
+          showNotification('Failed to load venue information.', error);
         });
     });
   }
@@ -848,15 +872,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     
-    if (!plotName || !venueId) {
-      showNotification('Please fill all required fields', 'warning');
+    if (!plotName) {
+      showNotification('Please enter a plot name', 'warning');
       return;
     }
     
     // Create plot data
     const plotData = {
       plot_name: plotName,
-      venue_id: venueId,
+      venue_id: venueId || null, // Make venue_id optional
       event_date_start: eventDateStart || null,
       event_date_end: eventDateEnd || null,
       elements: plotState.elements.map(el => ({
@@ -894,7 +918,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.success) {
         // Show notification based on type of save
         if (isNew) {
-        showNotification('New Plot Saved!', 'success');       // New plot saved
+          showNotification('New Plot Saved!', 'success');       // New plot saved
         } else if (newName) {
           showNotification('Plot Overwritten!', 'success');   // Overwriting with a new name
         } else if (existingName) {

@@ -28,8 +28,8 @@ try {
         throw new Exception('Invalid JSON: ' . json_last_error_msg());
     }
     
-    // Validate required data
-    if (empty($data['plot_name']) || empty($data['venue_id']) || 
+    // Validate required data - removed venue_id check
+    if (empty($data['plot_name']) || 
         !isset($data['elements']) || !is_array($data['elements'])) {
         throw new Exception('Missing required data');
     }
@@ -41,12 +41,15 @@ try {
     $venueId = null;
     $userVenueId = null;
     
-    if (strpos($data['venue_id'], 'user_') === 0) {
-        // This is a user venue
-        $userVenueId = (int)str_replace('user_', '', $data['venue_id']);
-    } else {
-        // This is a standard venue
-        $venueId = (int)$data['venue_id'];
+    // Only process venue_id if it's provided
+    if (!empty($data['venue_id'])) {
+        if (strpos($data['venue_id'], 'user_') === 0) {
+            // This is a user venue
+            $userVenueId = (int)str_replace('user_', '', $data['venue_id']);
+        } else {
+            // This is a standard venue
+            $venueId = (int)$data['venue_id'];
+        }
     }
     
     if (!empty($data['plot_id'])) {
@@ -64,8 +67,8 @@ try {
              WHERE plot_id = ? AND user_id = ?",
             [
                 $data['plot_name'],
-                $venueId, // May be null if using user venue
-                $userVenueId, // May be null if using standard venue
+                $venueId, // May be null if using user venue or no venue
+                $userVenueId, // May be null if using standard venue or no venue
                 !empty($data['event_date_start']) ? $data['event_date_start'] : null,
                 !empty($data['event_date_end']) ? $data['event_date_end'] : null,
                 $data['plot_id'],
@@ -83,8 +86,8 @@ try {
             [
                 $_SESSION['user_id'],
                 $data['plot_name'],
-                $venueId, // May be null if using user venue
-                $userVenueId, // May be null if using standard venue
+                $venueId, // May be null if using user venue or no venue
+                $userVenueId, // May be null if using standard venue or no venue
                 !empty($data['event_date_start']) ? $data['event_date_start'] : null,
                 !empty($data['event_date_end']) ? $data['event_date_end'] : null
             ]

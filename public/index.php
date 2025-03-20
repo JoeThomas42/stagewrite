@@ -81,7 +81,7 @@ if ($isLoggedIn) {
                     <label for="venue_select">Venue:</label>
                     <div class="select-with-button">
                         <select id="venue_select" name="venue_id">
-                            <option value="" selected disabled>Select a venue...</option>
+                            <option value="" selected>No Venue</option>
                             <?php if (count($venues) > 0): ?>
                             <optgroup label="Official Venues">
                                 <?php foreach ($venues as $venue): ?>
