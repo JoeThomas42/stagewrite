@@ -398,6 +398,20 @@ optgroup {
   }
 }
 
+#save-new-button {
+  width: 120px;
+}
+
+.overwrite-btn {
+  width: 100px;
+}
+
+.load-plot-btn {
+  width: 80px;
+}
+
+#save-new-button,
+.overwrite-btn,
 .load-plot-btn {
   background-color: var(--color-primary);
   border: none;
@@ -412,7 +426,6 @@ optgroup {
   text-align: center;
   transition: background-color 0.3s ease-in-out, width 0.3s ease;
   white-space: nowrap;
-  width: 80px;
   
   &:hover {
     background-color: var(--color-primary-dark);
@@ -425,32 +438,6 @@ optgroup {
   }
 }
 
-.overwrite-btn {
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: var(--color-white);
-  cursor: pointer;
-  font-size: var(--font-size-md);
-  font-weight: normal;
-  height: 38px;
-  overflow: hidden;
-  padding: var(--spacing-sm);
-  text-align: center;
-  transition: background-color 0.3s ease-in-out, width 0.3s ease;
-  white-space: nowrap;
-  width: 100px;
-  
-  &:hover {
-    background-color: var(--color-primary-dark);
-  }
-  
-  &.confirming {
-    animation: pulse 1s infinite alternate;
-    background-color: var(--color-danger);
-    width: 150px;
-  }
-}
 
 /* -------------------- Responsive styles ---------------------- */ 
 @media screen and (max-width: 768px) {

@@ -586,7 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Handle form submission for new plot
           const saveForm = document.getElementById('save-new-plot-form');
-          const saveNewButton = saveForm ? saveForm.querySelector('.save-button') : null;
+          const saveNewButton = saveForm ? saveForm.querySelector('#save-new-button') : null;
           
           if (saveForm && saveNewButton) {
             // Remove any existing listener
@@ -1783,7 +1783,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         controlButtons.appendChild(notificationArea);
       }
-
     }
   }
   
