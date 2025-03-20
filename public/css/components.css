@@ -404,9 +404,9 @@ th.sortable {
   overflow: hidden;
   pointer-events: none;
   position: absolute;
-  right: var(--spacing-xl);
+  right: var(--spacing-xxxl);
   top: var(--spacing-md);
-  width: 60%;
+  width: 50%;
   z-index: 1101; /* Above the modal heading */
 }
 
