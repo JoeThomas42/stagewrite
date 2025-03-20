@@ -384,6 +384,7 @@ th.sortable {
 }
 
 /* -------------------- Notification System --------------------- */
+/* Main notification area */
 .notification-area {
   display: inline-flex;
   flex-grow: 1;
@@ -395,6 +396,18 @@ th.sortable {
   overflow: hidden;
   pointer-events: none;
   position: relative;
+}
+
+/* Modal notification area */
+.modal-notification-area {
+  height: 38px;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: var(--spacing-xl);
+  top: var(--spacing-md);
+  width: 60%;
+  z-index: 1101; /* Above the modal heading */
 }
 
 .notification {
