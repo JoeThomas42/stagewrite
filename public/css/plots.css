@@ -1,0 +1,181 @@
+/**
+* StageWrite Plot Styles
+* Styles for plot listings and item displays
+*/
+
+@import url('_variables.css');
+
+/* -------------------- Plot List Styles --------------------- */
+.plot-actions {
+  align-items: center;
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.plot-details {
+  color: var(--color-text-light);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+  gap: var(--spacing-xl);
+  
+  span {
+    align-items: center;
+    display: inline-flex;
+    
+    &::before {
+      content: '•';
+      display: inline-block;
+      margin-right: var(--spacing-xl);
+    }
+    
+    &:first-child::before {
+      display: none;
+    }
+  }
+}
+
+.plot-info {
+  flex-grow: 1;
+  padding-right: var(--spacing-md);
+}
+
+.plot-item {
+  align-items: center;
+  border-radius: var(--border-radius-sm);
+  color: inherit;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  text-decoration: none;
+
+  &:hover {
+    /* background-color: var(--color-bg-hover); */
+  }
+}
+
+.plot-link {
+  color: inherit;
+  display: block;
+  padding: var(--spacing-xl);
+  text-decoration: none;
+}
+
+.plot-name {
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  margin-bottom: var(--spacing-md);
+}
+
+.plots-list {
+  list-style: none;
+  margin: var(--spacing-xl) 0;
+  padding: 0;
+  
+  li {
+    background-color: var(--color-card);
+    border-radius: var(--border-radius-lg);
+    margin: var(--spacing-lg) 0;
+    transition: all var(--transition-fast);
+    
+    &:hover {
+      background-color: var(--color-card-hover);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+}
+
+/* -------------------- Save & Plot Specific Sections --------------------- */
+.existing-plot-item {
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-sm);
+
+  &:hover {
+    background-color: var(--color-background-light);
+  }
+}
+
+.existing-plots-section .plots-list {
+  max-height: 400px;
+  overflow: auto;
+  padding-right: var(--spacing-sm);
+}
+
+.load-plot-btn {
+  width: 80px;
+}
+
+.overwrite-btn {
+  width: 100px;
+}
+
+.save-section {
+  margin-bottom: var(--spacing-lg);
+  
+  h3 {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-sm);
+  }
+}
+
+#save-new-button,
+.overwrite-btn,
+.load-plot-btn {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: normal;
+  height: 38px;
+  overflow: hidden;
+  padding: var(--spacing-sm);
+  text-align: center;
+  transition: background-color 0.3s ease-in-out, width 0.3s ease;
+  white-space: nowrap;
+  
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &.confirming {
+    animation: pulse 1s infinite alternate;
+    background-color: var(--color-danger);
+    width: 150px;
+  }
+}
+
+#save-new-button {
+  width: 120px;
+}
+
+/* -------------------- Venue Related --------------------- */
+.select-with-button {
+  display: flex;
+  gap: var(--spacing-xs);
+
+  select {
+    flex: 1;
+  }
+}
+
+.venue-select-container {
+  position: relative;
+}
+
+optgroup {
+  color: var(--color-text);
+  font-weight: bold;
+
+  option {
+    font-weight: normal;
+    padding-left: var(--spacing-sm);
+  }
+}

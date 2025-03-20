@@ -1,0 +1,291 @@
+/**
+* StageWrite Stage Plotting Interface
+* Styles for the interactive stage plotting tool
+*/
+
+@import url('_variables.css');
+
+/* -------------------- Main Container --------------------- */
+#stage-plot-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  margin: var(--spacing-md) 2rem;
+  padding: 0 var(--spacing-md);
+}
+
+/* -------------------- Elements Panel --------------------- */
+#elements-header {
+  align-items: center;
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+#elements-list {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  max-height: 600px;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+}
+
+#elements-panel {
+  flex: 1;
+}
+
+.category-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.draggable-element {
+  align-items: center;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-xs);
+  transition: all var(--transition-fast);
+
+  &:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .element-name {
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  img {
+    height: 50px;
+    margin-bottom: var(--spacing-xs);
+    max-width: 100%;
+    object-fit: contain;
+  }
+}
+
+.elements-grid {
+  display: grid;
+  gap: var(--spacing-sm);
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  margin-top: var(--spacing-sm);
+}
+
+/* -------------------- Stage Area --------------------- */
+#control-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+#front-label {
+  bottom: 5px;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  left: 0;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
+#stage {
+  background-color: #f5f5f5;
+  border: 2px solid var(--color-text);
+  height: 500px;
+  margin: auto;
+  overflow: hidden;
+  position: relative;
+  width: 700px;
+}
+
+#stage-area {
+  flex: 2;
+}
+
+#stage-controls {
+  margin: 0 auto var(--spacing-md);
+  max-width: 700px;
+}
+
+.stage-dimensions {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: var(--border-radius-xs);
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  padding: 2px 5px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+/* -------------------- Stage Control Buttons --------------------- */
+#clear-plot {
+  background-color: var(--color-danger);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  font-weight: normal;
+  overflow: hidden;
+  padding: var(--spacing-sm);
+  text-align: center;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
+  white-space: nowrap;
+  width: 38px;
+
+  &:hover {
+    background-color: var(--color-danger-dark);
+    color: var(--color-white);
+  }
+  
+  &.confirming {
+    animation: pulse 1s infinite alternate;
+    background-color: var(--color-danger);
+    color: var(--color-white);
+    width: 120px;
+  }
+}
+
+#save-changes {
+  background-color: var(--color-primary);
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding-left: 0;
+  padding-right: 0;
+  transition: background-color 0.3s ease-in-out, max-width 0.5s ease, opacity 0.3s ease, padding 0.5s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &.visible {
+    max-width: 200px;
+    opacity: 1;
+    padding: var(--spacing-sm) var(--spacing-lg);
+  }
+}
+
+#save-plot,
+#my-plots,
+#new-plot {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  font-weight: normal;
+  overflow: hidden;
+  padding: var(--spacing-sm);
+  text-align: center;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
+  white-space: nowrap;
+  width: 38px;
+
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &.confirming {
+    animation: pulse 1s infinite alternate;
+    background-color: var(--color-danger);
+    color: var(--color-white);
+    width: 120px;
+  }
+}
+
+/* -------------------- Placed Elements --------------------- */
+.element-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  transition: opacity 0.2s;
+  
+  button {
+    align-items: center;
+    border: none;
+    border-radius: 10%;
+    cursor: pointer;
+    display: flex;
+    font-size: 14px;
+    justify-content: center;
+    width: 16px;
+  }
+}
+
+.element-label {
+  background-color: rgba(255, 255, 255, 0.7);
+  bottom: 2px;
+  font-size: 10px;
+  left: 0;
+  padding: 1px 0;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
+.placed-element {
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ccc;
+  cursor: move;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+
+  img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  &:hover .element-actions {
+    opacity: 1;
+  }
+}
+
+/* -------------------- Plot Configuration --------------------- */
+.config-field {
+  flex: 1;
+  min-width: 150px;
+  text-align: left;
+  
+  label {
+    display: block;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  select,
+  input {
+    box-sizing: border-box;
+    padding: var(--spacing-xs);
+    width: 100%;
+  }
+}
+
+.plot-config-panel {
+  align-items: flex-end;
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}

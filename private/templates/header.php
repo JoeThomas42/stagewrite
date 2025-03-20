@@ -9,8 +9,7 @@
 <head>
     <title>StageWrite - <?= htmlspecialchars($current_page) ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="<?= CSS_PATH ?>/styles.css">
-    <link rel="stylesheet" href="<?= CSS_PATH ?>/stage-plot-styles.css">
+    <link rel="stylesheet" href="<?= CSS_PATH ?>/main.css">
     <script src="<?= JS_PATH ?>/scripts.js" defer></script>
     <script src="<?= JS_PATH ?>/stage-plot.js" defer></script>
     <script src="https://kit.fontawesome.com/6a66a6b74c.js" crossorigin="anonymous"></script>
