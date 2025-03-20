@@ -265,6 +265,7 @@
 .plot-actions {
   display: flex;
   gap: var(--spacing-xs);
+  align-items: center;  /* Center the buttons vertically NEEDED??? */
 }
 
 /* Plot configuration section specific to the plotter */
@@ -397,6 +398,57 @@ optgroup {
   }
 }
 
+.load-plot-btn {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: normal;
+  overflow: hidden;
+  padding: var(--spacing-sm);
+  text-align: center;
+  transition: background-color 0.3s ease-in-out, width 0.3s ease;
+  white-space: nowrap;
+  width: 80px;
+  
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &.confirming {
+    animation: pulse 1s infinite alternate;
+    background-color: var(--color-danger);
+    width: 150px;
+  }
+}
+
+.overwrite-btn {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: normal;
+  overflow: hidden;
+  padding: var(--spacing-sm);
+  text-align: center;
+  transition: background-color 0.3s ease-in-out, width 0.3s ease;
+  white-space: nowrap;
+  width: 100px;
+  
+  &:hover {
+    background-color: var(--color-primary-dark);
+  }
+  
+  &.confirming {
+    animation: pulse 1s infinite alternate;
+    background-color: var(--color-danger);
+    width: 150px;
+  }
+}
 
 /* -------------------- Responsive styles ---------------------- */ 
 @media screen and (max-width: 768px) {

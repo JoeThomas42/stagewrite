@@ -586,11 +586,49 @@ document.addEventListener("DOMContentLoaded", () => {
           
           // Handle form submission for new plot
           const saveForm = document.getElementById('save-new-plot-form');
-          if (saveForm) {
-            saveForm.onsubmit = (e) => {
+          const saveNewButton = saveForm ? saveForm.querySelector('.save-button') : null;
+          
+          if (saveForm && saveNewButton) {
+            // Remove any existing listener
+            saveForm.onsubmit = null;
+            
+            saveForm.addEventListener('submit', (e) => {
               e.preventDefault();
-              savePlot(true); // Save as new plot
-            };
+            });
+            
+            // Add click handler to the save button with confirmation
+            saveNewButton.addEventListener('click', (e) => {
+              e.preventDefault();
+              
+              // Get the plot name
+              const plotName = document.getElementById('plot_name').value.trim();
+              
+              if (!plotName) {
+                showNotification('Please enter a plot name', 'warning');
+                return;
+              }
+              
+              if (saveNewButton.classList.contains('confirming')) {
+                // This is the second click (confirmation)
+                savePlot(true); // Save as new plot
+                
+                // Reset button appearance after action
+                saveNewButton.classList.remove('confirming');
+                saveNewButton.textContent = 'Save as New';
+              } else {
+                // This is the first click - add class then change content
+                saveNewButton.classList.add('confirming');
+                saveNewButton.textContent = 'Confirm Save';
+                
+                // Reset after a timeout if not clicked
+                setTimeout(() => {
+                  if (saveNewButton.classList.contains('confirming')) {
+                    saveNewButton.classList.remove('confirming');
+                    saveNewButton.textContent = 'Save as New';
+                  }
+                }, 3000); // Reset after 3 seconds
+              }
+            });
           }
         } else {
           showNotification('There is nothing to save!', 'warning');
@@ -806,12 +844,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const eventDateEnd = eventEndInput ? eventEndInput.value : document.getElementById('event_date_end').value;
     
     if ((isNew || newName) && !plotName) {
-      alert('Please enter a plot name.');
+      showNotification('Please enter a plot name', 'warning');
       return;
     }
     
     if (!plotName || !venueId) {
-      alert('Please fill all required fields.');
+      showNotification('Please fill all required fields', 'warning');
       return;
     }
     
@@ -938,26 +976,68 @@ document.addEventListener("DOMContentLoaded", () => {
           let html = '<ul class="plots-list">';
           data.plots.forEach(plot => {
             const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
-            html += `<li class ="plot-item">
-              <a href="#" class="plot-info" data-plot-id="${plot.plot_id}">
+            html += `<li class="plot-item">
+              <div class="plot-info">
                 <div class="plot-name">${plot.plot_name}</div>
                 <div class="plot-details">
                   <span class="venue">${plot.venue_name}</span>
                   <span class="date">${formattedDate}</span>
                 </div>
-              </a>
-              <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
+              </div>
+              <div class="plot-actions">
+                <button class="load-plot-btn" data-plot-id="${plot.plot_id}" title="Load plot">Load</button>
+                <button class="delete-plot-btn" data-plot-id="${plot.plot_id}" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
+              </div>
             </li>`;
           });
           html += '</ul>';
           plotsList.innerHTML = html;
           
-          // Add click handlers
-          document.querySelectorAll('.plot-info').forEach(item => {
-            item.addEventListener('click', (e) => {
-              e.preventDefault();
-              const plotId = item.getAttribute('data-plot-id');
-              loadPlot(plotId);
+          // Add load button handlers
+          document.querySelectorAll('.load-plot-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const plotId = btn.getAttribute('data-plot-id');
+              
+              // Check if there are elements on stage that would be replaced
+              if (plotState.elements.length > 0) {
+                if (btn.classList.contains('confirming')) {
+                  // This is the second click (confirmation)
+                  loadPlot(plotId);
+                  
+                  // Reset button appearance after action
+                  btn.classList.remove('confirming');
+                  setTimeout(() => {
+                    btn.textContent = 'Load';
+                    btn.setAttribute('title', 'Load plot');
+                  }, 150);
+                } else {
+                  // This is the first click - add class then change content
+                  btn.classList.add('confirming');
+                  
+                  // Change content after a small delay
+                  setTimeout(() => {
+                    btn.textContent = 'Replace Existing?';
+                    btn.setAttribute('title', 'This will replace your current stage');
+                  }, 50);
+                  
+                  // Reset after a timeout if not clicked
+                  setTimeout(() => {
+                    if (btn.classList.contains('confirming')) {
+                      btn.classList.remove('confirming');
+                      
+                      // After transition starts, restore original content
+                      setTimeout(() => {
+                        btn.textContent = 'Load';
+                        btn.setAttribute('title', 'Load plot');
+                      }, 150);
+                    }
+                  }, 3000); // Reset after 3 seconds
+                }
+              } else {
+                // No confirmation needed, just load
+                loadPlot(plotId);
+              }
             });
           });
           
@@ -1021,13 +1101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .then(data => {
         if (data.plot) {
-          // Confirm if we should clear the current stage
-          if (plotState.elements.length > 0) {
-            if (!confirm('Loading this plot will replace your current stage. Continue?')) {
-              return;
-            }
-          }
-          
+          // No confirmation needed anymore - handled by the button
           // Clear current elements
           clearElements();
           
@@ -1093,7 +1167,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch(error => {
         console.error('Error loading plot:', error);
-        alert('Error loading plot. Please try again.');
+        showNotification('Error loading plot. Please try again.', 'error');
       });
   }
   
@@ -1144,8 +1218,25 @@ document.addEventListener("DOMContentLoaded", () => {
               const newNameInput = document.getElementById('plot_name');
               const newName = newNameInput && newNameInput.value.trim() ? newNameInput.value.trim() : null;
               
-              if (confirm('Are you sure you want to overwrite this plot? This cannot be undone.')) {
+              if (btn.classList.contains('confirming')) {
+                // This is the second click (confirmation)
                 savePlot(false, plotId, newName, plotName); // Pass the existing plot name
+                
+                // Reset button appearance after action
+                btn.classList.remove('confirming');
+                btn.textContent = 'Overwrite';
+              } else {
+                // This is the first click - add class then change content
+                btn.classList.add('confirming');
+                btn.textContent = 'Confirm Overwrite';
+                
+                // Reset after a timeout if not clicked
+                setTimeout(() => {
+                  if (btn.classList.contains('confirming')) {
+                    btn.classList.remove('confirming');
+                    btn.textContent = 'Overwrite';
+                  }
+                }, 3000); // Reset after 3 seconds
               }
             });
           });
