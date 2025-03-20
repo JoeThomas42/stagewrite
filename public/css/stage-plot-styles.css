@@ -406,6 +406,7 @@ optgroup {
   cursor: pointer;
   font-size: var(--font-size-md);
   font-weight: normal;
+  height: 38px;
   overflow: hidden;
   padding: var(--spacing-sm);
   text-align: center;
@@ -432,6 +433,7 @@ optgroup {
   cursor: pointer;
   font-size: var(--font-size-md);
   font-weight: normal;
+  height: 38px;
   overflow: hidden;
   padding: var(--spacing-sm);
   text-align: center;

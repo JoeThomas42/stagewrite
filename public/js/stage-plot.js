@@ -1783,6 +1783,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         controlButtons.appendChild(notificationArea);
       }
+
     }
   }
   
