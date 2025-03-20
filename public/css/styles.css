@@ -104,7 +104,7 @@ body {
   margin: 2rem auto;
   max-width: 25rem;
   padding: var(--spacing-xl);
-  width: 75%;
+  width: 400px;
 
   h2 {
     color: #444;
@@ -926,6 +926,10 @@ footer {
   #page-wrapper {
     padding: var(--spacing-lg) 0;
     margin: 0;
+  }
+
+  #login-container {
+    width: 75%;
   }
 
   /* Header layout */

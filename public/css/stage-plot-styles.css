@@ -13,7 +13,6 @@
 
 #elements-panel {
   flex: 1;
-  min-width: 300px;
 }
 
 #elements-header {
@@ -383,10 +382,6 @@ optgroup {
 
   #stage-plot-container {
     flex-direction: column;
-  }
-  
-  #elements-panel {
-    max-width: none;
   }
   
   #stage {

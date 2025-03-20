@@ -1685,10 +1685,10 @@ document.addEventListener("DOMContentLoaded", () => {
       notificationArea.id = 'notification-area';
       notificationArea.className = 'notification-area';
       
-      // Add it after the save-changes button if it exists, otherwise at the end
-      const saveChangesBtn = controlButtons.querySelector('#save-changes');
-      if (saveChangesBtn) {
-        saveChangesBtn.insertAdjacentElement('afterend', notificationArea);
+      // Add it before the Clear Plot button if it exists, otherwise at the end
+      const clearStageBtn = controlButtons.querySelector('#clear-plot');
+      if (clearStageBtn) {
+        clearStageBtn.insertAdjacentElement('beforebegin', notificationArea);
       } else {
         controlButtons.appendChild(notificationArea);
       }
