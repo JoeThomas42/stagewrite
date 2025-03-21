@@ -137,7 +137,7 @@ table {
   }
 
   tr:nth-child(even) {
-    background-color: var(--color-table-alt);
+    background-color: var(--color-table);
   }
 
   tr:hover {

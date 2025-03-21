@@ -10,6 +10,13 @@
   .action-cell {
     padding: var(--spacing-md);
   }
+
+  /* Stage/Plot Area */
+  #stage-plot-container {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 /* -------------------- Small Screens/Tablets --------------------- */
@@ -21,7 +28,7 @@
 
   #page-wrapper {
     margin: 0;
-    padding: var(--spacing-lg) 0;
+    padding: 0;
   }
 
   #stage-plot-container {

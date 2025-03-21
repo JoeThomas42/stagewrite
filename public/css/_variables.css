@@ -3,31 +3,51 @@
 */
 
 :root {
-  /* Colors */
+  /* ---------- Colors ---------- */
+    /* General */
+    --color-header: #2a3843;
+    --color-primary: #526C81;
+    --color-primary-dark: #3E5262;
+    --color-primary-light: #67869F;
+    --color-secondary: #6c757d;
+    --color-white: #fff;
+    --color-grey-1: #cdd0d3;
+    --color-grey-2: #b5b8bb;
+    --color-grey-3: #848689;
+    --color-grey-4: #56585b;
+    --color-grey-5: #3e4143;
+    --color-grey-6: #2b2e30;
+
+  /* Background */
   --color-background: #f4f4f9;
-  --color-background-light: #f8f9fa;
+  --color-background-dark: #9cadbc;
+  --color-background-alt: #e9ecef;
+
+  /* Borders */
   --color-border: #ddd;
+  --color-input-border: #ccc;
+
+  /* Cards */
   --color-card: #f8f9fa;
   --color-card-hover: #e9ecef;
-  --color-danger: #8E4F44;
-  --color-danger-dark: #683a32;
-  --color-danger-light: #D92637;
-  --color-error: #dc3545;
-  --color-header: #2a3843;
-  --color-input-border: #ccc;
-  --color-primary: #526C81;
-  --color-primary-dark: #3E5262;
-  --color-primary-light: #67869F;
-  --color-secondary: #6c757d;
-  --color-success: #3e8e84;
-  --color-table-alt: #f9f9f9;
+
+  /* Tables */
+  --color-table: #f9f9f9;
   --color-table-hover: #f1f1f1;
+  
+  /* Text */
   --color-text: #333;
   --color-text-light: #666;
   --color-text-secondary: #555;
-  --color-white: #fff;
 
-  /* Font Sizes */
+  /* Alerts */
+  --color-success: #3e8e84;
+  --color-error: #dc3545;
+  --color-danger: #8E4F44;
+  --color-danger-dark: #683a32;
+  --color-danger-light: #D92637;
+
+  /* ---------- Font Sizes ---------- */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -36,7 +56,7 @@
   --font-size-xxl: 1.5rem;
   --font-size-icon: 1.75rem;
 
-  /* Spacing */
+  /* ---------- Spacing ---------- */
   --spacing-xs: 0.3125rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 0.625rem;
@@ -45,18 +65,18 @@
   --spacing-xxl: 1.875rem;
   --spacing-xxxl: 3rem;
 
-  /* Border Radius */
+  /* ---------- Border Radius ---------- */
   --border-radius-xs: 2px;
   --border-radius-sm: 4px;
   --border-radius-md: 6px;
   --border-radius-lg: 8px;
 
-  /* Box Shadows */
+  /* ---------- Box Shadows ---------- */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.3);
 
-  /* Transitions */
+  /* ---------- Transitions ---------- */
   --transition-fast: 0.2s ease;
   --transition-medium: 0.4s ease;
 }

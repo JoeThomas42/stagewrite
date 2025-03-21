@@ -7,11 +7,15 @@
 
 /* -------------------- Main Container --------------------- */
 #stage-plot-container {
+  background-color: var(--color-background-alt);
+  border: 3px solid var(--color-grey-3);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0px 0px 25px 2px var(--color-grey-5);
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-lg);
   margin: var(--spacing-md) 2rem;
-  padding: 0 var(--spacing-md);
+  padding: var(--spacing-lg);
 }
 
 /* -------------------- Elements Panel --------------------- */
