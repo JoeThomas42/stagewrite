@@ -33,7 +33,7 @@
 
   /* Tables */
   --color-table: #f9f9f9;
-  --color-table-hover: #f1f1f1;
+  --color-table-hover: #d9f4ffe2;
   
   /* Text */
   --color-text: #333;
@@ -41,7 +41,9 @@
   --color-text-secondary: #555;
 
   /* Alerts */
-  --color-success: #3e8e84;
+  --color-success-light: #44b48b;
+  --color-success: #03968c;
+  --color-success-dark: #215f6e;
   --color-error: #dc3545;
   --color-danger: #8E4F44;
   --color-danger-dark: #683a32;
@@ -79,4 +81,5 @@
   /* ---------- Transitions ---------- */
   --transition-fast: 0.2s ease;
   --transition-medium: 0.4s ease;
+  --transition-slow: 0.8s ease;
 }

@@ -1,0 +1,902 @@
+/**
+ * StageWrite Improvements
+ * Enhanced styling for consistency and improved user experience
+ */
+
+/* -------------------- Global Enhancements --------------------- */
+:root {
+  /* Expanded color palette with lighter/darker tones */
+  --color-primary-lighter: #7fa5c1;
+  --color-primary-lightest: #a9c6da;
+  --color-secondary-dark: #5a6268;
+  --color-secondary-light: #868e96;
+  --color-background-light: #f8f9fa;
+  --color-error-light: #e4606d;
+  --color-warning: #f0ad4e;
+  --color-warning-dark: #df9a3b;
+  --color-info: #5bc0de;
+  --color-info-dark: #46b8da;
+
+  /* Enhanced focus styles */
+  --focus-ring: 0 0 0 3px rgba(82, 108, 129, 0.25);
+}
+
+body {
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* Improved focus states for accessibility */
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Enhanced form elements */
+input,
+select,
+textarea {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--color-grey-3);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+/* -------------------- Header & Navigation Improvements --------------------- */
+header {
+  background: linear-gradient(to right, var(--color-header), var(--color-primary-dark));
+  box-shadow: var(--shadow-lg);
+}
+
+#header-content h1 {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+#main-nav a {
+  font-weight: 500;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+#main-nav a.current-page {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-bottom: 3px solid var(--color-primary-light);
+}
+
+#main-nav a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.welcome-message {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+}
+
+/* -------------------- Stage Plot Container Improvements --------------------- */
+#stage-plot-container {
+  background: linear-gradient(to bottom, var(--color-background), var(--color-background-alt));
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: var(--spacing-xl) auto;
+  max-width: 1400px;
+  overflow: hidden;
+  transition: all var(--transition-medium);
+}
+
+/* Elements Panel Enhancements */
+#elements-header {
+  background-color: var(--color-background-light);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+  padding: var(--spacing-md);
+}
+
+#elements-header h2 {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+#category-filter {
+  border-color: var(--color-primary-light);
+}
+
+#elements-list {
+  background-color: var(--color-white);
+  border-color: var(--color-border);
+  scrollbar-width: thin;
+}
+
+.category-section h3 {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.draggable-element {
+  background-color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transition: all var(--transition-fast);
+}
+
+.draggable-element:hover {
+  background-color: var(--color-card-hover);
+  border-color: var(--color-primary-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.draggable-element:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.draggable-element img {
+  transition: transform var(--transition-fast);
+}
+
+.draggable-element:hover img {
+  transform: scale(1.05);
+}
+
+/* Stage Area Enhancements */
+#stage-controls {
+  /* align-items: center; */
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+#plot-title {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: var(--spacing-sm) 0 var(--spacing-md);
+  text-align: center;
+}
+
+#stage {
+  background: linear-gradient(to bottom, #f9f9f9, #f0f0f0);
+  border: 2px solid var(--color-grey-4);
+  border-radius: var(--border-radius-sm);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all var(--transition-medium);
+}
+
+#front-label {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius-xs);
+  bottom: 2px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  left: 50%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  transform: translateX(-50%);
+  width: auto;
+}
+
+.stage-dimensions {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  position: absolute;
+  right: var(--spacing-xs);
+  top: var(--spacing-xs);
+}
+
+/* Placed Elements Enhancements */
+.placed-element {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--color-grey-3);
+  border-radius: var(--border-radius-xs);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.placed-element:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  z-index: 1000 !important;
+}
+
+.placed-element:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.element-label {
+  background-color: rgba(82, 108, 129, 0.7);
+  border-radius: 0 0 var(--border-radius-xs) var(--border-radius-xs);
+  bottom: 0;
+  color: white;
+  font-weight: 500;
+  padding: 2px 0;
+}
+
+.element-actions {
+  right: -5px;
+  top: -5px;
+  z-index: 1001;
+}
+
+.element-actions button {
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  color: white;
+  height: 24px;
+  opacity: 0.9;
+  padding: 0;
+  transition: all var(--transition-fast);
+  width: 24px;
+}
+
+.element-actions button:hover {
+  background-color: var(--color-primary-dark);
+  opacity: 1;
+}
+
+/* Plot Configuration Panel Enhancements */
+
+.venue-select-container {
+  position: relative;
+}
+
+.select-with-button {
+  align-items: center;
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* -------------------- Modal Improvements --------------------- */
+.modal {
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: none;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  opacity: 0;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  transition: opacity 0.3s ease;
+  width: 100%;
+  z-index: 1000;
+}
+
+.modal.visible {
+  animation: fadeIn 0.3s;
+  display: flex;
+  opacity: 1;
+}
+
+.modal-content {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  max-width: 600px;
+  opacity: 0;
+  overflow-y: auto;
+  padding: var(--spacing-xl);
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  width: 90%;
+}
+
+.modal.visible .modal-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.modal h2 {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-primary-dark);
+  margin-top: 0;
+  padding-bottom: var(--spacing-md);
+}
+
+.close-button {
+  color: var(--color-grey-3);
+  cursor: pointer;
+  font-size: var(--font-size-xxl);
+  position: absolute;
+  right: var(--spacing-lg);
+  top: var(--spacing-md);
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.close-button:hover {
+  color: var(--color-grey-5);
+  transform: scale(1.1);
+}
+
+.modal-bottom-actions {
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+}
+
+/* Element Properties Modal Improvements */
+#element-props-modal .modal-content {
+  max-width: 400px;
+}
+
+#element-props-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+#element-props-form label {
+  color: var(--color-text-secondary);
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+}
+
+#element-rotation {
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  height: 8px;
+  margin: var(--spacing-md) 0;
+  outline: none;
+  width: 100%;
+}
+
+#element-rotation::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--color-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+}
+
+#element-rotation::-moz-range-thumb {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+}
+
+#rotation_value {
+  background-color: var(--color-primary-light);
+  border-radius: var(--border-radius-xs);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: 2px 6px;
+}
+
+.checkbox-group {
+  align-items: center;
+  display: flex;
+  margin: var(--spacing-xs) 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: var(--spacing-xs);
+  width: auto;
+}
+
+/* Save and Load Plot Modals Improvements */
+.save-section {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.save-section h3 {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-lg);
+  margin-top: 0;
+  padding-bottom: var(--spacing-xs);
+}
+
+.plots-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: var(--spacing-xs);
+}
+
+.plot-item {
+  align-items: center;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+.plot-name {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.plot-details {
+  color: var(--color-text-light);
+  font-size: var(--font-size-xs);
+}
+
+.plot-details span {
+  display: inline-flex;
+  margin-right: var(--spacing-md);
+}
+
+.plot-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* -------------------- User Management Section Improvements --------------------- */
+.profile-container {
+  background: linear-gradient(to bottom, white, var(--color-background-light));
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  margin: var(--spacing-xl) auto;
+  max-width: 1200px;
+  padding: var(--spacing-xl);
+}
+
+.profile-container h2 {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-lg);
+}
+
+.table-actions {
+  align-items: center;
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  justify-content: space-between;
+  margin: var(--spacing-xl) 0 var(--spacing-md);
+  padding: var(--spacing-md);
+}
+
+.table-actions h2 {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+.clear-icon {
+  align-items: center;
+  color: var(--color-text-light);
+  cursor: pointer;
+  display: flex;
+  padding: 0 var(--spacing-sm);
+}
+
+/* Dropdown Menu */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-sm);
+  color: white;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+}
+
+.dropdown-toggle:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.dropdown-menu {
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-md);
+  display: none;
+  min-width: 180px;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  transform: translateY(-10px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 100;
+}
+
+.dropdown-menu.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-menu a {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  display: block;
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+.dropdown-menu a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: var(--color-primary-lightest);
+  color: var(--color-primary-dark);
+  padding-left: var(--spacing-lg);
+}
+
+/* -------------------- Login Page Improvements --------------------- */
+#login-container {
+  background: linear-gradient(to bottom, white, var(--color-background-light));
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  margin: 3rem auto;
+  max-width: 400px;
+  padding: var(--spacing-xxl);
+}
+
+#login-container h2 {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+#login-container .form {
+  transition: all var(--transition-medium);
+}
+
+#login-container .form.hidden {
+  display: none;
+}
+
+#login-container form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+#login-container label {
+  color: var(--color-text-secondary);
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+}
+
+#login-container input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+#login-container input:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+#login-container button {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: white;
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+#login-container button:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
+  /* transform: translateY(-2px); */
+}
+
+#login-container p {
+  margin-top: var(--spacing-lg);
+  text-align: center;
+}
+
+#login-container a {
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+#login-container a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* -------------------- Footer Improvements --------------------- */
+footer {
+  background: linear-gradient(to right, var(--color-header), var(--color-primary-dark));
+  color: white;
+  margin-top: auto;
+  padding: var(--spacing-xl) 0;
+}
+
+#footer-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 0 var(--spacing-xl);
+  text-align: center;
+}
+
+#footer-content h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+#footer-content p {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* -------------------- Responsive Improvements --------------------- */
+/* Medium Screens */
+@media screen and (max-width: 960px) {
+  #stage-plot-container {
+    margin: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+  
+  #elements-panel, #stage-area {
+    width: 100%;
+  }
+  
+  .plot-config-panel {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .config-field {
+    width: 100%;
+  }
+}
+
+/* Small Screens/Tablets */
+@media screen and (max-width: 768px) {
+  h1, h2 {
+    font-size: 90%;
+  }
+  
+  #elements-panel {
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  
+  #stage {
+    height: auto;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .stage-dimensions {
+    font-size: 10px;
+    padding: 1px 3px;
+  }
+  
+  #control-buttons {
+    /* flex-wrap: wrap; */
+    /* justify-content: center; */
+  }
+  
+  .plot-config-panel {
+    padding: var(--spacing-sm);
+  }
+  
+  .notification {
+    font-size: var(--font-size-xs);
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  #login-container {
+    width: 90%;
+  }
+  
+  .modal-content {
+    max-height: 80vh;
+    max-width: 90%;
+    padding: var(--spacing-lg);
+  }
+  
+  .table-actions {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .search-container {
+    width: 100%;
+  }
+}
+
+/* Mobile Screens */
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  
+  #elements-list {
+    max-height: 300px;
+  }
+  
+  .elements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  
+  .draggable-element {
+    padding: var(--spacing-xs);
+  }
+  
+  .draggable-element img {
+    height: 40px;
+  }
+  
+  #stage {
+    height: 300px;
+  }
+  
+  .plot-name {
+    font-size: var(--font-size-sm);
+  }
+  
+  .plot-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .plot-actions {
+    margin-top: var(--spacing-sm);
+    width: 100%;
+  }
+  
+  .load-plot-btn, 
+  .overwrite-btn {
+    flex: 1;
+  }
+  
+  #save-new-button {
+    width: 100%;
+  }
+}
+
+/* -------------------- Animation Enhancements --------------------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes highlightRow {
+  0% { 
+    background-color: var(--color-primary-lightest); 
+  }
+  100% { 
+    background-color: transparent; 
+  }
+}
+
+/* -------------------- Print Styles --------------------- */
+@media print {
+  header, footer, #elements-panel, #control-buttons, .element-actions {
+    display: none !important;
+  }
+  
+  body, #page-wrapper, #stage-plot-container, #stage-area {
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  #stage {
+    border: 1px solid #000 !important;
+    height: 80vh !important;
+    margin: 0 auto !important;
+    page-break-inside: avoid !important;
+    width: 80vw !important;
+  }
+  
+  .placed-element {
+    print-color-adjust: exact !important;
+  }
+  
+  #plot-title {
+    font-size: 24pt !important;
+    text-align: center !important;
+  }
+  
+  .element-label {
+    background-color: rgba(255,255,255,0.8) !important;
+    color: black !important;
+    font-size: 8pt !important;
+  }
+}

@@ -103,14 +103,6 @@
   padding-right: var(--spacing-sm);
 }
 
-.load-plot-btn {
-  width: 80px;
-}
-
-.overwrite-btn {
-  width: 100px;
-}
-
 .save-section {
   margin-bottom: var(--spacing-lg);
   
@@ -120,37 +112,25 @@
   }
 }
 
-#save-new-button,
-.overwrite-btn,
 .load-plot-btn {
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: var(--color-white);
-  cursor: pointer;
-  font-size: var(--font-size-md);
-  font-weight: normal;
-  height: 38px;
-  overflow: hidden;
-  padding: var(--spacing-sm);
-  text-align: center;
-  transition: background-color 0.3s ease-in-out, width 0.3s ease;
-  white-space: nowrap;
-  
-  &:hover {
-    background-color: var(--color-primary-dark);
-  }
-  
-  &.confirming {
-    animation: pulse 1s infinite alternate;
-    background-color: var(--color-danger);
-    width: 150px;
-  }
+  width: 80px;
+}
+
+.overwrite-btn {
+  width: 120px;
 }
 
 #save-new-button {
   width: 120px;
 }
+
+#save-new-button,
+.overwrite-btn,
+.load-plot-btn {
+  height: 38px;
+  min-height: 38px;
+}
+
 
 /* -------------------- Venue Related --------------------- */
 .select-with-button {

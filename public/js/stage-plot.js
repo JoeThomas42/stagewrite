@@ -832,7 +832,7 @@ function loadExistingPlotsForOverwrite(plotState) {
             } else {
               // This is the first click - add class then change content
               btn.classList.add('confirming');
-              btn.textContent = 'Confirm Overwrite';
+              btn.textContent = 'Confirm';
               
               // Reset after a timeout if not clicked
               setTimeout(() => {
@@ -962,7 +962,7 @@ function loadSavedPlots(plotState) {
                 
                 // Change content after a small delay
                 setTimeout(() => {
-                  btn.textContent = 'Replace Existing?';
+                  btn.textContent = 'Confirm';
                   btn.setAttribute('title', 'This will replace your current stage');
                 }, 50);
                 

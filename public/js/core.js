@@ -18,7 +18,8 @@ window.initializeApp = function() {
   safeInit(window.initTableInteractions, "Table Interactions");
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initStageEditor, "Stage Editor");
-  
+  safeInit(window.initUIEnhancements, "UI Enhancements");
+
   console.log("Application initialization complete!");
 };
 
@@ -190,6 +191,7 @@ window.initializeApp = function() {
   safeInit(initTableInteractions, "Table Interactions");
   safeInit(initNotificationSystem, "Notification System");
   safeInit(initStageEditor, "Stage Editor");
+  safeInit(initUIEnhancements, "UI Enhancements");
   
   console.log("Application initialization complete!");
 };

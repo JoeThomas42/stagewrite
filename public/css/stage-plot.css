@@ -89,6 +89,15 @@
   gap: var(--spacing-sm);
 }
 
+#control-buttons {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+}
+
 #front-label {
   bottom: 5px;
   color: var(--color-text-light);
@@ -130,81 +139,32 @@
 }
 
 /* -------------------- Stage Control Buttons --------------------- */
+
+/* SOMETHING WRONG WITH TRANSITION */
+
+.action-button {
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+  height: 38px;
+  text-align: center;
+  width: 38px;
+  font-size: var(--font-size-md);
+}
+
 #clear-plot {
   background-color: var(--color-danger);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: var(--color-white);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  font-weight: normal;
-  overflow: hidden;
-  padding: var(--spacing-sm);
-  text-align: center;
-  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
-  white-space: nowrap;
-  width: 38px;
-
-  &:hover {
-    background-color: var(--color-danger-dark);
-    color: var(--color-white);
-  }
-  
-  &.confirming {
-    animation: pulse 1s infinite alternate;
-    background-color: var(--color-danger);
-    color: var(--color-white);
-    width: 120px;
-  }
 }
 
 #save-changes {
-  background-color: var(--color-primary);
-  max-width: 0;
+  background-color: var(--color-success);
+  width: 0;
   opacity: 0;
-  overflow: hidden;
   padding-left: 0;
   padding-right: 0;
-  transition: background-color 0.3s ease-in-out, max-width 0.5s ease, opacity 0.3s ease, padding 0.5s ease;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: var(--color-primary-dark);
-  }
   
   &.visible {
-    max-width: 200px;
+    width: 150px;
     opacity: 1;
-    padding: var(--spacing-sm) var(--spacing-lg);
-  }
-}
-
-#save-plot,
-#my-plots,
-#new-plot {
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: var(--color-white);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  font-weight: normal;
-  overflow: hidden;
-  padding: var(--spacing-sm);
-  text-align: center;
-  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
-  white-space: nowrap;
-  width: 38px;
-
-  &:hover {
-    background-color: var(--color-primary-dark);
-  }
-  
-  &.confirming {
-    animation: pulse 1s infinite alternate;
-    background-color: var(--color-danger);
-    color: var(--color-white);
-    width: 120px;
   }
 }
 
@@ -264,32 +224,47 @@
 }
 
 /* -------------------- Plot Configuration --------------------- */
+.plot-config-panel {
+  align-items: flex-end;
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+}
+
 .config-field {
   flex: 1;
   min-width: 150px;
   text-align: left;
   
   label {
+    color: var(--color-text-secondary);
     display: block;
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-md);
+    font-weight: 500;
     margin-bottom: var(--spacing-xs);
   }
   
   select,
   input {
-    box-sizing: border-box;
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--border-radius-xs);
+    font-size: var(--font-size-sm);
     padding: var(--spacing-xs);
+    transition: border-color var(--transition-fast);
     width: 100%;
+
+    &:hover {
+      border-color: var(--color-grey-3);
+    }
+
+    &:focus {
+      box-shadow: var(--focus-ring);
+    }
   }
 }
 
-.plot-config-panel {
-  align-items: flex-end;
-  background-color: var(--color-background-light);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-sm) 0;
-}

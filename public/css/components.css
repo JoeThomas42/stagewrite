@@ -118,6 +118,9 @@
 
 /* -------------------- Tables --------------------- */
 table {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
   border-collapse: collapse;
   margin-bottom: var(--spacing-xl);
   margin-top: var(--spacing-xl);
@@ -131,22 +134,35 @@ table {
   }
 
   th {
-    background-color: var(--color-background);
-    color: var(--color-text);
-    font-weight: bold;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 600;
+    padding: var(--spacing-md);
+    text-align: left;
+  }
+
+  tr:nth-child(odd) {
+    background-color: var(--color-white);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-table-hover);
+    }
   }
 
   tr:nth-child(even) {
-    background-color: var(--color-table);
-  }
+    background-color: var(--color-background-light);
+    transition: all var(--transition-fast);
 
-  tr:hover {
-    background-color: var(--color-table-hover);
+    &:hover {
+      background-color: var(--color-table-hover);
+    }
   }
 }
 
 .action-cell {
   text-align: center;
+  white-space: nowrap;
 }
 
 .sort-icon {
@@ -186,14 +202,15 @@ table {
 }
 
 th.sortable {
+  background-color: var(--color-primary);
   cursor: pointer;
   padding-right: 1.5rem;
   position: relative;
   user-select: none;
+  transition: all var(--transition-fast);
   
   &:hover {
-    background-color: var(--color-primary-light);
-    color: var(--color-white);
+    background-color: var(--color-primary-dark);
   }
 }
 
@@ -214,40 +231,45 @@ th.sortable {
   display: flex;
   margin-left: auto;
   max-width: 300px;
-  overflow: hidden;
   position: relative;
+  transition: all var(--transition-fast);
   width: 100%;
   
+  &:hover {
+    border: 1px solid var(--color-grey-3);
+  }
+  
   .search-input {
-    background: transparent;
     border: none;
     flex: 1;
     font-size: var(--font-size-sm);
     margin: 0;
     outline: none;
-    padding: var(--spacing-sm) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     width: 100%;
     
-    &:focus {
-      border-color: var(--color-primary);
-    }
-  }
-  
-  .clear-icon {
-    align-items: center;
-    color: var(--color-text-light);
-    cursor: pointer;
-    display: flex;
-    font-size: var(--font-size-md);
-    justify-content: center;
-    padding: 0 var(--spacing-md);
-    transition: color var(--transition-fast);
-    
-    &:hover {
-      color: var(--color-primary);
+    &:active {
+      box-shadow: 0;
     }
   }
 }
+  
+.clear-icon {
+  align-items: center;
+  background-color: transparent;
+  color: var(--color-text-light);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--font-size-md);
+  justify-content: center;
+  padding: 0 var(--spacing-md);
+  transition: color var(--transition-fast);
+  
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
 
 .no-results-message {
   background-color: #f8f8f8;
@@ -287,7 +309,7 @@ th.sortable {
   position: absolute;
   right: 0;
   text-align: left;
-  z-index: 10;
+  z-index: 100;
 
   &.active {
     display: block;
@@ -324,30 +346,21 @@ th.sortable {
   background-color: var(--color-secondary);
 }
 
-.delete-button,
-.delete-plot-btn {
+.delete-button {
   background-color: var(--color-danger);
   margin-right: auto;
-
-  &:hover {
-    background-color: var(--color-danger-dark);
-  }
 }
 
 .delete-plot-btn {
   background-color: transparent;
-  border: none;
-  border-radius: var(--border-radius-sm);
+  box-shadow: none;
   color: var(--color-danger);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  font-weight: normal;
-  overflow: hidden;
-  padding: var(--spacing-sm);
-  text-align: center;
-  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, width 0.3s ease-in-out;
-  white-space: nowrap;
+  height: 38px;
   width: 38px;
+
+  i {
+    font-size: var(--font-size-lg);
+  }
   
   &:hover {
     background-color: var(--color-danger);
@@ -355,10 +368,7 @@ th.sortable {
   }
   
   &.confirming {
-    animation: pulse 1s infinite alternate;
-    background-color: var(--color-danger);
     color: var(--color-white);
-    width: 120px;
   }
 }
 
@@ -393,7 +403,6 @@ th.sortable {
   margin-right: 10px;
   max-width: 300px;
   min-width: 0;
-  overflow: hidden;
   pointer-events: none;
   position: relative;
 }
@@ -401,7 +410,6 @@ th.sortable {
 /* Modal notification area */
 .modal-notification-area {
   height: 38px;
-  overflow: hidden;
   pointer-events: none;
   position: absolute;
   right: var(--spacing-xxxl);
@@ -424,7 +432,6 @@ th.sortable {
   color: var(--color-white);
   font-size: var(--font-size-sm);
   left: 0;
-  line-height: 1.4;
   opacity: 0;
   overflow: hidden;
   padding: var(--spacing-sm) var(--spacing-lg);
@@ -450,8 +457,8 @@ th.sortable {
   
   &.success {
     background: linear-gradient(to right, 
-      var(--color-success) 0px, 
-      var(--color-success) 10px, 
+      var(--color-success-light) 0px, 
+      var(--color-success-light) 10px, 
       white 10px, 
       white 12px, 
       var(--color-primary-dark) 12px, 

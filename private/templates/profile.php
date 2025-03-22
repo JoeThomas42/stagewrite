@@ -105,7 +105,7 @@ if ($user['role_id'] == 1) {
                     <input type='text' class='search-input' id='venue-search' placeholder='Search venues...' autocomplete='off'>
                     <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
                 </div>
-                <button id='add-venue-button' class='action-button'>+ Add New Venue</button>
+                <button id='add-venue-button' class='small-button' title='Add a Venue'><i class='fa-solid fa-plus'></i></button>
             </div>
           </div>";
     echo "<table id='venues-table'>";
@@ -254,7 +254,7 @@ if ($user['role_id'] == 1) {
                     <input type='text' class='search-input' id='venue-search' placeholder='Search venues...' autocomplete='off'>
                     <span class='clear-icon'><i class='fa-solid fa-xmark'></i></span>
                 </div>
-                <button id='add-venue-button' class='action-button'>+ Add New Venue</button>
+                <button id='add-venue-button' class='small-button' title='Add a Venue'><i class='fa-solid fa-plus'></i></button>
             </div>
           </div>";
     echo "<table id='venues-table'>";
