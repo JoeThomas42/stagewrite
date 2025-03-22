@@ -226,8 +226,9 @@ function createPlacedElement(elementData, plotState) {
   }
   
   // Add edit button
-  const actions = document.createElement('div');
-  actions.className = 'element-actions';
+  const editAction = document.createElement('div');
+  editAction.className = 'element-actions';
+  editAction.id = 'edit-action';
   
   const editBtn = document.createElement('button');
   editBtn.className = 'edit-element';
@@ -238,8 +239,25 @@ function createPlacedElement(elementData, plotState) {
     openPropertiesModal(elementData.id, plotState);
   });
   
-  actions.appendChild(editBtn);
-  element.appendChild(actions);
+  editAction.appendChild(editBtn);
+  element.appendChild(editAction);
+
+  // Add delete button
+  const deleteAction = document.createElement('div');
+  deleteAction.className = 'element-actions';
+  deleteAction.id = 'delete-action';
+  
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'edit-element';
+  deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+  deleteBtn.title = 'Delete Element';
+  deleteBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    deleteElement(elementData.id, plotState);
+  });
+  
+  deleteAction.appendChild(deleteBtn);
+  element.appendChild(deleteAction);
   
   // Make draggable within stage
   makeDraggableOnStage(element, plotState);
@@ -248,7 +266,7 @@ function createPlacedElement(elementData, plotState) {
   element.addEventListener('dblclick', () => {
     openPropertiesModal(elementData.id, plotState);
   });
-  
+
   // Add to stage
   stage.appendChild(element);
 }
@@ -390,9 +408,9 @@ function openPropertiesModal(elementId, plotState) {
   document.getElementById('element_index').value = elementIndex;
   document.getElementById('element_label').value = plotState.elements[elementIndex].label || '';
   document.getElementById('element_notes').value = plotState.elements[elementIndex].notes || '';
-  document.getElementById('element_rotation').value = plotState.elements[elementIndex].rotation || 0;
-  document.getElementById('rotation_value').textContent = `${plotState.elements[elementIndex].rotation || 0}°`;
-  document.getElementById('element_flipped').checked = plotState.elements[elementIndex].flipped || false;
+  // document.getElementById('element_rotation').value = plotState.elements[elementIndex].rotation || 0;
+  // document.getElementById('rotation_value').textContent = `${plotState.elements[elementIndex].rotation || 0}°`;
+  // document.getElementById('element_flipped').checked = plotState.elements[elementIndex].flipped || false;
   
   // Show modal
   openModal(propsModal);
@@ -401,9 +419,9 @@ function openPropertiesModal(elementId, plotState) {
   document.getElementById('element_label').focus();
   
   // Handle rotation slider input event
-  document.getElementById('element_rotation').addEventListener('input', (e) => {
-    document.getElementById('rotation_value').textContent = `${e.target.value}°`;
-  });
+  // document.getElementById('element_rotation').addEventListener('input', (e) => {
+  //   document.getElementById('rotation_value').textContent = `${e.target.value}°`;
+  // });
   
   // Handle form submission
   form.onsubmit = (e) => {
@@ -428,16 +446,16 @@ function applyElementProperties(plotState) {
   const propsModal = document.getElementById('element-props-modal');
   
   const elementIndex = parseInt(document.getElementById('element_index').value);
-  const rotation = parseInt(document.getElementById('element_rotation').value);
-  const flipped = document.getElementById('element_flipped').checked;
+  // const rotation = parseInt(document.getElementById('element_rotation').value);
+  // const flipped = document.getElementById('element_flipped').checked;
   const label = document.getElementById('element_label').value.trim();
   const notes = document.getElementById('element_notes').value.trim();
   
   if (elementIndex < 0 || elementIndex >= plotState.elements.length) return;
   
   // Update state
-  plotState.elements[elementIndex].rotation = rotation;
-  plotState.elements[elementIndex].flipped = flipped;
+  // plotState.elements[elementIndex].rotation = rotation;
+  // plotState.elements[elementIndex].flipped = flipped;
   plotState.elements[elementIndex].label = label;
   plotState.elements[elementIndex].notes = notes;
   
@@ -447,14 +465,14 @@ function applyElementProperties(plotState) {
   
   if (domElement) {
     // Apply rotation and flip
-    let transform = '';
-    if (rotation) {
-      transform = `rotate(${rotation}deg)`;
-    }
-    if (flipped) {
-      transform += transform ? ' scaleX(-1)' : 'scaleX(-1)';
-    }
-    domElement.style.transform = transform;
+    // let transform = '';
+    // if (rotation) {
+    //   transform = `rotate(${rotation}deg)`;
+    // }
+    // if (flipped) {
+    //   transform += transform ? ' scaleX(-1)' : 'scaleX(-1)';
+    // }
+    // domElement.style.transform = transform;
     
     // Update label
     let labelElement = domElement.querySelector('.element-label');

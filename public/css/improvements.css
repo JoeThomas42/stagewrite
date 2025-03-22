@@ -27,39 +27,26 @@ body {
 }
 
 /* Improved focus states for accessibility */
-a:focus,
 input:focus,
 select:focus,
 textarea:focus {
+  border-color: var(--color-primary);
   outline: none;
   box-shadow: var(--focus-ring);
 }
 
 /* Enhanced form elements */
-input,
-select,
-textarea {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-input-border);
-  border-radius: var(--border-radius-sm);
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-md);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  width: 100%;
-}
+.search-container {
+  input {
+    border-color: none;
+    box-shadow: none;
+  }
 
-input:hover,
-select:hover,
-textarea:hover {
-  border-color: var(--color-grey-3);
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--color-primary);
-  box-shadow: var(--focus-ring);
+  &:focus-within {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
 }
 
 /* -------------------- Header & Navigation Improvements --------------------- */
@@ -122,10 +109,6 @@ header {
   margin: 0;
 }
 
-#category-filter {
-  border-color: var(--color-primary-light);
-}
-
 #elements-list {
   background-color: var(--color-white);
   border-color: var(--color-border);
@@ -138,33 +121,6 @@ header {
   color: var(--color-primary-dark);
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-xs) var(--spacing-sm);
-}
-
-.draggable-element {
-  background-color: var(--color-white);
-  box-shadow: var(--shadow-sm);
-  cursor: grab;
-  transition: all var(--transition-fast);
-}
-
-.draggable-element:hover {
-  background-color: var(--color-card-hover);
-  border-color: var(--color-primary-light);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px) scale(1.02);
-}
-
-.draggable-element:active {
-  cursor: grabbing;
-  transform: scale(0.98);
-}
-
-.draggable-element img {
-  transition: transform var(--transition-fast);
-}
-
-.draggable-element:hover img {
-  transform: scale(1.05);
 }
 
 /* Stage Area Enhancements */
@@ -247,29 +203,6 @@ header {
   color: white;
   font-weight: 500;
   padding: 2px 0;
-}
-
-.element-actions {
-  right: -5px;
-  top: -5px;
-  z-index: 1001;
-}
-
-.element-actions button {
-  background-color: var(--color-primary);
-  border-radius: 50%;
-  box-shadow: var(--shadow-sm);
-  color: white;
-  height: 24px;
-  opacity: 0.9;
-  padding: 0;
-  transition: all var(--transition-fast);
-  width: 24px;
-}
-
-.element-actions button:hover {
-  background-color: var(--color-primary-dark);
-  opacity: 1;
 }
 
 /* Plot Configuration Panel Enhancements */
@@ -625,10 +558,10 @@ header {
   width: 100%;
 }
 
-#login-container input:focus {
+/* #login-container input:focus {
   border-color: var(--color-primary);
   box-shadow: var(--focus-ring);
-}
+} */
 
 #login-container button {
   background-color: var(--color-primary);
@@ -743,11 +676,6 @@ footer {
   .stage-dimensions {
     font-size: 10px;
     padding: 1px 3px;
-  }
-  
-  #control-buttons {
-    /* flex-wrap: wrap; */
-    /* justify-content: center; */
   }
   
   .plot-config-panel {

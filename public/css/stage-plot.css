@@ -30,7 +30,7 @@
 #elements-list {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
-  max-height: 600px;
+  max-height: 650px;
   overflow-y: auto;
   padding: var(--spacing-md);
 }
@@ -48,6 +48,7 @@
   background-color: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
   cursor: grab;
   display: flex;
   flex-direction: column;
@@ -55,8 +56,14 @@
   transition: all var(--transition-fast);
 
   &:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transform: translateY(-2px);
+    background-color: var(--color-card-hover);
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &:active {
+    cursor: grabbing;
+    transform: scale(0.98);
   }
 
   .element-name {
@@ -73,6 +80,11 @@
     margin-bottom: var(--spacing-xs);
     max-width: 100%;
     object-fit: contain;
+    transition: transform var(--transition-fast);
+  }
+
+  &:hover img {
+    transform: scale(1.25), translateY(5px);
   }
 }
 
@@ -139,16 +151,9 @@
 }
 
 /* -------------------- Stage Control Buttons --------------------- */
-
-/* SOMETHING WRONG WITH TRANSITION */
-
 .action-button {
-  border-radius: var(--border-radius-sm);
-  box-shadow: var(--shadow-sm);
   height: 38px;
-  text-align: center;
   width: 38px;
-  font-size: var(--font-size-md);
 }
 
 #clear-plot {
@@ -170,24 +175,36 @@
 
 /* -------------------- Placed Elements --------------------- */
 .element-actions {
-  display: flex;
-  gap: 2px;
   opacity: 0;
+  padding: 3px;
   position: absolute;
-  right: -20px;
-  top: -20px;
   transition: opacity 0.2s;
+  z-index: 1001;
   
   button {
     align-items: center;
-    border: none;
-    border-radius: 10%;
-    cursor: pointer;
     display: flex;
-    font-size: 14px;
+    font-size: var(--font-size-xs);
+    height: 24px;
     justify-content: center;
-    width: 16px;
+    opacity: 0.9;
+    width: 24px;
+
+    &:hover {
+      background-color: var(--color-primary-dark);
+      opacity: 1;
+    }
   }
+}
+
+#edit-action {
+  right: -14px;
+  top: -14px;
+}
+
+#delete-action {
+  right: -14px;
+  bottom: -14px;
 }
 
 .element-label {

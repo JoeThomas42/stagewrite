@@ -149,13 +149,13 @@ if ($isLoggedIn) {
             <label for="element_label">Label:</label>
             <input type="text" id="element_label" name="element_label" maxlength="10">
             
-            <label for="element_rotation">Rotation: <span id="rotation_value">0°</span></label>
+            <!-- <label for="element_rotation">Rotation: <span id="rotation_value">0°</span></label>
             <input type="range" id="element_rotation" name="element_rotation" min="0" max="359" value="0">
             
             <div class="checkbox-group">
                 <input type="checkbox" id="element_flipped" name="element_flipped">
                 <label for="element_flipped">Flip horizontally</label>
-            </div>
+            </div> -->
             
             <label for="element_notes">Notes:</label>
             <textarea id="element_notes" name="element_notes" rows="3"></textarea>
