@@ -18,7 +18,8 @@ window.initializeApp = function() {
   safeInit(window.initTableInteractions, "Table Interactions");
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initStageEditor, "Stage Editor");
-  safeInit(window.initUIEnhancements, "UI Enhancements");
+  safeInit(window.initStageGrid, "Stage Grid");
+  // safeInit(window.initUIEnhancements, "UI Enhancements");
 
   console.log("Application initialization complete!");
 };
@@ -44,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     safeInit(initTableInteractions, "Table Interactions");
     safeInit(initNotificationSystem, "Notification System");
     safeInit(initStageEditor, "Stage Editor");
+    safeInit(initStageGrid, "Stage Grid");
     
     console.log("Initialization complete!");
   } catch (e) {
@@ -191,11 +193,11 @@ window.initializeApp = function() {
   safeInit(initTableInteractions, "Table Interactions");
   safeInit(initNotificationSystem, "Notification System");
   safeInit(initStageEditor, "Stage Editor");
-  safeInit(initUIEnhancements, "UI Enhancements");
+  safeInit(initStageGrid, "Stage Grid");
+  // safeInit(initUIEnhancements, "UI Enhancements");
   
   console.log("Application initialization complete!");
 };
-
 
 // -------------------- Make core utilities available globally ----------------------
 window.safeInit = safeInit;

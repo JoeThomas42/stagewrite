@@ -266,6 +266,60 @@ function initTableInteractions() {
   });
 }
 
+/**
+ * Add grid to stage for better positioning
+ */
+function initStageGrid() {
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+  
+  // Check if grid toggle already exists
+  if (stage.querySelector('.grid-toggle')) return;
+  
+  // Create grid toggle button
+  const gridToggle = document.createElement('button');
+  gridToggle.className = 'grid-toggle';
+  gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
+  gridToggle.title = 'Toggle Grid';
+  gridToggle.style.position = 'absolute';
+  gridToggle.style.top = '5px';
+  gridToggle.style.left = '5px';
+  gridToggle.style.zIndex = '2';
+  gridToggle.style.backgroundColor = 'rgba(82, 108, 129, 0.7)';
+  gridToggle.style.border = 'none';
+  gridToggle.style.borderRadius = '3px';
+  gridToggle.style.color = 'white';
+  gridToggle.style.cursor = 'pointer';
+  gridToggle.style.fontSize = '12px';
+  gridToggle.style.padding = '3px 6px';
+  
+  // Create grid overlay
+  const gridOverlay = document.createElement('div');
+  gridOverlay.className = 'grid-overlay';
+  gridOverlay.style.position = 'absolute';
+  gridOverlay.style.top = '0';
+  gridOverlay.style.left = '0';
+  gridOverlay.style.width = '100%';
+  gridOverlay.style.height = '100%';
+  gridOverlay.style.backgroundImage = 'linear-gradient(to right, rgba(82, 108, 129, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(82, 108, 129, 0.1) 1px, transparent 1px)';
+  gridOverlay.style.backgroundSize = '50px 50px';
+  gridOverlay.style.pointerEvents = 'none';
+  gridOverlay.style.zIndex = '1';
+  gridOverlay.style.opacity = '0';
+  gridOverlay.style.transition = 'opacity 0.3s ease';
+  
+  stage.appendChild(gridToggle);
+  stage.appendChild(gridOverlay);
+  
+  // Add toggle functionality
+  let gridVisible = false;
+  gridToggle.addEventListener('click', () => {
+    gridVisible = !gridVisible;
+    gridOverlay.style.opacity = gridVisible ? '1' : '0';
+    gridToggle.style.backgroundColor = gridVisible ? 'rgba(82, 108, 129, 0.9)' : 'rgba(82, 108, 129, 0.7)';
+  });
+}
+
 
 // ------------------ Make UI functions available globally ---------------------
 window.initDropdownMenus = initDropdownMenus;
@@ -275,3 +329,4 @@ window.initTableFilters = initTableFilters;
 window.setupTableFilter = setupTableFilter;
 window.filterTable = filterTable;
 window.initTableInteractions = initTableInteractions;
+window.initStageGrid = initStageGrid;

@@ -169,5 +169,4 @@ function initStageGrid() {
 
 // Make functions available globally
 window.initUIEnhancements = initUIEnhancements;
-// window.initTooltips = initTooltips;
 window.initStageGrid = initStageGrid;
