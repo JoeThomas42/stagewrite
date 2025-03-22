@@ -3,6 +3,8 @@
  * Main entry point for the stage plot editing functionality
  */
 
+const { set } = require("core-js/core/dict");
+
 /**
  * Initialize stage plot editor
  */
@@ -43,6 +45,78 @@ function initStageEditor() {
   // Initialize date change handlers
   setupDateHandlers(plotState);
 }
+
+/**
+ * Sets up a two-step confirmation for a button
+ * @param {HTMLElement} button - The button element
+ * @param {Function} confirmAction - The function to execute when confirmed
+ * @param {Object} options - Customization options
+ * @param {string} options.confirmText - Text to show during confirmation state
+ * @param {string} options.confirmTitle - Title/tooltip to show during confirmation state
+ * @param {string} options.originalText - Text to revert to after timeout (if not specified, original innerHTML is used)
+ * @param {string} options.originalTitle - Title/tooltip to revert to after timeout
+ * @param {number} options.timeout - Timeout in milliseconds before reverting (default: 3000)
+ * @param {boolean} options.stopPropagation - Whether to stop event propagation (default: false)
+ * @param {Event} options.event - The event object if event propagation needs to be stopped
+ */
+function setupConfirmButton(button, confirmAction, options = {}) {
+  // Set default options
+  const timeout = options.timeout || 3000;
+  const originalText = options.originalText || button.innerHTML;
+  const originalTitle = options.originalTitle || button.getAttribute('title') || '';
+  
+  // Handle event propagation if specified
+  if (options.stopPropagation && options.event) {
+    options.event.stopPropagation();
+  }
+  
+  if (button.classList.contains('confirming')) {
+    // This is the second click (confirmation)
+    confirmAction();
+    
+    // Reset button appearance after action
+    button.classList.remove('confirming');
+    
+    // Restore the original content after a small delay
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.setAttribute('title', originalTitle);
+    }, 150);
+  } else {
+    // This is the first click - first add the class then change content
+    const originalContent = button.innerHTML;
+    
+    // Add class first to trigger width transition
+    button.classList.add('confirming');
+    
+    // Change content after a small delay to let width transition start
+    setTimeout(() => {
+      if (options.confirmText) {
+        button.textContent = options.confirmText;
+      }
+      if (options.confirmTitle) {
+        button.setAttribute('title', options.confirmTitle);
+      }
+    }, 50);
+    
+    // Reset after a timeout if not clicked
+    setTimeout(() => {
+      if (button.classList.contains('confirming')) {
+        // First remove the class to trigger width transition
+        button.classList.remove('confirming');
+        
+        // After transition starts, restore original content
+        setTimeout(() => {
+          button.innerHTML = originalContent;
+          button.setAttribute('title', originalTitle);
+        }, 150);
+      }
+    }, timeout);
+  }
+}
+
+// Make function available globally
+window.setupConfirmButton = setupConfirmButton;
 
 /**
  * Initialize drag and drop functionality
@@ -252,8 +326,14 @@ function createPlacedElement(elementData, plotState) {
   deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
   deleteBtn.title = 'Delete Element';
   deleteBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    deleteElement(elementData.id, plotState);
+    setupConfirmButton(deleteBtn, () => { 
+      deleteElement(elementData.id, plotState);
+    }, {
+      confirmText: 'Delete',
+      confirmTitle: 'Permanent',
+      stopPropagation: true,
+      event: e  
+    });
   });
   
   deleteAction.appendChild(deleteBtn);
@@ -431,11 +511,15 @@ function openPropertiesModal(elementId, plotState) {
   
   // Handle delete button
   document.querySelector('#element-props-form .delete-button').onclick = () => {
-    if (confirm('Are you sure you want to delete this element?')) {
+    setupConfirmButton(document.querySelector('#element-props-form .delete-button'), () => {
       deleteElement(elementId, plotState);
       closeModal(propsModal);
-    }
-  };
+    }, {
+      confirmText: 'Confirm',
+      confirmTitle: 'This is Permanent!',
+      originalText: 'Delete',
+    });
+  }
 }
 
 /**
@@ -568,26 +652,12 @@ function initModalControls(plotState) {
               return;
             }
             
-            if (saveNewButton.classList.contains('confirming')) {
-              // This is the second click (confirmation)
+            setupConfirmButton(saveNewButton, () => {
               savePlot(true, null, null, null, plotState); // Save as new plot
-              
-              // Reset button appearance after action
-              saveNewButton.classList.remove('confirming');
-              saveNewButton.textContent = 'Save as New';
-            } else {
-              // This is the first click - add class then change content
-              saveNewButton.classList.add('confirming');
-              saveNewButton.textContent = 'Confirm Save';
-              
-              // Reset after a timeout if not clicked
-              setTimeout(() => {
-                if (saveNewButton.classList.contains('confirming')) {
-                  saveNewButton.classList.remove('confirming');
-                  saveNewButton.textContent = 'Save as New';
-                }
-              }, 3000); // Reset after 3 seconds
-            }
+            }, {
+              confirmText: 'Confirm Save',
+              originalText: 'Save as New'
+            });
           });
         }
       } else {
@@ -840,68 +910,30 @@ function loadExistingPlotsForOverwrite(plotState) {
             const newNameInput = document.getElementById('plot_name');
             const newName = newNameInput && newNameInput.value.trim() ? newNameInput.value.trim() : null;
             
-            if (btn.classList.contains('confirming')) {
-              // This is the second click (confirmation)
+            setupConfirmButton(btn, () => {
               savePlot(false, plotId, newName, plotName, plotState); // Pass the existing plot name
-              
-              // Reset button appearance after action
-              btn.classList.remove('confirming');
-              btn.textContent = 'Overwrite';
-            } else {
-              // This is the first click - add class then change content
-              btn.classList.add('confirming');
-              btn.textContent = 'Confirm';
-              
-              // Reset after a timeout if not clicked
-              setTimeout(() => {
-                if (btn.classList.contains('confirming')) {
-                  btn.classList.remove('confirming');
-                  btn.textContent = 'Overwrite';
-                }
-              }, 3000); // Reset after 3 seconds
-            }
+            }, {
+              confirmText: 'Confirm',
+              originalText: 'Overwrite'
+            });
           });
         });
         
         // Add delete button handlers
         document.querySelectorAll('.existing-plots-list .delete-plot-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
+            // Get plot ID
+            const plotId = btn.getAttribute('data-plot-id');
             
-            if (btn.classList.contains('confirming')) {
-              // This is the second click (confirmation)
-              const plotId = btn.getAttribute('data-plot-id');
+            setupConfirmButton(btn, () => {
               deletePlot(plotId, true, plotState);
-            } else {
-              // This is the first click - first add the class then change content
-              const originalContent = btn.innerHTML;
-              
-              // Add class first to trigger width transition
-              btn.classList.add('confirming');
-              
-              // Change content after a small delay to let width transition start
-              setTimeout(() => {
-                btn.textContent = 'Delete';
-                btn.setAttribute('title', 'This is permanent!');
-              }, 50);
-              
-              // Reset after a timeout if not clicked
-              setTimeout(() => {
-                if (btn.classList.contains('confirming')) {
-                  // First remove the class to trigger width transition
-                  btn.classList.remove('confirming');
-                  
-                  // After transition starts, restore original content
-                  setTimeout(() => {
-                    btn.innerHTML = originalContent;
-                    btn.setAttribute('title', 'Delete plot');
-                  }, 150);
-                }
-              }, 3000); // Reset after 3 seconds
-              
-              // Stop event propagation
-              e.stopPropagation();
-            }
+            }, {
+              confirmText: 'Delete',
+              confirmTitle: 'This is permanent!',
+              originalTitle: 'Delete plot',
+              stopPropagation: true,
+              event: e
+            });
           });
         });
       } else {
@@ -964,39 +996,16 @@ function loadSavedPlots(plotState) {
             
             // Check if there are elements on stage that would be replaced
             if (plotState.elements.length > 0) {
-              if (btn.classList.contains('confirming')) {
-                // This is the second click (confirmation)
+              setupConfirmButton(btn, () => {
                 loadPlot(plotId, plotState);
-                
-                // Reset button appearance after action
-                btn.classList.remove('confirming');
-                setTimeout(() => {
-                  btn.textContent = 'Load';
-                  btn.setAttribute('title', 'Load plot');
-                }, 150);
-              } else {
-                // This is the first click - add class then change content
-                btn.classList.add('confirming');
-                
-                // Change content after a small delay
-                setTimeout(() => {
-                  btn.textContent = 'Confirm';
-                  btn.setAttribute('title', 'This will replace your current stage');
-                }, 50);
-                
-                // Reset after a timeout if not clicked
-                setTimeout(() => {
-                  if (btn.classList.contains('confirming')) {
-                    btn.classList.remove('confirming');
-                    
-                    // After transition starts, restore original content
-                    setTimeout(() => {
-                      btn.textContent = 'Load';
-                      btn.setAttribute('title', 'Load plot');
-                    }, 150);
-                  }
-                }, 3000); // Reset after 3 seconds
-              }
+              }, {
+                confirmText: 'Confirm',
+                confirmTitle: 'This will replace your current stage',
+                originalText: 'Load',
+                originalTitle: 'Load plot',
+                stopPropagation: true,
+                event: e
+              });
             } else {
               // No confirmation needed, just load
               loadPlot(plotId, plotState);
@@ -1007,38 +1016,18 @@ function loadSavedPlots(plotState) {
         // Add delete button handlers
         document.querySelectorAll('.saved-plots-list .delete-plot-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
+            // Get plot ID
+            const plotId = btn.getAttribute('data-plot-id');
             
-            if (btn.classList.contains('confirming')) {
-              // This is the second click (confirmation)
-              const plotId = btn.getAttribute('data-plot-id');
+            setupConfirmButton(btn, () => {
               deletePlot(plotId, true, plotState);
-            } else {
-              // This is the first click - first add the class then change content
-              const originalContent = btn.innerHTML;
-              btn.classList.add('confirming');
-
-              // Change content after a small delay to let width transition start
-              setTimeout(() => {
-                btn.textContent = 'Delete';
-                btn.setAttribute('title', 'This is permanent!');
-              }, 50);
-              
-              // Reset after a timeout if not clicked
-              setTimeout(() => {
-                if (btn.classList.contains('confirming')) {
-                  btn.classList.remove('confirming');
-                  
-                  // After transition starts, restore original content
-                  setTimeout(() => {
-                    btn.innerHTML = originalContent;
-                    btn.setAttribute('title', 'Delete plot');
-                  }, 150);
-                }
-              }, 3000); // Reset after 3 seconds
-              
-              e.stopPropagation();
-            }
+            }, {
+              confirmText: 'Delete',
+              confirmTitle: 'This is permanent!',
+              originalTitle: 'Delete plot',
+              stopPropagation: true,
+              event: e
+            });
           });
         });
       } else {
@@ -1437,91 +1426,29 @@ function initPlotControls(plotState) {
   // Setup clear button
   if (clearButton) {
     clearButton.addEventListener('click', () => {
-      if (clearButton.classList.contains('confirming')) {
-        // This is the second click (confirmation)
+      setupConfirmButton(clearButton, () => {
         clearElements(plotState);
         showNotification('Stage cleared!', 'success');
-
-        // Reset button appearance after action
-        clearButton.classList.remove('confirming');
-        
-        // Restore the original icon after a small delay
-        setTimeout(() => {
-          clearButton.innerHTML = '<i class="fa-solid fa-trash"></i>';
-          clearButton.setAttribute('title', 'Clear Stage');
-        }, 150);
-      } else {
-        // This is the first click - first add the class then change content
-        const originalContent = clearButton.innerHTML;
-        
-        // Add class first to trigger width transition
-        clearButton.classList.add('confirming');
-        
-        // Change content after a small delay to let width transition start
-        setTimeout(() => {
-          clearButton.textContent = 'Clear Stage';
-          clearButton.setAttribute('title', 'Clear all placed elements');
-        }, 50);
-        
-        // Reset after a timeout if not clicked
-        setTimeout(() => {
-          if (clearButton.classList.contains('confirming')) {
-            // First remove the class to trigger width transition
-            clearButton.classList.remove('confirming');
-            
-            // After transition starts, restore original content
-            setTimeout(() => {
-              clearButton.innerHTML = originalContent;
-              clearButton.setAttribute('title', 'Clear Stage');
-            }, 150);
-          }
-        }, 3000); // Reset after 3 seconds
-      }
+      }, {
+        confirmText: 'Clear Stage',
+        confirmTitle: 'Clear all placed elements',
+        originalTitle: 'Clear Stage',
+        originalText: '<i class="fa-solid fa-trash"></i>'
+      });
     });
   }
 
   // Setup new plot button
   if (newPlotButton) {
     newPlotButton.addEventListener('click', () => {
-      if (newPlotButton.classList.contains('confirming')) {
-        // This is the second click (confirmation)
+      setupConfirmButton(newPlotButton, () => {
         newPlot(plotState);
-        
-        // Reset button appearance after action
-        newPlotButton.classList.remove('confirming');
-        
-        // Restore the original icon after a small delay
-        setTimeout(() => {
-          newPlotButton.innerHTML = '<i class="fa-solid fa-file-circle-plus"></i>';
-          newPlotButton.setAttribute('title', 'New Plot');
-        }, 150);
-      } else {
-        // This is the first click - first add the class then change content
-        const originalContent = newPlotButton.innerHTML;
-        
-        // Add class first to trigger width transition
-        newPlotButton.classList.add('confirming');
-        
-        // Change content after a small delay to let width transition start
-        setTimeout(() => {
-          newPlotButton.textContent = 'New Plot';
-          newPlotButton.setAttribute('title', 'You will lose unsaved changes');
-        }, 50);
-        
-        // Reset after a timeout if not clicked
-        setTimeout(() => {
-          if (newPlotButton.classList.contains('confirming')) {
-            // First remove the class to trigger width transition
-            newPlotButton.classList.remove('confirming');
-            
-            // After transition starts, restore original content
-            setTimeout(() => {
-              newPlotButton.innerHTML = originalContent;
-              newPlotButton.setAttribute('title', 'New Plot');
-            }, 150);
-          }
-        }, 3000); // Reset after 3 seconds
-      }
+      }, {
+        confirmText: 'New Plot',
+        confirmTitle: 'You will lose unsaved changes',
+        originalTitle: 'New Plot',
+        originalText: '<i class="fa-solid fa-file-circle-plus"></i>'
+      });
     });
   }
 }
@@ -1791,6 +1718,7 @@ function newPlot(plotState) {
 
 
 // --------------------- Make stage plot editor functions available globally ----------------------
+window.setupConfirmButton = setupConfirmButton;
 window.initStageEditor = initStageEditor;
 window.handleDragStart = handleDragStart;
 window.handleDragOver = handleDragOver;

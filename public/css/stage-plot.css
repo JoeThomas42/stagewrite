@@ -203,8 +203,17 @@
 }
 
 #delete-action {
-  right: -14px;
   bottom: -14px;
+  right: -14px;
+  
+  button {
+    background-color: var(--color-danger);
+    
+    &.confirming {
+      animation: pulse 1s alternate infinite;
+      width: 50px;
+    }
+  }
 }
 
 .element-label {

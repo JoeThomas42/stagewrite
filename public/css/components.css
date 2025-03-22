@@ -95,6 +95,10 @@
   padding: var(--spacing-xl);
   position: relative;
   width: 90%;
+
+  button {
+    min-width: 75px;
+  }
 }
 
 .modal-bottom-actions {
@@ -349,6 +353,7 @@ th.sortable {
 .delete-button {
   background-color: var(--color-danger);
   margin-right: auto;
+  width: 75px;
 }
 
 .delete-plot-btn {
