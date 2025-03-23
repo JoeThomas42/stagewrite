@@ -14,12 +14,14 @@ stagewrite
 │   │   │   ├── delete_plot.php
 │   │   │   ├── delete_user.php
 │   │   │   ├── demote_user.php
+│   │   │   ├── get_favorites.php
 │   │   │   ├── get_plot.php
 │   │   │   ├── get_plots.php
 │   │   │   ├── get_user_venue.php
 │   │   │   ├── promote_user.php
 │   │   │   ├── save_plot.php
 │   │   │   ├── save_user_venue.php
+│   │   │   ├── toggle_favorite.php
 │   │   │   └── toggle_status.php
 │   │   ├── signup_handler.php
 │   │   └── venue_handler.php
@@ -49,6 +51,7 @@ stagewrite
 │   │   ├── delete_plot.php
 │   │   ├── delete_user.php
 │   │   ├── demote_user.php
+│   │   ├── get_favorites.php
 │   │   ├── get_plot.php
 │   │   ├── get_plots.php
 │   │   ├── get_user_venue.php
@@ -59,6 +62,7 @@ stagewrite
 │   │   ├── save_plot.php
 │   │   ├── save_user_venue.php
 │   │   ├── signup_handler.php
+│   │   ├── toggle_favorite.php
 │   │   ├── toggle_status.php
 │   │   └── venue_handler.php
 │   ├── images
