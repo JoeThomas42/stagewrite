@@ -133,10 +133,6 @@
   }
 }
 
-.venue-select-container {
-  position: relative;
-}
-
 optgroup {
   color: var(--color-text);
   font-weight: bold;

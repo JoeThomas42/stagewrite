@@ -320,6 +320,359 @@ function initStageGrid() {
   });
 }
 
+// ---------------------------- Custom Dropdown Menus -----------------------------------
+
+/**
+ * Initialize custom dropdowns by replacing all select elements with custom dropdown menus
+ */
+function initCustomDropdowns() {
+  // Find all select elements to convert
+  const selects = document.querySelectorAll('select:not(.no-custom)');
+  
+  selects.forEach(select => {
+    createCustomDropdown(select);
+  });
+  
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.custom-dropdown')) {
+      closeAllDropdowns();
+    }
+  });
+  
+  // Handle keyboard navigation
+  document.addEventListener('keydown', handleDropdownKeyboard);
+}
+
+/**
+ * Create a custom dropdown for a select element
+ * @param {HTMLSelectElement} select - The select element to replace
+ */
+function createCustomDropdown(select) {
+  // Create custom dropdown container
+  const dropdown = document.createElement('div');
+  dropdown.className = 'custom-dropdown';
+  dropdown.setAttribute('tabindex', '0');
+  dropdown.setAttribute('data-id', select.id || generateUniqueId());
+  
+  // Create dropdown header
+  const header = document.createElement('div');
+  header.className = 'custom-dropdown-header';
+  
+  // Create selected option display
+  const selectedOption = document.createElement('div');
+  selectedOption.className = 'selected-option';
+  
+  // Create dropdown arrow
+  const arrow = document.createElement('span');
+  arrow.className = 'custom-dropdown-arrow';
+  arrow.innerHTML = '▼';
+  
+  header.appendChild(selectedOption);
+  header.appendChild(arrow);
+  dropdown.appendChild(header);
+  
+  // Create dropdown menu
+  const menu = document.createElement('div');
+  menu.className = 'custom-dropdown-menu';
+  dropdown.appendChild(menu);
+  
+  // Hide original select
+  select.style.display = 'none';
+  select.setAttribute('aria-hidden', 'true');
+  
+  // Insert custom dropdown next to the original select
+  select.parentNode.insertBefore(dropdown, select);
+  
+  // Move the original select inside our custom dropdown (hidden)
+  dropdown.appendChild(select);
+  
+  // Populate the dropdown menu
+  populateDropdownMenu(dropdown, select);
+  
+  // Set initial selected option
+  updateSelectedOption(dropdown, select);
+  
+  // Add event listeners
+  addDropdownEventListeners(dropdown, select);
+}
+
+/**
+ * Populate dropdown menu with options from the select element
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ * @param {HTMLSelectElement} select - The original select element
+ */
+function populateDropdownMenu(dropdown, select) {
+  const menu = dropdown.querySelector('.custom-dropdown-menu');
+  menu.innerHTML = '';
+  
+  const options = select.querySelectorAll('option');
+  const optgroups = select.querySelectorAll('optgroup');
+  
+  // If there are optgroups, we need special handling
+  if (optgroups.length > 0) {
+    Array.from(select.children).forEach(child => {
+      if (child.tagName === 'OPTGROUP') {
+        // Create optgroup header
+        const optgroupElement = document.createElement('div');
+        optgroupElement.className = 'custom-dropdown-optgroup';
+        optgroupElement.textContent = child.label;
+        menu.appendChild(optgroupElement);
+        
+        // Add options in this group
+        Array.from(child.children).forEach(option => {
+          const optionElement = createOptionElement(option, true);
+          menu.appendChild(optionElement);
+        });
+      } else if (child.tagName === 'OPTION') {
+        // Add option outside groups
+        const optionElement = createOptionElement(child, false);
+        menu.appendChild(optionElement);
+      }
+    });
+  } else {
+    // No optgroups, just add all options
+    options.forEach(option => {
+      const optionElement = createOptionElement(option, false);
+      menu.appendChild(optionElement);
+    });
+  }
+}
+
+/**
+ * Create a dropdown option element
+ * @param {HTMLOptionElement} option - The original option element
+ * @param {boolean} isInGroup - Whether the option is in an optgroup
+ * @returns {HTMLElement} The created option element
+ */
+function createOptionElement(option, isInGroup) {
+  const optionElement = document.createElement('div');
+  optionElement.className = 'custom-dropdown-option';
+  if (isInGroup) {
+    optionElement.classList.add('optgroup-option');
+  }
+  optionElement.setAttribute('data-value', option.value);
+  optionElement.textContent = option.textContent;
+  optionElement.setAttribute('tabindex', '-1');
+  
+  if (option.disabled) {
+    optionElement.classList.add('disabled');
+  }
+  
+  if (option.selected) {
+    optionElement.classList.add('selected');
+  }
+  
+  return optionElement;
+}
+
+/**
+ * Update the displayed selected option
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ * @param {HTMLSelectElement} select - The original select element
+ */
+function updateSelectedOption(dropdown, select) {
+  const selectedOption = dropdown.querySelector('.selected-option');
+  const selectedIndex = select.selectedIndex;
+  
+  if (selectedIndex >= 0) {
+    const optionText = select.options[selectedIndex].textContent;
+    selectedOption.textContent = optionText;
+    selectedOption.classList.remove('placeholder');
+  } else {
+    selectedOption.textContent = select.getAttribute('placeholder') || 'Select an option';
+    selectedOption.classList.add('placeholder');
+  }
+  
+  // Update selected class in menu
+  const menuOptions = dropdown.querySelectorAll('.custom-dropdown-option');
+  menuOptions.forEach(option => {
+    option.classList.remove('selected');
+    if (option.getAttribute('data-value') === select.value) {
+      option.classList.add('selected');
+    }
+  });
+}
+
+/**
+ * Add event listeners to dropdown
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ * @param {HTMLSelectElement} select - The original select element
+ */
+function addDropdownEventListeners(dropdown, select) {
+  // Toggle dropdown on click
+  dropdown.querySelector('.custom-dropdown-header').addEventListener('click', () => {
+    toggleDropdown(dropdown);
+  });
+  
+  // Handle option selection
+  const menuOptions = dropdown.querySelectorAll('.custom-dropdown-option');
+  menuOptions.forEach(option => {
+    option.addEventListener('click', (e) => {
+      if (option.classList.contains('disabled')) {
+        e.stopPropagation();
+        return;
+      }
+      
+      selectOption(dropdown, select, option.getAttribute('data-value'));
+      closeDropdown(dropdown);
+      
+      // Trigger change event on the select
+      const event = new Event('change', { bubbles: true });
+      select.dispatchEvent(event);
+    });
+  });
+  
+  // Focus/blur handling for visual feedback
+  dropdown.addEventListener('focus', () => {
+    dropdown.classList.add('focus');
+  });
+  
+  dropdown.addEventListener('blur', () => {
+    dropdown.classList.remove('focus');
+  });
+  
+  // Handle keyboard navigation
+  dropdown.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleDropdown(dropdown);
+    } else if (e.key === 'Escape') {
+      closeDropdown(dropdown);
+    }
+  });
+}
+
+/**
+ * Handle keyboard navigation for dropdown menus
+ * @param {KeyboardEvent} e - The keyboard event
+ */
+function handleDropdownKeyboard(e) {
+  const openDropdown = document.querySelector('.custom-dropdown.open');
+  if (!openDropdown) return;
+  
+  const select = openDropdown.querySelector('select');
+  const options = openDropdown.querySelectorAll('.custom-dropdown-option:not(.disabled)');
+  const currentSelected = openDropdown.querySelector('.custom-dropdown-option.selected');
+  
+  let index = Array.from(options).indexOf(currentSelected);
+  
+  switch (e.key) {
+    case 'ArrowDown':
+      e.preventDefault();
+      if (index < options.length - 1) {
+        index++;
+      } else {
+        index = 0; // Loop back to top
+      }
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      if (index > 0) {
+        index--;
+      } else {
+        index = options.length - 1; // Loop to bottom
+      }
+      break;
+    case 'Home':
+      e.preventDefault();
+      index = 0;
+      break;
+    case 'End':
+      e.preventDefault();
+      index = options.length - 1;
+      break;
+    default:
+      return; // Exit for other keys
+  }
+  
+  // Focus and scroll to the option
+  if (options[index]) {
+    options[index].focus();
+    options[index].scrollIntoView({ block: 'nearest' });
+    
+    // Update selection
+    selectOption(openDropdown, select, options[index].getAttribute('data-value'));
+    
+    // Trigger change event on the select
+    const event = new Event('change', { bubbles: true });
+    select.dispatchEvent(event);
+  }
+}
+
+/**
+ * Toggle dropdown open/closed state
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ */
+function toggleDropdown(dropdown) {
+  const isOpen = dropdown.classList.contains('open');
+  
+  // Close all other dropdowns first
+  closeAllDropdowns();
+  
+  // Toggle this dropdown
+  if (isOpen) {
+    closeDropdown(dropdown);
+  } else {
+    openDropdown(dropdown);
+  }
+}
+
+/**
+ * Open a dropdown
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ */
+function openDropdown(dropdown) {
+  dropdown.classList.add('open');
+  
+  // Focus the selected option if any
+  const selectedOption = dropdown.querySelector('.custom-dropdown-option.selected');
+  if (selectedOption) {
+    selectedOption.focus();
+    selectedOption.scrollIntoView({ block: 'nearest' });
+  }
+}
+
+/**
+ * Close a dropdown
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ */
+function closeDropdown(dropdown) {
+  dropdown.classList.remove('open');
+  dropdown.focus(); // Return focus to the dropdown itself
+}
+
+/**
+ * Close all open dropdowns
+ */
+function closeAllDropdowns() {
+  document.querySelectorAll('.custom-dropdown.open').forEach(openDropdown => {
+    closeDropdown(openDropdown);
+  });
+}
+
+/**
+ * Select an option in the dropdown
+ * @param {HTMLElement} dropdown - The custom dropdown container
+ * @param {HTMLSelectElement} select - The original select element
+ * @param {string} value - The value to select
+ */
+function selectOption(dropdown, select, value) {
+  // Update the original select
+  select.value = value;
+  
+  // Update the display
+  updateSelectedOption(dropdown, select);
+}
+
+/**
+ * Generate a unique ID for a dropdown
+ * @returns {string} A unique ID
+ */
+function generateUniqueId() {
+  return 'dropdown-' + Math.random().toString(36).substring(2, 10);
+}
+
 
 // ------------------ Make UI functions available globally ---------------------
 window.initDropdownMenus = initDropdownMenus;
@@ -330,3 +683,4 @@ window.setupTableFilter = setupTableFilter;
 window.filterTable = filterTable;
 window.initTableInteractions = initTableInteractions;
 window.initStageGrid = initStageGrid;
+window.initCustomDropdowns = initCustomDropdowns;

@@ -19,6 +19,7 @@ window.initializeApp = function() {
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initStageEditor, "Stage Editor");
   safeInit(window.initStageGrid, "Stage Grid");
+  safeInit(window.initCustomDropdowns, "Custom Dropdowns");
 
   console.log("Application initialization complete!");
 };
@@ -45,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     safeInit(initNotificationSystem, "Notification System");
     safeInit(initStageEditor, "Stage Editor");
     safeInit(initStageGrid, "Stage Grid");
+    safeInit(initCustomDropdowns, "Custom Dropdowns");
     
     console.log("Initialization complete!");
   } catch (e) {
@@ -101,6 +103,27 @@ function setupScrollRestoration() {
       document.documentElement.style.opacity = '1';
       sessionStorage.removeItem('scrollPosition');
     }, 10);
+  }
+}
+
+/**
+ * Sets up custom dropdown menus
+ * @param {Function} initFunction - The initialization function to call
+ * @param {string} moduleName - Name of the module for logging
+ */
+
+function safeInit(initFunction, moduleName) {
+  try {
+    if (typeof initFunction === 'function') {
+      console.log(`Initializing ${moduleName}...`);
+      initFunction();
+      console.log(`${moduleName} initialized successfully`);
+    } else {
+      console.warn(`${moduleName} initialization function not found`);
+    }
+  } catch (err) {
+    console.error(`Error initializing ${moduleName}:`, err);
+    // Continue with other initializations despite this error
   }
 }
 
@@ -193,6 +216,7 @@ window.initializeApp = function() {
   safeInit(initNotificationSystem, "Notification System");
   safeInit(initStageEditor, "Stage Editor");
   safeInit(initStageGrid, "Stage Grid");
+  safeInit(initCustomDropdowns, "Custom Dropdowns");
   
   console.log("Application initialization complete!");
 };

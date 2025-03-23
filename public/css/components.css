@@ -508,8 +508,8 @@ th.sortable {
 .small-button {
   height: 30px;
   max-width: 30px;
+  min-width: 30px;
   padding: 0;
-  width: 30px;
 }
 
 /* -------------------- Notification System --------------------- */
@@ -684,4 +684,151 @@ th.sortable {
     margin-right: var(--spacing-xs);
     width: auto;
   }
+}
+
+/**
+ * StageWrite Custom Dropdown 
+ * Styling for custom dropdown menus that replace native selects
+ */
+
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--color-input-border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-white);
+  cursor: pointer;
+  height: 30px;
+  transition: all var(--transition-fast);
+}
+
+.select-with-button .custom-dropdown-menu {
+  width: 120%;
+}
+
+.custom-dropdown:hover {
+  border-color: var(--color-grey-3);
+}
+
+.custom-dropdown.focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+.custom-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-md);
+  position: relative;
+  font-size: var(--font-size-sm);
+  min-height: 30px;
+  box-sizing: border-box;
+}
+
+.selected-option {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.custom-dropdown-arrow {
+  margin-left: var(--spacing-sm);
+  transition: transform var(--transition-fast);
+}
+
+.custom-dropdown.open .custom-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  z-index: 5000;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-md);
+  display: none;
+  margin-top: var(--spacing-xs);
+}
+
+.custom-dropdown.open .custom-dropdown-menu {
+  display: block;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.custom-dropdown-option {
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-sm);
+  
+  &:active {
+    box-shadow: inset var(--shadow-md);
+  }
+}
+
+.custom-dropdown-option:hover {
+  background-color: var(--color-primary-lightest);
+}
+
+.custom-dropdown-option.disabled {
+  color: var(--color-grey-3);
+  cursor: not-allowed;
+}
+
+/* Option groups */
+.custom-dropdown-optgroup {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-weight: bold;
+  color: var(--color-text);
+  background-color: var(--color-background-light);
+  border-bottom: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.custom-dropdown-option.optgroup-option {
+  padding-left: calc(var(--spacing-md) * 2);
+}
+
+/* Focus styles for keyboard accessibility */
+.custom-dropdown-option:focus {
+  outline: none;
+  background-color: var(--color-primary-lightest);
+}
+
+/* Placeholder styling */
+.custom-dropdown .placeholder {
+  color: var(--color-grey-3);
+}
+
+/* For screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Native select for form submission but visually hidden */
+.custom-dropdown select {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
 }
