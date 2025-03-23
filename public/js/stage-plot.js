@@ -933,9 +933,10 @@ function initModalControls(plotState) {
             
             // Get the plot name
             const plotName = document.getElementById('plot_name').value.trim();
+            const plotTitle = document.getElementById('plot-title').textContent.trim();
             
-            if (!plotName) {
-              showNotification('Please enter a plot name', 'warning');
+            if (!plotName || plotName === plotTitle) {
+              showNotification('Please enter a unique plot name!', 'warning');
               return;
             }
             
