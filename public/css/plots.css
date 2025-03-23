@@ -42,12 +42,20 @@
 
 .plot-item {
   align-items: center;
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
   color: inherit;
   display: flex;
   justify-content: space-between;
-  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-md);
   text-decoration: none;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--color-card-hover);
+  }
 }
 
 .plot-link {
@@ -58,27 +66,19 @@
 }
 
 .plot-name {
-  color: var(--color-primary);
-  font-size: var(--font-size-lg);
-  font-weight: bold;
-  margin-bottom: var(--spacing-md);
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
 }
 
 .plots-list {
   list-style: none;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
   padding: 0;
-  
-  li {
-    background-color: var(--color-card);
-    border-radius: var(--border-radius-lg);
-    margin: var(--spacing-lg) 0;
-    transition: all var(--transition-fast);
-    
-    &:hover {
-      background-color: var(--color-card-hover);
-      box-shadow: var(--shadow-sm);
-    }
-  }
+  padding-right: var(--spacing-md);
 }
 
 /* -------------------- Save & Plot Specific Sections --------------------- */

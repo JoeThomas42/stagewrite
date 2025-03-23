@@ -52,6 +52,7 @@ button,
   white-space: nowrap;
 
   &:hover {
+    background-color: var(--color-primary-dark);
     box-shadow: var(--shadow-lg);
   }
 
@@ -82,15 +83,16 @@ input,
 select,
 textarea {
   align-items: center;
-  justify-content: center;
-  line-height: normal;
   background-color: var(--color-white);
   border: 1px solid var(--color-input-border);
   border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
   color: var(--color-text);
   display: flex;
   font-size: var(--font-size-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  justify-content: center;
+  line-height: normal;
+  transition: all var(--transition-fast);
   width: 100%;
 
   &:hover {
@@ -116,7 +118,9 @@ textarea {
 
 label {
   color: var(--color-text-secondary);
-  font-weight: bold;
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
   margin-bottom: var(--spacing-xs);
 }
 
@@ -126,9 +130,12 @@ p {
 
   a {
     color: var(--color-primary);
+    font-weight: 500;
     text-decoration: none;
+    transition: all var(--transition-fast);
 
     &:hover {
+      color: var(--color-primary-dark);
       text-decoration: underline;
     }
   }
@@ -232,13 +239,13 @@ header {
     transition: all var(--transition-fast);
 
     &.current-page {
-      background-color: transparent;
-      border-bottom: 3px solid var(--color-primary);
+      background-color: rgba(255, 255, 255, 0.1);
+      border-bottom: 3px solid var(--color-primary-light);
       position: relative;
     }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.15);
     }
   }
 }
@@ -299,15 +306,19 @@ header {
 }
 
 .welcome-message {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
   color: var(--color-white);
   font-size: var(--font-size-sm);
   margin-right: var(--spacing-lg);
+  padding: var(--spacing-xs) var(--spacing-md);
 }
 
 /* -------------------- Footer --------------------- */
 footer {
-  background-color: var(--color-header);
+  background: linear-gradient(to right, var(--color-header), var(--color-primary-dark));
   color: var(--color-white);
+  margin-top: auto;
   padding: var(--spacing-xl) 0;
   width: 100%;
 }
@@ -325,8 +336,11 @@ footer {
 
   h3 {
     color: var(--color-white);
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    letter-spacing: 0.02em;
     margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   }
   
   p {
@@ -371,11 +385,50 @@ form {
   }
 }
 
+/* -------------------- Print Styles --------------------- */
+@media print {
+  header, footer, #elements-panel, #control-buttons, .element-actions {
+    display: none !important;
+  }
+  
+  body, #page-wrapper, #stage-plot-container, #stage-area {
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  #stage {
+    border: 1px solid #000 !important;
+    height: 80vh !important;
+    margin: 0 auto !important;
+    page-break-inside: avoid !important;
+    width: 80vw !important;
+  }
+  
+  .placed-element {
+    print-color-adjust: exact !important;
+  }
+  
+  #plot-title {
+    font-size: 24pt !important;
+    text-align: center !important;
+  }
+  
+  .element-label {
+    background-color: rgba(255,255,255,0.8) !important;
+    color: black !important;
+    font-size: 8pt !important;
+  }
+}
+
 /* -------------------- Keyframes --------------------- */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -386,13 +439,19 @@ form {
 @keyframes pulse {
   0% {
     opacity: 0.8;
+    transform: scale(0.98);
   }
   100% {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
 @keyframes highlightRow {
-  0% { background-color: #ffffcc; }
-  100% { background-color: transparent; }
+  0% { 
+    background-color: var(--color-primary-lightest); 
+  }
+  100% { 
+    background-color: transparent; 
+  }
 }

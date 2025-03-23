@@ -7,32 +7,48 @@
 
 /* -------------------- Main Container --------------------- */
 #stage-plot-container {
-  background-color: var(--color-background-alt);
+  background: linear-gradient(to bottom, var(--color-background), var(--color-background-alt));
   border: 3px solid var(--color-grey-3);
-  border-radius: var(--border-radius-md);
-  box-shadow: 0px 0px 25px 2px var(--color-grey-5);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-lg);
-  margin: var(--spacing-md) 2rem;
+  margin: var(--spacing-xl) auto;
+  max-width: 1400px;
+  overflow: hidden;
   padding: var(--spacing-lg);
+  transition: all var(--transition-medium);
 }
 
 /* -------------------- Elements Panel --------------------- */
 #elements-header {
   align-items: center;
+  background-color: var(--color-background-light);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
   display: flex;
   gap: var(--spacing-md);
   justify-content: space-between;
   margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  
+  h2 {
+    color: var(--color-primary-dark);
+    font-size: var(--font-size-lg);
+    margin: 0;
+  }
 }
 
 #elements-list {
+  background-color: var(--color-white);
   border: 1px solid var(--color-border);
+  border-color: var(--color-border);
   border-radius: var(--border-radius-md);
   max-height: 630px;
   overflow-y: auto;
   padding: var(--spacing-md);
+  scrollbar-width: thin;
 }
 
 #elements-panel {
@@ -41,6 +57,14 @@
 
 .category-section {
   margin-bottom: var(--spacing-lg);
+  
+  h3 {
+    background-color: var(--color-background-light);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
 }
 
 .draggable-element {
@@ -103,26 +127,33 @@
   display: flex;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  /* padding: var(--spacing-sm) 0;F */
 }
 
 #front-label {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius-xs);
   bottom: 5px;
   color: var(--color-text-light);
   font-size: var(--font-size-sm);
-  left: 0;
+  font-weight: 600;
+  left: 50%;
+  padding: var(--spacing-xs) var(--spacing-sm);
   position: absolute;
   text-align: center;
-  width: 100%;
+  transform: translateX(-50%);
+  width: auto;
 }
 
 #stage {
-  background-color: #f5f5f5;
-  border: 2px solid var(--color-text);
+  background: linear-gradient(to bottom, #f9f9f9, #f0f0f0);
+  border: 2px solid var(--color-grey-4);
+  border-radius: var(--border-radius-sm);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
   height: 500px;
   margin: auto;
   overflow: hidden;
   position: relative;
+  transition: all var(--transition-medium);
   width: 700px;
 }
 
@@ -131,19 +162,35 @@
 }
 
 #stage-controls {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
   margin: 0 auto var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
   max-width: 700px;
+  padding: var(--spacing-md);
+}
+
+#plot-title {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: var(--spacing-sm) 0 var(--spacing-md);
+  text-align: center;
 }
 
 .stage-dimensions {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(0, 0, 0, 0.05);
   border-radius: var(--border-radius-xs);
-  color: var(--color-text-light);
-  font-size: var(--font-size-sm);
-  padding: 2px 5px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-sm);
   position: absolute;
-  right: 5px;
-  top: 5px;
+  right: var(--spacing-xs);
+  top: var(--spacing-xs);
 }
 
 /* -------------------- Stage Control Buttons --------------------- */
@@ -158,14 +205,14 @@
 
 #save-changes {
   background-color: var(--color-success);
-  width: 0;
   opacity: 0;
   padding-left: 0;
   padding-right: 0;
+  width: 0;
   
   &.visible {
-    width: 150px;
     opacity: 1;
+    width: 150px;
   }
 }
 
@@ -219,11 +266,14 @@
 }
 
 .element-label {
-  background-color: rgba(255, 255, 255, 0.7);
-  bottom: 2px;
+  background-color: rgba(82, 108, 129, 0.7);
+  border-radius: 0 0 var(--border-radius-xs) var(--border-radius-xs);
+  bottom: 0;
+  color: white;
   font-size: 10px;
+  font-weight: 500;
   left: 0;
-  padding: 1px 0;
+  padding: 2px 0;
   pointer-events: none;
   position: absolute;
   text-align: center;
@@ -232,12 +282,15 @@
 
 .placed-element {
   align-items: center;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--color-grey-3);
+  border-radius: var(--border-radius-xs);
+  box-shadow: var(--shadow-sm);
   cursor: move;
   display: flex;
   justify-content: center;
   position: absolute;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
 
   img {
     max-height: 100%;
@@ -246,8 +299,19 @@
     pointer-events: none;
   }
 
-  &:hover .element-actions {
-    opacity: 1;
+  &:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+    z-index: 1000 !important;
+    
+    .element-actions {
+      opacity: 1;
+    }
+  }
+  
+  &:active {
+    cursor: grabbing;
+    transform: scale(0.98);
   }
 }
 
@@ -278,3 +342,31 @@
   }
 }
 
+/* -------------------- Stage Grid --------------------- */
+.grid-toggle {
+  background-color: rgba(82, 108, 129, 0.7);
+  border: none;
+  border-radius: var(--border-radius-xs);
+  color: white;
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  left: 5px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  position: absolute;
+  top: 5px;
+  z-index: 2;
+}
+
+.grid-overlay {
+  background-image: linear-gradient(to right, rgba(82, 108, 129, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(82, 108, 129, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  height: 100%;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.3s ease;
+  width: 100%;
+  z-index: 1;
+}

@@ -17,6 +17,19 @@
     margin: 0;
     padding: 0;
   }
+  
+  #elements-panel, #stage-area {
+    width: 100%;
+  }
+  
+  .plot-config-panel {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .config-field {
+    width: 100%;
+  }
 }
 
 /* -------------------- Small Screens/Tablets --------------------- */
@@ -142,10 +155,34 @@
   }
 
   /* Stage/Plot Area */
+  #elements-panel {
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  
   #stage {
     aspect-ratio: 5/6;
     height: auto;
     max-width: 100%;
+  }
+  
+  h1, h2 {
+    font-size: 90%;
+  }
+  
+  .stage-dimensions {
+    font-size: 10px;
+    padding: 1px 3px;
+  }
+  
+  .plot-config-panel {
+    padding: var(--spacing-sm);
+  }
+  
+  .notification {
+    font-size: var(--font-size-xs);
+    max-width: 100%;
+    width: 100%;
   }
   
   /* Profile/Management */
@@ -250,6 +287,13 @@
     width: 8rem;
   }
 
+  /* Modals */
+  .modal-content {
+    max-height: 80vh;
+    max-width: 90%;
+    padding: var(--spacing-lg);
+  }
+
   /* Footer */
   #footer-content {
     padding: 0 var(--spacing-lg);
@@ -261,5 +305,55 @@
     p {
       font-size: var(--font-size-xs);
     }
+  }
+}
+
+/* -------------------- Mobile Screens --------------------- */
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  
+  #elements-list {
+    max-height: 300px;
+  }
+  
+  .elements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  
+  .draggable-element {
+    padding: var(--spacing-xs);
+  }
+  
+  .draggable-element img {
+    height: 40px;
+  }
+  
+  #stage {
+    height: 300px;
+  }
+  
+  .plot-name {
+    font-size: var(--font-size-sm);
+  }
+  
+  .plot-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  
+  .plot-actions {
+    margin-top: var(--spacing-sm);
+    width: 100%;
+  }
+  
+  .load-plot-btn, 
+  .overwrite-btn {
+    flex: 1;
+  }
+  
+  #save-new-button {
+    width: 100%;
   }
 }
