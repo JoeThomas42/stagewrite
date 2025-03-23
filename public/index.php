@@ -269,7 +269,7 @@ if ($isLoggedIn) {
         <span class="close-button">&times;</span>
         <h2>My Plots</h2>
         <div class="saved-plots-list">
-            <!-- Will be populated via AJAX -->
+            <!-- Will be populated via Javascript -->
             <p class="loading-message">Loading your saved plots...</p>
         </div>
         <div class="form-actions">

@@ -311,14 +311,13 @@ function createPlacedElement(elementData, plotState) {
     openPropertiesModal(elementData.id, plotState);
   });
 
+  // Add button event handlers
   editBtn.addEventListener('mousedown', function(e) {
     this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
   });
-  
   editBtn.addEventListener('mouseup', function() {
     this.style.boxShadow = '';
   });
-  
   editBtn.addEventListener('mouseleave', function() {
     this.style.boxShadow = '';
   });
@@ -347,14 +346,13 @@ function createPlacedElement(elementData, plotState) {
     });
   });
 
+  // Add button event handlers
   deleteBtn.addEventListener('mousedown', function(e) {
     this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
   });
-  
   deleteBtn.addEventListener('mouseup', function() {
     this.style.boxShadow = '';
   });
-  
   deleteBtn.addEventListener('mouseleave', function() {
     this.style.boxShadow = '';
   });
@@ -1711,48 +1709,6 @@ function newPlot(plotState) {
 
   showNotification('New plot created!', 'success');
 }
-
-/**
- * Adds manual active state handling to buttons
- * Use this when CSS :active states aren't working properly
- * 
- * @param {HTMLElement} button - The button element to enhance
- * @param {string} activeShadow - Optional custom shadow (defaults to the CSS variable)
- */
-// function addButtonActiveState(button) {
-//   if (!button) return;
-  
-//   // Store the original box-shadow if any
-//   const originalShadow = window.getComputedStyle(button).boxShadow;
-//   const activeShadow = 'inset 0 5px 15px rgba(0, 0, 0, 0.3)'; // Default active shadow
-  
-//   // Add mousedown handler to apply active shadow
-//   button.addEventListener('mousedown', function(e) {
-//     this.style.boxShadow = activeShadow;
-//   });
-  
-//   // Add mouseup handler to restore original shadow
-//   button.addEventListener('mouseup', function() {
-//     this.style.boxShadow = originalShadow;
-//   });
-  
-//   // Add mouseleave handler to ensure shadow is removed if cursor leaves while pressed
-//   button.addEventListener('mouseleave', function() {
-//     this.style.boxShadow = originalShadow;
-//   });
-// }
-
-// // Function to apply to all element action buttons
-// function enhanceElementActionButtons() {
-//   // Get all element action buttons
-//   const actionButtons = document.querySelectorAll('.element-actions button');
-  
-//   // Apply the active state enhancement to each button
-//   actionButtons.forEach(button => {
-//     addButtonActiveState(button);
-//   });
-// }
-
 
 // --------------------- Make stage plot editor functions available globally ----------------------
 window.setupConfirmButton = setupConfirmButton;
