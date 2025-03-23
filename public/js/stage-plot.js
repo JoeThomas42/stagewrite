@@ -3,7 +3,7 @@
  * Main entry point for the stage plot editing functionality
  */
 
-const { set } = require("core-js/core/dict");
+// const { set } = require("core-js/core/dict");
 
 /**
  * Initialize stage plot editor
@@ -321,9 +321,10 @@ function createPlacedElement(elementData, plotState) {
   deleteAction.className = 'element-actions';
   deleteAction.id = 'delete-action';
   
+  // Setup delete button confirmation
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'edit-element';
-  deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+  deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
   deleteBtn.title = 'Delete Element';
   deleteBtn.addEventListener('click', (e) => {
     setupConfirmButton(deleteBtn, () => { 

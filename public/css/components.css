@@ -96,7 +96,7 @@
   position: relative;
   width: 90%;
 
-  button {
+  button:not(.delete-plot-btn) {
     min-width: 75px;
   }
 }

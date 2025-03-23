@@ -95,6 +95,10 @@ textarea {
   &:hover {
     border-color: var(--color-grey-3);
   }
+
+  &:focus {
+    box-shadow: var(--focus-ring);
+  }
 }
 
 input,
@@ -337,24 +341,12 @@ form {
   display: flex;
   gap: var(--spacing-md);
   justify-content: flex-end;
-  margin-top: var(--spacing-xl);
 }
 
-.form-group {
-  label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: var(--spacing-xs);
-  }
-  
-  input,
-  select {
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-sm);
-    box-sizing: border-box;
-    padding: var(--spacing-xs);
-    width: 100%;
-  }
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
 }
 
 .form-row {

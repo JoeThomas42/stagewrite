@@ -30,7 +30,7 @@
 #elements-list {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
-  max-height: 650px;
+  max-height: 630px;
   overflow-y: auto;
   padding: var(--spacing-md);
 }
@@ -97,17 +97,12 @@
 
 /* -------------------- Stage Area --------------------- */
 #control-buttons {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
-#control-buttons {
   background-color: var(--color-background-light);
   border-radius: var(--border-radius-sm);
   display: flex;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  padding: var(--spacing-sm);
+  /* padding: var(--spacing-sm) 0;F */
 }
 
 #front-label {
@@ -180,7 +175,7 @@
   position: absolute;
   transition: opacity 0.2s;
   z-index: 1001;
-  
+
   button {
     align-items: center;
     display: flex;
@@ -273,24 +268,6 @@
     font-size: var(--font-size-md);
     font-weight: 500;
     margin-bottom: var(--spacing-xs);
-  }
-  
-  select,
-  input {
-    border: 1px solid var(--color-input-border);
-    border-radius: var(--border-radius-xs);
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-xs);
-    transition: border-color var(--transition-fast);
-    width: 100%;
-
-    &:hover {
-      border-color: var(--color-grey-3);
-    }
-
-    &:focus {
-      box-shadow: var(--focus-ring);
-    }
   }
 }
 
