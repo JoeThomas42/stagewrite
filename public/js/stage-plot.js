@@ -18,7 +18,9 @@ function initStageEditor() {
     selectedElement: null,
     currentPlotName: null,
     currentPlotId: null,
-    isModified: false
+    isModified: false,
+    favorites: [],
+    favoritesData: []
   };
   
   // Initialize components
@@ -26,9 +28,273 @@ function initStageEditor() {
   initDragAndDrop(plotState);
   initModalControls(plotState);
   initCategoryFilter();
+  initFavorites(plotState);
   moveFavoritesToTop();
   initLoadPlotModal(plotState);
   initPageNavigation(plotState);
+
+  // ------------------------  Favorites functionality ------------------------
+
+  /**
+ * Initialize favorites functionality
+ * @param {Object} plotState - The current plot state
+ */
+function initFavorites(plotState) {
+  // Initialize favorites array in plot state
+  plotState.favorites = [];
+  plotState.favoritesData = [];
+  
+  // Get user's favorited elements
+  fetchUserFavorites(plotState).then(() => {
+    // Add favorite buttons to elements
+    addFavoriteButtons(plotState);
+    
+    // Update favorites category
+    updateFavoritesCategory(plotState);
+  });
+}
+
+/**
+ * Fetch user's favorite elements
+ * @param {Object} plotState - The current plot state
+ * @returns {Promise} - Promise that resolves when favorites are loaded
+ */
+function fetchUserFavorites(plotState) {
+  return fetch('/handlers/get_favorites.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Store favorite element IDs in plot state
+        plotState.favorites = data.favorites.map(fav => parseInt(fav.element_id));
+        
+        // Store complete favorite data for creating elements
+        plotState.favoritesData = data.favorites;
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching favorites:', error);
+    });
+}
+
+/**
+ * Add favorite buttons to all elements
+ * @param {Object} plotState - The current plot state
+ */
+function addFavoriteButtons(plotState) {
+  const elements = document.querySelectorAll('.draggable-element:not(.favorite-element)');
+  
+  elements.forEach(element => {
+    const elementId = parseInt(element.getAttribute('data-element-id'));
+    const isFavorite = plotState.favorites.includes(elementId);
+    
+    // Only add button if it doesn't already exist
+    if (!element.querySelector('.favorite-button')) {
+      // Create favorite button
+      const favoriteBtn = document.createElement('button');
+      favoriteBtn.className = 'favorite-button';
+      favoriteBtn.setAttribute('type', 'button');
+      favoriteBtn.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+      favoriteBtn.innerHTML = isFavorite ? 
+        '<i class="fa-solid fa-star"></i>' : 
+        '<i class="fa-regular fa-star"></i>';
+      
+      // Add click handler to toggle favorite
+      favoriteBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFavorite(elementId, plotState);
+      });
+      
+      // Add button to element
+      element.appendChild(favoriteBtn);
+    }
+  });
+}
+
+/**
+ * Toggle element's favorite status
+ * @param {number} elementId - The element ID to toggle
+ * @param {Object} plotState - The current plot state
+ */
+function toggleFavorite(elementId, plotState) {
+  // Create form data for the request
+  const formData = new FormData();
+  formData.append('element_id', elementId);
+  
+  // Send toggle request
+  fetch('/handlers/toggle_favorite.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update favorites in state
+      const isFavorite = data.action === 'added';
+      
+      if (isFavorite) {
+        // Add to favorites if not already there
+        if (!plotState.favorites.includes(elementId)) {
+          plotState.favorites.push(elementId);
+          
+          // Get element data for the favorites category
+          const elementData = getElementData(elementId);
+          if (elementData) {
+            plotState.favoritesData.push(elementData);
+          }
+        }
+      } else {
+        // Remove from favorites
+        plotState.favorites = plotState.favorites.filter(id => id !== elementId);
+        plotState.favoritesData = plotState.favoritesData.filter(fav => fav.element_id !== elementId);
+      }
+      
+      // Update all instances of this element's favorite button
+      updateElementFavoriteButtons(elementId, isFavorite);
+      
+      // Update favorites category
+      updateFavoritesCategory(plotState);
+      
+      // Show notification
+      if (typeof showNotification === 'function') {
+        showNotification(data.message, 'success');
+      }
+    } else {
+      if (typeof showNotification === 'function') {
+        showNotification(data.error || 'Error toggling favorite', 'error');
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Error toggling favorite:', error);
+    if (typeof showNotification === 'function') {
+      showNotification('Error toggling favorite', 'error');
+    }
+  });
+}
+
+/**
+ * Update all instances of an element's favorite button
+ * @param {number} elementId - The element ID
+ * @param {boolean} isFavorite - Whether the element is favorited
+ */
+function updateElementFavoriteButtons(elementId, isFavorite) {
+  const buttons = document.querySelectorAll(`.draggable-element[data-element-id="${elementId}"] .favorite-button`);
+  
+  buttons.forEach(button => {
+    button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+    button.innerHTML = isFavorite ? 
+      '<i class="fa-solid fa-star"></i>' : 
+      '<i class="fa-regular fa-star"></i>';
+  });
+}
+
+/**
+ * Get element data for an element ID
+ * @param {number} elementId - The element ID
+ * @returns {Object|null} - Element data or null if not found
+ */
+function getElementData(elementId) {
+  const element = document.querySelector(`.draggable-element[data-element-id="${elementId}"]`);
+  
+  if (element) {
+    return {
+      element_id: elementId,
+      element_name: element.getAttribute('data-element-name'),
+      category_id: parseInt(element.getAttribute('data-category-id')),
+      element_image: element.getAttribute('data-image')
+    };
+  }
+  
+  return null;
+}
+
+/**
+ * Update the Favorites category with current favorites
+ * @param {Object} plotState - The current plot state
+ */
+function updateFavoritesCategory(plotState) {
+  // Get the Favorites category section
+  const favoritesSection = document.querySelector('.category-section[data-category-id="1"]');
+  
+  if (!favoritesSection) {
+    console.warn('Favorites section not found');
+    return;
+  }
+  
+  // Get or create elements grid
+  let favoritesGrid = favoritesSection.querySelector('.elements-grid');
+  
+  if (!favoritesGrid) {
+    favoritesGrid = document.createElement('div');
+    favoritesGrid.className = 'elements-grid';
+    favoritesSection.appendChild(favoritesGrid);
+  }
+  
+  // Clear existing favorites
+  favoritesGrid.innerHTML = '';
+  
+  // If no favorites, show message
+  if (plotState.favorites.length === 0) {
+    const noFavorites = document.createElement('p');
+    noFavorites.className = 'no-favorites-message';
+    noFavorites.textContent = 'No favorites added yet. Click the star icon on any element to add it to your favorites.';
+    favoritesGrid.appendChild(noFavorites);
+    return;
+  }
+  
+  // Create elements for each favorite
+  plotState.favorites.forEach(elementId => {
+    // Find element data
+    const elementData = plotState.favoritesData.find(fav => parseInt(fav.element_id) === elementId);
+    
+    if (elementData) {
+      // Create favorite element
+      const favoriteElement = document.createElement('div');
+      favoriteElement.className = 'draggable-element favorite-element';
+      favoriteElement.setAttribute('draggable', true);
+      favoriteElement.setAttribute('data-element-id', elementData.element_id);
+      favoriteElement.setAttribute('data-element-name', elementData.element_name);
+      favoriteElement.setAttribute('data-category-id', elementData.category_id);
+      favoriteElement.setAttribute('data-image', elementData.element_image);
+      
+      // Create element image
+      const img = document.createElement('img');
+      img.src = `/images/elements/${elementData.element_image}`;
+      img.alt = elementData.element_name;
+      favoriteElement.appendChild(img);
+      
+      // Create element name
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'element-name';
+      nameDiv.textContent = elementData.element_name;
+      favoriteElement.appendChild(nameDiv);
+      
+      // Create favorite button
+      const favoriteBtn = document.createElement('button');
+      favoriteBtn.className = 'favorite-button';
+      favoriteBtn.setAttribute('type', 'button');
+      favoriteBtn.title = 'Remove from favorites';
+      favoriteBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
+      
+      // Add click handler to toggle favorite
+      favoriteBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleFavorite(elementId, plotState);
+      });
+      
+      favoriteElement.appendChild(favoriteBtn);
+      
+      // Add drag start event listener
+      favoriteElement.addEventListener('dragstart', e => handleDragStart(e, plotState));
+      
+      // Add to favorites grid
+      favoritesGrid.appendChild(favoriteElement);
+    }
+  });
+}
+// ------------------------  End of favorites functionality ------------------------
 
   /**
    * Ensures Favorites are at the top of the list
@@ -1775,3 +2041,10 @@ window.deletePlot = deletePlot;
 window.initPageNavigation = initPageNavigation;
 window.saveStateToStorage = saveStateToStorage;
 window.restoreStateFromStorage = restoreStateFromStorage;
+window.initFavorites = initFavorites;
+window.fetchUserFavorites = fetchUserFavorites;
+window.addFavoriteButtons = addFavoriteButtons;
+window.toggleFavorite = toggleFavorite;
+window.updateElementFavoriteButtons = updateElementFavoriteButtons;
+window.getElementData = getElementData;
+window.updateFavoritesCategory = updateFavoritesCategory;
