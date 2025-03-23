@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 $currentUser = new User();
 if (!$currentUser->isLoggedIn()) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => 'Log in to save Favorites!']);
     exit;
 }
 
@@ -48,7 +48,7 @@ try {
         echo json_encode([
             'success' => true, 
             'action' => 'removed',
-            'message' => 'Removed from favorites'
+            'message' => 'Removed from favorites!'
         ]);
     } else {
         // Favorite doesn't exist, add it
@@ -61,7 +61,7 @@ try {
         echo json_encode([
             'success' => true, 
             'action' => 'added',
-            'message' => 'Added to favorites'
+            'message' => 'Added to favorites!'
         ]);
     }
 } catch (Exception $e) {
