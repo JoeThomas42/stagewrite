@@ -3,8 +3,6 @@
  * Main entry point for the stage plot editing functionality
  */
 
-// const { set } = require("core-js/core/dict");
-
 /**
  * Initialize stage plot editor
  */
@@ -312,7 +310,19 @@ function createPlacedElement(elementData, plotState) {
     e.stopPropagation();
     openPropertiesModal(elementData.id, plotState);
   });
+
+  editBtn.addEventListener('mousedown', function(e) {
+    this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+  });
   
+  editBtn.addEventListener('mouseup', function() {
+    this.style.boxShadow = '';
+  });
+  
+  editBtn.addEventListener('mouseleave', function() {
+    this.style.boxShadow = '';
+  });
+
   editAction.appendChild(editBtn);
   element.appendChild(editAction);
 
@@ -335,6 +345,18 @@ function createPlacedElement(elementData, plotState) {
       stopPropagation: true,
       event: e  
     });
+  });
+
+  deleteBtn.addEventListener('mousedown', function(e) {
+    this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+  });
+  
+  deleteBtn.addEventListener('mouseup', function() {
+    this.style.boxShadow = '';
+  });
+  
+  deleteBtn.addEventListener('mouseleave', function() {
+    this.style.boxShadow = '';
   });
   
   deleteAction.appendChild(deleteBtn);
@@ -489,20 +511,12 @@ function openPropertiesModal(elementId, plotState) {
   document.getElementById('element_index').value = elementIndex;
   document.getElementById('element_label').value = plotState.elements[elementIndex].label || '';
   document.getElementById('element_notes').value = plotState.elements[elementIndex].notes || '';
-  // document.getElementById('element_rotation').value = plotState.elements[elementIndex].rotation || 0;
-  // document.getElementById('rotation_value').textContent = `${plotState.elements[elementIndex].rotation || 0}°`;
-  // document.getElementById('element_flipped').checked = plotState.elements[elementIndex].flipped || false;
   
   // Show modal
   openModal(propsModal);
   
   // Focus on label input
   document.getElementById('element_label').focus();
-  
-  // Handle rotation slider input event
-  // document.getElementById('element_rotation').addEventListener('input', (e) => {
-  //   document.getElementById('rotation_value').textContent = `${e.target.value}°`;
-  // });
   
   // Handle form submission
   form.onsubmit = (e) => {
@@ -539,8 +553,6 @@ function applyElementProperties(plotState) {
   if (elementIndex < 0 || elementIndex >= plotState.elements.length) return;
   
   // Update state
-  // plotState.elements[elementIndex].rotation = rotation;
-  // plotState.elements[elementIndex].flipped = flipped;
   plotState.elements[elementIndex].label = label;
   plotState.elements[elementIndex].notes = notes;
   
@@ -549,16 +561,6 @@ function applyElementProperties(plotState) {
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
   
   if (domElement) {
-    // Apply rotation and flip
-    // let transform = '';
-    // if (rotation) {
-    //   transform = `rotate(${rotation}deg)`;
-    // }
-    // if (flipped) {
-    //   transform += transform ? ' scaleX(-1)' : 'scaleX(-1)';
-    // }
-    // domElement.style.transform = transform;
-    
     // Update label
     let labelElement = domElement.querySelector('.element-label');
     
@@ -1406,13 +1408,6 @@ function restoreStateFromStorage(plotState) {
 }
 
 /**
- * Additional functions and modules would go here
- * For brevity, I'm not including all functions from the original stage-plot.js
- * as they would make this artifact too long. The full version would include:
- * - clearSavedState
- */
-
-/**
  * Initialize plot controls and buttons
  * @param {Object} plotState - The current plot state 
  */
@@ -1716,6 +1711,47 @@ function newPlot(plotState) {
 
   showNotification('New plot created!', 'success');
 }
+
+/**
+ * Adds manual active state handling to buttons
+ * Use this when CSS :active states aren't working properly
+ * 
+ * @param {HTMLElement} button - The button element to enhance
+ * @param {string} activeShadow - Optional custom shadow (defaults to the CSS variable)
+ */
+// function addButtonActiveState(button) {
+//   if (!button) return;
+  
+//   // Store the original box-shadow if any
+//   const originalShadow = window.getComputedStyle(button).boxShadow;
+//   const activeShadow = 'inset 0 5px 15px rgba(0, 0, 0, 0.3)'; // Default active shadow
+  
+//   // Add mousedown handler to apply active shadow
+//   button.addEventListener('mousedown', function(e) {
+//     this.style.boxShadow = activeShadow;
+//   });
+  
+//   // Add mouseup handler to restore original shadow
+//   button.addEventListener('mouseup', function() {
+//     this.style.boxShadow = originalShadow;
+//   });
+  
+//   // Add mouseleave handler to ensure shadow is removed if cursor leaves while pressed
+//   button.addEventListener('mouseleave', function() {
+//     this.style.boxShadow = originalShadow;
+//   });
+// }
+
+// // Function to apply to all element action buttons
+// function enhanceElementActionButtons() {
+//   // Get all element action buttons
+//   const actionButtons = document.querySelectorAll('.element-actions button');
+  
+//   // Apply the active state enhancement to each button
+//   actionButtons.forEach(button => {
+//     addButtonActiveState(button);
+//   });
+// }
 
 
 // --------------------- Make stage plot editor functions available globally ----------------------

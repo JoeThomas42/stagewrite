@@ -80,6 +80,7 @@
     margin-bottom: var(--spacing-xs);
     max-width: 100%;
     object-fit: contain;
+    pointer-events: none;
     transition: transform var(--transition-fast);
   }
 
@@ -179,15 +180,21 @@
   button {
     align-items: center;
     display: flex;
-    font-size: var(--font-size-xs);
     height: 24px;
     justify-content: center;
     opacity: 0.9;
     width: 24px;
+    
+    i {
+      font-size: var(--font-size-sm);
+    }
 
     &:hover {
-      background-color: var(--color-primary-dark);
       opacity: 1;
+    }
+
+    &:active {
+      box-shadow: inset var(--shadow-lg);
     }
   }
 }
@@ -206,7 +213,7 @@
     
     &.confirming {
       animation: pulse 1s alternate infinite;
-      width: 50px;
+      width: 60px;
     }
   }
 }

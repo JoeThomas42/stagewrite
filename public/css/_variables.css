@@ -50,6 +50,7 @@
   --color-danger-light: #D92637;
 
   /* ---------- Font Sizes ---------- */
+  --font-size-xxs: 0.25rem;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;

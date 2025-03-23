@@ -19,7 +19,8 @@ window.initializeApp = function() {
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initStageEditor, "Stage Editor");
   safeInit(window.initStageGrid, "Stage Grid");
-  // safeInit(window.initUIEnhancements, "UI Enhancements");
+  // safeInit(window.enhanceElementActionButtons, "Element Action Buttons");
+
 
   console.log("Application initialization complete!");
 };
@@ -30,6 +31,35 @@ window.initializeApp = function() {
 document.addEventListener("DOMContentLoaded", () => {
   try {
     console.log("Initializing application...");
+
+    // Handle dynamically added buttons to new placed elements
+    // const observer = new MutationObserver(function(mutations) {
+    //   mutations.forEach(function(mutation) {
+    //     if (mutation.addedNodes.length) {
+    //       // Check if any of the added nodes or their children are element-actions buttons
+    //       mutation.addedNodes.forEach(function(node) {
+    //         if (node.nodeType === 1) { // Element node
+    //           // Look for buttons within added elements
+    //           const newButtons = node.querySelectorAll('.element-actions button');
+    //           if (newButtons.length) {
+    //             newButtons.forEach(button => addButtonActiveState(button));
+    //           }
+            
+    //           // Also check if the node itself is a button that needs enhancement
+    //           if (node.matches('.element-actions button')) {
+    //             addButtonActiveState(node);
+    //           }
+    //         } 
+    //       });
+    //     }
+    //   });
+    // });
+    
+    // // Configure what the observer should watch
+    // observer.observe(document.body, {
+    //   childList: true,
+    //   subtree: true
+    // });
     
     // Set up manual scroll restoration
     setupScrollRestoration();
@@ -46,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     safeInit(initNotificationSystem, "Notification System");
     safeInit(initStageEditor, "Stage Editor");
     safeInit(initStageGrid, "Stage Grid");
+    // safeInit(enhanceElementActionButtons, "Element Action Buttons");
     
     console.log("Initialization complete!");
   } catch (e) {
@@ -194,7 +225,7 @@ window.initializeApp = function() {
   safeInit(initNotificationSystem, "Notification System");
   safeInit(initStageEditor, "Stage Editor");
   safeInit(initStageGrid, "Stage Grid");
-  // safeInit(initUIEnhancements, "UI Enhancements");
+  // safeInit(enhanceElementActionButtons, "Element Action Buttons");
   
   console.log("Application initialization complete!");
 };

@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     '/js/ui.js',
     '/js/notifications.js',
     '/js/stage-plot.js',
-    // '/js/enhancements.js'
   ];
   
   // Load scripts sequentially
