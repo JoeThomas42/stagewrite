@@ -1,0 +1,82 @@
+stagewrite
+├── .htaccess
+├── database.sql
+├── private
+│   ├── .htaccess
+│   ├── bootstrap.php
+│   ├── config
+│   │   └── config.php
+│   ├── handlers
+│   │   ├── get_venue.php
+│   │   ├── login_handler.php
+│   │   ├── logout_handler.php
+│   │   ├── production
+│   │   │   ├── delete_plot.php
+│   │   │   ├── delete_user.php
+│   │   │   ├── demote_user.php
+│   │   │   ├── get_plot.php
+│   │   │   ├── get_plots.php
+│   │   │   ├── get_user_venue.php
+│   │   │   ├── promote_user.php
+│   │   │   ├── save_plot.php
+│   │   │   ├── save_user_venue.php
+│   │   │   └── toggle_status.php
+│   │   ├── signup_handler.php
+│   │   └── venue_handler.php
+│   ├── includes
+│   │   ├── Database.php
+│   │   ├── functions.php
+│   │   ├── User.php
+│   │   └── VenueManager.php
+│   └── templates
+│       ├── footer.php
+│       ├── header.php
+│       ├── login.php
+│       └── profile.php
+├── public
+│   ├── .htaccess
+│   ├── css
+│   │   ├── base.css
+│   │   ├── coming_soon.css
+│   │   ├── components.css
+│   │   ├── improvements.css
+│   │   ├── main.css
+│   │   ├── plots.css
+│   │   ├── responsive.css
+│   │   ├── stage-plot.css
+│   │   └── _variables.css
+│   ├── handlers
+│   │   ├── delete_plot.php
+│   │   ├── delete_user.php
+│   │   ├── demote_user.php
+│   │   ├── get_plot.php
+│   │   ├── get_plots.php
+│   │   ├── get_user_venue.php
+│   │   ├── get_venue.php
+│   │   ├── login_handler.php
+│   │   ├── logout_handler.php
+│   │   ├── promote_user.php
+│   │   ├── save_plot.php
+│   │   ├── save_user_venue.php
+│   │   ├── signup_handler.php
+│   │   ├── toggle_status.php
+│   │   └── venue_handler.php
+│   ├── images
+│   │   ├── elements
+│   │   │   ├── drum-kit.jpg
+│   │   │   └── electric-guitar.png
+│   │   └── Wireframe.png
+│   ├── index.php
+│   ├── js
+│   │   ├── auth.js
+│   │   ├── core.js
+│   │   ├── enhancementsDEPRICATED.js
+│   │   ├── main.js
+│   │   ├── notifications.js
+│   │   ├── stage-plot.js
+│   │   ├── ui.js
+│   │   ├── users.js
+│   │   └── venues.js
+│   ├── login.php
+│   └── profile.php
+└── README.txt
