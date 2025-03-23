@@ -314,7 +314,8 @@ function createPlacedElement(elementData, plotState) {
     element.appendChild(label);
   }
   
-  // ---------- Add edit button
+  // ------------- Add actions to the element ----------------
+  // Add edit button
   const editAction = document.createElement('div');
   editAction.className = 'element-actions';
   editAction.id = 'edit-action';
@@ -342,7 +343,7 @@ function createPlacedElement(elementData, plotState) {
   editAction.appendChild(editBtn);
   element.appendChild(editAction);
 
-  // -------- Add delete button
+  // Add delete button
   const deleteAction = document.createElement('div');
   deleteAction.className = 'element-actions';
   deleteAction.id = 'delete-action';
@@ -377,33 +378,6 @@ function createPlacedElement(elementData, plotState) {
   deleteAction.appendChild(deleteBtn);
   element.appendChild(deleteAction);
 
-  // Add favorite button
-  const favoriteAction = document.createElement('div');
-  favoriteAction.className = 'element-actions';
-  favoriteAction.id = 'favorite-action';
-  
-  // Setup favorite button
-  const favoriteBtn = document.createElement('button');
-  favoriteBtn.className = 'edit-element';
-  favoriteBtn.innerHTML = '<i class="fa-regular fa-star"></i>';
-  favoriteBtn.title = 'Favorite Element';
-  favoriteBtn.addEventListener('click', (e) => {
-  });
-  
-  // Add button event handlers
-  favoriteBtn.addEventListener('mousedown', function(e) {
-    this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-  });
-  favoriteBtn.addEventListener('mouseup', function() {
-    this.style.boxShadow = '';
-  });
-  favoriteBtn.addEventListener('mouseleave', function() {
-    this.style.boxShadow = '';
-  });
-  
-  favoriteAction.appendChild(favoriteBtn);
-  element.appendChild(favoriteAction);
-  
   // Make draggable within stage
   makeDraggableOnStage(element, plotState);
   
