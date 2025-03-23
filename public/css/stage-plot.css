@@ -265,6 +265,11 @@
   }
 }
 
+#favorite-action {
+  bottom: -14px;
+  left: -14px;
+}
+
 .element-label {
   background-color: rgba(82, 108, 129, 0.7);
   border-radius: 0 0 var(--border-radius-xs) var(--border-radius-xs);
