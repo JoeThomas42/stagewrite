@@ -52,7 +52,6 @@ button,
   white-space: nowrap;
 
   &:hover {
-    background-color: var(--color-primary-dark);
     box-shadow: var(--shadow-lg);
   }
 
@@ -112,7 +111,10 @@ select {
 }
 
 textarea {
-  min-height: 100px;
+  max-width: 100%;
+  min-height: 120px;
+  overflow: auto;
+  resize: none;
   width: auto;
 }
 
@@ -239,13 +241,17 @@ header {
     transition: all var(--transition-fast);
 
     &.current-page {
-      background-color: rgba(255, 255, 255, 0.1);
       border-bottom: 3px solid var(--color-primary-light);
+      box-shadow: inset var(--shadow-md);
       position: relative;
     }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: var(--color-primary-dark);
+    }
+
+    &:active {
+      box-shadow: inset var(--shadow-lg);
     }
   }
 }
@@ -280,6 +286,7 @@ header {
 .mobile-menu-toggle {
   background: transparent;
   border: none;
+  box-shadow: none;
   cursor: pointer;
   display: none;
   height: 30px;
@@ -287,6 +294,10 @@ header {
   position: relative;
   width: 30px;
   z-index: 1010;
+
+  &:hover {
+    box-shadow: none;
+  }
 
   span {
     background-color: var(--color-white);

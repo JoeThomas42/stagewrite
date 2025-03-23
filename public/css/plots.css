@@ -45,6 +45,7 @@
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
   color: inherit;
   display: flex;
   justify-content: space-between;
@@ -52,10 +53,6 @@
   padding: var(--spacing-md);
   text-decoration: none;
   transition: all var(--transition-fast);
-  
-  &:hover {
-    background-color: var(--color-card-hover);
-  }
 }
 
 .plot-link {
@@ -82,18 +79,13 @@
 }
 
 /* -------------------- Save & Plot Specific Sections --------------------- */
-.existing-plot-item {
-  align-items: center;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-xs);
-  padding: var(--spacing-sm);
+.existing-plots-section,
+.saved-plots-list {
+  box-shadow: inset var(--shadow-md);
+}
 
-  &:hover {
-    background-color: var(--color-background-light);
-  }
+.save-section:not(.existing-plots-section) {
+  box-shadow: var(--shadow-md);
 }
 
 .save-section,

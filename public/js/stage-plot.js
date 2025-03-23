@@ -26,8 +26,25 @@ function initStageEditor() {
   initDragAndDrop(plotState);
   initModalControls(plotState);
   initCategoryFilter();
+  moveFavoritesToTop();
   initLoadPlotModal(plotState);
   initPageNavigation(plotState);
+
+  /**
+   * Ensures Favorites are at the top of the list
+   */
+  function moveFavoritesToTop() {
+    const elementsPanel = document.getElementById('elements-list');
+    if (!elementsPanel) return;
+    
+    // Find the Favorites section
+    const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"]');
+    if (!favoritesSection) return;
+    
+    // Move it to the top
+    const firstChild = elementsPanel.firstChild;
+    elementsPanel.insertBefore(favoritesSection, firstChild);
+  }
   
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
@@ -1600,6 +1617,25 @@ function initCategoryFilter() {
   const categoryFilter = document.getElementById('category-filter');
   if (!categoryFilter) return;
   
+  // Get all options except the "All Categories" option (value=0)
+  const options = Array.from(categoryFilter.options).filter(option => option.value !== '0');
+  
+  // Find the Favorites option (category_id=1)
+  const favoritesOption = options.find(option => option.value === '1');
+  
+  // If Favorites exists, move it to the beginning
+  if (favoritesOption) {
+    // Remove it from its current position
+    categoryFilter.removeChild(favoritesOption);
+    
+    // Add it right after the "All Categories" option
+    const allCategoriesOption = categoryFilter.querySelector('option[value="0"]');
+    if (allCategoriesOption) {
+      categoryFilter.insertBefore(favoritesOption, allCategoriesOption.nextSibling);
+    }
+  }
+  
+  // Event listener logic
   categoryFilter.addEventListener('change', () => {
     const categoryId = categoryFilter.value;
     
