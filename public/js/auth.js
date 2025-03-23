@@ -108,22 +108,28 @@ function initSignupForm() {
 }
 
 /**
- * Initializes login form validation and submission
+ * Initializes signup form validation and submission
  */
-function initLoginForm() {
-  const loginFormElement = document.querySelector('#login-form form');
-  if (!loginFormElement) return;
+function initSignupForm() {
+  const signupFormElement = document.querySelector('#signup-form form');
+  if (!signupFormElement) return;
   
-  loginFormElement.addEventListener('submit', async e => {
+  signupFormElement.addEventListener('submit', async e => {
     e.preventDefault();
     
     // Clear any existing error messages
-    clearAllErrors(loginFormElement);
+    clearAllErrors(signupFormElement);
+    
+    // Trim inputs before submission (except passwords)
+    const inputs = signupFormElement.querySelectorAll('input:not([type="password"])');
+    inputs.forEach(input => {
+      input.value = input.value.trim();
+    });
     
     const formData = new FormData(e.target);
     
     try {
-      const response = await fetch('/handlers/login_handler.php', {
+      const response = await fetch('/handlers/signup_handler.php', {
         method: 'POST',
         body: formData
       });
@@ -133,29 +139,51 @@ function initLoginForm() {
       if (data.errors) {
         // Handle field-specific errors
         for (const [field, errorType] of Object.entries(data.errors)) {
-          const inputField = document.getElementById(field);
+          // Map field names to element IDs
+          let fieldId = field;
+          if (field === 'password') fieldId = 'password_signup';
+          if (field === 'email') fieldId = 'email_signup';
+          
+          const inputField = document.getElementById(fieldId);
+          
+          if (!inputField) {
+            console.error(`Could not find element with ID: ${fieldId}`);
+            continue;
+          }
           
           if (errorType === 'required') {
-            showFieldError(inputField, 'Required');
+            showFieldError(inputField, 'This field is required');
           } else if (field === 'email' && errorType === 'invalid') {
-            showFieldError(inputField, 'Invalid email format');
-          } else if (errorType === 'invalid_credentials') {
-            showFieldError(inputField, 'Invalid email or password');
+            showFieldError(inputField, 'Please enter a valid email address');
+          } else if (field === 'email' && errorType === 'exists') {
+            showFieldError(inputField, 'This email is already registered');
+          } else if (field === 'password' && (errorType === 'too_short' || errorType === 'no_number')) {
+            showFieldError(inputField, 'Must be 8 characters and include at least one number');
+          } else if (field === 'password' && errorType.startsWith('invalid_char:')) {
+            const invalidChar = errorType.split(':')[1];
+            showFieldError(inputField, `'${invalidChar}' cannot be used`);
+          } else if (field === 'confirm_password' && errorType === 'mismatch') {
+            showFieldError(inputField, 'Passwords do not match');
           }
         }
       } else if (data.success) {
-        // Redirect based on user role
-        if (data.role_id == 2 || data.role_id == 3) {
-          // Admin or Super Admin - go directly to management page
-          window.location.href = '/profile.php';
+        // Modified section to handle automatic login
+        if (data.role_id) {
+          // User was automatically logged in, redirect based on role
+          if (data.role_id == 2 || data.role_id == 3) {
+            // Admin or Super Admin - go directly to management page
+            window.location.href = '/profile.php';
+          } else {
+            // Regular user - go to home page
+            window.location.href = '/index.php';
+          }
         } else {
-          // Regular user - go to home page
+          // Fallback - just go to homepage if no role_id
           window.location.href = '/index.php';
         }
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An unexpected error occurred');
     }
   });
 }

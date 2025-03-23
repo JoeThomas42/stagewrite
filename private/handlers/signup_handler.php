@@ -82,7 +82,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $userObj->register($userData);
     
     if ($userId) {
-        echo json_encode(['success' => true]);
+        // NEW CODE: Automatically log in the user after successful registration
+        $user = $userObj->login($email, $password);
+        
+        if ($user) {
+            // Return the role_id along with success status
+            echo json_encode([
+                'success' => true,
+                'role_id' => $user['role_id']
+            ]);
+        } else {
+            // Registration successful but auto-login failed
+            echo json_encode(['success' => true]);
+        }
     } else {
         // Check if the failure was due to existing email
         $db = Database::getInstance();
