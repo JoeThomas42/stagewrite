@@ -920,15 +920,18 @@ function initModalControls(plotState) {
         const saveNewButton = saveForm ? saveForm.querySelector('#save-new-button') : null;
         
         if (saveForm && saveNewButton) {
-          // Remove any existing listener
-          saveForm.onsubmit = null;
+          // Remove any existing listeners to prevent multiple bindings
+          const newSaveBtn = saveNewButton.cloneNode(true);
+          saveNewButton.parentNode.replaceChild(newSaveBtn, saveNewButton);
           
-          saveForm.addEventListener('submit', (e) => {
+          // Prevent form from submitting when pressing Enter
+          saveForm.onsubmit = (e) => {
             e.preventDefault();
-          });
+            return false;
+          };
           
           // Add click handler to the save button with confirmation
-          saveNewButton.addEventListener('click', (e) => {
+          newSaveBtn.addEventListener('click', (e) => {
             e.preventDefault();
             
             // Get the plot name
@@ -940,11 +943,13 @@ function initModalControls(plotState) {
               return;
             }
             
-            setupConfirmButton(saveNewButton, () => {
+            setupConfirmButton(newSaveBtn, () => {
               savePlot(true, null, null, null, plotState); // Save as new plot
             }, {
               confirmText: 'Confirm Save',
-              originalText: 'Save as New'
+              confirmTitle: 'This will create a new plot',
+              originalText: 'Save as New',
+              originalTitle: 'Save plot as new'
             });
           });
         }
