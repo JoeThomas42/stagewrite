@@ -33,7 +33,7 @@ function initStageEditor() {
   initLoadPlotModal(plotState);
   initPageNavigation(plotState);
 
-  // ------------------------  Favorites functionality ------------------------
+  // ------------------------  Favoriting functionality ------------------------
 
   /**
  * Initialize favorites functionality
@@ -97,7 +97,7 @@ function addFavoriteButtons(plotState) {
       favoriteBtn.innerHTML = isFavorite ? 
         '<i class="fa-solid fa-star"></i>' : 
         '<i class="fa-regular fa-star"></i>';
-      
+
       // Add click handler to toggle favorite
       favoriteBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -294,7 +294,7 @@ function updateFavoritesCategory(plotState) {
     }
   });
 }
-// ------------------------  End of favorites functionality ------------------------
+// ------------------------  End of favoriting functionality ------------------------
 
   /**
    * Ensures Favorites are at the top of the list

@@ -86,7 +86,7 @@
     box-shadow: var(--shadow-lg);
   }
 
-  &:active {
+  &:active:not(:has(.favorite-button:active)) {
     cursor: grabbing;
     transform: scale(0.98);
   }
@@ -128,8 +128,10 @@
   box-shadow: none;
   color: var(--color-grey-3);
   cursor: pointer;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
   height: 24px;
   opacity: 0.6;
+  overflow: visible;
   padding: 0;
   position: absolute;
   right: -2px;
@@ -137,18 +139,29 @@
   transition: all var(--transition-fast);
   width: 24px;
   z-index: 10;
-
-  &:hover {
+  
+  &:hover,
+  &:hover .fa-solid.fa-star {
     box-shadow: none;
     opacity: 1;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+    transition: all var(--transition-fast);
+    
+    &:active {
+      filter: drop-shadow(0 -2px -2px rgba(0, 0, 0, 0.5));
+    }
   }
   
-  &:active {
-    box-shadow: none;
+  &:hover {
+    color: var(--color-success-dark);
   }
   
-  & .fa-solid.fa-star {
-    color: var(--color-primary-light);
+  &:hover .fa-solid.fa-star {
+    color: var(--color-danger-dark);
+  }
+
+  .fa-solid.fa-star {
+    color: var(--color-primary);
   }
 }
 
