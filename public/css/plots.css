@@ -42,7 +42,7 @@
 
 .plot-item {
   align-items: center;
-  background-color: var(--color-card);
+  background-color: var(--color-card-hover);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-sm);

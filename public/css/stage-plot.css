@@ -81,7 +81,6 @@
   transition: all var(--transition-fast);
 
   &:hover {
-    background-color: var(--color-card-hover);
     border-color: var(--color-primary-light);
     box-shadow: var(--shadow-lg);
   }
