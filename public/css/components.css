@@ -174,7 +174,7 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   margin: 0 auto;
-  max-height: 90vh;
+  /* max-height: 90%; */
   max-width: 600px;
   opacity: 0;
   overflow-y: visible;
