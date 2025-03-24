@@ -33,9 +33,22 @@ function initStageEditor() {
   initLoadPlotModal(plotState);
   initPageNavigation(plotState);
 
-  // ------------------------  Favoriting functionality ------------------------
+  // Try to restore state from localStorage first
+  const stateRestored = restoreStateFromStorage(plotState);
+  
+  // Only set up initial state if we didn't restore from storage
+  if (!stateRestored) {
+    setupInitialState(plotState);
+  }
+  
+  // Initialize venue select change handler
+  setupVenueSelectHandler(plotState);
+  
+  // Initialize date change handlers
+  setupDateHandlers(plotState);
+}
 
-  /**
+/**
  * Initialize favorites functionality
  * @param {Object} plotState - The current plot state
  */
@@ -294,37 +307,21 @@ function updateFavoritesCategory(plotState) {
     }
   });
 }
-// ------------------------  End of favoriting functionality ------------------------
 
-  /**
-   * Ensures Favorites are at the top of the list
-   */
-  function moveFavoritesToTop() {
-    const elementsPanel = document.getElementById('elements-list');
-    if (!elementsPanel) return;
-    
-    // Find the Favorites section
-    const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"]');
-    if (!favoritesSection) return;
-    
-    // Move it to the top
-    const firstChild = elementsPanel.firstChild;
-    elementsPanel.insertBefore(favoritesSection, firstChild);
-  }
+/**
+ * Ensures Favorites are at the top of the list
+ */
+function moveFavoritesToTop() {
+  const elementsPanel = document.getElementById('elements-list');
+  if (!elementsPanel) return;
   
-  // Try to restore state from localStorage first
-  const stateRestored = restoreStateFromStorage(plotState);
+  // Find the Favorites section
+  const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"]');
+  if (!favoritesSection) return;
   
-  // Only set up initial state if we didn't restore from storage
-  if (!stateRestored) {
-    setupInitialState(plotState);
-  }
-  
-  // Initialize venue select change handler
-  setupVenueSelectHandler(plotState);
-  
-  // Initialize date change handlers
-  setupDateHandlers(plotState);
+  // Move it to the top
+  const firstChild = elementsPanel.firstChild;
+  elementsPanel.insertBefore(favoritesSection, firstChild);
 }
 
 /**
@@ -2054,3 +2051,4 @@ window.toggleFavorite = toggleFavorite;
 window.updateElementFavoriteButtons = updateElementFavoriteButtons;
 window.getElementData = getElementData;
 window.updateFavoritesCategory = updateFavoritesCategory;
+window.moveFavoritesToTop = moveFavoritesToTop;
