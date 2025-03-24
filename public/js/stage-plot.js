@@ -764,7 +764,31 @@ function bringToFront(elementId, plotState) {
   const elementIndex = plotState.elements.findIndex(el => el.id === elementId);
   
   if (elementIndex !== -1) {
-    // Update z-index in state
+    // Define a maximum z-index value
+    const MAX_Z_INDEX = 500;
+    
+    // Check if we're approaching the limit
+    if (plotState.nextZIndex >= MAX_Z_INDEX) {
+      // Reset all z-indexes while maintaining relative order
+      // Sort elements by current z-index
+      plotState.elements.sort((a, b) => a.zIndex - b.zIndex);
+      
+      // Reassign z-indexes starting from 1
+      plotState.elements.forEach((element, index) => {
+        element.zIndex = index + 1;
+        
+        // Update DOM elements
+        const domElement = document.querySelector(`.placed-element[data-id="${element.id}"]`);
+        if (domElement) {
+          domElement.style.zIndex = element.zIndex;
+        }
+      });
+      
+      // Reset counter
+      plotState.nextZIndex = plotState.elements.length + 1;
+    }
+    
+    // Now bring the requested element to front
     plotState.elements[elementIndex].zIndex = plotState.nextZIndex++;
     
     // Update z-index in DOM
