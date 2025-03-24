@@ -143,7 +143,7 @@
   top: 0;
   transition: opacity 0.3s ease;
   width: 100%;
-  z-index: 1000;
+  z-index: 99999999999;
 
   &.visible {
     align-items: center;
@@ -181,6 +181,14 @@
   h2 {
     color: var(--color-primary-dark);
     margin-top: 0;
+  }
+}
+
+#add-venue-modal .modal-content {
+  max-width: 420px;
+
+  .custom-dropdown-menu {
+    max-height: 200px;
   }
 }
 

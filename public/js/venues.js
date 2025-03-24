@@ -371,8 +371,11 @@ function initAddVenueModal() {
               userVenueGroup.appendChild(newOption);
             }
             
-            // Select the new venue
+            // Select the new venue in the native select
             venueSelect.value = `user_${data.venue.user_venue_id}`;
+            
+            // Now update any custom dropdown UI that might be present
+            updateCustomDropdownWithNewVenue(venueSelect, data.venue);
             
             // Trigger change event to update stage dimensions
             const changeEvent = new Event('change');
@@ -409,9 +412,123 @@ function initAddVenueModal() {
   }
 }
 
+/**
+ * Update custom dropdown UI after adding a new venue
+ * @param {HTMLSelectElement} selectElement - The native select element
+ * @param {Object} venueData - The venue data from the server
+ */
+function updateCustomDropdownWithNewVenue(selectElement, venueData) {
+  // Find the custom dropdown associated with this select
+  const customDropdown = selectElement.closest('.custom-dropdown');
+  if (!customDropdown) return;
+  
+  // Get the selected value text for display
+  const venueValue = `user_${venueData.user_venue_id}`;
+  const venueText = venueData.venue_name;
+  
+  // Update the visible selected option text
+  const selectedOption = customDropdown.querySelector('.selected-option');
+  if (selectedOption) {
+    selectedOption.textContent = venueText;
+  }
+  
+  // Find the dropdown menu
+  const dropdownMenu = customDropdown.querySelector('.custom-dropdown-menu');
+  if (!dropdownMenu) return;
+  
+  // Find or create My Venues optgroup in the custom dropdown UI
+  let userVenueGroup = dropdownMenu.querySelector('.custom-dropdown-optgroup[data-label="My Venues"]');
+  
+  if (!userVenueGroup) {
+    // Create optgroup if it doesn't exist
+    userVenueGroup = document.createElement('div');
+    userVenueGroup.className = 'custom-dropdown-optgroup';
+    userVenueGroup.setAttribute('data-label', 'My Venues');
+    userVenueGroup.textContent = 'My Venues';
+    
+    // Add optgroup to menu
+    dropdownMenu.appendChild(userVenueGroup);
+  }
+  
+  // Create new option
+  const newOption = document.createElement('div');
+  newOption.className = 'custom-dropdown-option optgroup-option';
+  newOption.setAttribute('data-value', venueValue);
+  newOption.textContent = venueText;
+  
+  // Add click handler
+  newOption.addEventListener('click', () => {
+    // Update the native select value
+    selectElement.value = venueValue;
+    
+    // Update the visible selected option text
+    if (selectedOption) {
+      selectedOption.textContent = venueText;
+    }
+    
+    // Highlight the selected option
+    dropdownMenu.querySelectorAll('.custom-dropdown-option').forEach(option => {
+      option.classList.remove('selected');
+    });
+    newOption.classList.add('selected');
+    
+    // Close the dropdown
+    customDropdown.classList.remove('open');
+    
+    // Trigger change event
+    const changeEvent = new Event('change');
+    selectElement.dispatchEvent(changeEvent);
+  });
+  
+  // Add the new option after the optgroup
+  insertAfter(newOption, userVenueGroup);
+  
+  // Mark this option as selected
+  dropdownMenu.querySelectorAll('.custom-dropdown-option').forEach(option => {
+    option.classList.remove('selected');
+  });
+  newOption.classList.add('selected');
+}
+
+/**
+ * Helper function to insert an element after another element
+ * @param {HTMLElement} newNode - The node to insert
+ * @param {HTMLElement} referenceNode - The node to insert after
+ */
+function insertAfter(newNode, referenceNode) {
+  if (referenceNode.nextSibling) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+  } else {
+    referenceNode.parentNode.appendChild(newNode);
+  }
+}
+
+/**
+ * Re-initializes all custom dropdowns on the page
+ * Can be called after dynamically adding options to select elements
+ */
+function refreshCustomDropdowns() {
+  // Remove all existing custom dropdowns
+  document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+    const select = dropdown.querySelector('select');
+    if (select) {
+      // Move the select element out of the custom dropdown
+      dropdown.parentNode.insertBefore(select, dropdown);
+      // Remove the custom dropdown
+      dropdown.remove();
+    }
+  });
+  
+  // Re-initialize all dropdowns
+  initCustomDropdowns();
+}
+
 
 // ---------------------- Make venue management functions available globally -----------------------
 window.initVenueManagement = initVenueManagement;
 window.initVenueEditModal = initVenueEditModal;
 window.initVenueRemoval = initVenueRemoval;
 window.initAddVenueModal = initAddVenueModal;
+window.updateCustomDropdownWithNewVenue = updateCustomDropdownWithNewVenue;
+window.insertAfter = insertAfter;
+window.refreshCustomDropdowns = refreshCustomDropdowns;
