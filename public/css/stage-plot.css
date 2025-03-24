@@ -48,6 +48,7 @@
   border-radius: var(--border-radius-md);
   box-shadow: inset var(--shadow-md);
   max-height: 630px;
+  max-width: 315px;
   overflow-y: auto;
   padding: var(--spacing-md);
   scrollbar-width: thin;

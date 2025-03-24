@@ -36,7 +36,7 @@ function initStageEditor() {
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
   
-  // Only set up initial state if we didn't restore from storage
+  // Only set up initial state if not restored from storage
   if (!stateRestored) {
     setupInitialState(plotState);
   }
@@ -46,6 +46,60 @@ function initStageEditor() {
   
   // Initialize date change handlers
   setupDateHandlers(plotState);
+
+  // Initialize date validation
+  setupDateValidation(plotState);
+}
+
+/** 
+ * Setup date validation to make sure end date is after start date
+ * @param {Object} plotState - The current plot state
+ */
+function setupDateValidation(plotState) {
+  const eventStartInput = document.getElementById('event_start');
+  const eventEndInput = document.getElementById('event_end');
+
+  if (!eventStartInput || !eventEndInput) return;
+
+  // Set min date for end date when start date changes
+  eventStartInput.addEventListener('change', function() {
+    // Set min end date to match start
+    eventEndInput.min = this.value;
+
+    // If the end date is before start date update it
+    if (eventEndInput.value && eventEndInput.value < this.value) {
+      eventEndInput.value = this.value;
+
+      // Mark as modified if editing an existing plot
+      if (typeof showNotification === 'function') {
+        showNotification('End date changed.', 'info');
+      }
+    }
+  });
+
+  // Prevent end date from being before start date
+  eventEndInput.addEventListener('change', function() {
+    const startDate = eventStartInput.value;
+
+    if (startDate && this.value < startDate) {
+      this.value = startDate;
+
+      // Show notification
+      if (typeof showNotification === 'function') {
+        showNotification('End date must be after start.', 'warning');
+      }
+    }
+
+    // Mark as modified if editing a new plot
+    if (plotState.currentPlotId) {
+      markPlotAsModified(plotState);
+    }
+  });
+
+  // Set initial min date for the end date based off start date
+  if (eventStartInput.value) {
+    eventEndInput.min = eventStartInput.value;
+  }
 }
 
 /**
@@ -972,7 +1026,7 @@ function initModalControls(plotState) {
             const plotTitle = document.getElementById('plot-title').textContent.trim();
             
             if (!plotName || plotName === plotTitle) {
-              showNotification('Please enter a unique plot name!', 'warning');
+              showNotification('Enter a unique plot name.', 'warning');
               return;
             }
             
@@ -2218,3 +2272,4 @@ window.updateElementFavoriteButtons = updateElementFavoriteButtons;
 window.getElementData = getElementData;
 window.updateFavoritesCategory = updateFavoritesCategory;
 window.moveFavoritesToTop = moveFavoritesToTop;
+window.setupDateValidation = setupDateValidation;

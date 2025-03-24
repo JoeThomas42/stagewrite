@@ -133,7 +133,6 @@ function showNotification(message, type = 'info', duration = 3000) {
   });
 }
 
-
 // ------------------- Make notification functions available globally ---------------------
 window.initNotificationSystem = initNotificationSystem;
 window.initModalNotificationAreas = initModalNotificationAreas;

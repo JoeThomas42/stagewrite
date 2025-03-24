@@ -193,6 +193,8 @@ function openModal(modal) {
   if (!modal) return;
   modal.classList.remove('hidden');
   modal.classList.add('visible');
+
+  document.getElementById('notification-area').classList.add('modal-open');
 }
 
 /**
@@ -203,6 +205,8 @@ function closeModal(modal) {
   if (!modal) return;
   modal.classList.remove('visible');
   modal.classList.add('hidden');
+
+  document.getElementById('notification-area').classList.remove('modal-open');
 }
 
 // This function will be called when all scripts are loaded

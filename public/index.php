@@ -115,7 +115,7 @@ if ($isLoggedIn) {
                 
                 <div class="config-field">
                     <label for="event_end">Event End:</label>
-                    <input type="date" id="event_end" name="event_date_end">
+                    <input type="date" id="event_end" name="event_date_end" min="">
                 </div>
             </div>
         

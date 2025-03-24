@@ -17,7 +17,7 @@
   display: flex;
   flex-wrap: wrap;
   font-size: var(--font-size-sm);
-  gap: var(--spacing-xl);
+  gap: 0 var(--spacing-lg);
   
   span {
     align-items: center;
@@ -38,6 +38,7 @@
 .plot-info {
   flex-grow: 1;
   padding-right: var(--spacing-md);
+  max-width: 66%; /* temporary */
 }
 
 .plot-item {

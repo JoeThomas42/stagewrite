@@ -638,6 +638,12 @@ th.sortable {
   }
 }
 
+/* Hide main notification area when modal is open */
+.notification-area.modal-open {
+  display: none;
+}
+
+
 /* -------------------- Element Properties Modal Improvements --------------------- */
 #element-props-modal .modal-content {
   max-width: 400px;
