@@ -18,6 +18,14 @@
     padding: 0;
   }
   
+  #stage-area {
+    align-items: center;
+  }
+
+  #stage-controls {
+    width: 100%;
+  }
+
   #elements-panel, #stage-area {
     width: 100%;
   }
