@@ -83,6 +83,9 @@
   position: relative;
   transition: all var(--transition-fast);
 
+  --container-width: 90px;
+  --font-scale: 0.12;
+
   &:hover {
     border-color: var(--color-primary-light);
     box-shadow: var(--shadow-lg);
@@ -94,7 +97,7 @@
   }
 
   .element-name {
-    font-size: var(--font-size-sm);
+    font-size: calc(var(--container-width) * var(--font-scale));
     overflow: hidden;
     text-align: center;
     text-overflow: ellipsis;
