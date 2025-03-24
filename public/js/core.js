@@ -20,6 +20,9 @@ window.initializeApp = function() {
   safeInit(window.initStageEditor, "Stage Editor");
   safeInit(window.initStageGrid, "Stage Grid");
   safeInit(window.initCustomDropdowns, "Custom Dropdowns");
+  safeInit(window.initCityAutocomplete, "City Autocompletion");
+  safeInit(window.initZipCodeAutoComplete, "Zip Autocompletion");
+
 
   console.log("Application initialization complete!");
 };
@@ -47,7 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
     safeInit(initStageEditor, "Stage Editor");
     safeInit(initStageGrid, "Stage Grid");
     safeInit(initCustomDropdowns, "Custom Dropdowns");
-    
+    safeInit(initCityAutocomplete, "City Autocompletion");
+    safeInit(initZipCodeAutoComplete, "Zip Autocompletion");
+
     console.log("Initialization complete!");
   } catch (e) {
     console.error("Error during initialization:", e);
@@ -217,6 +222,8 @@ window.initializeApp = function() {
   safeInit(initStageEditor, "Stage Editor");
   safeInit(initStageGrid, "Stage Grid");
   safeInit(initCustomDropdowns, "Custom Dropdowns");
+  safeInit(initCityAutocomplete, "City Autocompletion");
+  safeInit(initZipCodeAutoComplete, "Zip Autocompletion");
   
   console.log("Application initialization complete!");
 };

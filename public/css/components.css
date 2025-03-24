@@ -820,6 +820,22 @@ th.sortable {
   padding-left: calc(var(--spacing-md) * 2);
 }
 
+/* Autocomplete dropdown */
+.autocomplete-items {
+  max-height: 200px;
+}
+
+.autocomplete-item {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  cursor: pointer;
+  background-color: #fff;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--color-primary-lightest);
+  }
+}
+
 /* Focus styles for keyboard accessibility */
 .custom-dropdown-option:focus {
   outline: none;

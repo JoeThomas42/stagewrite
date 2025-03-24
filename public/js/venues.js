@@ -304,11 +304,18 @@ function initAddVenueModal() {
     if (e.target === addVenueModal) closeModal(addVenueModal);
   });
   
+  // Add ZIP code auto-complete
+  initZipCodeAutoComplete();
+  
+  // Add city autocomplete
+  initCityAutocomplete();
+
   // Handle form submission
   if (venueForm) {
     venueForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
+
       // Get form values
       const venueName = document.getElementById('venue_name').value.trim();
       const stageWidth = document.getElementById('stage_width').value.trim();
