@@ -907,6 +907,12 @@ function initModalControls(plotState) {
     saveButton.addEventListener('click', () => {
       // Only show save modal if there are elements on the stage
       if (plotState.elements.length > 0) {
+        // Clear the plot name input field when opening the save modal
+        const plotNameInput = document.getElementById('plot_name');
+        if (plotNameInput) {
+          plotNameInput.value = '';
+        }
+        
         openModal(saveModal);
         
         // Load existing plots for overwrite options
@@ -1139,6 +1145,12 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
       // Close modal if we're showing one
       const saveModal = document.getElementById('save-plot-modal');
       closeModal(saveModal);
+      
+      // Clear the plot name input field in the save plot modal
+      const plotNameInput = document.getElementById('plot_name');
+      if (plotNameInput) {
+        plotNameInput.value = '';
+      }
       
       // Update the saved state in localStorage
       saveStateToStorage(plotState);
