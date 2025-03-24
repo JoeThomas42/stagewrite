@@ -1565,9 +1565,9 @@ function initPageNavigation(plotState) {
       saveStateToStorage(plotState);
       
       // Show confirmation dialog for unsaved changes
-      const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
-      e.returnValue = confirmationMessage;
-      return confirmationMessage;
+      // const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
+      // e.returnValue = confirmationMessage;
+      // return confirmationMessage;
     }
   });
   
@@ -1678,6 +1678,7 @@ function restoreStateFromStorage(plotState) {
       const saveChangesButton = document.getElementById('save-changes');
       if (saveChangesButton && state.isModified) {
         saveChangesButton.classList.remove('hidden');
+        saveChangesButton.classList.add('visible');
       }
       
       // Create all elements on stage
@@ -1696,6 +1697,9 @@ function restoreStateFromStorage(plotState) {
         stage.appendChild(dimensionsLabel);
       }
       
+      // Setup change tracking after restoration
+      setupChangeTracking(plotState);
+      
       console.log('Stage plot state restored from localStorage');
       return true;
     }
@@ -1703,6 +1707,68 @@ function restoreStateFromStorage(plotState) {
   } catch (e) {
     console.error('Error restoring state from localStorage:', e);
     return false;
+  }
+}
+
+/**
+ * Setup change tracking after state is restored
+ * @param {Object} plotState - The current plot state
+ */
+function setupChangeTracking(plotState) {
+  // Set up change detection for elements on the stage
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+  
+  // Add a MutationObserver to detect changes to elements on the stage
+  const observer = new MutationObserver((mutations) => {
+    // If we're not already tracking changes, mark as modified
+    if (!plotState.isModified && plotState.currentPlotId) {
+      const elementMutations = mutations.filter(mutation => 
+        mutation.target.classList.contains('placed-element') || 
+        mutation.target.parentElement?.classList.contains('placed-element')
+      );
+      
+      if (elementMutations.length > 0) {
+        markPlotAsModified(plotState);
+      }
+    }
+  });
+  
+  // Observe the stage for changes
+  observer.observe(stage, {
+    childList: true,
+    attributes: true,
+    attributeFilter: ['style', 'data-id'],
+    subtree: true
+  });
+  
+  // Watch for form input changes (venue, dates, etc.)
+  const venueSelect = document.getElementById('venue_select');
+  const eventStartInput = document.getElementById('event_start');
+  const eventEndInput = document.getElementById('event_end');
+  
+  if (venueSelect) {
+    venueSelect.addEventListener('change', () => {
+      if (plotState.currentPlotId) {
+        markPlotAsModified(plotState);
+      }
+    });
+  }
+  
+  if (eventStartInput) {
+    eventStartInput.addEventListener('change', () => {
+      if (plotState.currentPlotId) {
+        markPlotAsModified(plotState);
+      }
+    });
+  }
+  
+  if (eventEndInput) {
+    eventEndInput.addEventListener('change', () => {
+      if (plotState.currentPlotId) {
+        markPlotAsModified(plotState);
+      }
+    });
   }
 }
 
