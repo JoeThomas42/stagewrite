@@ -1201,6 +1201,26 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
 function loadExistingPlotsForOverwrite(plotState) {
   const plotsList = document.querySelector('.existing-plots-list');
   if (!plotsList) return;
+
+  // Add overlay instead of replacing content
+  const loadingOverlay = document.createElement('div');
+  loadingOverlay.className = 'loading-overlay';
+  loadingOverlay.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
+  loadingOverlay.style.position = 'absolute';
+  loadingOverlay.style.top = '0';
+  loadingOverlay.style.left = '0';
+  loadingOverlay.style.width = '100%';
+  loadingOverlay.style.height = '100%';
+  loadingOverlay.style.background = 'rgba(255,255,255,0.8)';
+  loadingOverlay.style.display = 'flex';
+  loadingOverlay.style.alignItems = 'center';
+  loadingOverlay.style.justifyContent = 'center';
+
+  // Make sure the container is positioned relative
+  plotsList.style.position = 'relative';
+
+  // Add the overlay instead of replacing content
+  plotsList.appendChild(loadingOverlay);
   
   // Show loading message
   plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
@@ -1209,6 +1229,11 @@ function loadExistingPlotsForOverwrite(plotState) {
   fetch('/handlers/get_plots.php')
     .then(response => response.json())
     .then(data => {
+      // Remove the loading overlay first
+      if (loadingOverlay.parentNode === plotsList) {
+        plotsList.removeChild(loadingOverlay);
+      }
+
       if (data.plots && data.plots.length > 0) {
         // Create plots list
         let html = '<ul class="plots-list">';
@@ -1273,6 +1298,10 @@ function loadExistingPlotsForOverwrite(plotState) {
       }
     })
     .catch(error => {
+      if (loadingOverlay.parentNode === plotsList) {
+        plotsList.removeChild(loadingOverlay);
+      }
+      
       console.error('Error loading plots:', error);
       plotsList.innerHTML = '<p class="error-message">Error loading plots. Please try again.</p>';
     });
@@ -1286,6 +1315,26 @@ function loadSavedPlots(plotState) {
   const plotsList = document.querySelector('.saved-plots-list');
   if (!plotsList) return;
   
+  // Add overlay instead of replacing content
+  const loadingOverlay = document.createElement('div');
+  loadingOverlay.className = 'loading-overlay';
+  loadingOverlay.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
+  loadingOverlay.style.position = 'absolute';
+  loadingOverlay.style.top = '0';
+  loadingOverlay.style.left = '0';
+  loadingOverlay.style.width = '100%';
+  loadingOverlay.style.height = '100%';
+  loadingOverlay.style.background = 'rgba(255,255,255,0.8)';
+  loadingOverlay.style.display = 'flex';
+  loadingOverlay.style.alignItems = 'center';
+  loadingOverlay.style.justifyContent = 'center';
+  
+  // Make sure the container is positioned relative
+  plotsList.style.position = 'relative';
+  
+  // Add the overlay instead of replacing content
+  plotsList.appendChild(loadingOverlay);
+
   // Show loading message
   plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
   
@@ -1298,6 +1347,11 @@ function loadSavedPlots(plotState) {
       return response.json();
     })
     .then(data => {
+      // Remove the loading overlay first
+      if (loadingOverlay.parentNode === plotsList) {
+        plotsList.removeChild(loadingOverlay);
+      }
+
       if (data.plots && data.plots.length > 0) {
         // Create plots list
         let html = '<ul class="plots-list">';
@@ -1367,6 +1421,10 @@ function loadSavedPlots(plotState) {
       }
     })
     .catch(error => {
+      if (loadingOverlay.parentNode === plotsList) {
+        plotsList.removeChild(loadingOverlay);
+      }
+
       console.error('Error loading plots:', error);
       plotsList.innerHTML = '<p class="error-message">Error loading plots. Please try again.</p>';
     });

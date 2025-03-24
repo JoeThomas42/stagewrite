@@ -69,14 +69,30 @@
   margin-bottom: var(--spacing-xs);
 }
 
-.plots-list {
+.plots-list,
+.saved-plots-list,
+.existing-plots-list {
   list-style: none;
   margin: 0;
-  max-height: 400px;
+  height: 400px;
+  max-height: 100vh;
   overflow-y: auto;
   padding: 0;
   padding-right: var(--spacing-md);
 }
+
+.loading-message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+/* .plots-list, .existing-plots-list {
+  height: 400px;
+  position: relative;
+  transition: height 0.3s ease;
+} */
 
 /* -------------------- Save & Plot Specific Sections --------------------- */
 .existing-plots-section,
