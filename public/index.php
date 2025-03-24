@@ -211,14 +211,16 @@ if ($isLoggedIn) {
                 </div>
             </div>
             
-            <div class="form-group">
-                <label for="stage_width">Stage Width (feet):</label>
-                <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1">
-            </div>
-            
-            <div class="form-group">
-                <label for="stage_depth">Stage Depth (feet):</label>
-                <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1">
+            <div class="input-dimensions">
+              <div class="form-group">
+                  <label for="stage_width">Stage Width (feet):</label>
+                  <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1">
+              </div>
+              
+              <div class="form-group">
+                  <label for="stage_depth">Stage Depth (feet):</label>
+                  <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1">
+              </div>
             </div>
             
             <div class="form-actions">

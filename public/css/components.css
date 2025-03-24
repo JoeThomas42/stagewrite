@@ -90,6 +90,16 @@
 }
 
 /* -------------------- Profile Container --------------------- */
+#temporary-profile {
+  min-width: 800px;
+  text-align: center;
+
+  h2 {
+    margin: 10rem auto;
+    font-size: 5em;
+  }
+}
+
 .profile-container {
   background: linear-gradient(to bottom, white, var(--color-background-light));
   border-radius: var(--border-radius-lg);
@@ -167,7 +177,7 @@
   max-height: 90vh;
   max-width: 600px;
   opacity: 0;
-  overflow-y: auto;
+  overflow-y: visible;
   padding: var(--spacing-xl);
   position: relative;
   transform: translateY(20px);
@@ -184,6 +194,7 @@
   }
 }
 
+#venue-edit-modal .modal-content,
 #add-venue-modal .modal-content {
   max-width: 420px;
 

@@ -35,7 +35,7 @@ include 'header.php';
 // Role-based logic
 if ($user['role_id'] == 1) {
     // Member Page
-  echo "<div class='profile-container'>
+  echo "<div id='temporary-profile' class='profile-container'>
         <h2>Coming soon!</h2>
         </div>";
 
@@ -341,14 +341,16 @@ if ($user['role_id'] == 2 || $user['role_id'] == 3): ?>
         </div>
       </div>
       
-      <div class="form-group">
-        <label for="stage_width">Stage Width (feet):</label>
-        <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="stage_depth">Stage Depth (feet):</label>
-        <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1" required>
+      <div class="input-dimensions">
+        <div class="form-group">
+          <label for="stage_width">Stage Width (feet):</label>
+          <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="stage_depth">Stage Depth (feet):</label>
+          <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1" required>
+        </div>
       </div>
       
       <div class="form-actions">

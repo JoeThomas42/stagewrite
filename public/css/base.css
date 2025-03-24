@@ -396,6 +396,16 @@ form {
   }
 }
 
+.input-dimensions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: space-between;
+
+  .form-group {
+    flex: 1;
+  }
+}
+
 /* ---------------- Watermark ----------------- */
 .watermarked {
   position: relative;
