@@ -32,12 +32,13 @@
   gap: var(--spacing-md);
   justify-content: space-between;
   margin-bottom: var(--spacing-md);
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   
   h2 {
     color: var(--color-primary-dark);
     font-size: var(--font-size-lg);
     margin: 0;
+    white-space: nowrap;
   }
 }
 
