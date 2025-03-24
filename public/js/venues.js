@@ -382,7 +382,7 @@ function initAddVenueModal() {
             venueSelect.value = `user_${data.venue.user_venue_id}`;
             
             // Now update any custom dropdown UI that might be present
-            updateCustomDropdownWithNewVenue(venueSelect, data.venue);
+            refreshCustomDropdowns();
             
             // Trigger change event to update stage dimensions
             const changeEvent = new Event('change');

@@ -88,12 +88,6 @@
   text-align: center;
 }
 
-/* .plots-list, .existing-plots-list {
-  height: 400px;
-  position: relative;
-  transition: height 0.3s ease;
-} */
-
 /* -------------------- Save & Plot Specific Sections --------------------- */
 .existing-plots-section,
 .saved-plots-list {
