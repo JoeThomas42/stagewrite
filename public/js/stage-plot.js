@@ -617,6 +617,7 @@ function createPlacedElement(elementData, plotState) {
   deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
   deleteBtn.title = 'Delete Element';
   deleteBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     setupConfirmButton(deleteBtn, () => { 
       deleteElement(elementData.id, plotState);
     }, {
@@ -667,6 +668,11 @@ function makeDraggableOnStage(element, plotState) {
   element.addEventListener('touchstart', startDrag, { passive: false });
   
   function startDrag(e) {
+      // If clicked on a button or action element, don't start dragging
+    if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) {
+      return;
+    }
+
     e.preventDefault();
     e.stopPropagation();
     

@@ -368,7 +368,6 @@
   
   &:active {
     cursor: grabbing;
-    transform: scale(0.98);
   }
 }
 
