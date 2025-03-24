@@ -744,6 +744,7 @@ th.sortable {
   position: relative;
   font-size: var(--font-size-sm);
   min-height: 30px;
+  min-width: 140px;
   box-sizing: border-box;
 }
 
