@@ -316,6 +316,49 @@
   }
 }
 
+/* Media query for shorter height screens */
+@media screen and (max-height: 700px) {
+  /* Adjust the modal content to be more compact */
+  .modal-content {
+    padding: var(--spacing-md);
+  }
+
+  .plots-list,
+  .saved-plots-list,
+  .existing-plots-list {
+    height: auto;
+    /* max-height: 40vh; */
+  }
+  
+  .save-section,
+  .saved-plots-list {
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+  
+  .save-section h3,
+  .save-section label {
+    font-size: var(--font-size-md);
+    margin-bottom: var(--spacing-xs);
+  }
+}
+
+/* For very short screens */
+@media screen and (max-height: 500px) {
+  .plots-list,
+  .saved-plots-list,
+  .existing-plots-list {
+    /* max-height: 30vh; */
+  }
+  
+  #save-new-button,
+  .overwrite-btn,
+  .load-plot-btn {
+    height: 30px;
+    min-height: 30px;
+  }
+}
+
 /* -------------------- Mobile Screens --------------------- */
 @media screen and (max-width: 480px) {
   body {

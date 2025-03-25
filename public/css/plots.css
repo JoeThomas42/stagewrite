@@ -75,8 +75,8 @@
 .existing-plots-list {
   list-style: none;
   margin: 0;
-  height: 400px;
-  max-height: 100%;
+  height: auto;
+  max-height: min(400px, 50vh);
   overflow-y: auto;
   padding: 0;
 }
@@ -108,6 +108,7 @@
   background-color: var(--color-background-light);
   border-radius: var(--border-radius-lg);
   margin-bottom: var(--spacing-lg);
+  max-height: min(80vh, 500px);
   padding: var(--spacing-md);
   
   h3,

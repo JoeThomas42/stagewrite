@@ -174,16 +174,15 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   margin: 0 auto;
-  /* max-height: 90%; */
   max-width: 600px;
   opacity: 0;
-  overflow-y: visible;
+  overflow-y: auto;
   padding: var(--spacing-xl);
   position: relative;
   transform: translateY(20px);
   transition: transform 0.3s ease, opacity 0.3s ease;
   width: 90%;
-
+  
   button:not(.delete-plot-btn) {
     min-width: 75px;
   }
@@ -197,6 +196,7 @@
 #venue-edit-modal .modal-content,
 #add-venue-modal .modal-content {
   max-width: 420px;
+  overflow-y: visible;
 
   .custom-dropdown-menu {
     max-height: 200px;
