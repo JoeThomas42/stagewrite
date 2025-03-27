@@ -26,6 +26,10 @@
     width: 100%;
   }
 
+  #control-buttons {
+    width: 100%;
+  }
+
   #elements-panel, #stage-area {
     width: 100%;
   }

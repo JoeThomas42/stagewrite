@@ -117,17 +117,18 @@ if ($isLoggedIn) {
                     <input type="date" id="event_end" name="event_date_end" min="">
                 </div>
             </div>
-        
-            <div id="control-buttons">
-              <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
-              <?php if ($isLoggedIn): ?>
-                <button id="my-plots" class="action-button" title="My Plots"><i class="fa-solid fa-folder-open"></i></button>
-                <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
-                <button id="save-changes" class="action-button hidden">Save Changes</button>
-                <?php endif; ?>
-                <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
-            </div>
         </div>
+
+        <div id="control-buttons">
+          <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
+          <?php if ($isLoggedIn): ?>
+            <button id="my-plots" class="action-button" title="My Plots"><i class="fa-solid fa-folder-open"></i></button>
+            <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
+            <button id="save-changes" class="action-button hidden">Save Changes</button>
+            <?php endif; ?>
+            <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
+        </div>
+
         <div id="stage"
               data-venue-id="<?= $venue['venue_id'] ?>"
               data-stage-width="<?= $venue['stage_width'] ?>"
