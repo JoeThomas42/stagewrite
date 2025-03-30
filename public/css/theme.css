@@ -1,0 +1,103 @@
+@import url('_variables.css');
+
+/**
+ * StageWrite Theme Styles
+ * Light and dark theme variables and toggle styles
+ */
+
+/* Theme toggle button styles */
+.theme-toggle {
+  background-color: transparent !important;
+  border-radius: 50%;
+  box-shadow: none !important;
+  color: var(--color-white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  margin: 0 var(--spacing-md);
+  padding: 0;
+  transition: all var(--transition-fast);
+  width: 32px;
+
+  &:hover {
+    box-shadow: var(--shadow-lg) !important;
+  }
+
+  &:active {
+    box-shadow: inset var(--shadow-inset-md) !important;
+  }
+}
+
+.theme-toggle i {
+  font-size: var(--font-size-md);
+  transition: all var(--transition-medium);
+}
+
+/* Dark theme specific overrides */
+[data-theme="dark"] .theme-toggle:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+[data-theme="dark"] .theme-toggle:active {
+  box-shadow: inset var(--shadow-sm) !important;
+}
+
+[data-theme="dark"] .theme-toggle i {
+  transform: rotate(180deg);
+}
+
+[data-theme="dark"] .theme-toggle i:before {
+  content: "\f185"; /* fa-sun icon */
+}
+
+[data-theme="dark"] body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] button:active:not(.favorite-button:active) {
+  box-shadow: inset var(--shadow-inset-md);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] #elements-list,
+[data-theme="dark"] .custom-dropdown {
+  background-color: var(--color-background-light);
+  border-color: var(--color-input-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] h3 {
+  background-color: var(--color-background);
+}
+
+[data-theme="dark"] #login-container,
+[data-theme="dark"] .profile-container {
+  background: linear-gradient(to bottom, var(--color-background-light), var(--color-background));
+}
+
+[data-theme="dark"] .table-actions,
+[data-theme="dark"] .custom-dropdown-optgroup {
+  background-color: var(--color-background-dark);
+}
+
+[data-theme="dark"] .custom-dropdown-menu,
+[data-theme="dark"] table tr:nth-child(odd) {
+  background-color: var(--color-background);
+}
+
+[data-theme="dark"] table tr:nth-child(even),
+[data-theme="dark"] #stage,
+[data-theme="dark"] .custom-dropdown-option:hover,
+[data-theme="dark"] .custom-dropdown-option:focus {
+  background-color: var(--color-background-light);
+}
+
+[data-theme="dark"] .draggable-element {
+  background-color: var(--color-background-light);
+}

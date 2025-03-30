@@ -2,6 +2,7 @@
  * StageWrite Global Variables
 */
 
+/* -------------------------- Light Theme (default) variables -------------------------- */
 :root {
   /* ---------- Colors ---------- */
     /* General */
@@ -85,6 +86,16 @@
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.3);
 
+  /* ---------- Inset Box Shadows ---------- */
+  --shadow-inset-sm: 0 0 4px rgba(0, 0, 0, 0.2);
+  --shadow-inset-md: 0 0 6px rgba(0, 0, 0, 0.2);
+  --shadow-inset-lg: 0 0 15px rgba(0, 0, 0, 0.5);
+
+  /* ----------- Drop Shadows ------------- */
+  --drop-shadow-none: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  --drop-shadow-xxs: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.5));
+  --drop-shadow-xs: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+
   /* ---------- Transitions ---------- */
   --transition-fast: 0.2s ease;
   --transition-medium: 0.4s ease;
@@ -92,4 +103,58 @@
   
   /* Enhanced focus styles */
   --focus-ring: 0 0 0 3px rgba(82, 108, 129, 0.25);
+}
+
+/* ----------------------------- Dark theme variables --------------------------------- */
+[data-theme="dark"] {
+  /* ---------- Colors ---------- */
+  /* General */
+  --color-header: #1a2530; /* Darker version of the header */
+  --color-primary-lightest: #c7daea; /* Slightly lighter */
+  --color-grey-1: #3e4143; /* Inverted from light greys */
+  --color-grey-2: #56585b;
+  --color-grey-3: #848689;
+  --color-grey-4: #b5b8bb;
+  --color-grey-5: #cdd0d3;
+  --color-grey-6: #e9ecef;
+
+  /* Background */
+  --color-background: #1e2329; /* Dark background */
+  --color-background-dark: #171a1f; /* Darker background */
+  --color-background-light: #2a2f36; /* Slightly lighter background */
+  --color-background-alt: #262b33; /* Alternative background */
+
+  /* Borders */
+  --color-border: #3a3f45; /* Darker border */
+  --color-input-border: #4a4f55; /* Darker input border */
+
+  /* Cards */
+  --color-card: #2a2f36; /* Dark card background */
+  --color-card-hover: #323740; /* Slightly lighter on hover */
+
+  /* Tables */
+  --color-table: #2a2f36; /* Dark table background */
+  --color-table-hover: #1a3a4a; /* Dark blue-ish hover state */
+  
+  /* Text */
+  --color-text: #e1e1e1; /* Light text for dark background */
+  --color-text-light: #b8b8b8; /* Slightly darker text */
+  --color-text-secondary: #a0a0a0; /* Secondary text */
+
+  /* Shadows - Adjusted for dark theme */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 5px 18px rgba(0, 0, 0, 0.9);
+
+  /* Inset Shadows - Adjusted for dark theme */
+  --shadow-inset-sm: 0 0 6px rgba(0, 0, 0, 0.6);
+  --shadow-inset-md: 0 0 10px rgba(0, 0, 0, 0.7);
+  --shadow-inset-lg: 0 0 18px rgba(0, 0, 0, 0.9);
+  
+  /* ----------- Drop Shadows ------------- */
+  --drop-shadow-xxs: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.8));
+  --drop-shadow-xs: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.9));
+  
+  /* Focus ring - Adjusted for better visibility */
+  --focus-ring: 0 0 0 3px rgba(127, 165, 193, 0.5);
 }

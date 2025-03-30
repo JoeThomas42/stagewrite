@@ -70,11 +70,13 @@
                             ?>
                         </span>
                         <a class="log-link" href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
+                        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
                     </div>
                 <?php elseif ($current_page !== "Login"): ?>
                     <!-- Navigation for non-logged-in users -->
                     <div class="user-controls">
-                        <a class="log-link" href="<?= WEB_ROOT ?>/login.php">Login</a>
+                      <a class="log-link" href="<?= WEB_ROOT ?>/login.php">Login</a>
+                      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
                     </div>
                 <?php endif; ?>
             </div>

@@ -17,6 +17,7 @@ window.initializeApp = function() {
   safeInit(window.initDropdownMenus, "Dropdown Menus");
   safeInit(window.initTableInteractions, "Table Interactions");
   safeInit(window.initNotificationSystem, "Notification System");
+  safeInit(window.initThemeSystem, "Theme System");
   safeInit(window.initStageEditor, "Stage Editor");
   safeInit(window.initStageGrid, "Stage Grid");
   safeInit(window.initCustomDropdowns, "Custom Dropdowns");
