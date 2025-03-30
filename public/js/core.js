@@ -3,7 +3,7 @@
  * Provides initialization and utility functions
  */
 
-// Added main initialization function
+// Define main initialization function
 window.initializeApp = function() {
   setupScrollRestoration();
   
@@ -23,37 +23,16 @@ window.initializeApp = function() {
   safeInit(window.initCityAutocomplete, "City Autocompletion");
   safeInit(window.initZipCodeAutoComplete, "Zip Autocompletion");
 
-
   console.log("Application initialization complete!");
 };
 
 /**
- * Main initialization function
+ * Main initialization - hook into DOMContentLoaded event
  */
 document.addEventListener("DOMContentLoaded", () => {
   try {
     console.log("Initializing application...");
-    
-    // Set up manual scroll restoration
-    setupScrollRestoration();
-    
-    // Initialize each feature independently with error handling
-    safeInit(initAuthForms, "Auth Forms");
-    safeInit(initUserManagement, "User Management");
-    safeInit(initVenueManagement, "Venue Management");  
-    safeInit(initSortableTables, "Sortable Tables");
-    safeInit(initTableFilters, "Table Filters");
-    safeInit(initMobileMenu, "Mobile Menu");
-    safeInit(initDropdownMenus, "Dropdown Menus");
-    safeInit(initTableInteractions, "Table Interactions");
-    safeInit(initNotificationSystem, "Notification System");
-    safeInit(initStageEditor, "Stage Editor");
-    safeInit(initStageGrid, "Stage Grid");
-    safeInit(initCustomDropdowns, "Custom Dropdowns");
-    safeInit(initCityAutocomplete, "City Autocompletion");
-    safeInit(initZipCodeAutoComplete, "Zip Autocompletion");
-
-    console.log("Initialization complete!");
+    window.initializeApp();
   } catch (e) {
     console.error("Error during initialization:", e);
   }
@@ -108,27 +87,6 @@ function setupScrollRestoration() {
       document.documentElement.style.opacity = '1';
       sessionStorage.removeItem('scrollPosition');
     }, 10);
-  }
-}
-
-/**
- * Sets up custom dropdown menus
- * @param {Function} initFunction - The initialization function to call
- * @param {string} moduleName - Name of the module for logging
- */
-
-function safeInit(initFunction, moduleName) {
-  try {
-    if (typeof initFunction === 'function') {
-      console.log(`Initializing ${moduleName}...`);
-      initFunction();
-      console.log(`${moduleName} initialized successfully`);
-    } else {
-      console.warn(`${moduleName} initialization function not found`);
-    }
-  } catch (err) {
-    console.error(`Error initializing ${moduleName}:`, err);
-    // Continue with other initializations despite this error
   }
 }
 
@@ -208,29 +166,6 @@ function closeModal(modal) {
 
   document.getElementById('notification-area').classList.remove('modal-open');
 }
-
-// This function will be called when all scripts are loaded
-window.initializeApp = function() {
-  setupScrollRestoration();
-  
-  // Initialize each feature independently with error handling
-  safeInit(initAuthForms, "Auth Forms");
-  safeInit(initUserManagement, "User Management");
-  safeInit(initVenueManagement, "Venue Management");  
-  safeInit(initSortableTables, "Sortable Tables");
-  safeInit(initTableFilters, "Table Filters");
-  safeInit(initMobileMenu, "Mobile Menu");
-  safeInit(initDropdownMenus, "Dropdown Menus");
-  safeInit(initTableInteractions, "Table Interactions");
-  safeInit(initNotificationSystem, "Notification System");
-  safeInit(initStageEditor, "Stage Editor");
-  safeInit(initStageGrid, "Stage Grid");
-  safeInit(initCustomDropdowns, "Custom Dropdowns");
-  safeInit(initCityAutocomplete, "City Autocompletion");
-  safeInit(initZipCodeAutoComplete, "Zip Autocompletion");
-  
-  console.log("Application initialization complete!");
-};
 
 // -------------------- Make core utilities available globally ----------------------
 window.safeInit = safeInit;

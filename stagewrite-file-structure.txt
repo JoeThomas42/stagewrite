@@ -14,10 +14,13 @@ stagewrite
 │   │   │   ├── delete_plot.php
 │   │   │   ├── delete_user.php
 │   │   │   ├── demote_user.php
+│   │   │   ├── filter_tables.php
+│   │   │   ├── get_cities.php
 │   │   │   ├── get_favorites.php
 │   │   │   ├── get_plot.php
 │   │   │   ├── get_plots.php
 │   │   │   ├── get_user_venue.php
+│   │   │   ├── get_zip_code.php
 │   │   │   ├── promote_user.php
 │   │   │   ├── save_plot.php
 │   │   │   ├── save_user_venue.php
@@ -50,11 +53,14 @@ stagewrite
 │   │   ├── delete_plot.php
 │   │   ├── delete_user.php
 │   │   ├── demote_user.php
+│   │   ├── filter_tables.php
+│   │   ├── get_cities.php
 │   │   ├── get_favorites.php
 │   │   ├── get_plot.php
 │   │   ├── get_plots.php
 │   │   ├── get_user_venue.php
 │   │   ├── get_venue.php
+│   │   ├── get_zip_code.php
 │   │   ├── login_handler.php
 │   │   ├── logout_handler.php
 │   │   ├── promote_user.php
@@ -82,4 +88,5 @@ stagewrite
 │   │   └── venues.js
 │   ├── login.php
 │   └── profile.php
-└── README.txt
+├── README.txt
+└── stagewrite-file-structure.txt
