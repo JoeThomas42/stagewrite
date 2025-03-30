@@ -146,31 +146,174 @@ function initTableFilters() {
  * Sets up filtering functionality for a specific table
  * @param {string} searchId - The ID of the search input field
  * @param {string} tableId - The ID of the table to filter
- * @param {Array<number>} columnIndexes - Array of column indexes to search within
+ * @param {string} tableType - Type of table (members, admins, venues)
  */
-function setupTableFilter(searchId, tableId, columnIndexes) {
+function setupTableFilter(searchId, tableId, tableType) {
   const searchInput = document.getElementById(searchId);
   if (!searchInput) return; // Skip if element doesn't exist on current page
   
   const table = document.getElementById(tableId);
   if (!table) return;
   
-  // Get all rows except the header
-  const rows = Array.from(table.querySelectorAll('tr')).slice(1);
+  let searchTimer;
   
   // Add event listener for real-time filtering
   searchInput.addEventListener('input', function() {
-    filterTable(this.value, rows, columnIndexes, table);
+      const searchTerm = this.value.trim();
+      
+      // Clear previous timer
+      clearTimeout(searchTimer);
+      
+      // Set a slight delay to prevent too many requests
+      searchTimer = setTimeout(function() {
+          // Fetch filtered data from server
+          fetch(`/handlers/filter_tables.php?table=${tableType}&query=${encodeURIComponent(searchTerm)}`)
+              .then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      updateTableWithFilteredData(table, data.data, tableType);
+                  } else {
+                      console.error('Error filtering table:', data.error);
+                  }
+              })
+              .catch(error => {
+                  console.error('Error fetching filtered data:', error);
+              });
+      }, 300);
   });
   
   // Add clear button functionality
   const clearIcon = searchInput.parentNode.querySelector('.clear-icon');
   if (clearIcon) {
-    clearIcon.addEventListener('click', function() {
-      searchInput.value = '';
-      searchInput.dispatchEvent(new Event('input')); // Trigger filtering
-      searchInput.focus();
-    });
+      clearIcon.addEventListener('click', function() {
+          searchInput.value = '';
+          searchInput.dispatchEvent(new Event('input')); // Trigger filtering
+          searchInput.focus();
+      });
+  }
+}
+
+// Helper function to update table with filtered data
+function updateTableWithFilteredData(table, data, tableType) {
+  // Get the header row (first row)
+  const headerRow = table.rows[0];
+  const headerCells = headerRow ? headerRow.cells.length : 0;
+  
+  // Clear all rows except header
+  while (table.rows.length > 1) {
+      table.deleteRow(1);
+  }
+  
+  // If no results, show message
+  if (data.length === 0) {
+      const row = table.insertRow();
+      const cell = row.insertCell(0);
+      cell.colSpan = headerCells;
+      cell.className = 'no-results-message';
+      cell.textContent = 'No matching results found';
+      return;
+  }
+  
+  // Add rows for each data item
+  data.forEach(item => {
+      const row = table.insertRow();
+      
+      if (tableType === 'members' || tableType === 'admins') {
+          // User row
+          addCell(row, item.user_id, 'ID');
+          addCell(row, `${item.first_name} ${item.last_name}`, 'Name');
+          addCell(row, item.email, 'Email');
+          addCell(row, item.is_active ? 'Active' : 'Inactive', 'Status');
+          
+          // Add actions cell
+          const actionsCell = row.insertCell();
+          actionsCell.className = 'action-cell';
+          actionsCell.setAttribute('data-label', 'Actions');
+          
+          if (tableType === 'members') {
+              actionsCell.innerHTML = createMemberActionsDropdown(item);
+          } else {
+              actionsCell.innerHTML = createAdminActionsDropdown(item);
+          }
+      } else if (tableType === 'venues') {
+          // Venue row
+          addCell(row, item.venue_id, 'ID');
+          addCell(row, item.venue_name, 'Name');
+          addCell(row, item.venue_city || '—', 'City');
+          addCell(row, item.state_abbr || '—', 'State');
+          
+          // Add actions cell
+          const actionsCell = row.insertCell();
+          actionsCell.className = 'action-cell';
+          actionsCell.setAttribute('data-label', 'Actions');
+          actionsCell.innerHTML = createVenueActionsDropdown(item);
+      }
+  });
+  
+  // Re-initialize dropdown menus and action buttons
+  initDropdownMenus();
+  initUserRemoval();
+  initStatusToggle();
+  initUserPromotion();
+  initUserDemotion();
+  initVenueRemoval();
+  initVenueEditModal();
+}
+
+// Helper function to add a cell to a row
+function addCell(row, content, label) {
+  const cell = row.insertCell();
+  cell.textContent = content;
+  cell.setAttribute('data-label', label);
+  return cell;
+}
+
+// Helper functions to create action dropdowns
+function createMemberActionsDropdown(user) {
+  return `
+      <div class="dropdown">
+          <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
+          <div class="dropdown-menu">
+              <a href="#" class="toggle-status" data-user-id="${user.user_id}" data-status="${user.is_active}">Toggle Status</a>
+              <a href="#" class="remove-user" data-user-id="${user.user_id}" data-user-name="${user.first_name} ${user.last_name}">Remove</a>
+          </div>
+      </div>
+  `;
+}
+
+function createAdminActionsDropdown(user) {
+  return `
+      <div class="dropdown">
+          <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
+          <div class="dropdown-menu">
+              <a href="#" class="toggle-status" data-user-id="${user.user_id}" data-status="${user.is_active}">Toggle Status</a>
+              <a href="#" class="demote-user" data-user-id="${user.user_id}" data-user-name="${user.first_name} ${user.last_name}">Demote to Member</a>
+              <a href="#" class="remove-user" data-user-id="${user.user_id}" data-user-name="${user.first_name} ${user.last_name}">Remove</a>
+          </div>
+      </div>
+  `;
+}
+
+function createVenueActionsDropdown(venue) {
+  if (venue.venue_id == 1) {
+      return `
+          <div class="dropdown">
+              <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
+              <div class="dropdown-menu">
+                  <span class="disabled-action">Default Venue (Cannot Edit)</span>
+              </div>
+          </div>
+      `;
+  } else {
+      return `
+          <div class="dropdown">
+              <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
+              <div class="dropdown-menu">
+                  <a href="#" class="edit-venue" data-venue-id="${venue.venue_id}">Edit</a>
+                  <a href="#" class="remove-venue" data-venue-id="${venue.venue_id}" data-venue-name="${venue.venue_name}">Delete</a>
+              </div>
+          </div>
+      `;
   }
 }
 
@@ -681,173 +824,75 @@ function initCityAutocomplete() {
   const stateSelect = document.getElementById('venue_state_id');
   
   if (!cityInput || !stateSelect) {
-    console.log('City autocomplete: Missing required elements');
-    return;
+      console.log('City autocomplete: Missing required elements');
+      return;
   }
   
-  // Disable browser's native autocomplete
-  cityInput.setAttribute('autocomplete', 'new-city'); // Using a non-standard value
-  cityInput.setAttribute('aria-autocomplete', 'list');
-  
-  // Create a container for autocomplete suggestions
+  // Create autocomplete container
   const autoCompleteContainer = document.createElement('div');
   autoCompleteContainer.className = 'autocomplete-items custom-dropdown-menu';
   autoCompleteContainer.style.display = 'none';
   
-  // Make sure parent has position relative
   cityInput.parentNode.style.position = 'relative';
   cityInput.parentNode.appendChild(autoCompleteContainer);
   
-  // Store fetched cities for each state to avoid repeated API calls
-  const stateCitiesCache = {};
-  
-  // Map of state names to abbreviations
-  const stateAbbreviations = {
-    "alabama": "AL", "alaska": "AK", "arizona": "AZ", "arkansas": "AR", "california": "CA",
-    "colorado": "CO", "connecticut": "CT", "delaware": "DE", "florida": "FL", "georgia": "GA",
-    "hawaii": "HI", "idaho": "ID", "illinois": "IL", "indiana": "IN", "iowa": "IA",
-    "kansas": "KS", "kentucky": "KY", "louisiana": "LA", "maine": "ME", "maryland": "MD",
-    "massachusetts": "MA", "michigan": "MI", "minnesota": "MN", "mississippi": "MS", "missouri": "MO",
-    "montana": "MT", "nebraska": "NE", "nevada": "NV", "new hampshire": "NH", "new jersey": "NJ",
-    "new mexico": "NM", "new york": "NY", "north carolina": "NC", "north dakota": "ND", "ohio": "OH",
-    "oklahoma": "OK", "oregon": "OR", "pennsylvania": "PA", "rhode island": "RI", "south carolina": "SC",
-    "south dakota": "SD", "tennessee": "TN", "texas": "TX", "utah": "UT", "vermont": "VT",
-    "virginia": "VA", "washington": "WA", "west virginia": "WV", "wisconsin": "WI", "wyoming": "WY",
-    "district of columbia": "DC"
-  };
-  
-  /**
-   * Get state abbreviation from state name
-   */
-  function getStateAbbr(stateText) {
-    const lowerText = stateText.toLowerCase();
-    for (const stateName in stateAbbreviations) {
-      if (lowerText.includes(stateName)) {
-        return stateAbbreviations[stateName];
-      }
-    }
-    return null;
-  }
-  
-  // Enhanced mock data with major cities for common states (abbreviated for space)
-  const mockCityData = {
-    "AL": ["Birmingham", "Montgomery", "Mobile", "Huntsville", "Tuscaloosa"],
-    "AK": ["Anchorage", "Fairbanks", "Juneau", "Sitka", "Ketchikan"],
-    "AZ": ["Phoenix", "Tucson", "Mesa", "Chandler", "Scottsdale", "Glendale", "Gilbert", "Tempe"],
-    "AR": ["Little Rock", "Fort Smith", "Fayetteville", "Springdale", "Jonesboro"],
-    "CA": ["Los Angeles", "San Diego", "San Jose", "San Francisco", "Fresno", "Sacramento", "Long Beach"],
-    // ...more states would be included in your implementation
-  };
-  
   // Handle state selection change
   stateSelect.addEventListener('change', function() {
-    cityInput.value = ''; // Clear city when state changes
-    autoCompleteContainer.style.display = 'none';
-    
-    // Get state abbreviation
-    const stateId = this.value;
-    if (!stateId) return;
-    
-    const stateOption = this.options[this.selectedIndex];
-    const stateText = stateOption.textContent;
-    
-    // Get state abbreviation with more flexible matching
-    const stateAbbr = getStateAbbr(stateText);
-    
-    if (!stateAbbr) return;
-    
-    // If we already have cities for this state in cache, don't fetch again
-    if (!stateCitiesCache[stateAbbr]) {
-      // Use mock data directly
-      useMockDataForState(stateAbbr);
-    }
+      cityInput.value = ''; // Clear city when state changes
+      autoCompleteContainer.style.display = 'none';
+      
+      const stateId = this.value;
+      if (!stateId) return;
   });
-  
-  // Use mock data for a state
-  function useMockDataForState(stateAbbr) {
-    if (mockCityData[stateAbbr]) {
-      stateCitiesCache[stateAbbr] = mockCityData[stateAbbr];
-    } else {
-      // Generate generic placeholder cities
-      stateCitiesCache[stateAbbr] = [
-        `${stateAbbr} City`, `${stateAbbr} Town`, `North ${stateAbbr}`, 
-        `South ${stateAbbr}`, `East ${stateAbbr}`, `West ${stateAbbr}`
-      ];
-    }
-  }
   
   // Handle input in city field
   cityInput.addEventListener('input', function() {
-    const stateId = stateSelect.value;
-    if (!stateId) return;
-    
-    const stateOption = stateSelect.options[stateSelect.selectedIndex];
-    const stateText = stateOption.textContent;
-    const stateAbbr = getStateAbbr(stateText);
-    
-    if (!stateAbbr || !stateCitiesCache[stateAbbr]) return;
-    
-    const userInput = this.value.trim().toLowerCase();
-    
-    // Show matching cities on input
-    displayMatchingCities(userInput, stateAbbr);
-  });
-  
-  // Display matching cities based on user input
-  function displayMatchingCities(userInput, stateAbbr) {
-    // Filter cities based on user input
-    let matchingCities;
-    if (!userInput) {
-      // If input is empty, show top cities (up to 8)
-      matchingCities = stateCitiesCache[stateAbbr].slice(0, 8);
-    } else {
-      matchingCities = stateCitiesCache[stateAbbr].filter(city => 
-        city.toLowerCase().includes(userInput)
-      );
-    }
-    
-    // Display matching cities
-    if (matchingCities.length > 0) {
-      autoCompleteContainer.innerHTML = '';
-      matchingCities.forEach(city => {
-        const item = document.createElement('div');
-        item.className = 'autocomplete-item';
-        item.textContent = city;
-        item.addEventListener('click', function() {
-          cityInput.value = city;
-          autoCompleteContainer.style.display = 'none';
-        });
-        autoCompleteContainer.appendChild(item);
-      });
+      const stateId = stateSelect.value;
+      if (!stateId) return;
       
-      // Block browser downward auto-fill position before showing
-      autoCompleteContainer.style.display = 'block';
-    } else {
-      autoCompleteContainer.style.display = 'none';
-    }
-  }
-  
-  // Show suggestions when clicking in the field
-  cityInput.addEventListener('click', function() {
-    const stateId = stateSelect.value;
-    if (!stateId) return;
-    
-    const stateOption = stateSelect.options[stateSelect.selectedIndex];
-    const stateText = stateOption.textContent;
-    const stateAbbr = getStateAbbr(stateText);
-    
-    if (!stateAbbr || !stateCitiesCache[stateAbbr]) return;
-    
-    // Show suggestions based on any existing input
-    const userInput = this.value.trim().toLowerCase();
-    displayMatchingCities(userInput, stateAbbr);
+      const userInput = this.value.trim();
+      
+      // Fetch matching cities from server
+      fetch(`/handlers/get_cities.php?state_id=${stateId}&term=${encodeURIComponent(userInput)}`)
+          .then(response => response.json())
+          .then(data => {
+              if (data.success && data.cities.length > 0) {
+                  // Display matching cities
+                  displayCitySuggestions(data.cities, autoCompleteContainer, cityInput);
+              } else {
+                  autoCompleteContainer.style.display = 'none';
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching cities:', error);
+              autoCompleteContainer.style.display = 'none';
+          });
   });
   
-  // Hide autocomplete when clicking outside
+  // Show suggestions on click
+  cityInput.addEventListener('click', function() {
+      const stateId = stateSelect.value;
+      if (!stateId) return;
+      
+      const userInput = this.value.trim();
+      
+      fetch(`/handlers/get_cities.php?state_id=${stateId}&term=${encodeURIComponent(userInput)}`)
+          .then(response => response.json())
+          .then(data => {
+              if (data.success && data.cities.length > 0) {
+                  displayCitySuggestions(data.cities, autoCompleteContainer, cityInput);
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching city suggestions:', error);
+          });
+  });
+  
+  // Hide suggestions on outside click
   document.addEventListener('click', function(e) {
-    if (e.target !== cityInput) {
-      autoCompleteContainer.style.display = 'none';
-    }
+      if (e.target !== cityInput) {
+          autoCompleteContainer.style.display = 'none';
+      }
   });
 }
 
@@ -861,219 +906,55 @@ function initZipCodeAutoComplete() {
   
   if (!zipInput || !cityInput || !stateSelect) return;
   
-  // Map of state abbreviations to their IDs in the select
-  const stateAbbrToId = {};
-  
-  // Build state abbreviation mapping
-  Array.from(stateSelect.options).forEach(option => {
-    if (option.value) {
-      // Get state name from option text
-      const stateName = option.textContent.toLowerCase();
-      
-      // Map of state names to abbreviations
-      const stateAbbreviations = {
-        "alabama": "AL", "alaska": "AK", "arizona": "AZ", "arkansas": "AR", "california": "CA",
-        "colorado": "CO", "connecticut": "CT", "delaware": "DE", "florida": "FL", "georgia": "GA",
-        "hawaii": "HI", "idaho": "ID", "illinois": "IL", "indiana": "IN", "iowa": "IA",
-        "kansas": "KS", "kentucky": "KY", "louisiana": "LA", "maine": "ME", "maryland": "MD",
-        "massachusetts": "MA", "michigan": "MI", "minnesota": "MN", "mississippi": "MS", "missouri": "MO",
-        "montana": "MT", "nebraska": "NE", "nevada": "NV", "new hampshire": "NH", "new jersey": "NJ",
-        "new mexico": "NM", "new york": "NY", "north carolina": "NC", "north dakota": "ND", "ohio": "OH",
-        "oklahoma": "OK", "oregon": "OR", "pennsylvania": "PA", "rhode island": "RI", "south carolina": "SC",
-        "south dakota": "SD", "tennessee": "TN", "texas": "TX", "utah": "UT", "vermont": "VT",
-        "virginia": "VA", "washington": "WA", "west virginia": "WV", "wisconsin": "WI", "wyoming": "WY",
-        "district of columbia": "DC"
-      };
-      
-      // Find which abbreviation matches this state name
-      for (const name in stateAbbreviations) {
-        if (stateName.includes(name)) {
-          stateAbbrToId[stateAbbreviations[name]] = option.value;
-          break;
-        }
-      }
-    }
-  });
-  
-  // Hard-coded ZIP code to city/state data for common ZIP codes
-  const zipCodeData = {
-    // New York
-    "10001": { city: "New York", state: "NY" },
-    "10016": { city: "New York", state: "NY" },
-    "10019": { city: "New York", state: "NY" },
-    // Los Angeles
-    "90001": { city: "Los Angeles", state: "CA" },
-    "90007": { city: "Los Angeles", state: "CA" },
-    "90015": { city: "Los Angeles", state: "CA" },
-    // Chicago
-    "60601": { city: "Chicago", state: "IL" },
-    "60607": { city: "Chicago", state: "IL" },
-    "60614": { city: "Chicago", state: "IL" },
-    // Houston
-    "77001": { city: "Houston", state: "TX" },
-    "77002": { city: "Houston", state: "TX" },
-    "77019": { city: "Houston", state: "TX" },
-    // Phoenix
-    "85001": { city: "Phoenix", state: "AZ" },
-    "85004": { city: "Phoenix", state: "AZ" },
-    "85013": { city: "Phoenix", state: "AZ" },
-    // Philadelphia
-    "19102": { city: "Philadelphia", state: "PA" },
-    "19103": { city: "Philadelphia", state: "PA" },
-    "19106": { city: "Philadelphia", state: "PA" },
-    // San Antonio
-    "78201": { city: "San Antonio", state: "TX" },
-    "78205": { city: "San Antonio", state: "TX" },
-    "78210": { city: "San Antonio", state: "TX" },
-    // San Diego
-    "92101": { city: "San Diego", state: "CA" },
-    "92107": { city: "San Diego", state: "CA" },
-    "92111": { city: "San Diego", state: "CA" },
-    // Dallas
-    "75201": { city: "Dallas", state: "TX" },
-    "75204": { city: "Dallas", state: "TX" },
-    "75207": { city: "Dallas", state: "TX" },
-    // San Jose
-    "95110": { city: "San Jose", state: "CA" },
-    "95112": { city: "San Jose", state: "CA" },
-    "95116": { city: "San Jose", state: "CA" },
-    // Austin
-    "78701": { city: "Austin", state: "TX" },
-    "78703": { city: "Austin", state: "TX" },
-    "78704": { city: "Austin", state: "TX" },
-    // Jacksonville
-    "32202": { city: "Jacksonville", state: "FL" },
-    "32204": { city: "Jacksonville", state: "FL" },
-    "32207": { city: "Jacksonville", state: "FL" },
-    // Fort Worth
-    "76102": { city: "Fort Worth", state: "TX" },
-    "76104": { city: "Fort Worth", state: "TX" },
-    "76107": { city: "Fort Worth", state: "TX" },
-    // Columbus
-    "43201": { city: "Columbus", state: "OH" },
-    "43204": { city: "Columbus", state: "OH" },
-    "43215": { city: "Columbus", state: "OH" },
-    // Charlotte
-    "28202": { city: "Charlotte", state: "NC" },
-    "28204": { city: "Charlotte", state: "NC" },
-    "28207": { city: "Charlotte", state: "NC" },
-    // Indianapolis
-    "46202": { city: "Indianapolis", state: "IN" },
-    "46204": { city: "Indianapolis", state: "IN" },
-    "46208": { city: "Indianapolis", state: "IN" },
-    // Seattle
-    "98101": { city: "Seattle", state: "WA" },
-    "98104": { city: "Seattle", state: "WA" },
-    "98109": { city: "Seattle", state: "WA" },
-    // Denver
-    "80202": { city: "Denver", state: "CO" },
-    "80204": { city: "Denver", state: "CO" },
-    "80206": { city: "Denver", state: "CO" },
-    // Boston
-    "02108": { city: "Boston", state: "MA" },
-    "02110": { city: "Boston", state: "MA" },
-    "02116": { city: "Boston", state: "MA" },
-    // Atlanta 
-    "30303": { city: "Atlanta", state: "GA" },
-    "30305": { city: "Atlanta", state: "GA" },
-    "30308": { city: "Atlanta", state: "GA" }
-  };
-  
   zipInput.addEventListener('blur', function() {
-    const zipCode = this.value.trim();
-    if (zipCode.length !== 5 || !/^\d{5}$/.test(zipCode)) {
-      return;
-    }
-    
-    // Try our hardcoded data first
-    if (zipCodeData[zipCode]) {
-      const data = zipCodeData[zipCode];
-      
-      // Set city
-      cityInput.value = data.city;
-      
-      // Set state if we have the mapping
-      if (data.state && stateAbbrToId[data.state]) {
-        stateSelect.value = stateAbbrToId[data.state];
-        
-        // Trigger change event
-        const changeEvent = new Event('change');
-        stateSelect.dispatchEvent(changeEvent);
-        
-        // Update custom dropdown if it exists
-        updateCustomDropdown(stateSelect);
+      const zipCode = this.value.trim();
+      if (zipCode.length !== 5 || !/^\d{5}$/.test(zipCode)) {
+          return;
       }
-      return;
-    }
-    
-    // Fall back to API for other ZIP codes
-    fetchZipCodeData(zipCode);
+      
+      // Fetch ZIP code data from server
+      fetch(`/handlers/get_zip_code.php?zip=${zipCode}`)
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  // Set city
+                  cityInput.value = data.city;
+                  
+                  // Set state if we have the ID
+                  if (data.state_id) {
+                      stateSelect.value = data.state_id;
+                      
+                      // Trigger change event
+                      const changeEvent = new Event('change');
+                      stateSelect.dispatchEvent(changeEvent);
+                      
+                      // Update custom dropdown if it exists
+                      updateCustomDropdown(stateSelect);
+                  }
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching ZIP code data:', error);
+          });
+  });
+}
+
+// Helper function to display city suggestions
+function displayCitySuggestions(cities, container, inputElement) {
+  container.innerHTML = '';
+  
+  cities.forEach(city => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.textContent = city;
+      item.addEventListener('click', function() {
+          inputElement.value = city;
+          container.style.display = 'none';
+      });
+      container.appendChild(item);
   });
   
-  /**
-   * Fetch ZIP code data from the API
-   */
-  async function fetchZipCodeData(zipCode) {
-    try {
-      const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-      
-      if (!response.ok) {
-        console.log(`ZIP API error: ${response.status}`);
-        return;
-      }
-      
-      const data = await response.json();
-      
-      if (data.places && data.places.length > 0) {
-        const place = data.places[0];
-        
-        // Set city
-        cityInput.value = place['place name'];
-        
-        // Set state if we have the mapping
-        const stateAbbr = place['state abbreviation'];
-        if (stateAbbr && stateAbbrToId[stateAbbr]) {
-          stateSelect.value = stateAbbrToId[stateAbbr];
-          
-          // Trigger change event
-          const changeEvent = new Event('change');
-          stateSelect.dispatchEvent(changeEvent);
-          
-          // Update custom dropdown if it exists
-          updateCustomDropdown(stateSelect);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching ZIP code data:', error);
-    }
-  }
-  
-  /**
-   * Update custom dropdown UI if it exists
-   */
-  function updateCustomDropdown(selectElement) {
-    const customDropdown = selectElement.closest('.custom-dropdown');
-    if (!customDropdown) return;
-    
-    // Get the selected option text
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-    if (!selectedOption) return;
-    
-    // Update the visible selected option text
-    const selectedDisplay = customDropdown.querySelector('.selected-option');
-    if (selectedDisplay) {
-      selectedDisplay.textContent = selectedOption.textContent;
-    }
-    
-    // Update the selected class in the dropdown menu
-    const options = customDropdown.querySelectorAll('.custom-dropdown-option');
-    options.forEach(option => {
-      option.classList.remove('selected');
-      if (option.getAttribute('data-value') === selectElement.value) {
-        option.classList.add('selected');
-      }
-    });
-  }
+  container.style.display = 'block';
 }
 
 // ------------------ Make UI functions available globally ---------------------

@@ -185,3 +185,58 @@ function generatePagination($currentPage, $totalPages, $params = [], $section = 
     
     return $html;
 }
+
+/**
+ * Send a standardized JSON error response
+ * 
+ * @param string $message Error message
+ * @param int $code HTTP status code
+ * @param array $details Additional error details
+ */
+function sendJsonError($message, $code = 400, $details = []) {
+  http_response_code($code);
+  header('Content-Type: application/json');
+  echo json_encode([
+      'success' => false,
+      'error' => $message,
+      'details' => $details
+  ]);
+  exit;
+}
+
+/**
+* Send a standardized JSON success response
+* 
+* @param array $data Response data
+*/
+function sendJsonSuccess($data = []) {
+  header('Content-Type: application/json');
+  echo json_encode(array_merge(['success' => true], $data));
+  exit;
+}
+
+/**
+* Check if user is authorized and has required role
+* 
+* @param array|int $requiredRoles Role(s) required for access
+* @return bool True if authorized
+*/
+function checkAuth($requiredRoles = []) {
+  $userObj = new User();
+  
+  // Check if user is logged in
+  if (!$userObj->isLoggedIn()) {
+      sendJsonError('Unauthorized', 401);
+      return false;
+  }
+  
+  // If specific roles are required, check them
+  if (!empty($requiredRoles)) {
+      if (!$userObj->hasRole($requiredRoles)) {
+          sendJsonError('Insufficient permissions', 403);
+          return false;
+      }
+  }
+  
+  return true;
+}

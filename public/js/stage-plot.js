@@ -1491,88 +1491,131 @@ function loadSavedPlots(plotState) {
  */
 function loadPlot(plotId, plotState) {
   fetch(`/handlers/get_plot.php?id=${plotId}`)
-    .then(response => {
-      if (!response.ok) {
+  .then(response => {
+    if (!response.ok) {
         throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data.plot) {
-        // Clear current elements
-        clearElements(plotState);
-        
-        // Update plot title and state
-        const plotTitle = document.getElementById('plot-title');
-        if (plotTitle) {
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      // Clear current elements
+      clearElements(plotState);
+      
+      // Update plot title and state
+      const plotTitle = document.getElementById('plot-title');
+      if (plotTitle) {
           plotTitle.textContent = data.plot.plot_name;
-        }
-        
-        // Store current plot info
-        plotState.currentPlotName = data.plot.plot_name;
-        plotState.currentPlotId = data.plot.plot_id;
-        
-        // Update venue dropdown to match the plot's venue
-        const venueSelect = document.getElementById('venue_select');
-        if (venueSelect && data.plot.effective_venue_id) {
-          venueSelect.value = data.plot.effective_venue_id;
-        }
-        
-        // Update event dates - handle null/empty values properly
-        const eventStartInput = document.getElementById('event_start');
-        const eventEndInput = document.getElementById('event_end');
-        
-        if (eventStartInput) {
-          eventStartInput.value = data.plot.event_date_start || '';
-        }
-        
-        if (eventEndInput) {
-          eventEndInput.value = data.plot.event_date_end || '';
-        }
-        
-        // Update stage dimensions
-        const stage = document.getElementById('stage');
-        if (stage) {
-          stage.setAttribute('data-venue-id', data.plot.effective_venue_id);
-          stage.setAttribute('data-stage-width', data.plot.stage_width || '20');
-          stage.setAttribute('data-stage-depth', data.plot.stage_depth || '15');
-          stage.setAttribute('data-is-user-venue', data.plot.is_user_venue || '0');
-          
-          // Update stage dimensions label
-          const dimensionsLabel = stage.querySelector('.stage-dimensions');
-          if (dimensionsLabel) {
-            dimensionsLabel.textContent = `${data.plot.stage_width || '20'}' × ${data.plot.stage_depth || '15'}'`;
-          }
-        }
-
-        const saveButton = document.getElementById('save-plot');
-        if (saveButton) {
-          saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
-        }
-        
-        // Hide the save changes button initially
-        const saveChangesButton = document.getElementById('save-changes');
-        if (saveChangesButton) {
-          saveChangesButton.classList.add('hidden');
-        }
-        
-        // Reset modified flag
-        plotState.isModified = false;
-
-        // Load placed elements
-        if (data.elements && data.elements.length > 0) {
-          loadPlacedElements(data.elements, plotState);
-        }
-        
-        const loadModal = document.getElementById('my-plots-modal');
-        closeModal(loadModal);
-        showNotification('Plot loaded!', 'success');
       }
-    })
-    .catch(error => {
-      console.error('Error loading plot:', error);
-      showNotification('Error loading plot. Please try again.', 'error');
-    });
+      
+      // Store current plot info
+      plotState.currentPlotName = data.plot.plot_name;
+      plotState.currentPlotId = data.plot.plot_id;
+      
+      // Update venue dropdown
+      const venueSelect = document.getElementById('venue_select');
+      if (venueSelect && data.plot.effective_venue_id) {
+          venueSelect.value = data.plot.effective_venue_id;
+      }
+      
+      // Update event dates
+      const eventStartInput = document.getElementById('event_start');
+      const eventEndInput = document.getElementById('event_end');
+      
+      if (eventStartInput) {
+          eventStartInput.value = data.plot.event_date_start || '';
+      }
+      
+      if (eventEndInput) {
+          eventEndInput.value = data.plot.event_date_end || '';
+      }
+      
+      // Update stage dimensions
+      const stage = document.getElementById('stage');
+      if (stage) {
+        stage.setAttribute('data-venue-id', data.plot.effective_venue_id);
+        stage.setAttribute('data-stage-width', data.plot.stage_width || '20');
+        stage.setAttribute('data-stage-depth', data.plot.stage_depth || '15');
+        stage.setAttribute('data-is-user-venue', data.plot.is_user_venue || '0');
+        
+        // Update stage dimensions label
+        const dimensionsLabel = stage.querySelector('.stage-dimensions');
+        if (dimensionsLabel) {
+            dimensionsLabel.textContent = `${data.plot.stage_width || '20'}' × ${data.plot.stage_depth || '15'}'`;
+        }
+      }
+
+      // Update button states
+      updatePlotUIState(plotState);
+      
+      // Update favorites data
+      updateFavoritesFromServer(plotState, data.favorites);
+
+      // Load placed elements
+      if (data.elements && data.elements.length > 0) {
+        loadPlacedElements(data.elements, plotState);
+      }
+      
+      const loadModal = document.getElementById('my-plots-modal');
+      closeModal(loadModal);
+      showNotification('Plot loaded!', 'success');
+    }
+  })
+  .catch(error => {
+    console.error('Error loading plot:', error);
+    showNotification('Error loading plot. Please try again.', 'error');
+  });
+}
+
+/**
+ * Update button states and UI for loaded plot
+ * @param {Object} plotState - The current plot state 
+ */
+function updatePlotUIState(plotState) {
+  const saveButton = document.getElementById('save-plot');
+  if (saveButton) {
+      saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
+  }
+  
+  // Hide the save changes button initially
+  const saveChangesButton = document.getElementById('save-changes');
+  if (saveChangesButton) {
+      saveChangesButton.classList.add('hidden');
+  }
+  
+  // Reset modified flag
+  plotState.isModified = false;
+}
+
+/**
+ * Update favorites data from server
+ * @param {Object} plotState - The current plot state
+ * @param {Array} favorites - Favorites data from server
+ */
+function updateFavoritesFromServer(plotState, favorites) {
+  if (!favorites) return;
+  
+  // Update favorites in state
+  plotState.favorites = favorites.map(fav => parseInt(fav.element_id));
+  plotState.favoritesData = favorites;
+  
+  // Update favorites UI
+  updateFavoritesCategory(plotState);
+  
+  // Update the favorite buttons on all elements
+  const allButtons = document.querySelectorAll('.draggable-element .favorite-button');
+  allButtons.forEach(button => {
+      const elementContainer = button.closest('.draggable-element');
+      if (!elementContainer) return;
+      
+      const elementId = parseInt(elementContainer.getAttribute('data-element-id'));
+      const isFavorite = plotState.favorites.includes(elementId);
+      
+      button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+      button.innerHTML = isFavorite ? 
+          '<i class="fa-solid fa-star"></i>' : 
+          '<i class="fa-regular fa-star"></i>';
+  });
 }
 
 /**
