@@ -51,6 +51,112 @@ function initStageEditor() {
   setupDateValidation(plotState);
 }
 
+/**
+ * Calculate stage dimensions based on venue dimensions
+ * @param {number} venueWidth - Venue width in feet
+ * @param {number} venueDepth - Venue depth in feet
+ * @param {number} maxStageWidth - Maximum stage width in pixels
+ * @returns {Object} Object with calculated width, height, and grid size
+ */
+function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
+  // Default values if dimensions are invalid
+  if (!venueWidth || !venueDepth || venueWidth <= 0 || venueDepth <= 0) {
+    venueWidth = 20;
+    venueDepth = 15;
+  }
+
+  // Calculate aspect ratio
+  const aspectRatio = venueDepth / venueWidth;
+  
+  // Calculate stage dimensions in pixels
+  const stageWidth = maxStageWidth;
+  const stageHeight = Math.round(stageWidth * aspectRatio);
+  
+  // Calculate grid size (each grid square is 5' x 5')
+  const gridSizeWidth = stageWidth / (venueWidth / 5);
+  const gridSizeHeight = stageHeight / (venueDepth / 5);
+  
+  // Use the smaller of the two to ensure squares
+  const gridSize = Math.min(gridSizeWidth, gridSizeHeight);
+  
+  return {
+    width: stageWidth,
+    height: stageHeight,
+    gridSize: gridSize,
+    widthInFeet: venueWidth,
+    depthInFeet: venueDepth,
+    gridSquaresX: Math.ceil(venueWidth / 5),
+    gridSquaresY: Math.ceil(venueDepth / 5)
+  };
+}
+
+/**
+ * Update stage dimensions based on venue selection
+ * @param {Object} dimensions - The calculated dimensions
+ * @param {HTMLElement} stage - The stage element
+ */
+function updateStageDimensions(dimensions, stage) {
+  if (!stage) return;
+  
+  // Update stage dimensions
+  stage.style.width = `${dimensions.width}px`;
+  stage.style.height = `${dimensions.height}px`;
+  
+  // Update data attributes
+  stage.setAttribute('data-stage-width', dimensions.widthInFeet);
+  stage.setAttribute('data-stage-depth', dimensions.depthInFeet);
+  
+  // Update grid overlay
+  updateGridOverlay(dimensions, stage);
+  
+  // Update dimensions label
+  updateDimensionsLabel(dimensions, stage);
+}
+
+/**
+ * Update the grid overlay with proper scaling
+ * @param {Object} dimensions - The calculated dimensions
+ * @param {HTMLElement} stage - The stage element
+ */
+function updateGridOverlay(dimensions, stage) {
+  // Find or create grid overlay
+  let gridOverlay = stage.querySelector('.grid-overlay');
+  
+  if (!gridOverlay) {
+    // Create grid overlay if it doesn't exist
+    gridOverlay = document.createElement('div');
+    gridOverlay.className = 'grid-overlay';
+    stage.appendChild(gridOverlay);
+  }
+  
+  // Update grid size
+  gridOverlay.style.backgroundSize = `${dimensions.gridSize}px ${dimensions.gridSize}px`;
+  
+  // Store grid size in data attribute for reference
+  gridOverlay.setAttribute('data-grid-size', dimensions.gridSize);
+  gridOverlay.setAttribute('data-grid-squares-x', dimensions.gridSquaresX);
+  gridOverlay.setAttribute('data-grid-squares-y', dimensions.gridSquaresY);
+}
+
+/**
+ * Update dimensions label on the stage
+ * @param {Object} dimensions - The calculated dimensions
+ * @param {HTMLElement} stage - The stage element
+ */
+function updateDimensionsLabel(dimensions, stage) {
+  // Find existing dimensions label or create one
+  let dimensionsLabel = stage.querySelector('.stage-dimensions');
+  
+  if (!dimensionsLabel) {
+    dimensionsLabel = document.createElement('div');
+    dimensionsLabel.className = 'stage-dimensions';
+    stage.appendChild(dimensionsLabel);
+  }
+  
+  // Update label with dimensions and grid squares
+  dimensionsLabel.textContent = `${dimensions.widthInFeet}' × ${dimensions.depthInFeet}' (${dimensions.gridSquaresX}×${dimensions.gridSquaresY} grid)`;
+}
+
 /** 
  * Setup date validation to make sure end date is after start date
  * @param {Object} plotState - The current plot state
@@ -1533,16 +1639,18 @@ function loadPlot(plotId, plotState) {
       // Update stage dimensions
       const stage = document.getElementById('stage');
       if (stage) {
-        stage.setAttribute('data-venue-id', data.plot.effective_venue_id);
-        stage.setAttribute('data-stage-width', data.plot.stage_width || '20');
-        stage.setAttribute('data-stage-depth', data.plot.stage_depth || '15');
-        stage.setAttribute('data-is-user-venue', data.plot.is_user_venue || '0');
+        // Calculate dimensions based on venue
+        const dimensions = calculateStageDimensions(
+          parseInt(data.plot.stage_width) || 20,
+          parseInt(data.plot.stage_depth) || 15
+        );
         
-        // Update stage dimensions label
-        const dimensionsLabel = stage.querySelector('.stage-dimensions');
-        if (dimensionsLabel) {
-            dimensionsLabel.textContent = `${data.plot.stage_width || '20'}' × ${data.plot.stage_depth || '15'}'`;
-        }
+        // Update stage with calculated dimensions
+        updateStageDimensions(dimensions, stage);
+        
+        // Update venue attributes
+        stage.setAttribute('data-venue-id', data.plot.effective_venue_id);
+        stage.setAttribute('data-is-user-venue', data.plot.is_user_venue || '0');
       }
 
       // Update button states
@@ -1551,7 +1659,7 @@ function loadPlot(plotId, plotState) {
       // Update favorites data
       updateFavoritesFromServer(plotState, data.favorites);
 
-      // Load placed elements
+      // Load placed elements with proper scaling
       if (data.elements && data.elements.length > 0) {
         loadPlacedElements(data.elements, plotState);
       }
@@ -2010,14 +2118,12 @@ function setupInitialState(plotState) {
   
   // Set up initial stage dimensions based on default venue
   if (stage) {
-    const stageWidth = stage.getAttribute('data-stage-width');
-    const stageDepth = stage.getAttribute('data-stage-depth');
+    const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+    const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
     
-    // Display stage dimensions
-    const dimensionsLabel = document.createElement('div');
-    dimensionsLabel.className = 'stage-dimensions';
-    dimensionsLabel.textContent = `${stageWidth}' × ${stageDepth}'`;
-    stage.appendChild(dimensionsLabel);
+    // Calculate and apply dimensions
+    const dimensions = calculateStageDimensions(stageWidth, stageDepth);
+    updateStageDimensions(dimensions, stage);
   }
   
   // Set current date for event dates when the page loads
@@ -2051,17 +2157,9 @@ function setupVenueSelectHandler(plotState) {
     
     // If no venue is selected, set default stage dimensions
     if (!venueValue) {
-      // Set default stage dimensions (e.g., 20' x 15')
-      stage.setAttribute('data-venue-id', '');
-      stage.setAttribute('data-stage-width', '20');
-      stage.setAttribute('data-stage-depth', '15');
-      stage.setAttribute('data-is-user-venue', '0');
-      
-      // Update stage dimensions label
-      const dimensionsLabel = stage.querySelector('.stage-dimensions');
-      if (dimensionsLabel) {
-        dimensionsLabel.textContent = `20' × 15'`;
-      }
+      // Calculate dimensions for default 20' x 15' stage
+      const dimensions = calculateStageDimensions(20, 15);
+      updateStageDimensions(dimensions, stage);
       
       // Mark plot as modified if we're editing an existing plot
       if (plotState.currentPlotId) {
@@ -2094,17 +2192,18 @@ function setupVenueSelectHandler(plotState) {
       })
       .then(data => {
         if (data.success && data.venue) {
-          // Update stage dimensions
-          stage.setAttribute('data-venue-id', venueId);
-          stage.setAttribute('data-stage-width', data.venue.stage_width);
-          stage.setAttribute('data-stage-depth', data.venue.stage_depth);
-          stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
+          // Calculate stage dimensions based on venue
+          const dimensions = calculateStageDimensions(
+            parseInt(data.venue.stage_width) || 20,
+            parseInt(data.venue.stage_depth) || 15
+          );
           
-          // Update stage dimensions label
-          const dimensionsLabel = stage.querySelector('.stage-dimensions');
-          if (dimensionsLabel) {
-            dimensionsLabel.textContent = `${data.venue.stage_width}' × ${data.venue.stage_depth}'`;
-          }
+          // Update stage with new dimensions
+          updateStageDimensions(dimensions, stage);
+          
+          // Update venue attributes
+          stage.setAttribute('data-venue-id', venueId);
+          stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
           
           // Mark plot as modified if we're editing an existing plot
           if (plotState.currentPlotId) {
@@ -2114,7 +2213,11 @@ function setupVenueSelectHandler(plotState) {
       })
       .catch(error => {
         console.error('Error fetching venue:', error);
-        alert('Failed to load venue information. Please try again.');
+        // Use default dimensions on error
+        const dimensions = calculateStageDimensions(20, 15);
+        updateStageDimensions(dimensions, stage);
+        
+        alert('Failed to load venue information. Using default dimensions.');
       });
   });
 }
@@ -2316,3 +2419,7 @@ window.getElementData = getElementData;
 window.updateFavoritesCategory = updateFavoritesCategory;
 window.moveFavoritesToTop = moveFavoritesToTop;
 window.setupDateValidation = setupDateValidation;
+window.calculateStageDimensions = calculateStageDimensions;
+window.updateStageDimensions = updateStageDimensions;
+window.updateGridOverlay = updateGridOverlay;
+window.updateDimensionsLabel = updateDimensionsLabel;

@@ -423,7 +423,9 @@ function initStageGrid() {
   const gridToggle = document.createElement('button');
   gridToggle.className = 'grid-toggle';
   gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
-  gridToggle.title = 'Toggle Grid';
+  gridToggle.title = 'Toggle Grid (5\' × 5\' squares)';
+  
+  // Set styling directly
   gridToggle.style.position = 'absolute';
   gridToggle.style.top = '5px';
   gridToggle.style.left = '5px';
@@ -439,18 +441,28 @@ function initStageGrid() {
   // Create grid overlay
   const gridOverlay = document.createElement('div');
   gridOverlay.className = 'grid-overlay';
+  
+  // Set styling directly
   gridOverlay.style.position = 'absolute';
   gridOverlay.style.top = '0';
   gridOverlay.style.left = '0';
   gridOverlay.style.width = '100%';
   gridOverlay.style.height = '100%';
   gridOverlay.style.backgroundImage = 'linear-gradient(to right, rgba(82, 108, 129, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(82, 108, 129, 0.1) 1px, transparent 1px)';
-  gridOverlay.style.backgroundSize = '50px 50px';
   gridOverlay.style.pointerEvents = 'none';
   gridOverlay.style.zIndex = '1';
   gridOverlay.style.opacity = '0';
   gridOverlay.style.transition = 'opacity 0.3s ease';
   
+  // Get initial dimensions from stage
+  const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+  const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
+  
+  // Calculate initial grid size
+  const dimensions = calculateStageDimensions(stageWidth, stageDepth);
+  gridOverlay.style.backgroundSize = `${dimensions.gridSize}px ${dimensions.gridSize}px`;
+  
+  // Add elements to the stage
   stage.appendChild(gridToggle);
   stage.appendChild(gridOverlay);
   
