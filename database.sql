@@ -75,24 +75,29 @@ CREATE TABLE IF NOT EXISTS `placed_elements` (
   KEY `fk_placed_elements_element` (`element_id`),
   CONSTRAINT `fk_placed_elements_element` FOREIGN KEY (`element_id`) REFERENCES `elements` (`element_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_placed_elements_plot` FOREIGN KEY (`plot_id`) REFERENCES `saved_plots` (`plot_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1078 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1946 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table jrtdesig_stagewrite.placed_elements: ~19 rows (approximately)
 REPLACE INTO `placed_elements` (`placed_id`, `element_id`, `plot_id`, `x_position`, `y_position`, `width`, `height`, `rotation`, `flipped`, `z_index`, `label`, `notes`) VALUES
-	(1007, 2, 60, 175.617, 247.567, 113, 75, 0, 0, 1, '', ''),
-	(1008, 1, 60, 443.617, 253.567, 75, 75, 0, 0, 3, '', ''),
-	(1009, 1, 60, 320, 107, 75, 75, 0, 0, 4, '', ''),
-	(1062, 2, 62, 170.367, 213.733, 113, 75, 0, 0, 1, '', ''),
-	(1068, 1, 50, 262, 272, 75, 75, 0, 0, 4, '', ''),
-	(1069, 1, 50, 107, 188, 75, 75, 0, 0, 5, '', ''),
-	(1070, 1, 50, 387, 255, 75, 75, 0, 0, 20, '', ''),
-	(1071, 1, 50, 537.617, 183.567, 75, 75, 0, 0, 7, '', ''),
-	(1072, 1, 50, 324, 85, 75, 75, 0, 0, 21, '', ''),
-	(1073, 2, 56, 179, 275, 113, 75, 0, 0, 20, '', ''),
-	(1074, 1, 56, 443.617, 253.567, 75, 75, 0, 0, 3, '', ''),
-	(1075, 1, 56, 421, 138, 75, 75, 0, 0, 19, '', ''),
-	(1076, 2, 56, 46, 140, 113, 75, 0, 0, 16, '', ''),
-	(1077, 2, 56, 253, 65, 113, 75, 0, 0, 21, '', '');
+	(1690, 2, 82, 170, 241, 113, 75, 0, 0, 14, '', ''),
+	(1691, 1, 82, 252, 125, 75, 75, 0, 0, 12, '', ''),
+	(1692, 2, 82, 311, 226, 113, 75, 0, 0, 15, '', ''),
+	(1809, 2, 104, 192, 270, 113, 75, 0, 0, 42, '', ''),
+	(1810, 1, 104, 291, 120, 75, 75, 0, 0, 46, 'Joe', ''),
+	(1811, 2, 104, 344, 271, 113, 75, 0, 0, 43, '', ''),
+	(1812, 2, 105, 192, 270, 113, 75, 0, 0, 42, '', ''),
+	(1813, 1, 105, 291, 120, 75, 75, 0, 0, 46, 'Joe', ''),
+	(1814, 2, 105, 344, 271, 113, 75, 0, 0, 43, '', ''),
+	(1818, 2, 107, 192, 270, 113, 75, 0, 0, 42, '', ''),
+	(1819, 1, 107, 291, 120, 75, 75, 0, 0, 46, 'Joe', ''),
+	(1820, 2, 107, 344, 271, 113, 75, 0, 0, 43, '', ''),
+	(1844, 2, 106, 192, 270, 113, 75, 0, 0, 42, '', ''),
+	(1845, 2, 106, 341, 269, 113, 75, 0, 0, 47, '', ''),
+	(1846, 1, 106, 285, 119, 75, 75, 0, 0, 49, 'Joe', ''),
+	(1942, 1, 109, 482, 128, 75, 75, 0, 0, 103, 'Joe', ''),
+	(1943, 2, 109, 512, 299, 113, 75, 0, 0, 102, 'GHEE-TARRR', ''),
+	(1944, 2, 109, 259, 294, 113, 75, 0, 0, 99, 'Kelly', ''),
+	(1945, 1, 109, 330, 124, 75, 75, 0, 0, 104, '', '');
 
 -- Dumping structure for table jrtdesig_stagewrite.plot_inputs
 CREATE TABLE IF NOT EXISTS `plot_inputs` (
@@ -123,14 +128,16 @@ CREATE TABLE IF NOT EXISTS `saved_plots` (
   KEY `venue_id` (`venue_id`),
   KEY `fk_saved_plots_user_venue` (`user_venue_id`),
   CONSTRAINT `fk_saved_plots_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table jrtdesig_stagewrite.saved_plots: ~5 rows (approximately)
+-- Dumping data for table jrtdesig_stagewrite.saved_plots: ~6 rows (approximately)
 REPLACE INTO `saved_plots` (`plot_id`, `user_id`, `plot_name`, `event_date_start`, `event_date_end`, `venue_id`, `user_venue_id`, `created_at`, `updated_at`) VALUES
-	(50, '840b812e-ec97-11ef-bb3f-0a0027000006', 'DRUM FEST', '2025-03-31', NULL, 24, NULL, '2025-03-15 07:47:12', '2025-03-20 20:34:40'),
-	(56, '840b812e-ec97-11ef-bb3f-0a0027000006', 'More Testing MOAR', NULL, NULL, 24, NULL, '2025-03-19 20:33:27', '2025-03-21 14:23:14'),
-	(60, '840b812e-ec97-11ef-bb3f-0a0027000006', 'No Venue test', NULL, NULL, NULL, NULL, '2025-03-20 17:32:52', '2025-03-20 17:48:21'),
-	(62, '840b812e-ec97-11ef-bb3f-0a0027000006', 'JS refactor test', '2025-03-20', '2025-03-20', NULL, NULL, '2025-03-20 20:21:38', '2025-03-20 20:21:38');
+	(82, '2a751dc2-084f-11f0-93b0-0a0027000006', 'TEST 4', '2025-03-24', '2025-03-24', NULL, NULL, '2025-03-24 02:49:32', '2025-03-24 02:49:32'),
+	(104, '840b812e-ec97-11ef-bb3f-0a0027000006', '2', '2025-03-27', '2025-03-27', NULL, 15, '2025-03-25 05:29:08', '2025-03-25 05:29:08'),
+	(105, '840b812e-ec97-11ef-bb3f-0a0027000006', '33', '2025-03-27', '2025-03-27', NULL, 15, '2025-03-25 05:29:10', '2025-03-25 05:29:10'),
+	(106, '840b812e-ec97-11ef-bb3f-0a0027000006', '3', '2025-03-27', '2025-03-27', NULL, 15, '2025-03-25 05:29:13', '2025-03-26 18:05:14'),
+	(107, '840b812e-ec97-11ef-bb3f-0a0027000006', '4', '2025-03-27', '2025-03-27', NULL, 15, '2025-03-25 05:29:16', '2025-03-25 05:29:16'),
+	(109, '840b812e-ec97-11ef-bb3f-0a0027000006', 'Moomaoma', '2025-04-08', '2025-04-08', NULL, 4, '2025-03-26 18:11:12', '2025-03-30 14:59:52');
 
 -- Dumping structure for table jrtdesig_stagewrite.states
 CREATE TABLE IF NOT EXISTS `states` (
@@ -210,12 +217,12 @@ CREATE TABLE IF NOT EXISTS `users` (
   CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `user_roles` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table jrtdesig_stagewrite.users: ~31 rows (approximately)
+-- Dumping data for table jrtdesig_stagewrite.users: ~35 rows (approximately)
 REPLACE INTO `users` (`user_id`, `password_hash`, `email`, `first_name`, `last_name`, `role_id`, `created_at`, `is_active`) VALUES
 	('01605b3c-fe88-11ef-b270-ac1f6bd8cd8c', '$2y$10$Kxr0hyaQb.zLfrN5Hj8bTeNRKivvNa.gjEFEQyGHqQal8oyuGgx9W', 'adalie.marie@gmail.com', 'Addie', 'Thomas', 2, '2025-03-11 14:49:03', 1),
 	('1d0a4f46-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'admin1@admin.com', 'Jane', 'Smith', 1, '2025-02-01 16:25:11', 0),
 	('1d0a4fe7-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'admin2@admin.com', 'Michael', 'Johnson', 2, '2025-02-01 16:25:11', 1),
-	('1d0b4301-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member1@example.com', 'Emily', 'Brown', 2, '2025-02-01 16:25:11', 1),
+	('1d0b4301-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member1@example.com', 'Emily', 'Brown', 2, '2025-02-01 16:25:11', 0),
 	('1d0b4484-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member2@example.com', 'David', 'Williams', 1, '2025-02-01 16:25:11', 1),
 	('1d0b44f3-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member3@example.com', 'Sarah', 'Jones', 1, '2025-02-01 16:25:11', 1),
 	('1d0b4542-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member4@example.com', 'James', 'Garcia', 1, '2025-02-01 16:25:11', 1),
@@ -232,16 +239,20 @@ REPLACE INTO `users` (`user_id`, `password_hash`, `email`, `first_name`, `last_n
 	('1d0b4a29-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member22@example.com', 'Matthew', 'Hall', 1, '2025-02-01 16:25:11', 0),
 	('1d0b4cf5-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member27@example.com', 'Betty', 'Scott', 1, '2025-02-01 16:25:11', 1),
 	('1d0b4d3c-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member28@example.com', 'Donald', 'Green', 1, '2025-02-01 16:25:11', 1),
-	('1d0b4d83-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member29@example.com', 'Dorothy', 'Baker', 1, '2025-02-01 16:25:11', 1),
+	('1d0b4d83-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member29@example.com', 'Dorothy', 'Baker', 1, '2025-02-01 16:25:11', 0),
 	('1d0b4dc9-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member30@example.com', 'Paul', 'Adams', 2, '2025-02-01 16:25:11', 1),
 	('1d0b4e17-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member31@example.com', 'Sandra', 'Nelson', 1, '2025-02-01 16:25:11', 1),
 	('1d0b4e66-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member32@example.com', 'Steven', 'Carter', 1, '2025-02-01 16:25:11', 1),
 	('1d0b4f03-e0b9-11ef-8f29-ac1f6bd8cd8c', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'member34@example.com', 'Kimberly', 'Perez', 1, '2025-02-01 16:25:11', 1),
+	('21968a72-0848-11f0-93b0-0a0027000006', '$2y$10$gKgtRzKJjVanNqG.43nmFOv6WkKyZEzEVF.4tGhJ0TMyBkEdHFHtW', 'TWO@gmail.com', 'TWO', 'TWO', 1, '2025-03-24 00:37:14', 1),
+	('25869af1-084e-11f0-93b0-0a0027000006', '$2y$10$F/MgWa7sZU.YngCRYlO9tuNObZbiTJCSndGkrkIOe23gB06g4nJcq', 'THREE@gmail.com', 'THREE', 'THREE', 1, '2025-03-24 01:20:17', 1),
+	('2a751dc2-084f-11f0-93b0-0a0027000006', '$2y$10$7oqudtXiOVfdYFFglVBF4.44bi1G6cLM6Cmzuuoh./Z554Mbht0ce', 'FOUR@gmail.com', 'FOUR', 'FOUR', 1, '2025-03-24 01:27:35', 1),
 	('6277c8a9-fe98-11ef-b270-ac1f6bd8cd8c', '$2y$10$eJy0mUvMyfgPlz9KjZMgX.G8o5liATif6hjzwlEOaBauawDG7D9c.', 'Testtest@gmail.com', 'test', 'last', 1, '2025-03-11 16:46:18', 1),
-	('7912f77d-fd1f-11ef-b270-ac1f6bd8cd8c', '$2y$10$mxRPu29c6RbfnGhNrZVYSe8K7Yg1RY8GcxEZykHujIXssU.kZ0mX6', 'qwe@asd.com', 'qwe', 'qwe', 1, '2025-03-09 19:48:17', 1),
+	('7912f77d-fd1f-11ef-b270-ac1f6bd8cd8c', '$2y$10$mxRPu29c6RbfnGhNrZVYSe8K7Yg1RY8GcxEZykHujIXssU.kZ0mX6', 'qwe@asd.com', 'qwe', 'qwe', 1, '2025-03-09 19:48:17', 0),
 	('840b812e-ec97-11ef-bb3f-0a0027000006', '$2y$10$MXsbfRNyNc.0lKulbprB0etMUA7nq6JYFByPHscuiXCbGbU3UcKNG', 'joeblow@gmail.com', 'Joe', 'Blow', 3, '2025-02-16 18:54:57', 1),
 	('ab54fed4-fd02-11ef-b141-0a0027000006', '$2y$10$ApvmDH9Z67h9x29FwM8rh.qXQLa2SqdJyGWEty8DIdRBcl/QRg2G6', 'TestyTest@test.com', 'Testy', 'McTest', 1, '2025-03-09 16:22:17', 1),
 	('ce59b525-fe2a-11ef-b270-ac1f6bd8cd8c', '$2y$10$MbLuzPeycQaiDZge2vdweu/d1osaunP1M/9xywSnMPl7eLqYa5CKa', 'user@test.com', 'Kevin', 'Franklin', 1, '2025-03-11 03:41:54', 1),
+	('df2ceefe-0841-11f0-99e3-0a0027000006', '$2y$10$J2crSUxi2qCcU0UzMug5fuUCdsO9K7RPD2NXk4VRtwfZmAezb76Ru', 'BARF1234@gmail.com', 'Barf', 'McGee', 1, '2025-03-23 23:52:25', 1),
 	('fc5e35a4-fe71-11ef-b270-ac1f6bd8cd8c', '$2y$10$BPidut5VXijRcr0A6AqGC.3/xTzU8tfWkGgD08PvThNj.2HysNEjC', 'ashleerollice@students.abtech.edu', 'Ashlee ', 'Rollice', 1, '2025-03-11 12:11:25', 1);
 
 -- Dumping structure for table jrtdesig_stagewrite.user_favorites
@@ -254,13 +265,19 @@ CREATE TABLE IF NOT EXISTS `user_favorites` (
   KEY `fk_favorites_element` (`element_id`),
   CONSTRAINT `fk_favorites_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_user_favorites_element` FOREIGN KEY (`element_id`) REFERENCES `elements` (`element_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=229 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=601 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table jrtdesig_stagewrite.user_favorites: ~3 rows (approximately)
+-- Dumping data for table jrtdesig_stagewrite.user_favorites: ~9 rows (approximately)
 REPLACE INTO `user_favorites` (`favorite_id`, `user_id`, `element_id`) VALUES
 	(128, '1d0b4301-e0b9-11ef-8f29-ac1f6bd8cd8c', 1),
 	(205, '1d0b4851-e0b9-11ef-8f29-ac1f6bd8cd8c', 2),
-	(154, '1d0b4cf5-e0b9-11ef-8f29-ac1f6bd8cd8c', 2);
+	(154, '1d0b4cf5-e0b9-11ef-8f29-ac1f6bd8cd8c', 2),
+	(522, '21968a72-0848-11f0-93b0-0a0027000006', 1),
+	(538, '25869af1-084e-11f0-93b0-0a0027000006', 2),
+	(524, '2a751dc2-084f-11f0-93b0-0a0027000006', 2),
+	(596, '840b812e-ec97-11ef-bb3f-0a0027000006', 1),
+	(520, 'df2ceefe-0841-11f0-99e3-0a0027000006', 1),
+	(519, 'df2ceefe-0841-11f0-99e3-0a0027000006', 2);
 
 -- Dumping structure for table jrtdesig_stagewrite.user_roles
 CREATE TABLE IF NOT EXISTS `user_roles` (
@@ -292,13 +309,24 @@ CREATE TABLE IF NOT EXISTS `user_venues` (
   KEY `user_id` (`user_id`) USING BTREE,
   CONSTRAINT `fk_user_venues_state` FOREIGN KEY (`venue_state_id`) REFERENCES `states` (`state_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_user_venues_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table jrtdesig_stagewrite.user_venues: ~1 rows (approximately)
+-- Dumping data for table jrtdesig_stagewrite.user_venues: ~12 rows (approximately)
 REPLACE INTO `user_venues` (`user_venue_id`, `user_id`, `venue_name`, `venue_street`, `venue_city`, `venue_state_id`, `venue_zip`, `stage_depth`, `stage_width`) VALUES
 	(1, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Venue From Member Test - Name only', NULL, NULL, NULL, NULL, NULL, NULL),
 	(3, '840b812e-ec97-11ef-bb3f-0a0027000006', 'New Venue From Member Test - Full Info', '54 Danielwood Ct', 'Clyde', 1, '28721', 100, 50),
-	(4, '840b812e-ec97-11ef-bb3f-0a0027000006', 'Test Again', NULL, NULL, NULL, NULL, NULL, NULL);
+	(4, '840b812e-ec97-11ef-bb3f-0a0027000006', 'Test Again', NULL, NULL, NULL, NULL, NULL, NULL),
+	(5, '21968a72-0848-11f0-93b0-0a0027000006', 'ONE', NULL, NULL, NULL, NULL, 50, 100),
+	(6, '21968a72-0848-11f0-93b0-0a0027000006', '123', NULL, NULL, NULL, NULL, NULL, NULL),
+	(7, '21968a72-0848-11f0-93b0-0a0027000006', 'aasd', NULL, NULL, NULL, NULL, NULL, NULL),
+	(8, '21968a72-0848-11f0-93b0-0a0027000006', 'fsdfsf', NULL, NULL, NULL, NULL, NULL, NULL),
+	(9, '25869af1-084e-11f0-93b0-0a0027000006', 'THREE', NULL, NULL, NULL, NULL, 50, 100),
+	(10, '25869af1-084e-11f0-93b0-0a0027000006', 'FOUR', NULL, NULL, NULL, NULL, 50, 100),
+	(11, '25869af1-084e-11f0-93b0-0a0027000006', 'FIVE', NULL, NULL, NULL, NULL, NULL, NULL),
+	(12, '2a751dc2-084f-11f0-93b0-0a0027000006', 'ONE', NULL, NULL, NULL, NULL, NULL, NULL),
+	(13, '2a751dc2-084f-11f0-93b0-0a0027000006', 'TWO', NULL, NULL, NULL, NULL, NULL, NULL),
+	(14, '2a751dc2-084f-11f0-93b0-0a0027000006', 'THREE', NULL, NULL, NULL, NULL, 23, 122),
+	(15, '840b812e-ec97-11ef-bb3f-0a0027000006', 'TEST TEST TEST TEST', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- Dumping structure for table jrtdesig_stagewrite.venues
 CREATE TABLE IF NOT EXISTS `venues` (

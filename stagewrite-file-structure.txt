@@ -41,7 +41,6 @@ stagewrite
 │   │   ├── base.css
 │   │   ├── coming_soon.css
 │   │   ├── components.css
-│   │   ├── improvements.css
 │   │   ├── main.css
 │   │   ├── plots.css
 │   │   ├── responsive.css
