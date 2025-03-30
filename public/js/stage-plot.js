@@ -129,11 +129,29 @@ function updateGridOverlay(dimensions, stage) {
     stage.appendChild(gridOverlay);
   }
   
-  // Update grid size
-  gridOverlay.style.backgroundSize = `${dimensions.gridSize}px ${dimensions.gridSize}px`;
+  // Calculate foot size in pixels (1/5 of the grid size)
+  const footSize = dimensions.gridSize / 5;
+  
+  // Create a complex background with both 5-foot and 1-foot lines
+  // The 5-foot lines are darker (rgba opacity 0.15) than the 1-foot lines (rgba opacity 0.05)
+  gridOverlay.style.backgroundImage = `
+    linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+    linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
+  `;
+  
+  // Set the background sizes for both types of grid lines
+  gridOverlay.style.backgroundSize = `
+    ${dimensions.gridSize}px ${dimensions.gridSize}px,
+    ${dimensions.gridSize}px ${dimensions.gridSize}px,
+    ${footSize}px ${footSize}px,
+    ${footSize}px ${footSize}px
+  `;
   
   // Store grid size in data attribute for reference
   gridOverlay.setAttribute('data-grid-size', dimensions.gridSize);
+  gridOverlay.setAttribute('data-foot-size', footSize);
   gridOverlay.setAttribute('data-grid-squares-x', dimensions.gridSquaresX);
   gridOverlay.setAttribute('data-grid-squares-y', dimensions.gridSquaresY);
 }
@@ -154,7 +172,14 @@ function updateDimensionsLabel(dimensions, stage) {
   }
   
   // Update label with dimensions and grid squares
+  // Format: Width × Depth (grid squares) | pixels
   dimensionsLabel.textContent = `${dimensions.widthInFeet}' × ${dimensions.depthInFeet}' (${dimensions.gridSquaresX}×${dimensions.gridSquaresY} grid)`;
+  
+  // Add a tooltip with more detailed information
+  dimensionsLabel.title = `Stage dimensions: ${dimensions.widthInFeet}' × ${dimensions.depthInFeet}'
+  Grid size: ${dimensions.gridSquaresX} × ${dimensions.gridSquaresY} of 5' squares
+  Pixel dimensions: ${dimensions.width}px × ${dimensions.height}px
+  Scale: 1 foot = ${dimensions.gridSize/5}px`;
 }
 
 /** 
@@ -1734,6 +1759,13 @@ function updateFavoritesFromServer(plotState, favorites) {
 function loadPlacedElements(elements, plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
+  
+  // Get stage dimensions
+  const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+  const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
+  
+  // Calculate dimensions for proper scaling
+  const dimensions = calculateStageDimensions(stageWidth, stageDepth);
   
   // Clear existing elements first
   const placedElements = stage.querySelectorAll('.placed-element');
