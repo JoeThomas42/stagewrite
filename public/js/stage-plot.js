@@ -32,6 +32,7 @@ function initStageEditor() {
   moveFavoritesToTop();
   initLoadPlotModal(plotState);
   initPageNavigation(plotState);
+  initStageGrid(); // Add this line to initialize the grid system
 
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
@@ -126,6 +127,15 @@ function updateGridOverlay(dimensions, stage) {
     // Create grid overlay if it doesn't exist
     gridOverlay = document.createElement('div');
     gridOverlay.className = 'grid-overlay';
+    gridOverlay.style.position = 'absolute';
+    gridOverlay.style.top = '0';
+    gridOverlay.style.left = '0';
+    gridOverlay.style.width = '100%';
+    gridOverlay.style.height = '100%';
+    gridOverlay.style.pointerEvents = 'none';
+    gridOverlay.style.zIndex = '1';
+    gridOverlay.style.opacity = '0'; // Start hidden
+    gridOverlay.style.transition = 'opacity 0.3s ease';
     stage.appendChild(gridOverlay);
   }
   
@@ -2455,3 +2465,160 @@ window.calculateStageDimensions = calculateStageDimensions;
 window.updateStageDimensions = updateStageDimensions;
 window.updateGridOverlay = updateGridOverlay;
 window.updateDimensionsLabel = updateDimensionsLabel;
+
+/**
+ * Initialize the grid system for the stage
+ * Creates toggle buttons and sets up grid overlay
+ */
+function initStageGrid() {
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+  
+  // Check if grid toggle already exists
+  if (stage.querySelector('.grid-toggle')) return;
+  
+  // Create grid toggle button
+  const gridToggle = document.createElement('button');
+  gridToggle.className = 'grid-toggle';
+  gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
+  gridToggle.title = 'Toggle Grid (5\' squares with 1\' marks)';
+  
+  // Set styling directly
+  gridToggle.style.position = 'absolute';
+  gridToggle.style.top = '5px';
+  gridToggle.style.left = '5px';
+  gridToggle.style.zIndex = '2';
+  gridToggle.style.backgroundColor = 'rgba(82, 108, 129, 0.7)';
+  gridToggle.style.border = 'none';
+  gridToggle.style.borderRadius = '3px';
+  gridToggle.style.color = 'white';
+  gridToggle.style.cursor = 'pointer';
+  gridToggle.style.fontSize = '12px';
+  gridToggle.style.padding = '3px 6px';
+  
+  // Create grid overlay if it doesn't exist
+  let gridOverlay = stage.querySelector('.grid-overlay');
+  if (!gridOverlay) {
+    gridOverlay = document.createElement('div');
+    gridOverlay.className = 'grid-overlay';
+    
+    // Set styling directly
+    gridOverlay.style.position = 'absolute';
+    gridOverlay.style.top = '0';
+    gridOverlay.style.left = '0';
+    gridOverlay.style.width = '100%';
+    gridOverlay.style.height = '100%';
+    gridOverlay.style.pointerEvents = 'none';
+    gridOverlay.style.zIndex = '1';
+    gridOverlay.style.opacity = '0';
+    gridOverlay.style.transition = 'opacity 0.3s ease';
+    
+    stage.appendChild(gridOverlay);
+  }
+  
+  // Get initial dimensions from stage
+  const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+  const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
+  
+  // Calculate initial grid size
+  const dimensions = calculateStageDimensions(stageWidth, stageDepth);
+  
+  // Apply the initial grid (will be updated when dimensions change)
+  updateGridOverlay(dimensions, stage);
+  
+  // Add toggle button to the stage
+  stage.appendChild(gridToggle);
+  
+  // Add toggle functionality with varying opacity levels
+  let gridVisible = false;
+  gridToggle.addEventListener('click', () => {
+    gridVisible = !gridVisible;
+    gridOverlay.style.opacity = gridVisible ? '1' : '0';
+    gridToggle.style.backgroundColor = gridVisible ? 'rgba(82, 108, 129, 0.9)' : 'rgba(82, 108, 129, 0.7)';
+  });
+  
+  // Add a second button to toggle between grid types (optional feature)
+  const gridTypeToggle = document.createElement('button');
+  gridTypeToggle.className = 'grid-type-toggle';
+  gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';
+  gridTypeToggle.title = 'Toggle Detail Level';
+  
+  // Style similar to main grid toggle but positioned slightly to the right
+  Object.assign(gridTypeToggle.style, {
+    position: 'absolute',
+    top: '5px',
+    left: '40px', // Position it next to the main grid toggle
+    zIndex: '2',
+    backgroundColor: 'rgba(82, 108, 129, 0.7)',
+    border: 'none',
+    borderRadius: '3px',
+    color: 'white',
+    cursor: 'pointer',
+    fontSize: '12px',
+    padding: '3px 6px'
+  });
+  
+  stage.appendChild(gridTypeToggle);
+  
+  // Track grid detail mode (start with detailed mode - shows 1' lines)
+  let detailedGrid = true;
+  
+  // Add toggle functionality for grid type
+  gridTypeToggle.addEventListener('click', () => {
+    if (!gridVisible) {
+      // If grid is not visible, make it visible first
+      gridVisible = true;
+      gridOverlay.style.opacity = '1';
+      gridToggle.style.backgroundColor = 'rgba(82, 108, 129, 0.9)';
+    }
+    
+    // Toggle between detailed (1' lines) and simple (only 5' lines) modes
+    detailedGrid = !detailedGrid;
+    
+    // Get current dimensions
+    const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+    const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
+    const dimensions = calculateStageDimensions(stageWidth, stageDepth);
+    
+    // Use the existing gridOverlay element instead of querying for it again
+    if (detailedGrid) {
+      // Show both 5' and 1' lines by directly setting the styles
+      const footSize = dimensions.gridSize / 5;
+      
+      // Set the complex background with both 5-foot and 1-foot lines
+      gridOverlay.style.backgroundImage = `
+        linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+        linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
+      `;
+      
+      // Set the background sizes for both types of grid lines
+      gridOverlay.style.backgroundSize = `
+        ${dimensions.gridSize}px ${dimensions.gridSize}px,
+        ${dimensions.gridSize}px ${dimensions.gridSize}px,
+        ${footSize}px ${footSize}px,
+        ${footSize}px ${footSize}px
+      `;
+      
+      gridTypeToggle.title = 'Toggle to Simple Grid';
+    } else {
+      // Show only 5' lines by setting a simpler background
+      gridOverlay.style.backgroundImage = `
+        linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px)
+      `;
+      
+      gridOverlay.style.backgroundSize = `
+        ${dimensions.gridSize}px ${dimensions.gridSize}px,
+        ${dimensions.gridSize}px ${dimensions.gridSize}px
+      `;
+      
+      gridTypeToggle.title = 'Toggle to Detailed Grid';
+    }
+    
+    // Update button appearance
+    gridTypeToggle.style.backgroundColor = detailedGrid ? 
+      'rgba(82, 108, 129, 0.9)' : 'rgba(82, 108, 129, 0.7)';
+  });
+}
