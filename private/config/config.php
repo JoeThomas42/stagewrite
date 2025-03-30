@@ -6,12 +6,6 @@ $db_name = 'jrtdesig_stagewrite';
 $db_user = 'root';
 $db_password = '';
 
-// Website Database configuration
-// $db_host = 'localhost';
-// $db_name = 'jrtdesig_stagewrite';
-// $db_user = 'jrtdesig_admin_daddy';
-// $db_password = '$u=C=;-u6tAvM=6';
-
 // Other configuration constants
 define('DB_HOST', $db_host);
 define('DB_NAME', $db_name);
