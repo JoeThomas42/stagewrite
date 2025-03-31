@@ -79,6 +79,10 @@
     color: white;
     text-decoration: none;
   }
+
+  &:has(.dropdown-menu.active) {   /* FIND MORE ELEGANT SOLUTION */
+    overflow: auto;
+  }
 }
 
 .empty-section {
@@ -178,11 +182,6 @@
 /* -------------------- Venues Table --------------------- */
 .venues-table-container {
   margin-top: var(--spacing-md);
-  overflow-x: auto;
-}
-
-#profile-venues-table {
-  width: 100%;
 }
 
 /* -------------------- Responsive Styles --------------------- */
