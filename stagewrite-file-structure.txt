@@ -48,6 +48,7 @@ stagewrite
 │   │   ├── plots.css
 │   │   ├── responsive.css
 │   │   ├── stage-plot.css
+│   │   ├── theme.css
 │   │   └── _variables.css
 │   ├── handlers
 │   │   ├── delete_plot.php
@@ -83,6 +84,7 @@ stagewrite
 │   │   ├── main.js
 │   │   ├── notifications.js
 │   │   ├── stage-plot.js
+│   │   ├── theme.js
 │   │   ├── ui.js
 │   │   ├── users.js
 │   │   └── venues.js
