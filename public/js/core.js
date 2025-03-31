@@ -23,6 +23,7 @@ window.initializeApp = function() {
   safeInit(window.initCustomDropdowns, "Custom Dropdowns");
   safeInit(window.initCityAutocomplete, "City Autocompletion");
   safeInit(window.initZipCodeAutoComplete, "Zip Autocompletion");
+  safeInit(window.initProfileFunctionality, "Profile Functionality");
 
   console.log("Application initialization complete!");
 };
