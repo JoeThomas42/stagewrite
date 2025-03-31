@@ -2537,7 +2537,7 @@ function initStageGrid() {
     gridToggle.style.backgroundColor = gridVisible ? 'rgba(82, 108, 129, 0.9)' : 'rgba(82, 108, 129, 0.7)';
   });
   
-  // Add a second button to toggle between grid types (optional feature)
+  // Add a second button to toggle between grid types
   const gridTypeToggle = document.createElement('button');
   gridTypeToggle.className = 'grid-type-toggle';
   gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';

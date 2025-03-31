@@ -29,6 +29,7 @@
   --color-background-dark: #9cadbc;
   --color-background-light: #f8f9fa;
   --color-background-alt: #e9ecef;
+  --color-background-trans: rgba(255, 255, 255, 0.8);
 
   /* Borders */
   --color-border: #ddd;
@@ -123,6 +124,8 @@
   --color-background-dark: #171a1f; /* Darker background */
   --color-background-light: #2a2f36; /* Slightly lighter background */
   --color-background-alt: #262b33; /* Alternative background */
+  --color-background-trans: rgba(30, 35, 41, 0.8); /* Darker transparent background */
+
 
   /* Borders */
   --color-border: #3a3f45; /* Darker border */

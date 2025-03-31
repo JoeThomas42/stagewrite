@@ -72,9 +72,9 @@
 
 .draggable-element {
   align-items: center;
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-lg);
+  /* background-color: var(--color-white); */
+  /* border: 1px solid var(--color-border); */
+  /* border-radius: var(--border-radius-lg); */
   box-shadow: var(--shadow-sm);
   cursor: grab;
   display: flex;
@@ -85,6 +85,10 @@
   position: relative;
   transition: all var(--transition-fast);
   width: 90px;
+
+  background-color: var(--color-background-trans);
+  border: 2px solid var(--color-grey-1);
+  border-radius: var(--border-radius-md);
 
   --container-width: 90px;
   --font-scale: 0.12;
@@ -347,7 +351,7 @@
 
 .placed-element {
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--color-background-trans);
   border: 2px solid var(--color-grey-1);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
@@ -365,7 +369,8 @@
   }
 
   &:hover {
-    border-color: var(--color-grey-2);
+    /* border-color: var(--color-grey-2); */
+    border-color: var(--color-primary-light);
     box-shadow: var(--shadow-lg);
     z-index: 1000 !important;
     
