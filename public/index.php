@@ -125,15 +125,17 @@ if ($isLoggedIn) {
             <button id="my-plots" class="action-button" title="My Plots"><i class="fa-solid fa-folder-open"></i></button>
             <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
             <button id="save-changes" class="action-button hidden">Save Changes</button>
-            <?php endif; ?>
-            <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
+          <?php endif; ?>
+          <!-- <div id="notification-area" class="notification-area"></div> -->
+          <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
         </div>
 
         <div id="stage"
-              data-venue-id="<?= $venue['venue_id'] ?>"
-              data-stage-width="<?= $venue['stage_width'] ?>"
-              data-stage-depth="<?= $venue['stage_depth'] ?>">
-            <div id="front-label">FRONT OF STAGE</div>
+            data-venue-id="<?= $venue['venue_id'] ?>"
+            data-stage-width="<?= $venue['stage_width'] ?>"
+            data-stage-depth="<?= $venue['stage_depth'] ?>">
+          <div id="front-label">FRONT OF STAGE</div>
+          <div id="notification-area" class="notification-area"></div>
         </div>
     </div>
 </div>
@@ -158,6 +160,7 @@ if ($isLoggedIn) {
                 <button type="button" class="cancel-button">Cancel</button>
             </div>
         </form>
+        <div class="modal-notification-area"></div>
     </div>
 </div>
 
@@ -220,6 +223,7 @@ if ($isLoggedIn) {
                 <button type="button" class="cancel-button">Cancel</button>
             </div>
         </form>
+        <div class="modal-notification-area"></div>
     </div>
 </div>
 <?php endif; ?>
@@ -254,6 +258,7 @@ if ($isLoggedIn) {
         <div class="form-actions modal-bottom-actions">
             <button type="button" class="cancel-button">Cancel</button>
         </div>
+        <div class="modal-notification-area"></div>
     </div>
 </div>
 
@@ -269,6 +274,7 @@ if ($isLoggedIn) {
         <div class="form-actions">
             <button type="button" class="cancel-button">Cancel</button>
         </div>
+        <div class="modal-notification-area"></div>
     </div>
 </div>
 

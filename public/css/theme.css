@@ -89,12 +89,18 @@
 }
 
 [data-theme="dark"] .modal-content h2,
-[data-theme="dark"] .modal-content h3{
+[data-theme="dark"] .modal-content h3,
+[data-theme="dark"] .profile-container h2,
+[data-theme="dark"] .profile-container h3{
   color: var(--color-text);
 }
 
 [data-theme="dark"] .modal-content .plot-name {
   color: var(--color-grey-5);
+}
+
+[data-theme="dark"] .dropdown-menu {
+  background-color: var(--color-background);
 }
 
 /* Login */
@@ -129,4 +135,8 @@
 
 [data-theme="dark"] .category-section h3 {
   color: var(--color-grey-5);
+}
+
+.search-container {
+  background-color: var(--color-background-light);
 }

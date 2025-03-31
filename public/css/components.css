@@ -239,6 +239,10 @@ table {
   margin-top: var(--spacing-xl);
   overflow: hidden;
   width: 100%;
+
+  &:has(.dropdown-menu.active) {   /* FIND MORE ELEGANT SOLUTION */
+    overflow: auto;
+  }
   
   th,
   td {
@@ -558,15 +562,18 @@ th.sortable {
 /* -------------------- Notification System --------------------- */
 /* Main notification area */
 .notification-area {
+  bottom: 50px;
   display: inline-flex;
   flex-grow: 1;
   height: 38px;
-  margin-left: auto;
-  margin-right: 10px;
+  left: 50%;
+  margin: .5rem auto;
   max-width: 300px;
   min-width: 0;
   pointer-events: none;
-  position: relative;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 100%;
 }
 
 /* Modal notification area */

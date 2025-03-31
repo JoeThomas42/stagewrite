@@ -50,16 +50,15 @@
                                     Home
                                 </a>
                             </li>
+                            <li>
+                                <a href="<?= WEB_ROOT ?>/profile.php" class="<?= $current_page === 'Profile' ? 'current-page' : '' ?>">
+                                    Profile
+                                </a>
+                            </li>
                             <?php if ($_SESSION['role_id'] == 2 || $_SESSION['role_id'] == 3): ?>
                                 <li>
-                                    <a href="<?= WEB_ROOT ?>/profile.php" class="<?= $current_page === 'Data Management' ? 'current-page' : '' ?>">
+                                    <a href="<?= WEB_ROOT ?>/data_management.php" class="<?= $current_page === 'Data Management' ? 'current-page' : '' ?>">
                                         Data Management
-                                    </a>
-                                </li>
-                            <?php else: ?>
-                                <li>
-                                    <a href="<?= WEB_ROOT ?>/profile.php" class="<?= $current_page === 'Profile' ? 'current-page' : '' ?>">
-                                        Profile
                                     </a>
                                 </li>
                             <?php endif; ?>

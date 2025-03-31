@@ -1,0 +1,239 @@
+/**
+* StageWrite Profile & Data Management Styles
+*/
+
+@import url('_variables.css');
+
+/* -------------------- Profile Container --------------------- */
+/* .profile-container {
+  background-color: var(--color-background-alt);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+  flex: 1;
+  margin: var(--spacing-xl) auto;
+  max-width: 1200px;
+  padding: var(--spacing-xl);
+  position: relative;
+  width: 100%;
+} */
+
+.profile-header {
+  align-items: center;
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.profile-section {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  max-width: 100%;
+}
+
+.section-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-header h2 {
+  color: var(--color-primary-dark);
+  margin: 0;
+}
+
+.profile-section .action-button {
+  align-items: center;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  font-size: var(--font-size-sm);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--color-primary-dark);
+    color: white;
+    text-decoration: none;
+  }
+}
+
+.empty-section {
+  align-items: center;
+  background-color: var(--color-background-alt);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-xxl);
+  text-align: center;
+}
+
+.primary-button {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.primary-button:hover {
+  background-color: var(--color-primary-dark);
+  color: white;
+  text-decoration: none;
+}
+
+/* -------------------- Plot Cards --------------------- */
+.plots-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.plot-card {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-fast);
+}
+
+.plot-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.plot-card-header {
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+}
+
+.plot-card-header h3 {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.plot-card-details {
+  flex-grow: 1;
+  padding: var(--spacing-md);
+}
+
+.detail-item {
+  margin-bottom: var(--spacing-xs);
+}
+
+.detail-label {
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: var(--font-size-sm);
+}
+
+.plot-card-actions {
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  padding: var(--spacing-md);
+}
+
+/* -------------------- Venues Table --------------------- */
+.venues-table-container {
+  margin-top: var(--spacing-md);
+  overflow-x: auto;
+}
+
+#profile-venues-table {
+  width: 100%;
+}
+
+/* -------------------- Responsive Styles --------------------- */
+@media screen and (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .plots-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Handle table display on small screens */
+  #profile-venues-table th {
+    display: none;
+  }
+  
+  #profile-venues-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+  
+  #profile-venues-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: var(--spacing-md);
+    width: 45%;
+    white-space: nowrap;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+
+/* -------------------- Dark Theme Adjustments --------------------- */
+[data-theme="dark"] .plot-card {
+  background-color: var(--color-background-light);
+}
+
+[data-theme="dark"] .plot-card-header h3 {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .empty-section {
+  background-color: var(--color-background);
+}

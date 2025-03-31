@@ -7,61 +7,6 @@
  * Initialize notification system
  */
 function initNotificationSystem() {
-  // Find the control buttons area for default notifications
-  const controlButtons = document.getElementById('control-buttons');
-  if (!controlButtons) return;
-  
-  // Check if default notification area exists
-  let notificationArea = document.getElementById('notification-area');
-  
-  // If it doesn't exist or isn't in the right place, create/move it
-  if (!notificationArea || notificationArea.parentNode !== controlButtons) {
-    // Remove old notification area if it exists elsewhere
-    if (notificationArea) {
-      notificationArea.parentNode.removeChild(notificationArea);
-    }
-    
-    // Create new notification area inside control buttons
-    notificationArea = document.createElement('div');
-    notificationArea.id = 'notification-area';
-    notificationArea.className = 'notification-area';
-    
-    // Add it before the Clear Plot button if it exists, otherwise at the end
-    const clearStageBtn = controlButtons.querySelector('#clear-plot');
-    if (clearStageBtn) {
-      clearStageBtn.insertAdjacentElement('beforebegin', notificationArea);
-    } else {
-      controlButtons.appendChild(notificationArea);
-    }
-  }
-  
-  // Initialize modal notification areas
-  initModalNotificationAreas();
-}
-
-/**
- * Initialize notification areas in all modals
- */
-function initModalNotificationAreas() {
-  const modals = document.querySelectorAll('.modal');
-  
-  modals.forEach(modal => {
-    const modalContent = modal.querySelector('.modal-content');
-    if (!modalContent) return;
-    
-    // Check if this modal already has a notification area
-    let modalNotificationArea = modalContent.querySelector('.modal-notification-area');
-    
-    if (!modalNotificationArea) {
-      // Create the notification area
-      modalNotificationArea = document.createElement('div');
-      modalNotificationArea.className = 'modal-notification-area';
-      
-      // Add it to the modal content
-      modalContent.appendChild(modalNotificationArea);
-    }
-  });
-  
   // Add event listener for modal opening
   document.addEventListener('click', function(event) {
     // Check if the clicked element or its parent opens a modal
@@ -135,5 +80,4 @@ function showNotification(message, type = 'info', duration = 3000) {
 
 // ------------------- Make notification functions available globally ---------------------
 window.initNotificationSystem = initNotificationSystem;
-window.initModalNotificationAreas = initModalNotificationAreas;
 window.showNotification = showNotification;
