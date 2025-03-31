@@ -61,7 +61,7 @@
 
 [data-theme="dark"] button:active:not(.favorite-button:active),
 [data-theme="dark"] .form-actions button:active {
-  box-shadow: inset var(--shadow-inset-lg);
+  box-shadow: inset var(--button-inset-lg);
 }
 
 [data-theme="dark"] input,

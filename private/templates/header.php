@@ -9,6 +9,17 @@
 <head>
     <title>StageWrite - <?= htmlspecialchars($current_page) ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Immediately apply theme from localStorage
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="<?= CSS_PATH ?>/main.css">
     <script src="<?= JS_PATH ?>/main.js" defer></script>
     <script src="https://kit.fontawesome.com/6a66a6b74c.js" crossorigin="anonymous"></script>
