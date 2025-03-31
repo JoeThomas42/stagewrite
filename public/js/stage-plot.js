@@ -2426,46 +2426,6 @@ function newPlot(plotState) {
   showNotification('New plot created!', 'success');
 }
 
-// --------------------- Make stage plot editor functions available globally ----------------------
-window.setupConfirmButton = setupConfirmButton;
-window.initStageEditor = initStageEditor;
-window.handleDragStart = handleDragStart;
-window.handleDragOver = handleDragOver;
-window.handleDrop = handleDrop;
-window.createPlacedElement = createPlacedElement;
-window.makeDraggableOnStage = makeDraggableOnStage;
-window.bringToFront = bringToFront;
-window.openPropertiesModal = openPropertiesModal;
-window.applyElementProperties = applyElementProperties;
-window.deleteElement = deleteElement;
-window.markPlotAsModified = markPlotAsModified;
-window.clearElements = clearElements;
-window.newPlot = newPlot;
-window.initModalControls = initModalControls;
-window.savePlot = savePlot;
-window.loadExistingPlotsForOverwrite = loadExistingPlotsForOverwrite;
-window.loadSavedPlots = loadSavedPlots;
-window.loadPlot = loadPlot;
-window.loadPlacedElements = loadPlacedElements;
-window.initLoadPlotModal = initLoadPlotModal;
-window.deletePlot = deletePlot;
-window.initPageNavigation = initPageNavigation;
-window.saveStateToStorage = saveStateToStorage;
-window.restoreStateFromStorage = restoreStateFromStorage;
-window.initFavorites = initFavorites;
-window.fetchUserFavorites = fetchUserFavorites;
-window.addFavoriteButtons = addFavoriteButtons;
-window.toggleFavorite = toggleFavorite;
-window.updateElementFavoriteButtons = updateElementFavoriteButtons;
-window.getElementData = getElementData;
-window.updateFavoritesCategory = updateFavoritesCategory;
-window.moveFavoritesToTop = moveFavoritesToTop;
-window.setupDateValidation = setupDateValidation;
-window.calculateStageDimensions = calculateStageDimensions;
-window.updateStageDimensions = updateStageDimensions;
-window.updateGridOverlay = updateGridOverlay;
-window.updateDimensionsLabel = updateDimensionsLabel;
-
 /**
  * Initialize the grid system for the stage
  * Creates toggle buttons and sets up grid overlay
@@ -2475,43 +2435,27 @@ function initStageGrid() {
   if (!stage) return;
   
   // Check if grid toggle already exists
-  if (stage.querySelector('.grid-toggle')) return;
+  if (stage.querySelector('#grid-toggle')) return;
   
   // Create grid toggle button
   const gridToggle = document.createElement('button');
-  gridToggle.className = 'grid-toggle';
+  gridToggle.id = 'grid-toggle';
+  gridToggle.className = 'grid-button';
   gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
   gridToggle.title = 'Toggle Grid (5\' squares with 1\' marks)';
-  
-  // Set styling directly
-  gridToggle.style.position = 'absolute';
-  gridToggle.style.top = '5px';
-  gridToggle.style.left = '5px';
-  gridToggle.style.zIndex = '2';
-  gridToggle.style.backgroundColor = 'rgba(82, 108, 129, 0.7)';
-  gridToggle.style.border = 'none';
-  gridToggle.style.borderRadius = '3px';
-  gridToggle.style.color = 'white';
-  gridToggle.style.cursor = 'pointer';
-  gridToggle.style.fontSize = '12px';
-  gridToggle.style.padding = '3px 6px';
+
+  // Create grid type toggle button
+  const gridTypeToggle = document.createElement('button');
+  gridTypeToggle.id = 'grid-type-toggle';
+  gridTypeToggle.className = 'grid-button';
+  gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';
+  gridTypeToggle.title = 'Toggle Detail Level';
   
   // Create grid overlay if it doesn't exist
   let gridOverlay = stage.querySelector('.grid-overlay');
   if (!gridOverlay) {
     gridOverlay = document.createElement('div');
     gridOverlay.className = 'grid-overlay';
-    
-    // Set styling directly
-    gridOverlay.style.position = 'absolute';
-    gridOverlay.style.top = '0';
-    gridOverlay.style.left = '0';
-    gridOverlay.style.width = '100%';
-    gridOverlay.style.height = '100%';
-    gridOverlay.style.pointerEvents = 'none';
-    gridOverlay.style.zIndex = '1';
-    gridOverlay.style.opacity = '0';
-    gridOverlay.style.transition = 'opacity 0.3s ease';
     
     stage.appendChild(gridOverlay);
   }
@@ -2526,39 +2470,23 @@ function initStageGrid() {
   // Apply the initial grid (will be updated when dimensions change)
   updateGridOverlay(dimensions, stage);
   
-  // Add toggle button to the stage
+  // Add buttons to the stage
   stage.appendChild(gridToggle);
+  stage.appendChild(gridTypeToggle);
   
   // Add toggle functionality with varying opacity levels
   let gridVisible = false;
   gridToggle.addEventListener('click', () => {
     gridVisible = !gridVisible;
     gridOverlay.style.opacity = gridVisible ? '1' : '0';
-    gridToggle.style.backgroundColor = gridVisible ? 'rgba(82, 108, 129, 0.9)' : 'rgba(82, 108, 129, 0.7)';
+    
+    // Toggle an active class instead of directly setting the box-shadow
+    if (gridVisible) {
+      gridToggle.classList.add('active');
+    } else {
+      gridToggle.classList.remove('active');
+    }
   });
-  
-  // Add a second button to toggle between grid types
-  const gridTypeToggle = document.createElement('button');
-  gridTypeToggle.className = 'grid-type-toggle';
-  gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';
-  gridTypeToggle.title = 'Toggle Detail Level';
-  
-  // Style similar to main grid toggle but positioned slightly to the right
-  Object.assign(gridTypeToggle.style, {
-    position: 'absolute',
-    top: '5px',
-    left: '40px', // Position it next to the main grid toggle
-    zIndex: '2',
-    backgroundColor: 'rgba(82, 108, 129, 0.7)',
-    border: 'none',
-    borderRadius: '3px',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '12px',
-    padding: '3px 6px'
-  });
-  
-  stage.appendChild(gridTypeToggle);
   
   // Track grid detail mode (start with detailed mode - shows 1' lines)
   let detailedGrid = true;
@@ -2569,7 +2497,7 @@ function initStageGrid() {
       // If grid is not visible, make it visible first
       gridVisible = true;
       gridOverlay.style.opacity = '1';
-      gridToggle.style.backgroundColor = 'rgba(82, 108, 129, 0.9)';
+      gridToggle.classList.add('active');
     }
     
     // Toggle between detailed (1' lines) and simple (only 5' lines) modes
@@ -2617,8 +2545,61 @@ function initStageGrid() {
       gridTypeToggle.title = 'Toggle to Detailed Grid';
     }
     
-    // Update button appearance
-    gridTypeToggle.style.backgroundColor = detailedGrid ? 
-      'rgba(82, 108, 129, 0.9)' : 'rgba(82, 108, 129, 0.7)';
+    // Update button icon appearance
+    const icon = gridTypeToggle.querySelector('i');
+    if (icon) {
+      // Apply rotation transform with transition
+      icon.style.transition = 'transform 0.3s ease';
+      icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+    
+    // Update button active state
+    if (detailedGrid) {
+      gridTypeToggle.classList.add('active');
+    } else {
+      gridTypeToggle.classList.remove('active');
+    }
   });
 }
+
+// --------------------- Make stage plot editor functions available globally ----------------------
+window.setupConfirmButton = setupConfirmButton;
+window.initStageEditor = initStageEditor;
+window.handleDragStart = handleDragStart;
+window.handleDragOver = handleDragOver;
+window.handleDrop = handleDrop;
+window.createPlacedElement = createPlacedElement;
+window.makeDraggableOnStage = makeDraggableOnStage;
+window.bringToFront = bringToFront;
+window.openPropertiesModal = openPropertiesModal;
+window.applyElementProperties = applyElementProperties;
+window.deleteElement = deleteElement;
+window.markPlotAsModified = markPlotAsModified;
+window.clearElements = clearElements;
+window.newPlot = newPlot;
+window.initModalControls = initModalControls;
+window.savePlot = savePlot;
+window.loadExistingPlotsForOverwrite = loadExistingPlotsForOverwrite;
+window.loadSavedPlots = loadSavedPlots;
+window.loadPlot = loadPlot;
+window.loadPlacedElements = loadPlacedElements;
+window.initLoadPlotModal = initLoadPlotModal;
+window.deletePlot = deletePlot;
+window.initPageNavigation = initPageNavigation;
+window.saveStateToStorage = saveStateToStorage;
+window.restoreStateFromStorage = restoreStateFromStorage;
+window.initFavorites = initFavorites;
+window.fetchUserFavorites = fetchUserFavorites;
+window.addFavoriteButtons = addFavoriteButtons;
+window.toggleFavorite = toggleFavorite;
+window.updateElementFavoriteButtons = updateElementFavoriteButtons;
+window.getElementData = getElementData;
+window.updateFavoritesCategory = updateFavoritesCategory;
+window.moveFavoritesToTop = moveFavoritesToTop;
+window.setupDateValidation = setupDateValidation;
+window.calculateStageDimensions = calculateStageDimensions;
+window.updateStageDimensions = updateStageDimensions;
+window.updateGridOverlay = updateGridOverlay;
+window.updateDimensionsLabel = updateDimensionsLabel;
+window.initStageGrid = initStageGrid;
+window.initCategoryFilter = initCategoryFilter;

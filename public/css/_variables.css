@@ -149,7 +149,7 @@
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 5px 18px rgba(0, 0, 0, 0.9);
 
-  /* Inset Shadows - Adjusted for dark theme */
+  /* Inset Shadows - Adjusted for dark theme !!!!!!!!!!!!!!!!!!!! CHANGE THESE TO NOT ALTER BUTTONS !!!!!!!!!!!!!!!!!!!!!! */
   --shadow-inset-sm: 0 0 6px rgba(0, 0, 0, 0.6);
   --shadow-inset-md: 0 0 10px rgba(0, 0, 0, 0.7);
   --shadow-inset-lg: 0 0 10px 1px rgba(0, 0, 0, 0.5);
