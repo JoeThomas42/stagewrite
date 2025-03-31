@@ -7,7 +7,8 @@
 
 /* -------------------- Main Container --------------------- */
 #stage-plot-container {
-  background: linear-gradient(to bottom, var(--color-background), var(--color-background-alt));
+  /* background: linear-gradient(to bottom, var(--color-background), var(--color-background-alt)); */
+  background-color: var(--color-background-alt);
   border: 1px solid var(--color-grey-1);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
@@ -25,7 +26,8 @@
   align-items: center;
   background-color: var(--color-background-light);
   border-bottom: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
   display: flex;
   gap: var(--spacing-md);
   justify-content: space-between;
@@ -72,14 +74,17 @@
   align-items: center;
   background-color: var(--color-white);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   cursor: grab;
   display: flex;
   flex-direction: column;
+  height: 90px;
+  justify-content: flex-end;
   padding: var(--spacing-xs);
   position: relative;
   transition: all var(--transition-fast);
+  width: 90px;
 
   --container-width: 90px;
   --font-scale: 0.12;
@@ -200,6 +205,7 @@
 }
 
 #stage {
+  background-color: var(--color-background-light);
   border: 1px solid var(--color-grey-1);
   border-radius: var(--border-radius-md);
   box-shadow: inset var(--shadow-inset-md);
@@ -254,6 +260,7 @@
 
 #clear-plot {
   background-color: var(--color-danger);
+  margin-left: auto;
 }
 
 #save-changes {

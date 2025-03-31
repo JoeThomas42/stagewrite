@@ -35,7 +35,8 @@
   transition: all var(--transition-medium);
 }
 
-/* Dark theme specific overrides */
+/* -------------------------- Dark theme specific overrides ---------------------------- */
+/* Theme Toggle */
 [data-theme="dark"] .theme-toggle:hover {
   box-shadow: var(--shadow-md) !important;
 }
@@ -52,13 +53,15 @@
   content: "\f185"; /* fa-sun icon */
 }
 
+/* General */
 [data-theme="dark"] body {
   background-color: var(--color-background);
   color: var(--color-text);
 }
 
-[data-theme="dark"] button:active:not(.favorite-button:active) {
-  box-shadow: inset var(--shadow-inset-md);
+[data-theme="dark"] button:active:not(.favorite-button:active),
+[data-theme="dark"] .form-actions button:active {
+  box-shadow: inset var(--shadow-inset-lg);
 }
 
 [data-theme="dark"] input,
@@ -71,16 +74,36 @@
   color: var(--color-text);
 }
 
+#main-nav a:active {
+  box-shadow: inset var(--shadow-inset-md);
+}
+
+#main-nav a.current-page {
+  box-shadow: inset var(--shadow-inset-sm);
+}
+
+/* Modals */
 [data-theme="dark"] .modal-content,
-[data-theme="dark"] h3 {
+[data-theme="dark"] #elements-list h3 {
   background-color: var(--color-background);
 }
 
+[data-theme="dark"] .modal-content h2,
+[data-theme="dark"] .modal-content h3{
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .modal-content .plot-name {
+  color: var(--color-grey-5);
+}
+
+/* Login */
 [data-theme="dark"] #login-container,
 [data-theme="dark"] .profile-container {
   background: linear-gradient(to bottom, var(--color-background-light), var(--color-background));
 }
 
+/* Tables */
 [data-theme="dark"] .table-actions,
 [data-theme="dark"] .custom-dropdown-optgroup {
   background-color: var(--color-background-dark);
@@ -98,6 +121,21 @@
   background-color: var(--color-background-light);
 }
 
+/* Sections / Headings */
+[data-theme="dark"] #elements-header h2,
+[data-theme="dark"] #plot-title {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .category-section h3 {
+  color: var(--color-grey-5);
+}
+
+/* Elements */
 [data-theme="dark"] .draggable-element {
-  background-color: var(--color-background-light);
+  background-color: var(--color-grey-1);
+}
+
+[data-theme="dark"] .placed-element {
+  background-color: var(--color-background);
 }

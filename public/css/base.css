@@ -242,16 +242,16 @@ header {
 
     &.current-page {
       border-bottom: 3px solid var(--color-primary-light);
-      box-shadow: inset var(--shadow-md);
+      box-shadow: inset var(--shadow-inset-md);
       position: relative;
     }
 
     &:hover {
-      background-color: var(--color-primary-dark);
+      border-bottom: 3px solid var(--color-primary-light);
     }
 
     &:active {
-      box-shadow: inset var(--shadow-lg);
+      box-shadow: inset var(--shadow-inset-lg);
     }
   }
 }

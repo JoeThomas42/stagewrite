@@ -149,7 +149,7 @@
   /* Inset Shadows - Adjusted for dark theme */
   --shadow-inset-sm: 0 0 6px rgba(0, 0, 0, 0.6);
   --shadow-inset-md: 0 0 10px rgba(0, 0, 0, 0.7);
-  --shadow-inset-lg: 0 0 18px rgba(0, 0, 0, 0.9);
+  --shadow-inset-lg: 0 0 10px 1px rgba(0, 0, 0, 0.5);
   
   /* ----------- Drop Shadows ------------- */
   --drop-shadow-xxs: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.8));
