@@ -130,12 +130,3 @@
 [data-theme="dark"] .category-section h3 {
   color: var(--color-grey-5);
 }
-
-/* Elements */
-[data-theme="dark"] .draggable-element {
-  /* background-color: var(--color-grey-1); */
-}
-
-[data-theme="dark"] .placed-element {
-  /* background-color: var(--color-background); */
-}
