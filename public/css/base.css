@@ -114,6 +114,7 @@ select {
 /* ---------------- Custom styling for number input spinners -------------------- */
 /* Remove default Firefox spinners */
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
