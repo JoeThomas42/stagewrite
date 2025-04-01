@@ -563,7 +563,6 @@ th.sortable {
 /* -------------------- Notification System --------------------- */
 /* Main notification area */
 .notification-area {
-  bottom: 50px;
   display: inline-flex;
   flex-grow: 1;
   height: 38px;
@@ -573,6 +572,7 @@ th.sortable {
   min-width: 0;
   pointer-events: none;
   position: absolute;
+  top: 10px;
   transform: translateX(-50%);
   width: 100%;
   z-index: 10000;
