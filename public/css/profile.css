@@ -132,7 +132,7 @@
   text-decoration: none;
 }
 
-/* -------------------- Plot Cards --------------------- */
+/* -------------------- Plot Cards with Snapshots --------------------- */
 .plots-grid {
   display: grid;
   gap: var(--spacing-lg);
@@ -167,9 +167,34 @@
   margin: 0;
 }
 
-.plot-card-details {
-  flex-grow: 1;
+/* New layout for plot card with snapshot */
+.plot-card-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-md);
+  flex: 1;
+}
+
+.plot-card-details {
+  flex: 1;
+  min-width: 0; /* Allow the details to shrink below min-content */
+}
+
+.plot-card-snapshot {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+  max-width: 180px; /* Limit width */
+  overflow: hidden;
+}
+
+.plot-snapshot {
+  display: block;
+  height: 120px; /* Fixed height */
+  object-fit: contain;
+  width: 100%;
 }
 
 .detail-item {
@@ -216,6 +241,20 @@
 }
 
 /* -------------------- Responsive Styles --------------------- */
+@media screen and (max-width: 992px) {
+  .plot-card-content {
+    flex-direction: row; /* Keep row layout for tablets */
+  }
+  
+  .plot-card-snapshot {
+    max-width: 150px; /* Smaller on tablets */
+  }
+  
+  .plot-snapshot {
+    height: 100px; /* Slightly smaller height on tablets */
+  }
+}
+
 @media screen and (max-width: 768px) {
   .section-header {
     flex-direction: column;
@@ -255,6 +294,27 @@
   }
 }
 
+/* Media query for mobile screens */
+@media screen and (max-width: 576px) {
+  .plot-card-content {
+    flex-direction: column; /* Stack on mobile */
+  }
+  
+  .plot-card-details {
+    width: 100%;
+  }
+  
+  .plot-card-snapshot {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .plot-snapshot {
+    height: auto;
+    max-height: 150px;
+  }
+}
+
 /* -------------------- Dark Theme Adjustments --------------------- */
 [data-theme="dark"] .plot-card {
   background-color: var(--color-background-light);
@@ -262,4 +322,8 @@
 
 [data-theme="dark"] .empty-section {
   background-color: var(--color-background);
+}
+
+[data-theme="dark"] .plot-card-snapshot {
+  border-color: var(--color-grey-4);
 }

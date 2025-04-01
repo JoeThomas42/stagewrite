@@ -24,10 +24,11 @@ $db = Database::getInstance();
 $current_page = "Profile";
 include PRIVATE_PATH . '/templates/header.php';
 
-// Load user's saved plots
+// Load user's saved plots - now including snapshot_filename
 $plots = $db->fetchAll("
     SELECT 
         sp.plot_id, sp.plot_name, sp.event_date_start, sp.event_date_end,
+        sp.snapshot_filename,
         CASE 
             WHEN sp.venue_id IS NOT NULL THEN v.venue_name
             WHEN sp.user_venue_id IS NOT NULL THEN uv.venue_name
@@ -94,20 +95,29 @@ $userVenues = $db->fetchAll("
                                 </div>
                             </div>
                         </div>
-                        <div class="plot-card-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Venue:</span>
-                                <span class="detail-value"><?= htmlspecialchars($plot['venue_name']) ?></span>
-                            </div>
-                            <?php if (!empty($plot['event_date_start'])): ?>
+                        <div class="plot-card-content">
+                            <div class="plot-card-details">
                                 <div class="detail-item">
-                                    <span class="detail-label">Date:</span>
-                                    <span class="detail-value">
-                                        <?= date('M j, Y', strtotime($plot['event_date_start'])) ?>
-                                        <?php if (!empty($plot['event_date_end']) && $plot['event_date_end'] != $plot['event_date_start']): ?>
-                                            - <?= date('M j, Y', strtotime($plot['event_date_end'])) ?>
-                                        <?php endif; ?>
-                                    </span>
+                                    <span class="detail-label">Venue:</span>
+                                    <span class="detail-value"><?= htmlspecialchars($plot['venue_name']) ?></span>
+                                </div>
+                                <?php if (!empty($plot['event_date_start'])): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Date:</span>
+                                        <span class="detail-value">
+                                            <?= date('M j, Y', strtotime($plot['event_date_start'])) ?>
+                                            <?php if (!empty($plot['event_date_end']) && $plot['event_date_end'] != $plot['event_date_start']): ?>
+                                                - <?= date('M j, Y', strtotime($plot['event_date_end'])) ?>
+                                            <?php endif; ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <?php if (!empty($plot['snapshot_filename'])): ?>
+                                <div class="plot-card-snapshot">
+                                    <img src="/handlers/get_snapshot.php?filename=<?= urlencode($plot['snapshot_filename']) ?>" 
+                                         alt="Preview of <?= htmlspecialchars($plot['plot_name']) ?>" 
+                                         class="plot-snapshot" />
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -272,7 +282,7 @@ $userVenues = $db->fetchAll("
                 </div>
                 
                 <div class="form-group">
-                    <label for="modal_venue_zip">ZIP:</label>
+                <label for="modal_venue_zip">ZIP:</label>
                     <input type="text" id="modal_venue_zip" name="venue_zip" maxlength="5">
                 </div>
             </div>

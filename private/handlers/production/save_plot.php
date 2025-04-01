@@ -1,6 +1,9 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
+// Include snapshot generation function
+require_once INCLUDES_PATH . '/plot_snapshot.php';
+
 // Ensure user is logged in
 $userObj = new User();
 if (!$userObj->isLoggedIn()) {
@@ -28,7 +31,7 @@ try {
         throw new Exception('Invalid JSON: ' . json_last_error_msg());
     }
     
-    // Validate required data - removed venue_id check
+    // Validate required data
     if (empty($data['plot_name']) || 
         !isset($data['elements']) || !is_array($data['elements'])) {
         throw new Exception('Missing required data');
@@ -52,6 +55,9 @@ try {
         }
     }
     
+    // Generate plot ID variable
+    $plotId = null;
+    
     if (!empty($data['plot_id'])) {
         // This is an update to an existing plot
         // First, delete existing placed elements
@@ -60,7 +66,7 @@ try {
             [$data['plot_id']]
         );
         
-        // Then update the plot details - now including both venue_id and user_venue_id
+        // Then update the plot details
         $db->query(
             "UPDATE saved_plots SET 
              plot_name = ?, venue_id = ?, user_venue_id = ?, event_date_start = ?, event_date_end = ?, updated_at = NOW()
@@ -116,6 +122,17 @@ try {
                 $element['label'] ?? '',
                 $element['notes'] ?? ''
             ]
+        );
+    }
+    
+    // Generate a snapshot of the plot
+    $snapshotFilename = generatePlotSnapshot($plotId, $data['elements'], $venueId, $userVenueId);
+    
+    // Update the snapshot filename in the database
+    if ($snapshotFilename) {
+        $db->query(
+            "UPDATE saved_plots SET snapshot_filename = ? WHERE plot_id = ?",
+            [$snapshotFilename, $plotId]
         );
     }
     

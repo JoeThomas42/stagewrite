@@ -20,11 +20,11 @@ $plotId = (int)$_GET['id'];
 $db = Database::getInstance();
 
 try {
-    // Fetch plot info with venue details
+    // Fetch plot info with venue details and snapshot filename
     $plot = $db->fetchOne("
         SELECT 
             sp.plot_id, sp.plot_name, sp.event_date_start, sp.event_date_end,
-            sp.venue_id, sp.user_venue_id,
+            sp.venue_id, sp.user_venue_id, sp.snapshot_filename,
             CASE 
                 WHEN sp.venue_id IS NOT NULL THEN v.venue_name
                 WHEN sp.user_venue_id IS NOT NULL THEN uv.venue_name
