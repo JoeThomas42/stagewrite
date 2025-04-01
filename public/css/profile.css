@@ -232,41 +232,6 @@
   background-color: var(--color-background-light);
 }
 
-[data-theme="dark"] .plot-card-header h3 {
-  color: var(--color-text);
-}
-
 [data-theme="dark"] .empty-section {
   background-color: var(--color-background);
 }
-
-/* Venue Modal Styles */
-/* #venue-modal {
-  z-index: 1000;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: var(--spacing-lg);
-}
-
-.delete-button {
-  background-color: var(--color-danger);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: white;
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-sm) var(--spacing-xl);
-  transition: all var(--transition-fast);
-}
-
-.delete-button:hover {
-  background-color: var(--color-danger-dark);
-}
-
-.delete-button.confirming {
-  background-color: var(--color-danger-dark);
-  font-weight: bold;
-} */
