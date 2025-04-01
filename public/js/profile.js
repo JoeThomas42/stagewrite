@@ -522,14 +522,14 @@ function addVenueRow(venue) {
 * Initialize plot deletion functionality
 */
 function initPlotDeletion() {
-  document.querySelectorAll('.remove-plot').forEach(link => {
-    link.addEventListener('click', async (e) => {
+  document.querySelectorAll('.delete-plot-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
       e.preventDefault();
       
-      const plotId = link.getAttribute('data-plot-id');
-      const plotName = link.getAttribute('data-plot-name');
+      const plotId = btn.getAttribute('data-plot-id');
+      const plotName = btn.getAttribute('data-plot-name');
       
-      if (confirm(`Are you sure you want to delete "${plotName}"?\nThis action cannot be undone.`)) {
+      setupConfirmButton(btn, async () => {
         try {
           const response = await fetch('/handlers/delete_plot.php', {
             method: 'POST',
@@ -547,7 +547,7 @@ function initPlotDeletion() {
           
           if (data.success) {
             // Remove plot card from DOM
-            const plotCard = link.closest('.plot-card');
+            const plotCard = btn.closest('.plot-card');
             if (plotCard) {
               plotCard.remove();
               
@@ -576,7 +576,14 @@ function initPlotDeletion() {
           console.error('Error:', error);
           showNotification('An unexpected error occurred', 'error');
         }
-      }
+      }, {
+        confirmText: 'Delete',
+        confirmTitle: 'This is permanent!',
+        originalText: '<i class="fa-solid fa-delete-left"></i>',
+        originalTitle: 'Delete plot',
+        stopPropagation: true,
+        event: e
+      });
     });
   });
 }

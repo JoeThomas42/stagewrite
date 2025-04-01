@@ -86,14 +86,6 @@ $userVenues = $db->fetchAll("
                     <div class="plot-card">
                         <div class="plot-card-header">
                             <h3><?= htmlspecialchars($plot['plot_name']) ?></h3>
-                            <div class="dropdown">
-                                <button class="dropdown-toggle small-button"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                <div class="dropdown-menu">
-                                    <a href="/index.php?load=<?= $plot['plot_id'] ?>" class="load-plot">Open Plot</a>
-                                    <a href="#" class="duplicate-plot" data-plot-id="<?= $plot['plot_id'] ?>">Duplicate</a>
-                                    <a href="#" class="remove-plot" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>">Delete</a>
-                                </div>
-                            </div>
                         </div>
                         <div class="plot-card-content">
                             <div class="plot-card-details">
@@ -123,6 +115,7 @@ $userVenues = $db->fetchAll("
                         </div>
                         <div class="plot-card-actions">
                             <a href="/index.php?load=<?= $plot['plot_id'] ?>" class="primary-button">Open Plot</a>
+                            <button class="delete-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
                         </div>
                     </div>
                 <?php endforeach; ?>
