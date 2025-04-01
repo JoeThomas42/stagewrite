@@ -113,23 +113,8 @@
   text-align: center;
 }
 
-.primary-button {
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: white;
-  cursor: pointer;
-  display: inline-block;
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-sm) var(--spacing-xl);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-}
-
-.primary-button:hover {
-  background-color: var(--color-primary-dark);
-  color: white;
-  text-decoration: none;
+#open-plot {
+  width: 100px;
 }
 
 /* -------------------- Plot Cards with Snapshots --------------------- */
