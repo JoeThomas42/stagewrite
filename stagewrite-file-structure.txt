@@ -25,7 +25,8 @@ stagewrite
 │   │   │   ├── save_plot.php
 │   │   │   ├── save_user_venue.php
 │   │   │   ├── toggle_favorite.php
-│   │   │   └── toggle_status.php
+│   │   │   ├── toggle_status.php
+│   │   │   └── update_user_venue.php
 │   │   ├── signup_handler.php
 │   │   └── venue_handler.php
 │   ├── includes
@@ -74,6 +75,7 @@ stagewrite
 │   │   ├── signup_handler.php
 │   │   ├── toggle_favorite.php
 │   │   ├── toggle_status.php
+│   │   ├── update_user_venue.php
 │   │   └── venue_handler.php
 │   ├── images
 │   │   ├── elements
