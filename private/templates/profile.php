@@ -137,18 +137,20 @@ $userVenues = $db->fetchAll("
                 <table id="profile-venues-table">
                     <tr>
                         <th>Name</th>
-                        <th>Location</th>
+                        <th>Address</th>
                         <th>Stage Dimensions</th>
                     </tr>
                     <?php foreach ($userVenues as $venue): ?>
                         <tr class="clickable-venue-row" data-venue-id="<?= $venue['user_venue_id'] ?>" data-venue-name="<?= htmlspecialchars($venue['venue_name']) ?>">
                             <td data-label="Name"><?= htmlspecialchars($venue['venue_name']) ?></td>
-                            <td data-label="Location">
+                            <td data-label="Address">
                                 <?php
-                                $location = [];
-                                if (!empty($venue['venue_city'])) $location[] = htmlspecialchars($venue['venue_city']);
-                                if (!empty($venue['state_abbr'])) $location[] = htmlspecialchars($venue['state_abbr']);
-                                echo !empty($location) ? implode(', ', $location) : '—';
+                                $address = [];
+                                if (!empty($venue['venue_street'])) $address[] = htmlspecialchars($venue['venue_street']);
+                                if (!empty($venue['venue_city'])) $address[] = htmlspecialchars($venue['venue_city']);
+                                if (!empty($venue['state_abbr'])) $address[] = htmlspecialchars($venue['state_abbr']);
+                                if (!empty($venue['venue_zip'])) $address[] = htmlspecialchars($venue['venue_zip']);
+                                echo !empty($address) ? implode(', ', $address) : '—';
                                 ?>
                             </td>
                             <td data-label="Stage Dimensions">
