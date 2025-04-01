@@ -23,6 +23,12 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     // Connect to database
     $db = Database::getInstance();
     
+    // Check if the plot already has a snapshot, and get its filename if it exists
+    $existingSnapshot = $db->fetchOne(
+        "SELECT snapshot_filename FROM saved_plots WHERE plot_id = ?",
+        [$plotId]
+    );
+    
     // Get stage dimensions
     $stageWidth = 600;  // Default width for thumbnail (increased for better detail)
     $stageHeight = 360; // Default height for thumbnail
@@ -220,16 +226,29 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     imagecopymerge($image, $shadow, 0, 0, 0, 0, $stageWidth, $stageHeight, 15); // 15% opacity
     imagedestroy($shadow);
     
-    // Generate a unique filename based on plot ID and timestamp
-    $filename = 'plot_' . $plotId . '_' . time() . '.png';
+    // Generate filename - either use existing or create new one
+    if ($existingSnapshot && !empty($existingSnapshot['snapshot_filename'])) {
+        $filename = $existingSnapshot['snapshot_filename'];
+        // Delete the existing file if it exists
+        $oldFilePath = $snapshotDir . '/' . $filename;
+        if (file_exists($oldFilePath)) {
+            unlink($oldFilePath);
+        }
+    } else {
+        // No existing snapshot, create a new consistent filename (without timestamp)
+        $filename = 'plot_' . $plotId . '.png';
+    }
+    
     $filePath = $snapshotDir . '/' . $filename;
     
     // Save the image
-    imagepng($image, $filePath);
-    imagedestroy($image);
-    
-    // Return the filename if successful
-    return file_exists($filePath) ? $filename : null;
+    if (imagepng($image, $filePath, 8)) { // 8 is compression level (0-9)
+        imagedestroy($image);
+        return $filename;
+    } else {
+        imagedestroy($image);
+        return null;
+    }
 }
 
 /**
