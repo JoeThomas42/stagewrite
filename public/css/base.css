@@ -233,6 +233,7 @@ ul {
   justify-content: flex-start;
   margin: 0 auto;
   max-width: 1200px;
+  padding-top: 6rem;
 }
 
 /* Required Fields */
@@ -273,6 +274,14 @@ header {
     padding: var(--spacing-sm) var(--spacing-md);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
   }
+}
+
+header.header-container {
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 #header-content {

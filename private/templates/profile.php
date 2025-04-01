@@ -136,9 +136,9 @@ $userVenues = $db->fetchAll("
             <div class="venues-table-container">
                 <table id="profile-venues-table">
                     <tr>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Stage Dimensions</th>
+                        <th class="med-column">Name</th>
+                        <th class="lg-column">Address</th>
+                        <th class="small-column">Stage Dimensions</th>
                     </tr>
                     <?php foreach ($userVenues as $venue): ?>
                         <tr class="clickable-venue-row" data-venue-id="<?= $venue['user_venue_id'] ?>" data-venue-name="<?= htmlspecialchars($venue['venue_name']) ?>">
