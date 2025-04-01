@@ -63,7 +63,6 @@ $userVenues = $db->fetchAll("
 <div class="profile-container">
     <div class="profile-header">
         <h2>Your Profile</h2>
-        <div class="notification-area"></div>
         <div class="user-info">
             <div class="user-name"><?= htmlspecialchars($user['first_name']) ?> <?= htmlspecialchars($user['last_name']) ?></div>
         </div>
@@ -140,10 +139,9 @@ $userVenues = $db->fetchAll("
                         <th>Name</th>
                         <th>Location</th>
                         <th>Stage Dimensions</th>
-                        <th>Actions</th>
                     </tr>
                     <?php foreach ($userVenues as $venue): ?>
-                        <tr>
+                        <tr class="clickable-venue-row" data-venue-id="<?= $venue['user_venue_id'] ?>" data-venue-name="<?= htmlspecialchars($venue['venue_name']) ?>">
                             <td data-label="Name"><?= htmlspecialchars($venue['venue_name']) ?></td>
                             <td data-label="Location">
                                 <?php
@@ -162,25 +160,16 @@ $userVenues = $db->fetchAll("
                                 }
                                 ?>
                             </td>
-                            <td data-label="Actions" class="action-cell">
-                                <div class="dropdown">
-                                    <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
-                                    <div class="dropdown-menu">
-                                        <a href="#" class="edit-user-venue" data-venue-id="<?= $venue['user_venue_id'] ?>">Edit</a>
-                                        <a href="#" class="remove-user-venue" data-venue-id="<?= $venue['user_venue_id'] ?>" data-venue-name="<?= htmlspecialchars($venue['venue_name']) ?>">Delete</a>
-                                    </div>
-                                </div>
-                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
             </div>
         <?php endif; ?>
     </div>
-    <div class="notification-area"></div>
+    <div id="notification-area" class="notification-area"></div>
 </div>
 
-<!-- Add/Edit User Venue Modal -->
+<!-- Add User Venue Modal -->
 <div id="add-venue-modal" class="modal hidden">
     <div class="modal-content">
         <span class="close-button">&times;</span>
@@ -240,6 +229,71 @@ $userVenues = $db->fetchAll("
                 <button type="button" class="cancel-button">Cancel</button>
             </div>
         </form>
+        <div class="modal-notification-area"></div>
+    </div>
+</div>
+
+<!-- Venue View/Edit Modal -->
+<div id="venue-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Venue Details</h2>
+        <form id="venue-modal-form">
+            <input type="hidden" id="modal_venue_id" name="user_venue_id">
+            
+            <div class="form-group">
+                <label for="modal_venue_name">Venue Name:</label>
+                <input type="text" id="modal_venue_name" name="venue_name" maxlength="100" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="modal_venue_street">Street Address:</label>
+                <input type="text" id="modal_venue_street" name="venue_street" maxlength="100">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modal_venue_state_id">State:</label>
+                    <select id="modal_venue_state_id" name="venue_state_id">
+                        <option value="" selected disabled>Select State</option>
+                        <?php
+                        foreach ($states as $state) {
+                            echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="modal_venue_city">City:</label>
+                    <input type="text" id="modal_venue_city" name="venue_city" maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modal_venue_zip">ZIP:</label>
+                    <input type="text" id="modal_venue_zip" name="venue_zip" maxlength="5">
+                </div>
+            </div>
+            
+            <div class="input-dimensions">
+                <div class="form-group">
+                    <label for="modal_stage_width">Stage Width (feet):</label>
+                    <input type="number" id="modal_stage_width" name="stage_width" min="1" max="200" step="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modal_stage_depth">Stage Depth (feet):</label>
+                    <input type="number" id="modal_stage_depth" name="stage_depth" min="1" max="200" step="1">
+                </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="save-button">Save Changes</button>
+              <button type="button" id="venue-delete-button" class="delete-button">Delete</button>
+              <button type="button" class="cancel-button">Cancel</button>
+            </div>
+        </form>
+        <div class="modal-notification-area"></div>
     </div>
 </div>
 

@@ -520,78 +520,6 @@ function moveFavoritesToTop() {
 }
 
 /**
- * Sets up a two-step confirmation for a button
- * @param {HTMLElement} button - The button element
- * @param {Function} confirmAction - The function to execute when confirmed
- * @param {Object} options - Customization options
- * @param {string} options.confirmText - Text to show during confirmation state
- * @param {string} options.confirmTitle - Title/tooltip to show during confirmation state
- * @param {string} options.originalText - Text to revert to after timeout (if not specified, original innerHTML is used)
- * @param {string} options.originalTitle - Title/tooltip to revert to after timeout
- * @param {number} options.timeout - Timeout in milliseconds before reverting (default: 3000)
- * @param {boolean} options.stopPropagation - Whether to stop event propagation (default: false)
- * @param {Event} options.event - The event object if event propagation needs to be stopped
- */
-function setupConfirmButton(button, confirmAction, options = {}) {
-  // Set default options
-  const timeout = options.timeout || 3000;
-  const originalText = options.originalText || button.innerHTML;
-  const originalTitle = options.originalTitle || button.getAttribute('title') || '';
-  
-  // Handle event propagation if specified
-  if (options.stopPropagation && options.event) {
-    options.event.stopPropagation();
-  }
-  
-  if (button.classList.contains('confirming')) {
-    // This is the second click (confirmation)
-    confirmAction();
-    
-    // Reset button appearance after action
-    button.classList.remove('confirming');
-    
-    // Restore the original content after a small delay
-    setTimeout(() => {
-      button.innerHTML = originalText;
-      button.setAttribute('title', originalTitle);
-    }, 150);
-  } else {
-    // This is the first click - first add the class then change content
-    const originalContent = button.innerHTML;
-    
-    // Add class first to trigger width transition
-    button.classList.add('confirming');
-    
-    // Change content after a small delay to let width transition start
-    setTimeout(() => {
-      if (options.confirmText) {
-        button.textContent = options.confirmText;
-      }
-      if (options.confirmTitle) {
-        button.setAttribute('title', options.confirmTitle);
-      }
-    }, 50);
-    
-    // Reset after a timeout if not clicked
-    setTimeout(() => {
-      if (button.classList.contains('confirming')) {
-        // First remove the class to trigger width transition
-        button.classList.remove('confirming');
-        
-        // After transition starts, restore original content
-        setTimeout(() => {
-          button.innerHTML = originalContent;
-          button.setAttribute('title', originalTitle);
-        }, 150);
-      }
-    }, timeout);
-  }
-}
-
-// Make function available globally
-window.setupConfirmButton = setupConfirmButton;
-
-/**
  * Initialize drag and drop functionality
  * @param {Object} plotState - The current plot state
  */
@@ -2563,7 +2491,6 @@ function initStageGrid() {
 }
 
 // --------------------- Make stage plot editor functions available globally ----------------------
-window.setupConfirmButton = setupConfirmButton;
 window.initStageEditor = initStageEditor;
 window.handleDragStart = handleDragStart;
 window.handleDragOver = handleDragOver;

@@ -194,6 +194,7 @@
 }
 
 #venue-edit-modal .modal-content,
+#venue-modal .modal-content,
 #add-venue-modal .modal-content {
   max-width: 420px;
   overflow-y: visible;
