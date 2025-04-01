@@ -391,16 +391,16 @@ function updateVenueRow(venue) {
 }
 
 /**
-* Add a new venue row to the table
-* @param {Object} venue - The venue data
-*/
+ * Add a new venue row to the table
+ * @param {Object} venue - The venue data
+ */
 function addVenueRow(venue) {
   const venuesTable = document.getElementById('profile-venues-table');
-  
+
   // Check if we need to convert from empty state to table
   const venueSection = document.querySelector('.profile-section:nth-of-type(2)');
   const emptySection = venueSection.querySelector('.empty-section');
-  
+
   if (emptySection) {
     // Replace empty section with table
     venueSection.innerHTML = `
@@ -418,13 +418,8 @@ function addVenueRow(venue) {
         </table>
       </div>
     `;
-    
-    // Re-initialize venue modal functionality
-    // REMOVE THESE RECURSIVE CALLS:
-    // initUserVenueModal();
-    // initVenueDetailModal();
-    
-    // Instead, just re-bind the add venue button:
+
+    // Re-bind the add venue button
     const addButton = document.getElementById('profile-add-venue-button');
     if (addButton) {
       addButton.addEventListener('click', () => {
@@ -439,13 +434,19 @@ function addVenueRow(venue) {
       });
     }
   }
-  
+
+  // Create a new row
+  const row = document.createElement('tr');
+  row.classList.add('clickable-venue-row');
+  row.setAttribute('data-venue-id', venue.user_venue_id);
+  row.setAttribute('data-venue-name', venue.venue_name);
+
   // Name
   const nameCell = document.createElement('td');
   nameCell.setAttribute('data-label', 'Name');
   nameCell.textContent = venue.venue_name;
   row.appendChild(nameCell);
-  
+
   // Location
   const locationCell = document.createElement('td');
   locationCell.setAttribute('data-label', 'Location');
@@ -454,7 +455,7 @@ function addVenueRow(venue) {
   if (venue.state_abbr) location.push(venue.state_abbr);
   locationCell.textContent = location.length > 0 ? location.join(', ') : '—';
   row.appendChild(locationCell);
-  
+
   // Stage dimensions
   const dimensionsCell = document.createElement('td');
   dimensionsCell.setAttribute('data-label', 'Stage Dimensions');
@@ -464,33 +465,33 @@ function addVenueRow(venue) {
     dimensionsCell.textContent = '—';
   }
   row.appendChild(dimensionsCell);
-  
+
   // Add the row to the table
-  table.appendChild(row);
-  
+  venuesTable.appendChild(row);
+
   // Highlight the new row briefly
   row.style.animation = 'highlightRow 2s';
-  
+
   // Add click event listener to the new row
   row.addEventListener('click', async () => {
     const venueId = row.getAttribute('data-venue-id');
-    
+
     try {
       // Fetch venue data
       const response = await fetch(`/handlers/get_user_venue.php?id=${venueId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch venue data');
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         const modal = document.getElementById('venue-modal');
         if (!modal) {
           console.error('Venue modal not found');
           return;
         }
-        
+
         // Populate form with venue data
         document.getElementById('modal_venue_id').value = data.venue.user_venue_id;
         document.getElementById('modal_venue_name').value = data.venue.venue_name || '';
@@ -500,11 +501,11 @@ function addVenueRow(venue) {
         document.getElementById('modal_venue_zip').value = data.venue.venue_zip || '';
         document.getElementById('modal_stage_width').value = data.venue.stage_width || '';
         document.getElementById('modal_stage_depth').value = data.venue.stage_depth || '';
-        
+
         // Update modal title
         const modalTitle = modal.querySelector('h2');
         if (modalTitle) modalTitle.textContent = 'Venue Details';
-        
+
         // Show modal
         openModal(modal);
       } else {
