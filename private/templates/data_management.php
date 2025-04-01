@@ -293,7 +293,8 @@ if ($user['role_id'] == 2) {
     }
     echo "</table>";
 }
-
+    
+echo "<div id='notification-area' class='notification-area pinned'></div>";
 echo "</div>"; // Close profile-container
 
 // Include venue edit modal
@@ -357,6 +358,7 @@ echo "</div>"; // Close profile-container
         <button type="button" class="cancel-button">Cancel</button>
       </div>
     </form>
+    <div class="modal-notification-area"></div>
   </div>
 </div>
 
