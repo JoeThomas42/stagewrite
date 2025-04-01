@@ -51,7 +51,7 @@ async function deleteUserVenue(venueId, venueName, rowElement) {
                 venueSection.innerHTML = `
                     <div class="section-header">
                         <h2>Your Custom Venues</h2>
-                        <button id="profile-add-venue-button" class="action-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
+                        <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div class="empty-section">
                         <p>You haven't created any custom venues yet.</p>
@@ -406,7 +406,7 @@ function addVenueRow(venue) {
     venueSection.innerHTML = `
       <div class="section-header">
         <h2>Your Custom Venues</h2>
-        <button id="profile-add-venue-button" class="action-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
+        <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
       </div>
       <div class="venues-table-container">
         <table id="profile-venues-table">

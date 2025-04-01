@@ -369,7 +369,6 @@
   }
 
   &:hover {
-    /* border-color: var(--color-grey-2); */
     border-color: var(--color-primary-light);
     box-shadow: var(--shadow-lg);
     z-index: 1000 !important;

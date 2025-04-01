@@ -972,6 +972,38 @@ function displayCitySuggestions(cities, container, inputElement) {
   container.style.display = 'block';
 }
 
+// Add event listeners to custom number spinners
+function initCustomNumberInputs() {
+  document.querySelectorAll('.input-dimensions .form-group').forEach(group => {
+    const input = group.querySelector('input[type="number"]');
+    if (!input) return;
+    
+    // Up arrow click
+    group.addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Check if click is in the up arrow region
+      if (x >= rect.width - 25 && y >= 30 && y <= 45) {
+        const currentValue = Number(input.value) || 0;
+        const step = Number(input.step) || 1;
+        const max = input.max ? Number(input.max) : Infinity;
+        input.value = Math.min(currentValue + step, max);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      // Check if click is in the down arrow region
+      else if (x >= rect.width - 25 && y >= 45 && y <= 60) {
+        const currentValue = Number(input.value) || 0;
+        const step = Number(input.step) || 1;
+        const min = input.min ? Number(input.min) : 0;
+        input.value = Math.max(currentValue - step, min);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+}
+
 // ------------------ Make UI functions available globally ---------------------
 window.setupConfirmButton = setupConfirmButton;
 window.initDropdownMenus = initDropdownMenus;
@@ -984,3 +1016,4 @@ window.initTableInteractions = initTableInteractions;
 window.initCustomDropdowns = initCustomDropdowns;
 window.initCityAutocomplete = initCityAutocomplete;
 window.initZipCodeAutoComplete = initZipCodeAutoComplete;
+window.initCustomNumberInputs = initCustomNumberInputs;

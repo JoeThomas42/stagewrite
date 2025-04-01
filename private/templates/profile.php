@@ -124,7 +124,7 @@ $userVenues = $db->fetchAll("
     <div class="profile-section">
         <div class="section-header">
             <h2>Your Custom Venues</h2>
-            <button id="profile-add-venue-button" class="action-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
+            <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
         </div>
         
         <?php if (empty($userVenues)): ?>
@@ -168,7 +168,7 @@ $userVenues = $db->fetchAll("
             </div>
         <?php endif; ?>
     </div>
-    <div id="notification-area" class="notification-area"></div>
+    <div id="notification-area" class="notification-area pinned"></div>
 </div>
 
 <!-- Add User Venue Modal -->

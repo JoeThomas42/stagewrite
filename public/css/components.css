@@ -575,6 +575,16 @@ th.sortable {
   position: absolute;
   transform: translateX(-50%);
   width: 100%;
+  z-index: 10000;
+}
+
+.notification-area.pinned {
+  bottom: auto;
+  left: 20px;
+  margin: 0;
+  position: fixed;
+  top: 120px;
+  transform: none;
 }
 
 /* Modal notification area */
