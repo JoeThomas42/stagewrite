@@ -1,11 +1,11 @@
 <?php
 /**
- * Plot Snapshot Generation
+ * Enhanced Snapshot Generation
  * @package StageWrite
  */
 
 /**
- * Generate a snapshot image of a stage plot
+ * Generate a detailed snapshot image of a stage plot using element images
  * 
  * @param int $plotId - The ID of the plot
  * @param array $elements - Array of elements in the plot
@@ -24,8 +24,8 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     $db = Database::getInstance();
     
     // Get stage dimensions
-    $stageWidth = 300;  // Default width for thumbnail
-    $stageHeight = 180; // Default height for thumbnail
+    $stageWidth = 600;  // Default width for thumbnail (increased for better detail)
+    $stageHeight = 360; // Default height for thumbnail
     
     // If venue is specified, get its dimensions
     if ($venueId) {
@@ -47,11 +47,15 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
         }
     }
     
-    // Ensure minimum height of 120px
-    $stageHeight = max($stageHeight, 120);
+    // Ensure minimum height of 180px
+    $stageHeight = max($stageHeight, 180);
     
-    // Create a blank image
+    // Create a blank image with a slightly larger canvas to accommodate rotations
     $image = imagecreatetruecolor($stageWidth, $stageHeight);
+    
+    // Enable alpha blending
+    imagealphablending($image, true);
+    imagesavealpha($image, true);
     
     // Fill the background with light gray (stage background)
     $bgColor = imagecolorallocate($image, 248, 249, 250); // Light gray background
@@ -63,50 +67,158 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     
     // Add "FRONT OF STAGE" text at the bottom
     $textColor = imagecolorallocate($image, 102, 102, 102); // #666
-    $font = 1; // Built-in font - smaller for thumbnail
+    $font = 2; // Slightly larger font
     $text = "FRONT OF STAGE";
     $textWidth = imagefontwidth($font) * strlen($text);
     $textHeight = imagefontheight($font);
     $x = ($stageWidth - $textWidth) / 2;
-    $y = $stageHeight - $textHeight - 2;
+    $y = $stageHeight - $textHeight - 5;
     imagestring($image, $font, $x, $y, $text, $textColor);
     
     // Scale factor for plotting elements
     $scaleX = $stageWidth / 900; // Assuming stage is 900px wide in the UI
     $scaleY = $stageHeight / 700; // Assuming stage is 700px high in the UI
     
+    // Sort elements by z-index to maintain proper layering
+    usort($elements, function($a, $b) {
+        return $a['z_index'] - $b['z_index'];
+    });
+    
     // Draw each element on the image
     foreach ($elements as $element) {
+        // Get element details from the database to get the image filename
+        $elementDetails = $db->fetchOne(
+            "SELECT e.element_name, e.element_image 
+             FROM elements e 
+             WHERE e.element_id = ?",
+            [$element['element_id']]
+        );
+        
+        if (!$elementDetails) {
+            // Fallback to rectangle if element not found
+            drawElementAsRectangle($image, $element, $scaleX, $scaleY);
+            continue;
+        }
+        
         // Scale the element position and size to fit the snapshot
         $x = $element['x_position'] * $scaleX;
         $y = $element['y_position'] * $scaleY;
         $width = $element['width'] * $scaleX;
         $height = $element['height'] * $scaleY;
         
-        // Draw a rectangle for each element
-        $elementColor = imagecolorallocate($image, 82, 108, 129); // Primary color
-        $fillColor = imagecolorallocate($image, 103, 134, 159); // Lighter fill
+        // Attempt to load element image
+        $elementImagePath = PUBLIC_PATH . '/images/elements/' . $elementDetails['element_image'];
         
-        // Draw rotated element if needed
-        if ($element['rotation'] != 0) {
-            // For simplicity in the thumbnail, just draw a rectangle without rotation
-            imagefilledrectangle($image, $x, $y, $x + $width, $y + $height, $fillColor);
-            imagerectangle($image, $x, $y, $x + $width, $y + $height, $elementColor);
+        if (file_exists($elementImagePath)) {
+            // Determine image type and load accordingly
+            $imageInfo = getimagesize($elementImagePath);
+            $elementImg = null;
+            
+            switch ($imageInfo[2]) {
+                case IMAGETYPE_JPEG:
+                    $elementImg = imagecreatefromjpeg($elementImagePath);
+                    break;
+                case IMAGETYPE_PNG:
+                    $elementImg = imagecreatefrompng($elementImagePath);
+                    // Enable alpha blending for PNG
+                    imagealphablending($elementImg, true);
+                    imagesavealpha($elementImg, true);
+                    break;
+                case IMAGETYPE_GIF:
+                    $elementImg = imagecreatefromgif($elementImagePath);
+                    break;
+            }
+            
+            if ($elementImg) {
+                // Resize the element image to match the desired dimensions
+                $resizedImg = imagecreatetruecolor($width, $height);
+                // Enable alpha blending for transparency
+                imagealphablending($resizedImg, true);
+                imagesavealpha($resizedImg, true);
+                // Fill with transparent background
+                $transparent = imagecolorallocatealpha($resizedImg, 255, 255, 255, 127);
+                imagefill($resizedImg, 0, 0, $transparent);
+                
+                // Resize the element image
+                imagecopyresampled(
+                    $resizedImg, $elementImg,
+                    0, 0, 0, 0,
+                    $width, $height,
+                    imagesx($elementImg), imagesy($elementImg)
+                );
+                
+                // Handle rotation if needed
+                if ($element['rotation'] != 0 || $element['flipped'] == 1) {
+                    $resizedImg = rotateAndFlipImage(
+                        $resizedImg, 
+                        $element['rotation'], 
+                        $element['flipped'] == 1
+                    );
+                    
+                    // Recalculate dimensions after rotation
+                    $newWidth = imagesx($resizedImg);
+                    $newHeight = imagesy($resizedImg);
+                    
+                    // Adjust position to center the rotated image
+                    $x = $x - ($newWidth - $width) / 2;
+                    $y = $y - ($newHeight - $height) / 2;
+                }
+                
+                // Place the element on the stage
+                imagecopy(
+                    $image, $resizedImg,
+                    $x, $y, 0, 0,
+                    imagesx($resizedImg), imagesy($resizedImg)
+                );
+                
+                // Clean up temporary images
+                imagedestroy($resizedImg);
+                imagedestroy($elementImg);
+            } else {
+                // Fallback to rectangle if image couldn't be loaded
+                drawElementAsRectangle($image, $element, $scaleX, $scaleY);
+            }
         } else {
-            // Draw regular element
-            imagefilledrectangle($image, $x, $y, $x + $width, $y + $height, $fillColor);
-            imagerectangle($image, $x, $y, $x + $width, $y + $height, $elementColor);
+            // Fallback to rectangle if image file doesn't exist
+            drawElementAsRectangle($image, $element, $scaleX, $scaleY);
         }
         
-        // Add label if present (only if element is large enough)
-        if (!empty($element['label']) && $width > 20 && $height > 10) {
-            $labelColor = imagecolorallocate($image, 255, 255, 255); // White
-            $labelFont = 1; // Smallest built-in font for thumbnail
-            $labelX = $x + 1;
-            $labelY = $y + $height - imagefontheight($labelFont) - 1;
-            imagestring($image, $labelFont, $labelX, $labelY, $element['label'], $labelColor);
+        // Add label if present
+        if (!empty($element['label'])) {
+            // Create semi-transparent label background
+            $labelBgColor = imagecolorallocatealpha($image, 82, 108, 129, 30); // Semi-transparent blue
+            $labelTextColor = imagecolorallocate($image, 255, 255, 255); // White text
+            $labelFont = 1; // Small font for label
+            
+            // Calculate label position (bottom of element)
+            $labelX = $x + 2;
+            $labelY = $y + $height - imagefontheight($labelFont) - 2;
+            $labelWidth = imagefontwidth($labelFont) * strlen($element['label']) + 4;
+            $labelHeight = imagefontheight($labelFont) + 2;
+            
+            // Draw label background
+            imagefilledrectangle(
+                $image,
+                $labelX - 1, $labelY - 1,
+                $labelX + $labelWidth, $labelY + $labelHeight,
+                $labelBgColor
+            );
+            
+            // Draw label text
+            imagestring($image, $labelFont, $labelX + 1, $labelY, $element['label'], $labelTextColor);
         }
     }
+    
+    // Add a drop shadow effect to make the stage pop
+    $shadow = imagecreatetruecolor($stageWidth, $stageHeight);
+    $shadowColor = imagecolorallocate($shadow, 0, 0, 0);
+    $transparent = imagecolorallocate($shadow, 255, 255, 255);
+    imagefilledrectangle($shadow, 0, 0, $stageWidth - 1, $stageHeight - 1, $transparent);
+    imagefilledrectangle($shadow, 3, 3, $stageWidth - 1, $stageHeight - 1, $shadowColor);
+    
+    // Apply shadow with transparency
+    imagecopymerge($image, $shadow, 0, 0, 0, 0, $stageWidth, $stageHeight, 15); // 15% opacity
+    imagedestroy($shadow);
     
     // Generate a unique filename based on plot ID and timestamp
     $filename = 'plot_' . $plotId . '_' . time() . '.png';
@@ -119,3 +231,40 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     // Return the filename if successful
     return file_exists($filePath) ? $filename : null;
 }
+
+/**
+ * Draw element as a colored rectangle (fallback method)
+ * 
+ * @param resource $image - The image resource
+ * @param array $element - Element data
+ * @param float $scaleX - X scale factor
+ * @param float $scaleY - Y scale factor
+ */
+function drawElementAsRectangle($image, $element, $scaleX, $scaleY) {
+    // Scale the element position and size
+    $x = $element['x_position'] * $scaleX;
+    $y = $element['y_position'] * $scaleY;
+    $width = $element['width'] * $scaleX;
+    $height = $element['height'] * $scaleY;
+    
+    // Draw a stylish rectangle for each element
+    $borderColor = imagecolorallocate($image, 82, 108, 129); // Primary color
+    $fillColor = imagecolorallocatealpha($image, 103, 134, 159, 30); // Lighter fill with transparency
+    
+    // Create a slightly rounded effect with multiple rectangles
+    imagefilledrectangle($image, $x + 1, $y + 1, $x + $width - 1, $y + $height - 1, $fillColor);
+    imagerectangle($image, $x, $y, $x + $width, $y + $height, $borderColor);
+    
+    // Add a slight 3D effect
+    $highlightColor = imagecolorallocatealpha($image, 255, 255, 255, 70);
+    $shadowColor = imagecolorallocatealpha($image, 0, 0, 0, 70);
+    
+    // Top and left highlight
+    imageline($image, $x + 1, $y + 1, $x + $width - 1, $y + 1, $highlightColor);
+    imageline($image, $x + 1, $y + 1, $x + 1, $y + $height - 1, $highlightColor);
+    
+    // Bottom and right shadow
+    imageline($image, $x + 1, $y + $height - 1, $x + $width - 1, $y + $height - 1, $shadowColor);
+    imageline($image, $x + $width - 1, $y + 1, $x + $width - 1, $y + $height - 1, $shadowColor);
+}
+?>
