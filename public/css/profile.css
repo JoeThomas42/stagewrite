@@ -171,6 +171,7 @@
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-md);
   flex-shrink: 0;
+  height: auto;
   max-width: 180px; /* Limit width */
   overflow: auto;
   transform: none;
@@ -187,7 +188,7 @@
 .plot-snapshot {
   display: block;
   height: 120px; /* Fixed height */
-  object-fit: contain;
+  /* object-fit: contain; */
   width: 100%;
 }
 
