@@ -90,6 +90,7 @@
 
 [data-theme="dark"] .modal-content h2,
 [data-theme="dark"] .modal-content h3,
+[data-theme="dark"] .modal-content label,
 [data-theme="dark"] .profile-container h2,
 [data-theme="dark"] .profile-container h3{
   color: var(--color-text);
@@ -191,7 +192,7 @@
 [data-theme="dark"] .plots-list,
 [data-theme="dark"] .existing-plots-list,
 [data-theme="dark"] .saved-plots-list {
-    scrollbar-color: var(--color-grey-4) var(--color-background);
+  scrollbar-color: var(--color-grey-4) var(--color-background);
 }
 
 [data-theme="dark"] .custom-dropdown-menu::-webkit-scrollbar-track,

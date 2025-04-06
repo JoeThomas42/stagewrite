@@ -149,7 +149,7 @@
   margin: 0 auto;
   max-width: 600px;
   opacity: 0;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   padding: var(--spacing-xl);
   position: relative;
   transform: translateY(20px);
