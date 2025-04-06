@@ -137,7 +137,7 @@
   color: var(--color-grey-5);
 }
 
-.search-container {
+[data-theme="dark"] .search-container {
   background-color: var(--color-background-light);
 }
 
