@@ -59,6 +59,11 @@
   color: var(--color-text);
 }
 
+/* REMOVE OTHER H2S IF THIS WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+[data-theme="dark"] h2 {
+  color: var(--color-text) !important;
+}
+
 [data-theme="dark"] button:active:not(.favorite-button:active),
 [data-theme="dark"] .form-actions button:active {
   box-shadow: inset var(--button-inset-lg);
@@ -88,10 +93,10 @@
   background-color: var(--color-background);
 }
 
-[data-theme="dark"] .modal-content h2,
+/* [data-theme="dark"] .modal-content h2, */
 [data-theme="dark"] .modal-content h3,
 [data-theme="dark"] .modal-content label,
-[data-theme="dark"] .profile-container h2,
+/* [data-theme="dark"] .profile-container h2, */
 [data-theme="dark"] .profile-container h3{
   color: var(--color-text);
 }
@@ -129,7 +134,7 @@
 }
 
 /* ----- Sections / Headings ----- */
-[data-theme="dark"] #elements-header h2,
+/* [data-theme="dark"] #elements-header h2, */
 [data-theme="dark"] #plot-title {
   color: var(--color-text);
 }

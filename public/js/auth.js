@@ -33,9 +33,6 @@ function initAuthForms() {
   // Set up form submissions
   initSignupForm();
   initLoginForm();
-  
-  // Add CSS for error styling
-  addErrorStyles();
 }
 
 /**
@@ -172,83 +169,7 @@ function initLoginForm() {
   });
 }
 
-/**
- * Adds CSS for error styling to the document
- */
-function addErrorStyles() {
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .error-input {
-      border: 1px solid #dc3545 !important;
-    }
-    .field-error {
-      color: #dc3545;
-      font-size: 12px;
-      margin-top: -10px;
-      margin-bottom: 10px;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-/**
- * Shows a field-specific error message
- * @param {HTMLElement} field - The form field with the error
- * @param {string} message - The error message to display
- */
-function showFieldError(field, message) {
-  // Remove any previous error
-  clearFieldError(field);
-  
-  // Add error class to the input
-  field.classList.add('error-input');
-  
-  // Create and add error message
-  const errorSpan = document.createElement('span');
-  errorSpan.className = 'field-error';
-  errorSpan.textContent = message;
-  errorSpan.style.color = 'red';
-  errorSpan.style.fontSize = '12px';
-  errorSpan.style.display = 'block';
-  errorSpan.style.marginTop = '-10px';
-  errorSpan.style.marginBottom = '10px';
-  
-  field.parentNode.insertBefore(errorSpan, field.nextSibling);
-}
-
-/**
- * Clears error styling and message for a specific field
- * @param {HTMLElement} field - The form field to clear errors from
- */
-function clearFieldError(field) {
-  field.classList.remove('error-input');
-  const existingError = field.nextElementSibling;
-  if (existingError && existingError.className === 'field-error') {
-    existingError.remove();
-  }
-}
-
-/**
- * Clears all error messages from a form
- * @param {HTMLFormElement} form - The form to clear errors from
- */
-function clearAllErrors(form) {
-  const inputs = form.querySelectorAll('input');
-  inputs.forEach(input => {
-    clearFieldError(input);
-  });
-  
-  const generalError = form.querySelector('.error-message');
-  if (generalError) {
-    generalError.remove();
-  }
-}
-
 // -------------------- Make authentication functions available globally ---------------------
 window.initAuthForms = initAuthForms;
 window.initSignupForm = initSignupForm;
 window.initLoginForm = initLoginForm;
-window.addErrorStyles = addErrorStyles;
-window.showFieldError = showFieldError;
-window.clearFieldError = clearFieldError;
-window.clearAllErrors = clearAllErrors;

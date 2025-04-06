@@ -16,7 +16,6 @@
   width: 400px;
 
   h2 {
-    color: var(--color-primary-dark);
     font-size: var(--font-size-xl);
     margin-bottom: var(--spacing-xl);
     text-align: center;
@@ -899,4 +898,15 @@ th.sortable {
   pointer-events: none;
   height: 0;
   width: 0;
+}
+
+/* ----------------- Form Errors ---------------------- */
+.error-input {
+  border: 1px solid #dc3545 !important;
+}
+.field-error {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
 }
