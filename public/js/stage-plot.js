@@ -1924,7 +1924,7 @@ function restoreStateFromStorage(plotState) {
             venueSelect.value = "";
         }
         // Call the update function directly with the restored venue value
-        updateStageForVenue(restoredVenueId, plotState);
+        updateStageForVenue(restoredVenueId, plotState, true);
       }
       
       if (eventStartInput && state.eventStart) {
@@ -2124,7 +2124,7 @@ function setupVenueSelectHandler(plotState) {
   if (!venueSelect) return;
 
   venueSelect.addEventListener('change', () => {
-      updateStageForVenue(venueSelect.value, plotState);
+      updateStageForVenue(venueSelect.value, plotState, false);
   });
 }
 
@@ -2134,7 +2134,7 @@ function setupVenueSelectHandler(plotState) {
  * @param {*} plotState 
  * @returns 
  */
-function updateStageForVenue(venueValue, plotState) {
+function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
@@ -2142,7 +2142,7 @@ function updateStageForVenue(venueValue, plotState) {
   if (!venueValue) {
       const dimensions = calculateStageDimensions(20, 15); // Default size
       updateStageDimensions(dimensions, stage);
-      if (plotState.currentPlotId) {
+      if (!isRestoring && plotState.currentPlotId) {
           markPlotAsModified(plotState);
       }
       return;
@@ -2174,7 +2174,7 @@ function updateStageForVenue(venueValue, plotState) {
               updateStageDimensions(dimensions, stage);
               stage.setAttribute('data-venue-id', venueId); // Store the actual ID
               stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
-              if (plotState.currentPlotId) {
+              if (!isRestoring && plotState.currentPlotId) {
                   markPlotAsModified(plotState);
               }
           } else {
