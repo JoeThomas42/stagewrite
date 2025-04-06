@@ -1916,11 +1916,15 @@ function restoreStateFromStorage(plotState) {
       const eventEndInput = document.getElementById('event_end');
       
       if (venueSelect) {
+        let restoredVenueId = ""; // Default to empty (No Venue)
         if (state.venueId) {
-          venueSelect.value = state.venueId;
+            venueSelect.value = state.venueId;
+            restoredVenueId = state.venueId; // Store the restored ID
         } else {
-          venueSelect.value = "";
+            venueSelect.value = "";
         }
+        // Call the update function directly with the restored venue value
+        updateStageForVenue(restoredVenueId, plotState);
       }
       
       if (eventStartInput && state.eventStart) {
@@ -2118,78 +2122,74 @@ function setupInitialState(plotState) {
 function setupVenueSelectHandler(plotState) {
   const venueSelect = document.getElementById('venue_select');
   if (!venueSelect) return;
-  
+
   venueSelect.addEventListener('change', () => {
-    const stage = document.getElementById('stage');
-    if (!stage) return;
-    
-    const venueValue = venueSelect.value;
-    
-    // If no venue is selected, set default stage dimensions
-    if (!venueValue) {
-      // Calculate dimensions for default 20' x 15' stage
-      const dimensions = calculateStageDimensions(20, 15);
+      updateStageForVenue(venueSelect.value, plotState);
+  });
+}
+
+/**
+ * 
+ * @param {*} venueValue 
+ * @param {*} plotState 
+ * @returns 
+ */
+function updateStageForVenue(venueValue, plotState) {
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+
+  // If no venue is selected, set default stage dimensions
+  if (!venueValue) {
+      const dimensions = calculateStageDimensions(20, 15); // Default size
       updateStageDimensions(dimensions, stage);
-      
-      // Mark plot as modified if we're editing an existing plot
       if (plotState.currentPlotId) {
-        markPlotAsModified(plotState);
+          markPlotAsModified(plotState);
       }
       return;
-    }
-    
-    let venueId, isUserVenue = false;
-    
-    // Check if this is a user venue
-    if (venueValue.startsWith('user_')) {
+  }
+
+  let venueId, isUserVenue = false;
+  if (venueValue.startsWith('user_')) {
       isUserVenue = true;
       venueId = venueValue.replace('user_', '');
-    } else {
+  } else {
       venueId = venueValue;
-    }
-    
-    // Fetch venue details from server
-    const endpoint = isUserVenue ? 
-      `/handlers/get_user_venue.php?id=${venueId}` : 
+  }
+
+  const endpoint = isUserVenue ?
+      `/handlers/get_user_venue.php?id=${venueId}` :
       `/handlers/get_venue.php?id=${venueId}`;
-    
-    fetch(endpoint)
+
+  fetch(endpoint)
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
       })
       .then(data => {
-        if (data.success && data.venue) {
-          // Calculate stage dimensions based on venue
-          const dimensions = calculateStageDimensions(
-            parseInt(data.venue.stage_width) || 20,
-            parseInt(data.venue.stage_depth) || 15
-          );
-          
-          // Update stage with new dimensions
-          updateStageDimensions(dimensions, stage);
-          
-          // Update venue attributes
-          stage.setAttribute('data-venue-id', venueId);
-          stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
-          
-          // Mark plot as modified if we're editing an existing plot
-          if (plotState.currentPlotId) {
-            markPlotAsModified(plotState);
+          if (data.success && data.venue) {
+              const dimensions = calculateStageDimensions(
+                  parseInt(data.venue.stage_width) || 20,
+                  parseInt(data.venue.stage_depth) || 15
+              );
+              updateStageDimensions(dimensions, stage);
+              stage.setAttribute('data-venue-id', venueId); // Store the actual ID
+              stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
+              if (plotState.currentPlotId) {
+                  markPlotAsModified(plotState);
+              }
+          } else {
+             // Handle case where venue data isn't returned successfully
+             console.error('Failed to get venue data:', data.error);
+             const dimensions = calculateStageDimensions(20, 15); // Fallback to default
+             updateStageDimensions(dimensions, stage);
           }
-        }
       })
       .catch(error => {
-        console.error('Error fetching venue:', error);
-        // Use default dimensions on error
-        const dimensions = calculateStageDimensions(20, 15);
-        updateStageDimensions(dimensions, stage);
-        
-        alert('Failed to load venue information. Using default dimensions.');
+          console.error('Error fetching venue:', error);
+          const dimensions = calculateStageDimensions(20, 15); // Fallback to default
+          updateStageDimensions(dimensions, stage);
+          // Optionally show a user notification here
       });
-  });
 }
 
 /**
