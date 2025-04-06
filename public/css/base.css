@@ -34,6 +34,13 @@ body {
   }
 }
 
+h2 {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-lg);
+  margin: 0;
+  white-space: nowrap;
+}
+
 button,
 .log-link {
   background-color: var(--color-primary);
@@ -109,72 +116,6 @@ textarea {
 input,
 select {
   height: 30px;
-}
-
-/* ---------------- Custom styling for number input spinners -------------------- */
-/* Remove default Firefox spinners */
-input[type="number"] {
-  appearance: textfield;
-  -moz-appearance: textfield;
-}
-
-/* Remove default WebKit spinners */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Custom spinner container */
-.input-dimensions .form-group {
-  position: relative;
-}
-
-/* Custom arrow buttons using pseudo-elements */
-.input-dimensions input[type="number"] {
-  padding-right: 25px; /* Make space for the custom arrows */
-}
-
-/* Up arrow */
-.input-dimensions .form-group::after {
-  content: "\25B2"; /* Unicode triangle */
-  position: absolute;
-  right: 3px;
-  top: 28px;
-  height: 15px;
-  width: 15px;
-  color: var(--color-primary);
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition: color var(--transition-fast);
-}
-
-/* Down arrow */
-.input-dimensions .form-group::before {
-  content: "\25BC"; /* Unicode triangle */
-  position: absolute;
-  right: 3px;
-  top: 40px;
-  height: 15px;
-  width: 15px;
-  color: var(--color-primary);
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition: color var(--transition-fast);
-}
-
-/* Hover states */
-.input-dimensions .form-group::after:hover,
-.input-dimensions .form-group::before:hover {
-  color: var(--color-primary-dark);
 }
 
 textarea {
@@ -309,6 +250,7 @@ header.header-container {
   }
 
   a {
+    border-bottom: none;
     border-radius: var(--border-radius-sm);
     color: var(--color-white);
     font-weight: 500;
@@ -319,7 +261,7 @@ header.header-container {
 
     &.current-page {
       border-bottom: 3px solid var(--color-primary-light);
-      box-shadow: inset var(--shadow-inset-md);
+      box-shadow: inset var(--shadow-inset-sm);
       position: relative;
     }
 

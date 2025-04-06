@@ -99,18 +99,6 @@
   }
 }
 
-/* .heading-action-row {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-lg);
-  margin-top: var(--spacing-xxl);
-
-  h2 {
-    margin: 0;
-  }
-} */
-
 /* -------------------- Modals --------------------- */
 .modal {
   align-items: center;
@@ -139,6 +127,10 @@
     display: none;
     transition: opacity 0.3s;
   }
+
+  h2 {
+    margin-bottom: var(--spacing-md);
+  }
 }
 
 .modal-content {
@@ -157,11 +149,6 @@
   
   button:not(.delete-plot-btn) {
     min-width: 75px;
-  }
-  
-  h2 {
-    color: var(--color-primary-dark);
-    margin-top: 0;
   }
 }
 
@@ -307,9 +294,6 @@ tr td:last-child {
   width: 100%;
   
   h2 {
-    color: var(--color-primary-dark);
-    font-size: var(--font-size-lg);
-    margin: 0;
     min-width: fit-content;
   }
 }
@@ -898,6 +882,100 @@ th.sortable {
   pointer-events: none;
   height: 0;
   width: 0;
+}
+
+/* ---------------- Custom styling for number input spinners -------------------- */
+/* Remove default Firefox spinners */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* Remove default WebKit spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Custom spinner container */
+.input-dimensions .form-group {
+  position: relative;
+}
+
+/* Custom arrow buttons using pseudo-elements */
+.input-dimensions input[type="number"] {
+  padding-right: 25px; /* Make space for the custom arrows */
+}
+
+/* Up arrow */
+.input-dimensions .form-group::after {
+  content: "\25B2"; /* Unicode triangle */
+  position: absolute;
+  right: 3px;
+  top: 28px;
+  height: 15px;
+  width: 15px;
+  color: var(--color-primary);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+/* Down arrow */
+.input-dimensions .form-group::before {
+  content: "\25BC"; /* Unicode triangle */
+  position: absolute;
+  right: 3px;
+  top: 40px;
+  height: 15px;
+  width: 15px;
+  color: var(--color-primary);
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+/* Hover states */
+.input-dimensions .form-group::after:hover,
+.input-dimensions .form-group::before:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ------------------- Scrollbar Styling -------------------------- */
+/* For WebKit browsers */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-dark);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-grey-4);
+  border-radius: 5px;
+  border: 2px solid var(--color-background-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-grey-3);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-grey-4) var(--color-background-dark);
 }
 
 /* ----------------- Form Errors ---------------------- */

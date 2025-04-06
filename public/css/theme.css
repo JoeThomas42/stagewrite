@@ -59,9 +59,8 @@
   color: var(--color-text);
 }
 
-/* REMOVE OTHER H2S IF THIS WORKS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 [data-theme="dark"] h2 {
-  color: var(--color-text) !important;
+  color: var(--color-text);
 }
 
 [data-theme="dark"] button:active:not(.favorite-button:active),
@@ -79,24 +78,14 @@
   color: var(--color-text);
 }
 
-#main-nav a:active {
-  box-shadow: inset var(--shadow-inset-md);
-}
-
-#main-nav a.current-page {
-  box-shadow: inset var(--shadow-inset-sm);
-}
-
 /* ----- Modals ----- */
 [data-theme="dark"] .modal-content,
 [data-theme="dark"] #elements-list h3 {
   background-color: var(--color-background);
 }
 
-/* [data-theme="dark"] .modal-content h2, */
 [data-theme="dark"] .modal-content h3,
 [data-theme="dark"] .modal-content label,
-/* [data-theme="dark"] .profile-container h2, */
 [data-theme="dark"] .profile-container h3{
   color: var(--color-text);
 }
@@ -116,6 +105,7 @@
 }
 
 /* ----- Tables ----- */
+[data-theme="dark"] .profile-header,
 [data-theme="dark"] .table-actions,
 [data-theme="dark"] .custom-dropdown-optgroup {
   background-color: var(--color-background-dark);
@@ -134,7 +124,6 @@
 }
 
 /* ----- Sections / Headings ----- */
-/* [data-theme="dark"] #elements-header h2, */
 [data-theme="dark"] #plot-title {
   color: var(--color-text);
 }
@@ -148,34 +137,6 @@
 }
 
 /* ----- Scrollbars ----- */
-
-/* For WebKit browsers */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-background-dark);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-grey-4);
-  border-radius: 5px;
-  border: 2px solid var(--color-background-dark);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-grey-3);
-}
-
-/* For Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-grey-4) var(--color-background-dark);
-}
-
 [data-theme="dark"] #elements-list {
   scrollbar-color: var(--color-grey-4) var(--color-background);
 }
