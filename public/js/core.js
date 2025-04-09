@@ -19,7 +19,6 @@ window.initializeApp = function() {
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initThemeSystem, "Theme System");
   safeInit(window.initStageEditor, "Stage Editor");
-  safeInit(window.initStageGrid, "Stage Grid");
   safeInit(window.initCustomDropdowns, "Custom Dropdowns");
   safeInit(window.initCityAutocomplete, "City Autocompletion");
   safeInit(window.initZipCodeAutoComplete, "Zip Autocompletion");

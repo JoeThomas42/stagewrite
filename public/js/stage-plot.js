@@ -32,7 +32,8 @@ function initStageEditor() {
   moveFavoritesToTop();
   initLoadPlotModal(plotState);
   initPageNavigation(plotState);
-  initStageGrid(); // Add this line to initialize the grid system
+  initStageGrid();
+  checkUrlParameters(plotState);
 
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
@@ -41,6 +42,9 @@ function initStageEditor() {
   if (!stateRestored) {
     setupInitialState(plotState);
   }
+  
+  // Check for URL parameters
+  checkUrlParameters(plotState);
   
   // Initialize venue select change handler
   setupVenueSelectHandler(plotState);
@@ -1581,10 +1585,18 @@ function loadPlot(plotId, plotState) {
       plotState.currentPlotName = data.plot.plot_name;
       plotState.currentPlotId = data.plot.plot_id;
       
-      // Update venue dropdown
+      // Update venue dropdown - This is the crucial part that needs fixing
       const venueSelect = document.getElementById('venue_select');
       if (venueSelect && data.plot.effective_venue_id) {
+          // Set the value of the native select element
           venueSelect.value = data.plot.effective_venue_id;
+          
+          // Trigger the change event to ensure any listeners update the UI
+          const changeEvent = new Event('change', { bubbles: true });
+          venueSelect.dispatchEvent(changeEvent);
+          
+          // If using custom dropdowns, also update the visual representation
+          updateCustomDropdown(venueSelect);
       }
       
       // Update event dates
@@ -1599,7 +1611,7 @@ function loadPlot(plotId, plotState) {
           eventEndInput.value = data.plot.event_date_end || '';
       }
       
-      // Update stage dimensions
+      // Update stage dimensions based on venue
       const stage = document.getElementById('stage');
       if (stage) {
         // Calculate dimensions based on venue
@@ -1635,6 +1647,45 @@ function loadPlot(plotId, plotState) {
   .catch(error => {
     console.error('Error loading plot:', error);
     showNotification('Error loading plot. Please try again.', 'error');
+  });
+}
+
+/**
+ * Update the custom dropdown UI to match the selected value in the native select
+ * @param {HTMLSelectElement} selectElement - The native select element
+ */
+function updateCustomDropdown(selectElement) {
+  if (!selectElement) return;
+
+  // Find the associated custom dropdown container
+  const customDropdown = document.querySelector(`.custom-dropdown [data-id="${selectElement.id}"]`) ||
+                         document.querySelector(`.custom-dropdown select[id="${selectElement.id}"]`).closest('.custom-dropdown');
+  
+  if (!customDropdown) return;
+
+  // Get the selected option text
+  const selectedOption = selectElement.options[selectElement.selectedIndex];
+  const selectedText = selectedOption ? selectedOption.textContent : '';
+  
+  // Update the visual display of the selection
+  const selectedDisplay = customDropdown.querySelector('.selected-option');
+  if (selectedDisplay) {
+    selectedDisplay.textContent = selectedText;
+    
+    if (selectedText) {
+      selectedDisplay.classList.remove('placeholder');
+    } else {
+      selectedDisplay.classList.add('placeholder');
+    }
+  }
+  
+  // Update the selected class in the dropdown options
+  const options = customDropdown.querySelectorAll('.custom-dropdown-option');
+  options.forEach(option => {
+    option.classList.remove('selected');
+    if (option.getAttribute('data-value') === selectElement.value) {
+      option.classList.add('selected');
+    }
   });
 }
 
@@ -2490,6 +2541,27 @@ function initStageGrid() {
   });
 }
 
+/**
+ * Check URL parameters for plot loading instructions
+ * @param {Object} plotState - The current plot state
+ */
+function checkUrlParameters(plotState) {
+  // Parse URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const loadPlotId = urlParams.get('load');
+  
+  // If there's a load parameter, load the specified plot
+  if (loadPlotId) {
+    loadPlot(loadPlotId, plotState);
+    
+    // Remove the parameter from URL to prevent reloading the same plot on page refresh
+    const newUrl = window.location.protocol + "//" + 
+                  window.location.host + 
+                  window.location.pathname;
+    window.history.replaceState({path: newUrl}, '', newUrl);
+  }
+}
+
 // --------------------- Make stage plot editor functions available globally ----------------------
 window.initStageEditor = initStageEditor;
 window.handleDragStart = handleDragStart;
@@ -2509,6 +2581,7 @@ window.savePlot = savePlot;
 window.loadExistingPlotsForOverwrite = loadExistingPlotsForOverwrite;
 window.loadSavedPlots = loadSavedPlots;
 window.loadPlot = loadPlot;
+window.updateCustomDropdown = updateCustomDropdown;
 window.loadPlacedElements = loadPlacedElements;
 window.initLoadPlotModal = initLoadPlotModal;
 window.deletePlot = deletePlot;
@@ -2530,3 +2603,4 @@ window.updateGridOverlay = updateGridOverlay;
 window.updateDimensionsLabel = updateDimensionsLabel;
 window.initStageGrid = initStageGrid;
 window.initCategoryFilter = initCategoryFilter;
+window.checkUrlParameters = checkUrlParameters;

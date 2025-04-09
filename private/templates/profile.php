@@ -114,7 +114,7 @@ $userVenues = $db->fetchAll("
                             <?php endif; ?>
                         </div>
                         <div class="plot-card-actions">
-                            <button id="open-plot">Open Plot</button>
+                            <button class="open-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>">Open Plot</button>
                             <button class="delete-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
                         </div>
                     </div>

@@ -202,6 +202,10 @@
   padding: var(--spacing-md);
 }
 
+.open-plot-btn {
+  width: 100px;
+}
+
 /* -------------------- Venues Table --------------------- */
 .venues-table-container {
   margin-top: var(--spacing-md);

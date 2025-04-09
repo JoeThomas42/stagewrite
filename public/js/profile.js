@@ -87,6 +87,9 @@ function initProfileFunctionality() {
   
   // Initialize plot duplication
   initPlotDuplication();
+
+  // Initialize plot opening
+  initPlotOpening();
 }
 
 /**
@@ -604,8 +607,35 @@ function initPlotDuplication() {
   });
 }
 
+/**
+ * Initialize plot opening functionality
+ */
+function initPlotOpening() {
+  document.querySelectorAll('.open-plot-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      const plotId = btn.getAttribute('data-plot-id');
+      const plotName = btn.getAttribute('data-plot-name');
+      
+      setupConfirmButton(btn, () => {
+        // Redirect to the index page with plot ID as query parameter
+        window.location.href = `/index.php?load=${plotId}`;
+      }, {
+        confirmText: 'Confirm',
+        confirmTitle: 'Unsaved changes will be lost!',
+        originalText: 'Open Plot',
+        originalTitle: 'Open plot',
+        stopPropagation: true,
+        event: e
+      });
+    });
+  });
+}
+
 window.initProfileFunctionality = initProfileFunctionality;
 window.initUserVenueModal = initUserVenueModal;
 window.initVenueDetailModal = initVenueDetailModal;
 window.initPlotDeletion = initPlotDeletion;
 window.initPlotDuplication = initPlotDuplication;
+window.initPlotOpening = initPlotOpening;
