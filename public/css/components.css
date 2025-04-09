@@ -569,8 +569,8 @@ th.sortable {
   background: linear-gradient(to right, 
     var(--color-secondary) 0px,      /* Colored border starts */
     var(--color-secondary) 10px,     /* Colored border ends */
-    white 10px,                    /* Start of white separation */
-    white 12px,                    /* End of white separation */
+    var(--color-white) 10px,                    /* Start of white separation */
+    var(--color-white) 12px,                    /* End of white separation */
     var(--color-primary-dark) 12px,  /* Main background starts */
     var(--color-primary-dark) 100%   /* Main background ends */
   );
@@ -606,8 +606,8 @@ th.sortable {
     background: linear-gradient(to right, 
       var(--color-success-light) 0px, 
       var(--color-success-light) 10px, 
-      white 10px, 
-      white 12px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
     );
@@ -617,8 +617,8 @@ th.sortable {
     background: linear-gradient(to right, 
       var(--color-error) 0px, 
       var(--color-error) 10px, 
-      white 10px, 
-      white 12px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
     );
@@ -628,8 +628,8 @@ th.sortable {
     background: linear-gradient(to right, 
       var(--color-secondary) 0px, 
       var(--color-secondary) 10px, 
-      white 10px, 
-      white 12px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
     );
@@ -639,8 +639,8 @@ th.sortable {
     background: linear-gradient(to right, 
       var(--color-danger) 0px, 
       var(--color-danger) 10px, 
-      white 10px, 
-      white 12px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
     );

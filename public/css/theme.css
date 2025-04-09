@@ -37,148 +37,206 @@
 
 /* -------------------------- Dark theme specific overrides ---------------------------- */
 /* ----- Theme Toggle ----- */
-[data-theme="dark"] .theme-toggle:hover {
-  box-shadow: var(--shadow-md) !important;
-}
+[data-theme="dark"] {
 
-[data-theme="dark"] .theme-toggle:active {
-  box-shadow: inset var(--shadow-sm) !important;
+  .theme-toggle:hover {
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  
+  .theme-toggle:active {
+    box-shadow: inset var(--shadow-sm) !important;
+  }
+  
+  .theme-toggle i {
+    transform: rotate(180deg);
+  }
+  
+  .theme-toggle i:before {
+    content: "\f185"; /* fa-sun icon */
+  }
+  
+  /* General */
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
+  
+  h2 {
+    color: var(--color-text);
+  }
+  
+  button:active:not(.favorite-button:active),
+  .form-actions button:active {
+    box-shadow: inset var(--button-inset-lg);
+  }
+  
+  input,
+  select,
+  textarea,
+  #elements-list,
+  .custom-dropdown {
+    background-color: var(--color-background-light);
+    border-color: var(--color-input-border);
+    color: var(--color-text);
+  }
+  
+  /* ----- Modals ----- */
+  .modal-content,
+  #elements-list h3 {
+    background-color: var(--color-background);
+  }
+  
+  .modal-content h3,
+  .modal-content label,
+  .profile-container h3{
+    color: var(--color-text);
+  }
+  
+  .modal-content .plot-name {
+    color: var(--color-grey-5);
+  }
+  
+  .dropdown-menu {
+    background-color: var(--color-background);
+  }
+  
+  /* ----- Login ----- */
+  #login-container,
+  .profile-container {
+    background: linear-gradient(to bottom, var(--color-background-light), var(--color-background));
+  }
+  
+  /* ----- Tables ----- */
+  .profile-header,
+  .table-actions,
+  .custom-dropdown-optgroup {
+    background-color: var(--color-background-dark);
+  }
+  
+  .custom-dropdown-menu,
+  table tr:nth-child(odd) {
+    background-color: var(--color-background);
+  }
+  
+  table tr:nth-child(even),
+  #stage,
+  .custom-dropdown-option:hover,
+  .custom-dropdown-option:focus {
+    background-color: var(--color-background-light);
+  }
+  
+  /* ----- Sections / Headings ----- */
+  #plot-title {
+    color: var(--color-text);
+  }
+  
+  .category-section h3 {
+    color: var(--color-grey-5);
+  }
+  
+  .search-container {
+    background-color: var(--color-background-light);
+  }
+  
+  /* ----- Scrollbars ----- */
+  #elements-list {
+    scrollbar-color: var(--color-grey-4) var(--color-background);
+  }
+  
+  #elements-list::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+  
+  #elements-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-grey-4);
+    border-color: var(--color-background);
+  }
+  
+  #elements-list::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-grey-3);
+  }
+  
+  .custom-dropdown-menu,
+  .plots-list,
+  .existing-plots-list,
+  .saved-plots-list {
+    scrollbar-color: var(--color-grey-4) var(--color-background);
+  }
+  
+  .custom-dropdown-menu::-webkit-scrollbar-track,
+  .plots-list::-webkit-scrollbar-track,
+  .existing-plots-list::-webkit-scrollbar-track,
+  .saved-plots-list::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+  
+  .custom-dropdown-menu::-webkit-scrollbar-thumb,
+  .plots-list::-webkit-scrollbar-thumb,
+  .existing-plots-list::-webkit-scrollbar-thumb,
+  .saved-plots-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-grey-4);
+    border-color: var(--color-background);
+    
+    &:hover {
+      background-color: var(--color-grey-3);
+    }
+  }
+  
+  /* ----- Notifications ----- */
+  .notification {
+    background: linear-gradient(to right, 
+    var(--color-secondary) 0px,      /* Colored border starts */
+    var(--color-secondary) 10px,     /* Colored border ends */
+    var(--color-white) 10px,                    /* Start of white separation */
+    var(--color-white) 12px,                    /* End of white separation */
+    var(--color-primary-dark) 12px,  /* Main background starts */
+    var(--color-primary-dark) 100%   /* Main background ends */
+    );
+    
+    &.success {
+      background: linear-gradient(to right, 
+      var(--color-success-light) 0px, 
+      var(--color-success-light) 10px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+      );
+    }
+    
+    &.error {
+      background: linear-gradient(to right, 
+      var(--color-error) 0px, 
+      var(--color-error) 10px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+      );
+    }
+    
+    &.info {
+      background: linear-gradient(to right, 
+      var(--color-secondary) 0px, 
+      var(--color-secondary) 10px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+      );
+    }
+    
+    &.warning {
+      background: linear-gradient(to right, 
+      var(--color-danger) 0px, 
+      var(--color-danger) 10px, 
+      var(--color-white) 10px, 
+      var(--color-white) 12px, 
+      var(--color-primary-dark) 12px, 
+      var(--color-primary-dark) 100%
+      );
+    }
+  }
 }
-
-[data-theme="dark"] .theme-toggle i {
-  transform: rotate(180deg);
-}
-
-[data-theme="dark"] .theme-toggle i:before {
-  content: "\f185"; /* fa-sun icon */
-}
-
-/* General */
-[data-theme="dark"] body {
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
-[data-theme="dark"] h2 {
-  color: var(--color-text);
-}
-
-[data-theme="dark"] button:active:not(.favorite-button:active),
-[data-theme="dark"] .form-actions button:active {
-  box-shadow: inset var(--button-inset-lg);
-}
-
-[data-theme="dark"] input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea,
-[data-theme="dark"] #elements-list,
-[data-theme="dark"] .custom-dropdown {
-  background-color: var(--color-background-light);
-  border-color: var(--color-input-border);
-  color: var(--color-text);
-}
-
-/* ----- Modals ----- */
-[data-theme="dark"] .modal-content,
-[data-theme="dark"] #elements-list h3 {
-  background-color: var(--color-background);
-}
-
-[data-theme="dark"] .modal-content h3,
-[data-theme="dark"] .modal-content label,
-[data-theme="dark"] .profile-container h3{
-  color: var(--color-text);
-}
-
-[data-theme="dark"] .modal-content .plot-name {
-  color: var(--color-grey-5);
-}
-
-[data-theme="dark"] .dropdown-menu {
-  background-color: var(--color-background);
-}
-
-/* ----- Login ----- */
-[data-theme="dark"] #login-container,
-[data-theme="dark"] .profile-container {
-  background: linear-gradient(to bottom, var(--color-background-light), var(--color-background));
-}
-
-/* ----- Tables ----- */
-[data-theme="dark"] .profile-header,
-[data-theme="dark"] .table-actions,
-[data-theme="dark"] .custom-dropdown-optgroup {
-  background-color: var(--color-background-dark);
-}
-
-[data-theme="dark"] .custom-dropdown-menu,
-[data-theme="dark"] table tr:nth-child(odd) {
-  background-color: var(--color-background);
-}
-
-[data-theme="dark"] table tr:nth-child(even),
-[data-theme="dark"] #stage,
-[data-theme="dark"] .custom-dropdown-option:hover,
-[data-theme="dark"] .custom-dropdown-option:focus {
-  background-color: var(--color-background-light);
-}
-
-/* ----- Sections / Headings ----- */
-[data-theme="dark"] #plot-title {
-  color: var(--color-text);
-}
-
-[data-theme="dark"] .category-section h3 {
-  color: var(--color-grey-5);
-}
-
-[data-theme="dark"] .search-container {
-  background-color: var(--color-background-light);
-}
-
-/* ----- Scrollbars ----- */
-[data-theme="dark"] #elements-list {
-  scrollbar-color: var(--color-grey-4) var(--color-background);
-}
-
-[data-theme="dark"] #elements-list::-webkit-scrollbar-track {
-  background: var(--color-background);
-}
-
-[data-theme="dark"] #elements-list::-webkit-scrollbar-thumb {
-  background-color: var(--color-grey-4);
-  border-color: var(--color-background);
-}
-
-[data-theme="dark"] #elements-list::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-grey-3);
-}
-
-[data-theme="dark"] .custom-dropdown-menu,
-[data-theme="dark"] .plots-list,
-[data-theme="dark"] .existing-plots-list,
-[data-theme="dark"] .saved-plots-list {
-  scrollbar-color: var(--color-grey-4) var(--color-background);
-}
-
-[data-theme="dark"] .custom-dropdown-menu::-webkit-scrollbar-track,
-[data-theme="dark"] .plots-list::-webkit-scrollbar-track,
-[data-theme="dark"] .existing-plots-list::-webkit-scrollbar-track,
-[data-theme="dark"] .saved-plots-list::-webkit-scrollbar-track {
-  background: var(--color-background);
-}
-
-[data-theme="dark"] .custom-dropdown-menu::-webkit-scrollbar-thumb,
-[data-theme="dark"] .plots-list::-webkit-scrollbar-thumb,
-[data-theme="dark"] .existing-plots-list::-webkit-scrollbar-thumb,
-[data-theme="dark"] .saved-plots-list::-webkit-scrollbar-thumb {
-  background-color: var(--color-grey-4);
-  border-color: var(--color-background);
-}
-
-[data-theme="dark"] .custom-dropdown-menu::-webkit-scrollbar-thumb:hover,
-[data-theme="dark"] .plots-list::-webkit-scrollbar-thumb:hover,
-[data-theme="dark"] .existing-plots-list::-webkit-scrollbar-thumb:hover,
-[data-theme="dark"] .saved-plots-list::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-grey-3);
-}
+  
