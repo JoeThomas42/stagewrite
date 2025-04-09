@@ -133,6 +133,11 @@ try {
         $db->query(
             "UPDATE saved_plots SET snapshot_filename = ? WHERE plot_id = ?",
             [$snapshotFilename, $plotId]
+          );
+        $currentTimestamp = time(); // Get current timestamp
+        $db->query(
+            "UPDATE saved_plots SET snapshot_version = ? WHERE plot_id = ?", 
+            [$currentTimestamp, $plotId]
         );
     }
     
