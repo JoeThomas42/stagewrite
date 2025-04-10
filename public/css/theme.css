@@ -252,5 +252,11 @@
   .input-number {
     color: var(--color-grey-4);
   }
+
+  /* ----- Plot Elements ----- */
+  .draggable-element img,
+  .placed-element img {
+    filter: invert() brightness(.75);
+  }
 }
   
