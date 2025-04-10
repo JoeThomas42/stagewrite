@@ -66,9 +66,6 @@
 
 .draggable-element {
   align-items: center;
-  /* background-color: var(--color-white); */
-  /* border: 1px solid var(--color-border); */
-  /* border-radius: var(--border-radius-lg); */
   box-shadow: var(--shadow-sm);
   cursor: grab;
   display: flex;
@@ -458,11 +455,9 @@
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
-  margin: var(--spacing-xl) 0;
+  margin: var(--spacing-xl) auto;
   padding: var(--spacing-lg);
-  max-width: 900px; /* Match stage width */
-  margin-left: auto; /* Center if container allows */
-  margin-right: auto; /* Center if container allows */
+  max-width: 600px;
   
   h2 {
     color: var(--color-primary-dark);
@@ -474,15 +469,15 @@
 
 .input-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Three columns */
-  gap: var(--spacing-md) var(--spacing-lg); /* Row and column gap */
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md) var(--spacing-lg);
   margin-bottom: var(--spacing-lg);
 }
 
 .input-number {
   font-weight: 600;
   color: var(--color-text-secondary);
-  min-width: 25px; /* Ensure alignment */
+  min-width: 25px;
   text-align: right;
 }
 
@@ -496,13 +491,13 @@
   }
   
   input[type="text"] {
-    flex-grow: 1; /* Input takes remaining space */
-    height: 35px; /* Slightly taller input */
+    flex-grow: 1;
+    height: 35px;
   }
 }
 
 .add-line-button {
-  display: block; /* Center button */
-  margin: var(--spacing-md) auto 0; /* Add space above and center */
+  display: block;
+  margin: var(--spacing-md) auto 0;
   min-width: 120px;
 }
