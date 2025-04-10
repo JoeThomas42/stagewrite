@@ -140,6 +140,10 @@ if ($isLoggedIn) {
     </div>
 </div>
 
+<div id="input-list">
+  
+</div>
+
 <!-- Element Properties Modal -->
 <div id="element-props-modal" class="modal hidden">
     <div class="modal-content">
