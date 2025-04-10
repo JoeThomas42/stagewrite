@@ -184,7 +184,10 @@ if ($isLoggedIn) {
   </div> 
 
   <div class="element-info">
-    
+    <h2>Stage ELement List</h2>
+    <ol id="element-info-list">
+      <li class="no-elements-message">No elements placed yet.</li>
+    </ol>
   </div>
 </div>
 

@@ -173,7 +173,6 @@ ul {
   flex: 1;
   justify-content: flex-start;
   margin: 0 auto;
-  max-width: 1200px;
   padding-top: 6rem;
 }
 
@@ -222,7 +221,7 @@ header.header-container {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 11000;
 }
 
 #header-content {

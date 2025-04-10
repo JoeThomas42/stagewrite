@@ -38,6 +38,10 @@ function initStageEditor() {
   initStageGrid();
   checkUrlParameters(plotState);
   initInputList(plotState);
+  initElementInfoListEvents(plotState);
+
+  // Expose render function to plotState
+  plotState.renderElementInfoList = () => renderElementInfoList(plotState);
 
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
@@ -68,6 +72,9 @@ function initStageEditor() {
 
   // Initialize date validation
   setupDateValidation(plotState);
+
+  // Render the initial list
+  renderElementInfoList(plotState);
 }
 
 /**
@@ -642,9 +649,10 @@ function handleDrop(e, plotState) {
   plotState.elements.push(newElement);
 
   // Create element in DOM
-  createPlacedElement(newElement, plotState);
+  createPlacedElement(newElement, plotState).then(() => {
+    renderElementInfoList(plotState); // Update the info list
+  });
 
-  // Mark as modified if we're editing an existing plot
   markPlotAsModified(plotState);
 }
 
@@ -1027,8 +1035,6 @@ function applyElementProperties(plotState) {
   const propsModal = document.getElementById('element-props-modal');
 
   const elementIndex = parseInt(document.getElementById('element_index').value);
-  // const rotation = parseInt(document.getElementById('element_rotation').value);
-  // const flipped = document.getElementById('element_flipped').checked;
   const label = document.getElementById('element_label').value.trim();
   const notes = document.getElementById('element_notes').value.trim();
 
@@ -1065,6 +1071,7 @@ function applyElementProperties(plotState) {
   // Close the modal
   closeModal(propsModal);
 
+  renderElementInfoList(plotState);
   markPlotAsModified(plotState);
 }
 
@@ -1086,6 +1093,7 @@ function deleteElement(elementId, plotState) {
     plotState.elements.splice(elementIndex, 1);
   }
 
+  renderElementInfoList(plotState);
   markPlotAsModified(plotState);
 }
 
@@ -1682,7 +1690,8 @@ function loadPlot(plotId, plotState) {
             const loadModal = document.getElementById('my-plots-modal');
             closeModal(loadModal);
             showNotification('Plot loaded!', 'success');
-            saveStateToStorage(plotState); // Save the loaded state
+            renderElementInfoList(plotState);
+            saveStateToStorage(plotState);
           })
           .catch((error) => {
             console.error('Error during element loading:', error);
@@ -2431,6 +2440,8 @@ function clearElements(plotState) {
     plotState.clearInputList();
   }
 
+  renderElementInfoList(plotState);
+
   if (plotState.currentPlotId) {
     markPlotAsModified(plotState);
   }
@@ -2450,6 +2461,8 @@ function newPlot(plotState) {
 
   // Clear all elements
   clearElements(plotState);
+
+  renderElementInfoList(plotState);
 
   // Reset plot info
   plotState.currentPlotName = null;
@@ -2736,6 +2749,85 @@ function initInputList(plotState) {
   };
 }
 
+/**
+ * Renders the list of placed elements in the element-info section.
+ * @param {Object} plotState - The current plot state.
+ */
+function renderElementInfoList(plotState) {
+  const listContainer = document.getElementById('element-info-list');
+  if (!listContainer) return;
+
+  listContainer.innerHTML = ''; // Clear existing list
+
+  if (plotState.elements.length === 0) {
+      const noElementsMsg = document.createElement('li');
+      noElementsMsg.className = 'no-elements-message';
+      noElementsMsg.textContent = 'No elements placed yet.';
+      listContainer.appendChild(noElementsMsg);
+      return;
+  }
+
+  // Sort elements by z-index or ID for consistent order (optional, z-index might be better)
+  const sortedElements = [...plotState.elements].sort((a, b) => a.zIndex - b.zIndex);
+
+  sortedElements.forEach(elementData => {
+      const listItem = document.createElement('li');
+      listItem.className = 'element-info-item';
+      listItem.setAttribute('data-id', elementData.id); // Use the unique instance ID
+
+      // Element Name
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'element-info-name';
+      nameSpan.textContent = elementData.elementName;
+      listItem.appendChild(nameSpan);
+
+      // Label (if exists)
+      if (elementData.label) {
+          const labelSpan = document.createElement('span');
+          labelSpan.className = 'element-info-label';
+          labelSpan.textContent = `Label: ${elementData.label}`;
+          listItem.appendChild(labelSpan);
+      }
+
+      // Notes (if exists)
+      if (elementData.notes) {
+          const notesSpan = document.createElement('span');
+          notesSpan.className = 'element-info-notes';
+          notesSpan.textContent = `Notes: ${elementData.notes}`; // Consider truncating long notes
+          listItem.appendChild(notesSpan);
+      }
+
+      // Edit Button
+      const editButton = document.createElement('button');
+      editButton.className = 'element-info-edit-btn';
+      editButton.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
+      editButton.title = `Edit ${elementData.elementName}`;
+      editButton.setAttribute('data-element-id', elementData.id); // Link button to the element instance
+      listItem.appendChild(editButton);
+
+      listContainer.appendChild(listItem);
+  });
+}
+
+/**
+ * Initializes the element info list event listeners.
+ * @param {Object} plotState - The current plot state.
+ */
+function initElementInfoListEvents(plotState) {
+  const listContainer = document.getElementById('element-info-list');
+  if (!listContainer) return;
+
+  listContainer.addEventListener('click', (event) => {
+      if (event.target.closest('.element-info-edit-btn')) {
+          const button = event.target.closest('.element-info-edit-btn');
+          const elementId = parseInt(button.getAttribute('data-element-id'));
+          if (!isNaN(elementId)) {
+              openPropertiesModal(elementId, plotState);
+          }
+      }
+  });
+}
+
 // --------------------- Make stage plot editor functions available globally ----------------------
 window.initStageEditor = initStageEditor;
 window.handleDragStart = handleDragStart;
@@ -2779,3 +2871,4 @@ window.initStageGrid = initStageGrid;
 window.initCategoryFilter = initCategoryFilter;
 window.checkUrlParameters = checkUrlParameters;
 window.initInputList = initInputList;
+window.renderElementInfoList = renderElementInfoList;

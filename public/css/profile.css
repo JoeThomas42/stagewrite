@@ -301,16 +301,3 @@
     max-height: 150px;
   }
 }
-
-/* -------------------- Dark Theme Adjustments --------------------- */
-[data-theme="dark"] .plot-card {
-  background-color: var(--color-background-light);
-}
-
-[data-theme="dark"] .empty-section {
-  background-color: var(--color-background);
-}
-
-[data-theme="dark"] .plot-card-snapshot {
-  border-color: var(--color-grey-4);
-}

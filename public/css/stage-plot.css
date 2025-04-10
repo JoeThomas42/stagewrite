@@ -7,11 +7,10 @@
 
 /* -------------------- Main Container --------------------- */
 #stage-plot-container {
-  /* background: linear-gradient(to bottom, var(--color-background), var(--color-background-alt)); */
   background-color: var(--color-background-alt);
   border: 1px solid var(--color-grey-1);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   display: flex;
   gap: var(--spacing-lg);
   justify-content: space-between;
@@ -449,22 +448,29 @@
   z-index: 1;
 }
 
-/* -------------------- Input List Section --------------------- */
-.input-list-section {
-  background-color: var(--color-background-light);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-sm);
-  margin: var(--spacing-xl) auto;
-  padding: var(--spacing-lg);
-  max-width: 600px;
-  
+/* ------------------ Stage Info Container -------------------- */
+#stage-info-container {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--spacing-lg);
+  margin: var(--spacing-xl) 0;
+
   h2 {
-    color: var(--color-primary-dark);
     margin-bottom: var(--spacing-lg);
     text-align: center;
     font-size: var(--font-size-xl);
   }
+}
+
+/* ----- Input List Section ----- */
+.input-list-section {
+  flex: 1;
+  min-width: 300px;
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
 }
 
 .input-grid {
@@ -500,4 +506,108 @@
   display: block;
   margin: var(--spacing-md) auto 0;
   min-width: 120px;
+}
+
+/* ----- Element Info Section ----- */
+.element-info {
+  flex: 1;
+  min-width: 300px;
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  max-height: 900px;
+  overflow-y: auto;
+}
+
+#element-info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: element-counter; /* Initialize counter */
+}
+
+.element-info-item {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  position: relative;
+  padding-right: 45px;
+  counter-increment: element-counter; /* Increment counter for each item */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  transition: all var(--transition-medium);
+  
+  /* Add automatic numbering */
+  &::before {
+    content: counter(element-counter) ". ";
+    font-weight: bold;
+    color: var(--color-primary);
+    position: absolute;
+    left: var(--spacing-md);
+    top: var(--spacing-sm);
+  }
+  
+  > span {
+    display: block;
+    font-size: var(--font-size-sm);
+    padding-left: 2em; /* Indent text past the number */
+  }
+}
+
+.element-info-item:hover .element-info-edit-btn {
+  display: flex;
+}
+
+.element-info-name {
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+.element-info-label,
+.element-info-notes {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  white-space: pre-wrap; /* Respect line breaks in notes */
+  word-break: break-word;
+}
+
+.element-info-edit-btn {
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--color-secondary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-white);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all var(--transition-medium);
+  
+  &:hover {
+    background-color: var(--color-secondary-dark);
+  }
+  
+  i {
+    font-size: var(--font-size-sm);
+    pointer-events: none;
+  }
+}
+
+.no-elements-message {
+  color: var(--color-text-light);
+  font-style: italic;
+  text-align: center;
+  padding: var(--spacing-lg);
+  list-style: none; /* Ensure no marker shows */
 }
