@@ -1969,7 +1969,7 @@ function initPageNavigation(plotState) {
 function saveStateToStorage(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   try {
     // Create a serializable state object
     const stateToSave = {
@@ -1981,8 +1981,12 @@ function saveStateToStorage(plotState) {
       venueId: document.getElementById('venue_select') ? document.getElementById('venue_select').value : null,
       eventStart: document.getElementById('event_start') ? document.getElementById('event_start').value : null,
       eventEnd: document.getElementById('event_end') ? document.getElementById('event_end').value : null
+
+      // NOTE: Grid state is saved directly by its toggle functions - Redundancy if needed
+      // gridVisible: localStorage.getItem('gridVisible') === 'true',
+      // detailedGrid: localStorage.getItem('detailedGrid') !== 'false'
     };
-    
+
     // Save to localStorage
     localStorage.setItem('stageplot_state', JSON.stringify(stateToSave));
   } catch (e) {
@@ -1998,95 +2002,104 @@ function saveStateToStorage(plotState) {
 function restoreStateFromStorage(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return false;
-  
+
   try {
-    // Check if we have a saved state
     const savedState = localStorage.getItem('stageplot_state');
     if (!savedState) return false;
-    
-    // Parse the saved state
+
     const state = JSON.parse(savedState);
-    
-    // Only restore if we have elements
+
     if (state.elements && state.elements.length > 0) {
-      // Update plot title
+      // ... (rest of the state restoration logic from stage-plot.js) ...
+
+      // Plot title
       const plotTitle = document.getElementById('plot-title');
       if (plotTitle && state.currentPlotName) {
         plotTitle.textContent = state.currentPlotName;
       } else if (plotTitle) {
         plotTitle.textContent = 'Restored Plot';
       }
-      
-      // Restore state values
-      plotState.elements = [];
+
+      // State values
+      plotState.elements = []; // Clear first
       plotState.nextZIndex = state.nextZIndex || 1;
       plotState.currentPlotName = state.currentPlotName;
       plotState.currentPlotId = state.currentPlotId;
       plotState.isModified = state.isModified;
-      
-      // Restore form inputs
+
+      // Form inputs
       const venueSelect = document.getElementById('venue_select');
       const eventStartInput = document.getElementById('event_start');
       const eventEndInput = document.getElementById('event_end');
-      
-      if (venueSelect) {
-        let restoredVenueId = ""; // Default to empty (No Venue)
-        if (state.venueId) {
-            venueSelect.value = state.venueId;
-            restoredVenueId = state.venueId; // Store the restored ID
-        } else {
-            venueSelect.value = "";
-        }
-        // Call the update function directly with the restored venue value
-        updateStageForVenue(restoredVenueId, plotState, true);
-      }
-      
+
+       // Restore venue and update stage dimensions
+       if (venueSelect) {
+           let restoredVenueId = "";
+           if (state.venueId) {
+               venueSelect.value = state.venueId;
+               restoredVenueId = state.venueId;
+           } else {
+               venueSelect.value = "";
+           }
+           // Update custom dropdown UI if applicable
+           updateCustomDropdown(venueSelect);
+           // Update stage dimensions based on restored venue
+           updateStageForVenue(restoredVenueId, plotState, true); // Pass true for restoring
+       } else {
+            // If no venue select, apply default dimensions
+             updateStageForVenue(null, plotState, true);
+       }
+
+
       if (eventStartInput && state.eventStart) {
         eventStartInput.value = state.eventStart;
       }
-      
       if (eventEndInput && state.eventEnd) {
         eventEndInput.value = state.eventEnd;
+         // Ensure min date is set correctly
+         if (eventStartInput.value) {
+             eventEndInput.min = eventStartInput.value;
+         }
       }
-      
-      // Update save button text
+
+      // Buttons state
       const saveButton = document.getElementById('save-plot');
       if (saveButton && state.currentPlotId) {
         saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
       }
-      
-      // Show save changes button if needed
       const saveChangesButton = document.getElementById('save-changes');
       if (saveChangesButton && state.isModified) {
         saveChangesButton.classList.remove('hidden');
         saveChangesButton.classList.add('visible');
       }
-      
-      // Create all elements on stage
-      state.elements.forEach(elementData => {
-        plotState.elements.push(elementData);
-        createPlacedElement(elementData, plotState);
+
+      // Create elements
+      plotState.isLoading = true; // Set loading flag before creating elements
+      const elementPromises = state.elements.map(elementData => {
+         // Make sure elements have a unique ID if they don't
+         if (elementData.id === undefined) {
+             elementData.id = plotState.elements.length + 1;
+         }
+          plotState.elements.push(elementData);
+          return createPlacedElement(elementData, plotState);
       });
-      
-      // Add stage dimensions label if it doesn't exist
-      if (!stage.querySelector('.stage-dimensions')) {
-        const stageWidth = stage.getAttribute('data-stage-width') || '20';
-        const stageDepth = stage.getAttribute('data-stage-depth') || '15';
-        const dimensionsLabel = document.createElement('div');
-        dimensionsLabel.className = 'stage-dimensions';
-        dimensionsLabel.textContent = `${stageWidth}' × ${stageDepth}'`;
-        stage.appendChild(dimensionsLabel);
-      }
-      
-      // Setup change tracking after restoration
-      setupChangeTracking(plotState);
-      
+
+       // Wait for all elements to be potentially resized after image load
+       Promise.all(elementPromises).then(() => {
+           plotState.isLoading = false; // Clear loading flag
+           console.log("Finished restoring elements.");
+       }).catch(error => {
+           console.error("Error restoring elements:", error);
+           plotState.isLoading = false; // Ensure flag is cleared even on error
+       });
+
       console.log('Stage plot state restored from localStorage');
-      return true;
+      return true; // Indicate state was restored
     }
-    return false;
+    return false; // No elements, don't restore
   } catch (e) {
     console.error('Error restoring state from localStorage:', e);
+    localStorage.removeItem('stageplot_state'); // Clear potentially corrupt state
     return false;
   }
 }
@@ -2502,14 +2515,20 @@ function newPlot(plotState) {
 /**
  * Initialize the grid system for the stage
  * Creates toggle buttons and sets up grid overlay
+ * Reads and applies saved grid state from localStorage
+ * Saves grid state changes to localStorage
  */
 function initStageGrid() {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
+  // Load saved grid state
+  const savedGridVisible = localStorage.getItem('gridVisible') === 'true';
+  const savedDetailedGrid = localStorage.getItem('detailedGrid') !== 'false'; // Default to true if not saved
+
   // Check if grid toggle already exists
   if (stage.querySelector('#grid-toggle')) return;
-  
+
   // Create grid toggle button
   const gridToggle = document.createElement('button');
   gridToggle.id = 'grid-toggle';
@@ -2522,117 +2541,115 @@ function initStageGrid() {
   gridTypeToggle.id = 'grid-type-toggle';
   gridTypeToggle.className = 'grid-button';
   gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';
-  gridTypeToggle.title = 'Toggle Detail Level';
-  
+  // gridTypeToggle.title = 'Toggle Detail Level'; // Title set later based on state
+
   // Create grid overlay if it doesn't exist
   let gridOverlay = stage.querySelector('.grid-overlay');
   if (!gridOverlay) {
-    gridOverlay = document.createElement('div');
-    gridOverlay.className = 'grid-overlay';
-    
-    stage.appendChild(gridOverlay);
+      gridOverlay = document.createElement('div');
+      gridOverlay.className = 'grid-overlay';
+      stage.appendChild(gridOverlay);
   }
-  
+
   // Get initial dimensions from stage
   const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
   const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-  
+
   // Calculate initial grid size
   const dimensions = calculateStageDimensions(stageWidth, stageDepth);
-  
-  // Apply the initial grid (will be updated when dimensions change)
-  updateGridOverlay(dimensions, stage);
-  
+
   // Add buttons to the stage
   stage.appendChild(gridToggle);
   stage.appendChild(gridTypeToggle);
-  
+
   // Add toggle functionality with varying opacity levels
-  let gridVisible = false;
+  let gridVisible = savedGridVisible; // Initialize with saved state
+  let detailedGrid = savedDetailedGrid; // Initialize with saved state
+
+  // Function to update grid display based on state variables
+  function updateGridDisplay() {
+      gridOverlay.style.opacity = gridVisible ? '1' : '0';
+      if (gridVisible) {
+          gridToggle.classList.add('active');
+      } else {
+          gridToggle.classList.remove('active');
+      }
+
+      // Get current dimensions (might have changed if venue changed)
+      const currentStageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+      const currentStageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
+      const currentDimensions = calculateStageDimensions(currentStageWidth, currentStageDepth);
+
+      updateGridOverlay(currentDimensions, stage); // Make sure overlay size is correct
+
+      if (detailedGrid) {
+          const footSize = currentDimensions.gridSize / 5;
+          gridOverlay.style.backgroundImage = `
+              linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+              linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
+          `;
+          gridOverlay.style.backgroundSize = `
+              ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
+              ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
+              ${footSize}px ${footSize}px,
+              ${footSize}px ${footSize}px
+          `;
+          gridTypeToggle.title = 'Toggle to Simple Grid (5\' only)';
+          gridTypeToggle.classList.add('active'); // Show as active in detailed mode
+      } else {
+          gridOverlay.style.backgroundImage = `
+              linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px)
+          `;
+          gridOverlay.style.backgroundSize = `
+              ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
+              ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px
+          `;
+          gridTypeToggle.title = 'Toggle to Detailed Grid (1\' marks)';
+          gridTypeToggle.classList.remove('active'); // Show as inactive in simple mode
+      }
+
+      // Update grid type toggle icon rotation
+      const icon = gridTypeToggle.querySelector('i');
+      if (icon) {
+          icon.style.transition = 'transform 0.3s ease';
+          icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(90deg)'; // Rotate for simple view
+      }
+  }
+
+  // Apply initial state loaded from localStorage
+  updateGridDisplay();
+
   gridToggle.addEventListener('click', () => {
-    gridVisible = !gridVisible;
-    gridOverlay.style.opacity = gridVisible ? '1' : '0';
-    
-    // Toggle an active class instead of directly setting the box-shadow
-    if (gridVisible) {
-      gridToggle.classList.add('active');
-    } else {
-      gridToggle.classList.remove('active');
-    }
+      gridVisible = !gridVisible;
+      updateGridDisplay();
+      // Save visibility state
+      localStorage.setItem('gridVisible', gridVisible);
   });
-  
-  // Track grid detail mode (start with detailed mode - shows 1' lines)
-  let detailedGrid = true;
-  
-  // Add toggle functionality for grid type
+
   gridTypeToggle.addEventListener('click', () => {
-    if (!gridVisible) {
-      // If grid is not visible, make it visible first
-      gridVisible = true;
-      gridOverlay.style.opacity = '1';
-      gridToggle.classList.add('active');
-    }
-    
-    // Toggle between detailed (1' lines) and simple (only 5' lines) modes
-    detailedGrid = !detailedGrid;
-    
-    // Get current dimensions
-    const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
-    const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-    const dimensions = calculateStageDimensions(stageWidth, stageDepth);
-    
-    // Use the existing gridOverlay element instead of querying for it again
-    if (detailedGrid) {
-      // Show both 5' and 1' lines by directly setting the styles
-      const footSize = dimensions.gridSize / 5;
-      
-      // Set the complex background with both 5-foot and 1-foot lines
-      gridOverlay.style.backgroundImage = `
-        linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
-        linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
-      `;
-      
-      // Set the background sizes for both types of grid lines
-      gridOverlay.style.backgroundSize = `
-        ${dimensions.gridSize}px ${dimensions.gridSize}px,
-        ${dimensions.gridSize}px ${dimensions.gridSize}px,
-        ${footSize}px ${footSize}px,
-        ${footSize}px ${footSize}px
-      `;
-      
-      gridTypeToggle.title = 'Toggle to Simple Grid';
-    } else {
-      // Show only 5' lines by setting a simpler background
-      gridOverlay.style.backgroundImage = `
-        linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px)
-      `;
-      
-      gridOverlay.style.backgroundSize = `
-        ${dimensions.gridSize}px ${dimensions.gridSize}px,
-        ${dimensions.gridSize}px ${dimensions.gridSize}px
-      `;
-      
-      gridTypeToggle.title = 'Toggle to Detailed Grid';
-    }
-    
-    // Update button icon appearance
-    const icon = gridTypeToggle.querySelector('i');
-    if (icon) {
-      // Apply rotation transform with transition
-      icon.style.transition = 'transform 0.3s ease';
-      icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(180deg)';
-    }
-    
-    // Update button active state
-    if (detailedGrid) {
-      gridTypeToggle.classList.add('active');
-    } else {
-      gridTypeToggle.classList.remove('active');
-    }
+      if (!gridVisible) {
+          gridVisible = true; // Turn on grid if changing type while off
+      }
+      detailedGrid = !detailedGrid;
+      updateGridDisplay();
+      // Save detail state
+      localStorage.setItem('detailedGrid', detailedGrid);
+      localStorage.setItem('gridVisible', gridVisible); // Also save visibility in case it was turned on
   });
+
+  // Listen for stage dimension changes to re-apply grid display correctly
+  const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+          if (mutation.type === 'attributes' && (mutation.attributeName === 'data-stage-width' || mutation.attributeName === 'data-stage-depth')) {
+              // Re-calculate and apply grid display when stage dimensions change
+              updateGridDisplay();
+          }
+      });
+  });
+  observer.observe(stage, { attributes: true });
 }
 
 /**

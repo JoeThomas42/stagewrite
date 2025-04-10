@@ -8,6 +8,7 @@ window.initializeApp = function() {
   setupScrollRestoration();
   
   // Initialize each feature independently with error handling
+  safeInit(window.initCustomDropdowns, "Custom Dropdowns");
   safeInit(window.initAuthForms, "Auth Forms");
   safeInit(window.initUserManagement, "User Management");
   safeInit(window.initVenueManagement, "Venue Management");  
@@ -19,7 +20,6 @@ window.initializeApp = function() {
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initThemeSystem, "Theme System");
   safeInit(window.initStageEditor, "Stage Editor");
-  safeInit(window.initCustomDropdowns, "Custom Dropdowns");
   safeInit(window.initCityAutocomplete, "City Autocompletion");
   safeInit(window.initZipCodeAutoComplete, "Zip Autocompletion");
   safeInit(window.initProfileFunctionality, "Profile Functionality");
