@@ -9,7 +9,7 @@
 function initStageEditor() {
   // Skip if not on a page with the stage plot editor
   if (!document.getElementById('stage')) return;
-  
+
   // Initialize the plot state
   const plotState = {
     elements: [],
@@ -19,10 +19,11 @@ function initStageEditor() {
     currentPlotName: null,
     currentPlotId: null,
     isModified: false,
+    isLoading: false, // <<< ADDED: Flag to track loading state
     favorites: [],
     favoritesData: []
   };
-  
+
   // Initialize components
   initPlotControls(plotState);
   initDragAndDrop(plotState);
@@ -37,18 +38,18 @@ function initStageEditor() {
 
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
-  
+
   // Only set up initial state if not restored from storage
   if (!stateRestored) {
     setupInitialState(plotState);
   }
-  
+
   // Check for URL parameters
   checkUrlParameters(plotState);
-  
+
   // Initialize venue select change handler
   setupVenueSelectHandler(plotState);
-  
+
   // Initialize date change handlers
   setupDateHandlers(plotState);
 
@@ -636,152 +637,173 @@ function handleDrop(e, plotState) {
  * Create a placed element on the stage
  * @param {Object} elementData - The element data object
  * @param {Object} plotState - The current plot state
+ * @returns {Promise} - Resolves when the element's image (if any) is loaded
  */
 function createPlacedElement(elementData, plotState) {
-  const stage = document.getElementById('stage');
-  if (!stage) return;
-  
-  // Create element
-  const element = document.createElement('div');
-  element.className = 'placed-element';
-  element.setAttribute('data-id', elementData.id);
-  element.setAttribute('data-element-id', elementData.elementId);
-  
-  // Position element
-  element.style.left = `${elementData.x}px`;
-  element.style.top = `${elementData.y}px`;
-  element.style.height = `${elementData.height}px`;
-  element.style.zIndex = elementData.zIndex;
-  
-  // Initially set width, will be adjusted when image loads
-  element.style.width = `${elementData.width}px`;
-  
-  // Apply rotation if any
-  if (elementData.rotation) {
-    element.style.transform = `rotate(${elementData.rotation}deg)`;
-  }
-  
-  // Apply flip if needed
-  if (elementData.flipped) {
-    element.style.transform = element.style.transform 
-      ? `${element.style.transform} scaleX(-1)` 
-      : 'scaleX(-1)';
-  }
-  
-  // Create image
-  const img = document.createElement('img');
-  img.src = `/images/elements/${elementData.image}`;
-  img.alt = elementData.elementName;
-  
-  // Add onload handler to adjust width based on actual image dimensions
-  img.onload = function() {
-    // Calculate the appropriate width based on the image's aspect ratio
-    const aspectRatio = this.naturalWidth / this.naturalHeight;
-    const newWidth = Math.round(elementData.height * aspectRatio);
-    
-    // Update the element width in the DOM
-    element.style.width = `${newWidth}px`;
-    
-    // Update the element width in state
-    const elementIndex = plotState.elements.findIndex(el => el.id === elementData.id);
-    if (elementIndex !== -1) {
-      plotState.elements[elementIndex].width = newWidth;
+  return new Promise((resolve) => { // <<< MODIFIED: Return a Promise
+    const stage = document.getElementById('stage');
+    if (!stage) {
+        resolve(); // Resolve immediately if stage not found
+        return;
     }
-    
-    // Only mark as modified if not loading an existing plot
-    if (plotState.currentPlotId && plotState.isModified) {
-      markPlotAsModified(plotState);
+
+    // Create element
+    const element = document.createElement('div');
+    element.className = 'placed-element';
+    element.setAttribute('data-id', elementData.id);
+    element.setAttribute('data-element-id', elementData.elementId);
+
+    // Position element
+    element.style.left = `${elementData.x}px`;
+    element.style.top = `${elementData.y}px`;
+    element.style.height = `${elementData.height}px`;
+    element.style.zIndex = elementData.zIndex;
+
+    // Initially set width, will be adjusted when image loads
+    element.style.width = `${elementData.width}px`;
+
+    // Apply rotation if any
+    if (elementData.rotation) {
+      element.style.transform = `rotate(${elementData.rotation}deg)`;
     }
-  };
-  
-  element.appendChild(img);
-  
-  // Add label if present
-  if (elementData.label) {
-    const label = document.createElement('div');
-    label.className = 'element-label';
-    label.textContent = elementData.label;
-    element.appendChild(label);
-  }
-  
-  // ------------- Add actions to the element ----------------
-  // Add edit button
-  const editAction = document.createElement('div');
-  editAction.className = 'element-actions';
-  editAction.id = 'edit-action';
-  
-  const editBtn = document.createElement('button');
-  editBtn.className = 'edit-element';
-  editBtn.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
-  editBtn.title = 'Edit properties';
-  editBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openPropertiesModal(elementData.id, plotState);
-  });
 
-  // Add button event handlers
-  editBtn.addEventListener('mousedown', function(e) {
-    this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-  });
-  editBtn.addEventListener('mouseup', function() {
-    this.style.boxShadow = '';
-  });
-  editBtn.addEventListener('mouseleave', function() {
-    this.style.boxShadow = '';
-  });
+    // Apply flip if needed
+    if (elementData.flipped) {
+      element.style.transform = element.style.transform
+        ? `${element.style.transform} scaleX(-1)`
+        : 'scaleX(-1)';
+    }
 
-  editAction.appendChild(editBtn);
-  element.appendChild(editAction);
+    // Create image
+    const img = document.createElement('img');
+    img.src = `/images/elements/${elementData.image}`;
+    img.alt = elementData.elementName;
 
-  // Add delete button
-  const deleteAction = document.createElement('div');
-  deleteAction.className = 'element-actions';
-  deleteAction.id = 'delete-action';
-  
-  // Setup delete button confirmation
-  const deleteBtn = document.createElement('button');
-  deleteBtn.className = 'edit-element';
-  deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
-  deleteBtn.title = 'Delete Element';
-  deleteBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    setupConfirmButton(deleteBtn, () => { 
-      deleteElement(elementData.id, plotState);
-    }, {
-      confirmText: 'Delete',
-      confirmTitle: 'Permanent',
-      stopPropagation: true,
-      event: e  
+    // Add onload handler to adjust width based on actual image dimensions
+    img.onload = function() {
+      // Calculate the appropriate width based on the image's aspect ratio
+      const aspectRatio = this.naturalWidth / this.naturalHeight;
+      const newWidth = Math.round(elementData.height * aspectRatio);
+
+      // Update the element width in the DOM
+      element.style.width = `${newWidth}px`;
+
+      // Update the element width in state
+      const elementIndex = plotState.elements.findIndex(el => el.id === elementData.id);
+      if (elementIndex !== -1) {
+        plotState.elements[elementIndex].width = newWidth;
+      }
+
+      // --- REMOVED THE CONDITIONAL CALL TO markPlotAsModified ---
+      // if (plotState.currentPlotId && plotState.isModified) { // <<< REMOVE THIS CHECK
+      //   markPlotAsModified(plotState); // <<< REMOVE THIS CALL
+      // }
+       resolve(); // Resolve the promise once image is loaded and width adjusted
+    };
+     // Handle image loading errors
+     img.onerror = function() {
+         console.warn(`Failed to load image for element ${elementData.elementName}`);
+         resolve(); // Resolve even if image fails to load
+     }
+
+    element.appendChild(img);
+
+    // Add label if present
+    if (elementData.label) {
+      const label = document.createElement('div');
+      label.className = 'element-label';
+      label.textContent = elementData.label;
+      element.appendChild(label);
+    }
+
+    // ------------- Add actions to the element ----------------
+    // Add edit button
+    const editAction = document.createElement('div');
+    editAction.className = 'element-actions';
+    editAction.id = 'edit-action';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-element';
+    editBtn.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
+    editBtn.title = 'Edit properties';
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openPropertiesModal(elementData.id, plotState);
     });
-  });
 
-  // Add button event handlers
-  deleteBtn.addEventListener('mousedown', function(e) {
-    this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-  });
-  deleteBtn.addEventListener('mouseup', function() {
-    this.style.boxShadow = '';
-  });
-  deleteBtn.addEventListener('mouseleave', function() {
-    this.style.boxShadow = '';
-  });
-  
-  deleteAction.appendChild(deleteBtn);
-  element.appendChild(deleteAction);
+    // Add button event handlers
+    editBtn.addEventListener('mousedown', function(e) {
+      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+    });
+    editBtn.addEventListener('mouseup', function() {
+      this.style.boxShadow = '';
+    });
+    editBtn.addEventListener('mouseleave', function() {
+      this.style.boxShadow = '';
+    });
 
-  // Make draggable within stage
-  makeDraggableOnStage(element, plotState);
-  
-  // Double-click to edit
-  element.addEventListener('dblclick', () => {
-    openPropertiesModal(elementData.id, plotState);
-  });
-  
-  // Add to stage
-  stage.appendChild(element);
+    editAction.appendChild(editBtn);
+    element.appendChild(editAction);
+
+    // Add delete button
+    const deleteAction = document.createElement('div');
+    deleteAction.className = 'element-actions';
+    deleteAction.id = 'delete-action';
+
+    // Setup delete button confirmation
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'edit-element';
+    deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
+    deleteBtn.title = 'Delete Element';
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setupConfirmButton(deleteBtn, () => {
+        deleteElement(elementData.id, plotState);
+      }, {
+        confirmText: 'Delete',
+        confirmTitle: 'Permanent',
+        stopPropagation: true,
+        event: e
+      });
+    });
+
+    // Add button event handlers
+    deleteBtn.addEventListener('mousedown', function(e) {
+      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+    });
+    deleteBtn.addEventListener('mouseup', function() {
+      this.style.boxShadow = '';
+    });
+    deleteBtn.addEventListener('mouseleave', function() {
+      this.style.boxShadow = '';
+    });
+
+    deleteAction.appendChild(deleteBtn);
+    element.appendChild(deleteAction);
+
+    // Make draggable within stage
+    makeDraggableOnStage(element, plotState);
+
+    // Double-click to edit
+    element.addEventListener('dblclick', () => {
+      openPropertiesModal(elementData.id, plotState);
+    });
+
+    // Add to stage
+    stage.appendChild(element);
+
+     // If the image doesn't have a src or is already cached, onload might not fire
+     if (!img.src || img.complete) {
+         // Manually trigger the logic if needed, or just resolve
+         if(img.complete && img.naturalWidth > 0) {
+             img.onload(); // Call onload manually if image is already loaded
+         } else if (!img.src) {
+              resolve(); // Resolve if there's no image src
+         }
+         // If img.complete but naturalWidth is 0, onerror should handle it
+     }
+  }); // End of Promise constructor
 }
-
-
 
 /**
  * Make an element draggable within the stage
@@ -1572,81 +1594,122 @@ function loadPlot(plotId, plotState) {
   })
   .then(data => {
     if (data.success) {
+      plotState.isLoading = true; // <<< ADDED: Set loading flag
+
       // Clear current elements
-      clearElements(plotState);
-      
+      clearElements(plotState); // Note: This function needs adjustment below
+
       // Update plot title and state
       const plotTitle = document.getElementById('plot-title');
       if (plotTitle) {
           plotTitle.textContent = data.plot.plot_name;
       }
-      
+
       // Store current plot info
       plotState.currentPlotName = data.plot.plot_name;
       plotState.currentPlotId = data.plot.plot_id;
-      
+
       // Update venue dropdown - This is the crucial part that needs fixing
       const venueSelect = document.getElementById('venue_select');
       if (venueSelect && data.plot.effective_venue_id) {
           // Set the value of the native select element
           venueSelect.value = data.plot.effective_venue_id;
-          
+
           // Trigger the change event to ensure any listeners update the UI
-          const changeEvent = new Event('change', { bubbles: true });
-          venueSelect.dispatchEvent(changeEvent);
-          
+          // We will let updateStageForVenue handle the change event if needed
+          // const changeEvent = new Event('change', { bubbles: true });
+          // venueSelect.dispatchEvent(changeEvent);
+
           // If using custom dropdowns, also update the visual representation
           updateCustomDropdown(venueSelect);
+
+          // Update stage dimensions directly after setting venue
+          updateStageForVenue(data.plot.effective_venue_id, plotState, true); // Pass true to indicate restoring/loading
+      } else {
+         // If no venue, update stage to default
+         updateStageForVenue(null, plotState, true);
       }
-      
+
       // Update event dates
       const eventStartInput = document.getElementById('event_start');
       const eventEndInput = document.getElementById('event_end');
-      
+
       if (eventStartInput) {
           eventStartInput.value = data.plot.event_date_start || '';
       }
-      
+
       if (eventEndInput) {
           eventEndInput.value = data.plot.event_date_end || '';
-      }
-      
-      // Update stage dimensions based on venue
-      const stage = document.getElementById('stage');
-      if (stage) {
-        // Calculate dimensions based on venue
-        const dimensions = calculateStageDimensions(
-          parseInt(data.plot.stage_width) || 20,
-          parseInt(data.plot.stage_depth) || 15
-        );
-        
-        // Update stage with calculated dimensions
-        updateStageDimensions(dimensions, stage);
-        
-        // Update venue attributes
-        stage.setAttribute('data-venue-id', data.plot.effective_venue_id);
-        stage.setAttribute('data-is-user-venue', data.plot.is_user_venue || '0');
+          // Also update min attribute based on start date
+           if (eventStartInput.value) {
+               eventEndInput.min = eventStartInput.value;
+           }
       }
 
-      // Update button states
+      // Update button states (resets isModified flag)
       updatePlotUIState(plotState);
-      
+
       // Update favorites data
       updateFavoritesFromServer(plotState, data.favorites);
 
       // Load placed elements with proper scaling
       if (data.elements && data.elements.length > 0) {
-        loadPlacedElements(data.elements, plotState);
+        // Use Promise.all to wait for all images to potentially load and adjust width
+        // This helps ensure dimensions are set before clearing the isLoading flag
+        const imageLoadPromises = data.elements.map((element, index) => {
+            const elementData = {
+              id: index + 1, // Generate new sequential IDs
+              elementId: element.element_id,
+              elementName: element.element_name,
+              categoryId: element.category_id,
+              image: element.element_image,
+              x: element.x_position,
+              y: element.y_position,
+              width: element.width,
+              height: element.height,
+              rotation: element.rotation,
+              flipped: element.flipped === 1,
+              zIndex: element.z_index,
+              label: element.label || '',
+              notes: element.notes || ''
+            };
+            plotState.elements.push(elementData);
+            // createPlacedElement now returns a promise that resolves when the image is loaded (or immediately if no image)
+            return createPlacedElement(elementData, plotState);
+        });
+
+        Promise.all(imageLoadPromises).then(() => {
+            // All elements potentially resized after image load
+            plotState.isLoading = false; // <<< MOVED: Clear loading flag after elements are processed
+            console.log("Finished loading elements and cleared isLoading flag.");
+            const loadModal = document.getElementById('my-plots-modal');
+            closeModal(loadModal);
+            showNotification('Plot loaded!', 'success');
+        }).catch(error => {
+             console.error("Error during element image loading:", error);
+             plotState.isLoading = false; // Ensure flag is cleared even on error
+             showNotification('Plot loaded, but some elements might have issues.', 'warning');
+        });
+
+      } else {
+         // No elements to load, clear flag immediately
+         plotState.isLoading = false; // <<< ADDED: Clear loading flag
+         console.log("No elements to load, cleared isLoading flag.");
+         const loadModal = document.getElementById('my-plots-modal');
+         closeModal(loadModal);
+         showNotification('Plot loaded!', 'success');
       }
-      
-      const loadModal = document.getElementById('my-plots-modal');
-      closeModal(loadModal);
-      showNotification('Plot loaded!', 'success');
+
+    } else {
+        // Handle plot load failure
+        showNotification('Error loading plot: ' + (data.error || 'Unknown error'), 'error');
+        plotState.isLoading = false; // Ensure flag is cleared on failure
     }
   })
   .catch(error => {
     console.error('Error loading plot:', error);
     showNotification('Error loading plot. Please try again.', 'error');
+    plotState.isLoading = false; // Ensure flag is cleared on fetch error
   });
 }
 
@@ -2036,56 +2099,76 @@ function setupChangeTracking(plotState) {
   // Set up change detection for elements on the stage
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   // Add a MutationObserver to detect changes to elements on the stage
   const observer = new MutationObserver((mutations) => {
-    // If we're not already tracking changes, mark as modified
-    if (!plotState.isModified && plotState.currentPlotId) {
-      const elementMutations = mutations.filter(mutation => 
-        mutation.target.classList.contains('placed-element') || 
-        mutation.target.parentElement?.classList.contains('placed-element')
+      // If we are loading, ignore mutations
+      if (plotState.isLoading) return;
+
+      // Filter mutations related to placed elements being added/removed or styles changing
+      const relevantMutations = mutations.some(mutation =>
+          (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) &&
+              (Array.from(mutation.addedNodes).some(node => node.classList?.contains('placed-element')) ||
+               Array.from(mutation.removedNodes).some(node => node.classList?.contains('placed-element')))) ||
+          (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style')
       );
-      
-      if (elementMutations.length > 0) {
-        markPlotAsModified(plotState);
+
+      if (relevantMutations) {
+          markPlotAsModified(plotState);
       }
-    }
   });
-  
+
   // Observe the stage for changes
   observer.observe(stage, {
-    childList: true,
-    attributes: true,
-    attributeFilter: ['style', 'data-id'],
-    subtree: true
+    childList: true, // Watch for adding/removing elements
+    attributes: true, // Watch for style changes (like position)
+    attributeFilter: ['style'], // Only watch style attribute
+    subtree: true // Watch descendants as well
   });
-  
+
   // Watch for form input changes (venue, dates, etc.)
   const venueSelect = document.getElementById('venue_select');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
-  
+
   if (venueSelect) {
     venueSelect.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
-        markPlotAsModified(plotState);
-      }
+      // updateStageForVenue calls markPlotAsModified internally if needed
+       // updateStageForVenue(venueSelect.value, plotState, false); // Pass false explicitly
+        // No need to call markPlotAsModified here, updateStageForVenue handles it
     });
   }
-  
+
   if (eventStartInput) {
     eventStartInput.addEventListener('change', () => {
       if (plotState.currentPlotId) {
         markPlotAsModified(plotState);
       }
+       // Also update min date for end date
+       const eventEndInput = document.getElementById('event_end');
+       if (eventEndInput) {
+           eventEndInput.min = eventStartInput.value;
+           // If end date is now before start date, adjust it
+           if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
+               eventEndInput.value = eventStartInput.value;
+               // Trigger its change event if you have logic tied to it
+               eventEndInput.dispatchEvent(new Event('change'));
+           }
+       }
     });
   }
-  
+
   if (eventEndInput) {
     eventEndInput.addEventListener('change', () => {
       if (plotState.currentPlotId) {
         markPlotAsModified(plotState);
       }
+       // Validate against start date
+       const eventStartInput = document.getElementById('event_start');
+       if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
+           showNotification('End date cannot be before start date.', 'warning');
+           eventEndInput.value = eventStartInput.value; // Reset to start date
+       }
     });
   }
 }
@@ -2193,7 +2276,8 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   if (!venueValue) {
       const dimensions = calculateStageDimensions(20, 15); // Default size
       updateStageDimensions(dimensions, stage);
-      if (!isRestoring && plotState.currentPlotId) {
+      // Only mark modified if NOT restoring and a plot is loaded
+      if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
           markPlotAsModified(plotState);
       }
       return;
@@ -2225,7 +2309,8 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
               updateStageDimensions(dimensions, stage);
               stage.setAttribute('data-venue-id', venueId); // Store the actual ID
               stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
-              if (!isRestoring && plotState.currentPlotId) {
+              // Only mark modified if NOT restoring and a plot is loaded
+              if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
                   markPlotAsModified(plotState);
               }
           } else {
@@ -2233,6 +2318,10 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
              console.error('Failed to get venue data:', data.error);
              const dimensions = calculateStageDimensions(20, 15); // Fallback to default
              updateStageDimensions(dimensions, stage);
+             // Optionally mark modified if applicable
+             if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+                 markPlotAsModified(plotState);
+             }
           }
       })
       .catch(error => {
@@ -2240,6 +2329,10 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
           const dimensions = calculateStageDimensions(20, 15); // Fallback to default
           updateStageDimensions(dimensions, stage);
           // Optionally show a user notification here
+           // Optionally mark modified if applicable
+           if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+               markPlotAsModified(plotState);
+           }
       });
 }
 
@@ -2313,11 +2406,14 @@ function initCategoryFilter() {
  * @param {Object} plotState - The current plot state
  */
 function markPlotAsModified(plotState) {
+  if (plotState.isLoading) return; // <<< ADDED: Exit if loading
+
   const saveChangesButton = document.getElementById('save-changes');
-  
+
   if (!plotState.isModified && plotState.currentPlotId !== null) {
     plotState.isModified = true;
-    
+    console.log("Marking plot as modified."); // Debug log
+
     // Show the save changes button with animation
     if (saveChangesButton) {
       saveChangesButton.classList.remove('hidden');
@@ -2334,20 +2430,18 @@ function markPlotAsModified(plotState) {
  * @param {Object} plotState - The current plot state
  */
 function clearElements(plotState) {
+
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   // Clear all placed elements from DOM
   const placedElements = stage.querySelectorAll('.placed-element');
   placedElements.forEach(element => element.remove());
-  
+
   // Reset elements state
   plotState.elements = [];
   plotState.nextZIndex = 1;
   plotState.selectedElement = null;
-  
-  // Mark as modified if there's a current plot
-  if (plotState.currentPlotId) markPlotAsModified(plotState);
 }
 
 /**
