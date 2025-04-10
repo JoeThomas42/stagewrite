@@ -449,3 +449,58 @@
   width: 100%;
   z-index: 1;
 }
+
+/* -------------------- Input List Section --------------------- */
+.input-list-section {
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-lg);
+  max-width: 900px; /* Match stage width */
+  margin-left: auto; /* Center if container allows */
+  margin-right: auto; /* Center if container allows */
+  
+  h2 {
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    font-size: var(--font-size-xl);
+  }
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three columns */
+  gap: var(--spacing-md) var(--spacing-lg); /* Row and column gap */
+  margin-bottom: var(--spacing-lg);
+}
+
+.input-number {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 25px; /* Ensure alignment */
+  text-align: right;
+}
+
+.input-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  
+  label {
+    display: none; /* Hide label, using placeholder */
+  }
+  
+  input[type="text"] {
+    flex-grow: 1; /* Input takes remaining space */
+    height: 35px; /* Slightly taller input */
+  }
+}
+
+.add-line-button {
+  display: block; /* Center button */
+  margin: var(--spacing-md) auto 0; /* Add space above and center */
+  min-width: 120px;
+}

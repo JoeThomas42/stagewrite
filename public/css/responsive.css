@@ -318,6 +318,12 @@
       font-size: var(--font-size-xs);
     }
   }
+
+  /* Input List */
+  .input-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns on tablets */
+    gap: var(--spacing-sm) var(--spacing-md);
+  }
 }
 
 /* Media query for shorter height screens */
@@ -410,5 +416,20 @@
   
   #save-new-button {
     width: 100%;
+  }
+
+  /* Input List */
+  .input-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: var(--spacing-sm);
+  }
+
+  .input-item {
+    gap: var(--spacing-xs);
+  }
+
+  .input-number {
+    min-width: 20px;
+    font-size: var(--font-size-sm);
   }
 }

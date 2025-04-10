@@ -141,7 +141,14 @@ if ($isLoggedIn) {
 </div>
 
 <div id="input-list-container">
-  
+  <div class="input-list-section">
+      <h2>Input List</h2>
+      <div id="input-list" class="input-grid">
+          </div>
+      <button id="add-input-line" class="primary-button add-line-button">
+          <i class="fa-solid fa-plus"></i> Add Line
+      </button>
+  </div> 
 </div>
 
 <!-- Element Properties Modal -->
