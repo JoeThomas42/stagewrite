@@ -140,7 +140,7 @@ if ($isLoggedIn) {
     </div>
 </div>
 
-<div id="input-list">
+<div id="input-list-container">
   
 </div>
 
