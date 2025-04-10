@@ -23,7 +23,7 @@ function initStageEditor() {
     favorites: [],
     favoritesData: [],
     renderInputList: null, // Placeholder for render function
-    clearInputList: null   // Placeholder for clear function
+    clearInputList: null, // Placeholder for clear function
   };
 
   // Initialize components
@@ -42,11 +42,11 @@ function initStageEditor() {
   // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
   if (!stateRestored) {
-      setupInitialState(plotState); // Setup default stage size, dates etc.
-      // If state wasn't restored, ensure the input list has the default 6 rows
-      if (plotState.renderInputList) {
-          plotState.renderInputList([]);
-      }
+    setupInitialState(plotState); // Setup default stage size, dates etc.
+    // If state wasn't restored, ensure the input list has the default 6 rows
+    if (plotState.renderInputList) {
+      plotState.renderInputList([]);
+    }
   }
 
   // Only set up initial state if not restored from storage
@@ -86,18 +86,18 @@ function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
 
   // Calculate aspect ratio
   const aspectRatio = venueDepth / venueWidth;
-  
+
   // Calculate stage dimensions in pixels
   const stageWidth = maxStageWidth;
   const stageHeight = Math.round(stageWidth * aspectRatio);
-  
+
   // Calculate grid size (each grid square is 5' x 5')
   const gridSizeWidth = stageWidth / (venueWidth / 5);
   const gridSizeHeight = stageHeight / (venueDepth / 5);
-  
+
   // Use the smaller of the two to ensure squares
   const gridSize = Math.min(gridSizeWidth, gridSizeHeight);
-  
+
   return {
     width: stageWidth,
     height: stageHeight,
@@ -105,7 +105,7 @@ function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
     widthInFeet: venueWidth,
     depthInFeet: venueDepth,
     gridSquaresX: Math.ceil(venueWidth / 5),
-    gridSquaresY: Math.ceil(venueDepth / 5)
+    gridSquaresY: Math.ceil(venueDepth / 5),
   };
 }
 
@@ -116,18 +116,18 @@ function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
  */
 function updateStageDimensions(dimensions, stage) {
   if (!stage) return;
-  
+
   // Update stage dimensions
   stage.style.width = `${dimensions.width}px`;
   stage.style.height = `${dimensions.height}px`;
-  
+
   // Update data attributes
   stage.setAttribute('data-stage-width', dimensions.widthInFeet);
   stage.setAttribute('data-stage-depth', dimensions.depthInFeet);
-  
+
   // Update grid overlay
   updateGridOverlay(dimensions, stage);
-  
+
   // Update dimensions label
   updateDimensionsLabel(dimensions, stage);
 }
@@ -140,7 +140,7 @@ function updateStageDimensions(dimensions, stage) {
 function updateGridOverlay(dimensions, stage) {
   // Find or create grid overlay
   let gridOverlay = stage.querySelector('.grid-overlay');
-  
+
   if (!gridOverlay) {
     // Create grid overlay if it doesn't exist
     gridOverlay = document.createElement('div');
@@ -156,10 +156,10 @@ function updateGridOverlay(dimensions, stage) {
     gridOverlay.style.transition = 'opacity 0.3s ease';
     stage.appendChild(gridOverlay);
   }
-  
+
   // Calculate foot size in pixels (1/5 of the grid size)
   const footSize = dimensions.gridSize / 5;
-  
+
   // Create a complex background with both 5-foot and 1-foot lines
   // The 5-foot lines are darker (rgba opacity 0.15) than the 1-foot lines (rgba opacity 0.05)
   gridOverlay.style.backgroundImage = `
@@ -168,7 +168,7 @@ function updateGridOverlay(dimensions, stage) {
     linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
   `;
-  
+
   // Set the background sizes for both types of grid lines
   gridOverlay.style.backgroundSize = `
     ${dimensions.gridSize}px ${dimensions.gridSize}px,
@@ -176,7 +176,7 @@ function updateGridOverlay(dimensions, stage) {
     ${footSize}px ${footSize}px,
     ${footSize}px ${footSize}px
   `;
-  
+
   // Store grid size in data attribute for reference
   gridOverlay.setAttribute('data-grid-size', dimensions.gridSize);
   gridOverlay.setAttribute('data-foot-size', footSize);
@@ -192,25 +192,25 @@ function updateGridOverlay(dimensions, stage) {
 function updateDimensionsLabel(dimensions, stage) {
   // Find existing dimensions label or create one
   let dimensionsLabel = stage.querySelector('.stage-dimensions');
-  
+
   if (!dimensionsLabel) {
     dimensionsLabel = document.createElement('div');
     dimensionsLabel.className = 'stage-dimensions';
     stage.appendChild(dimensionsLabel);
   }
-  
+
   // Update label with dimensions and grid squares
   // Format: Width × Depth (grid squares) | pixels
   dimensionsLabel.textContent = `${dimensions.widthInFeet}' × ${dimensions.depthInFeet}' (${dimensions.gridSquaresX}×${dimensions.gridSquaresY} grid)`;
-  
+
   // Add a tooltip with more detailed information
   dimensionsLabel.title = `Stage dimensions: ${dimensions.widthInFeet}' × ${dimensions.depthInFeet}'
   Grid size: ${dimensions.gridSquaresX} × ${dimensions.gridSquaresY} of 5' squares
   Pixel dimensions: ${dimensions.width}px × ${dimensions.height}px
-  Scale: 1 foot = ${dimensions.gridSize/5}px`;
+  Scale: 1 foot = ${dimensions.gridSize / 5}px`;
 }
 
-/** 
+/**
  * Setup date validation to make sure end date is after start date
  * @param {Object} plotState - The current plot state
  */
@@ -221,7 +221,7 @@ function setupDateValidation(plotState) {
   if (!eventStartInput || !eventEndInput) return;
 
   // Set min date for end date when start date changes
-  eventStartInput.addEventListener('change', function() {
+  eventStartInput.addEventListener('change', function () {
     // Set min end date to match start
     eventEndInput.min = this.value;
 
@@ -237,7 +237,7 @@ function setupDateValidation(plotState) {
   });
 
   // Prevent end date from being before start date
-  eventEndInput.addEventListener('change', function() {
+  eventEndInput.addEventListener('change', function () {
     const startDate = eventStartInput.value;
 
     if (startDate && this.value < startDate) {
@@ -269,12 +269,12 @@ function initFavorites(plotState) {
   // Initialize favorites array in plot state
   plotState.favorites = [];
   plotState.favoritesData = [];
-  
+
   // Get user's favorited elements
   fetchUserFavorites(plotState).then(() => {
     // Add favorite buttons to elements
     addFavoriteButtons(plotState);
-    
+
     // Update favorites category
     updateFavoritesCategory(plotState);
   });
@@ -287,17 +287,17 @@ function initFavorites(plotState) {
  */
 function fetchUserFavorites(plotState) {
   return fetch('/handlers/get_favorites.php')
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       if (data.success) {
         // Store favorite element IDs in plot state
-        plotState.favorites = data.favorites.map(fav => parseInt(fav.element_id));
-        
+        plotState.favorites = data.favorites.map((fav) => parseInt(fav.element_id));
+
         // Store complete favorite data for creating elements
         plotState.favoritesData = data.favorites;
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error fetching favorites:', error);
     });
 }
@@ -308,11 +308,11 @@ function fetchUserFavorites(plotState) {
  */
 function addFavoriteButtons(plotState) {
   const elements = document.querySelectorAll('.draggable-element:not(.favorite-element)');
-  
-  elements.forEach(element => {
+
+  elements.forEach((element) => {
     const elementId = parseInt(element.getAttribute('data-element-id'));
     const isFavorite = plotState.favorites.includes(elementId);
-    
+
     // Only add button if it doesn't already exist
     if (!element.querySelector('.favorite-button')) {
       // Create favorite button
@@ -320,9 +320,7 @@ function addFavoriteButtons(plotState) {
       favoriteBtn.className = 'favorite-button';
       favoriteBtn.setAttribute('type', 'button');
       favoriteBtn.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
-      favoriteBtn.innerHTML = isFavorite ? 
-        '<i class="fa-solid fa-star"></i>' : 
-        '<i class="fa-regular fa-star"></i>';
+      favoriteBtn.innerHTML = isFavorite ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
 
       // Add click handler to toggle favorite
       favoriteBtn.addEventListener('click', (e) => {
@@ -330,7 +328,7 @@ function addFavoriteButtons(plotState) {
         e.stopPropagation();
         toggleFavorite(elementId, plotState);
       });
-      
+
       // Add button to element
       element.appendChild(favoriteBtn);
     }
@@ -346,57 +344,57 @@ function toggleFavorite(elementId, plotState) {
   // Create form data for the request
   const formData = new FormData();
   formData.append('element_id', elementId);
-  
+
   // Send toggle request
   fetch('/handlers/toggle_favorite.php', {
     method: 'POST',
-    body: formData
+    body: formData,
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      // Update favorites in state
-      const isFavorite = data.action === 'added';
-      
-      if (isFavorite) {
-        // Add to favorites if not already there
-        if (!plotState.favorites.includes(elementId)) {
-          plotState.favorites.push(elementId);
-          
-          // Get element data for the favorites category
-          const elementData = getElementData(elementId);
-          if (elementData) {
-            plotState.favoritesData.push(elementData);
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Update favorites in state
+        const isFavorite = data.action === 'added';
+
+        if (isFavorite) {
+          // Add to favorites if not already there
+          if (!plotState.favorites.includes(elementId)) {
+            plotState.favorites.push(elementId);
+
+            // Get element data for the favorites category
+            const elementData = getElementData(elementId);
+            if (elementData) {
+              plotState.favoritesData.push(elementData);
+            }
           }
+        } else {
+          // Remove from favorites
+          plotState.favorites = plotState.favorites.filter((id) => id !== elementId);
+          plotState.favoritesData = plotState.favoritesData.filter((fav) => fav.element_id !== elementId);
+        }
+
+        // Update all instances of this element's favorite button
+        updateElementFavoriteButtons(elementId, isFavorite);
+
+        // Update favorites category
+        updateFavoritesCategory(plotState);
+
+        // Show notification
+        if (typeof showNotification === 'function') {
+          showNotification(data.message, 'success');
         }
       } else {
-        // Remove from favorites
-        plotState.favorites = plotState.favorites.filter(id => id !== elementId);
-        plotState.favoritesData = plotState.favoritesData.filter(fav => fav.element_id !== elementId);
+        if (typeof showNotification === 'function') {
+          showNotification(data.error || 'Error toggling favorite', 'error');
+        }
       }
-      
-      // Update all instances of this element's favorite button
-      updateElementFavoriteButtons(elementId, isFavorite);
-      
-      // Update favorites category
-      updateFavoritesCategory(plotState);
-      
-      // Show notification
+    })
+    .catch((error) => {
+      console.error('Error toggling favorite:', error);
       if (typeof showNotification === 'function') {
-        showNotification(data.message, 'success');
+        showNotification('Error toggling favorite', 'error');
       }
-    } else {
-      if (typeof showNotification === 'function') {
-        showNotification(data.error || 'Error toggling favorite', 'error');
-      }
-    }
-  })
-  .catch(error => {
-    console.error('Error toggling favorite:', error);
-    if (typeof showNotification === 'function') {
-      showNotification('Error toggling favorite', 'error');
-    }
-  });
+    });
 }
 
 /**
@@ -406,12 +404,10 @@ function toggleFavorite(elementId, plotState) {
  */
 function updateElementFavoriteButtons(elementId, isFavorite) {
   const buttons = document.querySelectorAll(`.draggable-element[data-element-id="${elementId}"] .favorite-button`);
-  
-  buttons.forEach(button => {
+
+  buttons.forEach((button) => {
     button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
-    button.innerHTML = isFavorite ? 
-      '<i class="fa-solid fa-star"></i>' : 
-      '<i class="fa-regular fa-star"></i>';
+    button.innerHTML = isFavorite ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
   });
 }
 
@@ -422,16 +418,16 @@ function updateElementFavoriteButtons(elementId, isFavorite) {
  */
 function getElementData(elementId) {
   const element = document.querySelector(`.draggable-element[data-element-id="${elementId}"]`);
-  
+
   if (element) {
     return {
       element_id: elementId,
       element_name: element.getAttribute('data-element-name'),
       category_id: parseInt(element.getAttribute('data-category-id')),
-      element_image: element.getAttribute('data-image')
+      element_image: element.getAttribute('data-image'),
     };
   }
-  
+
   return null;
 }
 
@@ -442,24 +438,24 @@ function getElementData(elementId) {
 function updateFavoritesCategory(plotState) {
   // Get the Favorites category section
   const favoritesSection = document.querySelector('.category-section[data-category-id="1"]');
-  
+
   if (!favoritesSection) {
     console.warn('Favorites section not found');
     return;
   }
-  
+
   // Get or create elements grid
   let favoritesGrid = favoritesSection.querySelector('.elements-grid');
-  
+
   if (!favoritesGrid) {
     favoritesGrid = document.createElement('div');
     favoritesGrid.className = 'elements-grid';
     favoritesSection.appendChild(favoritesGrid);
   }
-  
+
   // Clear existing favorites
   favoritesGrid.innerHTML = '';
-  
+
   // If no favorites, show message
   if (plotState.favorites.length === 0) {
     const noFavorites = document.createElement('p');
@@ -468,12 +464,12 @@ function updateFavoritesCategory(plotState) {
     favoritesGrid.appendChild(noFavorites);
     return;
   }
-  
+
   // Create elements for each favorite
-  plotState.favorites.forEach(elementId => {
+  plotState.favorites.forEach((elementId) => {
     // Find element data
-    const elementData = plotState.favoritesData.find(fav => parseInt(fav.element_id) === elementId);
-    
+    const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
+
     if (elementData) {
       // Create favorite element
       const favoriteElement = document.createElement('div');
@@ -483,38 +479,38 @@ function updateFavoritesCategory(plotState) {
       favoriteElement.setAttribute('data-element-name', elementData.element_name);
       favoriteElement.setAttribute('data-category-id', elementData.category_id);
       favoriteElement.setAttribute('data-image', elementData.element_image);
-      
+
       // Create element image
       const img = document.createElement('img');
       img.src = `/images/elements/${elementData.element_image}`;
       img.alt = elementData.element_name;
       favoriteElement.appendChild(img);
-      
+
       // Create element name
       const nameDiv = document.createElement('div');
       nameDiv.className = 'element-name';
       nameDiv.textContent = elementData.element_name;
       favoriteElement.appendChild(nameDiv);
-      
+
       // Create favorite button
       const favoriteBtn = document.createElement('button');
       favoriteBtn.className = 'favorite-button';
       favoriteBtn.setAttribute('type', 'button');
       favoriteBtn.title = 'Remove from favorites';
       favoriteBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
-      
+
       // Add click handler to toggle favorite
       favoriteBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         toggleFavorite(elementId, plotState);
       });
-      
+
       favoriteElement.appendChild(favoriteBtn);
-      
+
       // Add drag start event listener
-      favoriteElement.addEventListener('dragstart', e => handleDragStart(e, plotState));
-      
+      favoriteElement.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
+
       // Add to favorites grid
       favoritesGrid.appendChild(favoriteElement);
     }
@@ -527,11 +523,11 @@ function updateFavoritesCategory(plotState) {
 function moveFavoritesToTop() {
   const elementsPanel = document.getElementById('elements-list');
   if (!elementsPanel) return;
-  
+
   // Find the Favorites section
   const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"]');
   if (!favoritesSection) return;
-  
+
   // Move it to the top
   const firstChild = elementsPanel.firstChild;
   elementsPanel.insertBefore(favoritesSection, firstChild);
@@ -544,18 +540,18 @@ function moveFavoritesToTop() {
 function initDragAndDrop(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   // Make elements from the list draggable
   const draggableElements = document.querySelectorAll('.draggable-element');
-  
-  draggableElements.forEach(element => {
-    element.addEventListener('dragstart', e => handleDragStart(e, plotState));
+
+  draggableElements.forEach((element) => {
+    element.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
     element.setAttribute('draggable', true);
   });
-  
+
   // Set up the stage as drop target
   stage.addEventListener('dragover', handleDragOver);
-  stage.addEventListener('drop', e => handleDrop(e, plotState));
+  stage.addEventListener('drop', (e) => handleDrop(e, plotState));
 }
 
 /**
@@ -566,10 +562,10 @@ function initDragAndDrop(plotState) {
 function handleDragStart(e, plotState) {
   // Store element ID in the dataTransfer object
   e.dataTransfer.setData('text/plain', e.target.getAttribute('data-element-id'));
-  
+
   // Set dragged element information in state
   plotState.currentDragId = e.target.getAttribute('data-element-id');
-  
+
   // Set drag image and effect
   e.dataTransfer.effectAllowed = 'copy';
 }
@@ -592,32 +588,32 @@ function handleDragOver(e) {
 function handleDrop(e, plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   // Prevent default action
   e.preventDefault();
-  
+
   // Get the element ID from dataTransfer
   const elementId = e.dataTransfer.getData('text/plain');
-  
+
   if (!elementId) return;
-  
+
   // Find the element in the list
   const sourceElement = document.querySelector(`.draggable-element[data-element-id="${elementId}"]`);
-  
+
   if (!sourceElement) return;
-  
+
   // Get element data
   const elementName = sourceElement.getAttribute('data-element-name');
   const categoryId = sourceElement.getAttribute('data-category-id');
   const imageSrc = sourceElement.getAttribute('data-image');
-  
+
   // Calculate position relative to the stage
   const stageRect = stage.getBoundingClientRect();
-  
+
   // Get the position relative to the stage
   let x = Math.max(0, Math.min(e.clientX - stageRect.left, stageRect.width - 80));
   let y = Math.max(0, Math.min(e.clientY - stageRect.top, stageRect.height - 50));
-  
+
   // Create a new element object
   const newElement = {
     id: plotState.elements.length + 1, // Unique ID for this instance
@@ -633,15 +629,15 @@ function handleDrop(e, plotState) {
     flipped: false,
     zIndex: plotState.nextZIndex++,
     label: '',
-    notes: ''
+    notes: '',
   };
-  
+
   // Add to state
   plotState.elements.push(newElement);
-  
+
   // Create element in DOM
   createPlacedElement(newElement, plotState);
-  
+
   // Mark as modified if we're editing an existing plot
   markPlotAsModified(plotState);
 }
@@ -653,11 +649,12 @@ function handleDrop(e, plotState) {
  * @returns {Promise} - Resolves when the element's image (if any) is loaded
  */
 function createPlacedElement(elementData, plotState) {
-  return new Promise((resolve) => { // <<< MODIFIED: Return a Promise
+  return new Promise((resolve) => {
+    // <<< MODIFIED: Return a Promise
     const stage = document.getElementById('stage');
     if (!stage) {
-        resolve(); // Resolve immediately if stage not found
-        return;
+      resolve(); // Resolve immediately if stage not found
+      return;
     }
 
     // Create element
@@ -682,9 +679,7 @@ function createPlacedElement(elementData, plotState) {
 
     // Apply flip if needed
     if (elementData.flipped) {
-      element.style.transform = element.style.transform
-        ? `${element.style.transform} scaleX(-1)`
-        : 'scaleX(-1)';
+      element.style.transform = element.style.transform ? `${element.style.transform} scaleX(-1)` : 'scaleX(-1)';
     }
 
     // Create image
@@ -693,7 +688,7 @@ function createPlacedElement(elementData, plotState) {
     img.alt = elementData.elementName;
 
     // Add onload handler to adjust width based on actual image dimensions
-    img.onload = function() {
+    img.onload = function () {
       // Calculate the appropriate width based on the image's aspect ratio
       const aspectRatio = this.naturalWidth / this.naturalHeight;
       const newWidth = Math.round(elementData.height * aspectRatio);
@@ -702,7 +697,7 @@ function createPlacedElement(elementData, plotState) {
       element.style.width = `${newWidth}px`;
 
       // Update the element width in state
-      const elementIndex = plotState.elements.findIndex(el => el.id === elementData.id);
+      const elementIndex = plotState.elements.findIndex((el) => el.id === elementData.id);
       if (elementIndex !== -1) {
         plotState.elements[elementIndex].width = newWidth;
       }
@@ -711,13 +706,13 @@ function createPlacedElement(elementData, plotState) {
       // if (plotState.currentPlotId && plotState.isModified) { // <<< REMOVE THIS CHECK
       //   markPlotAsModified(plotState); // <<< REMOVE THIS CALL
       // }
-       resolve(); // Resolve the promise once image is loaded and width adjusted
+      resolve(); // Resolve the promise once image is loaded and width adjusted
     };
-     // Handle image loading errors
-     img.onerror = function() {
-         console.warn(`Failed to load image for element ${elementData.elementName}`);
-         resolve(); // Resolve even if image fails to load
-     }
+    // Handle image loading errors
+    img.onerror = function () {
+      console.warn(`Failed to load image for element ${elementData.elementName}`);
+      resolve(); // Resolve even if image fails to load
+    };
 
     element.appendChild(img);
 
@@ -745,13 +740,13 @@ function createPlacedElement(elementData, plotState) {
     });
 
     // Add button event handlers
-    editBtn.addEventListener('mousedown', function(e) {
+    editBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });
-    editBtn.addEventListener('mouseup', function() {
+    editBtn.addEventListener('mouseup', function () {
       this.style.boxShadow = '';
     });
-    editBtn.addEventListener('mouseleave', function() {
+    editBtn.addEventListener('mouseleave', function () {
       this.style.boxShadow = '';
     });
 
@@ -770,24 +765,28 @@ function createPlacedElement(elementData, plotState) {
     deleteBtn.title = 'Delete Element';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      setupConfirmButton(deleteBtn, () => {
-        deleteElement(elementData.id, plotState);
-      }, {
-        confirmText: 'Delete',
-        confirmTitle: 'Permanent',
-        stopPropagation: true,
-        event: e
-      });
+      setupConfirmButton(
+        deleteBtn,
+        () => {
+          deleteElement(elementData.id, plotState);
+        },
+        {
+          confirmText: 'Delete',
+          confirmTitle: 'Permanent',
+          stopPropagation: true,
+          event: e,
+        }
+      );
     });
 
     // Add button event handlers
-    deleteBtn.addEventListener('mousedown', function(e) {
+    deleteBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });
-    deleteBtn.addEventListener('mouseup', function() {
+    deleteBtn.addEventListener('mouseup', function () {
       this.style.boxShadow = '';
     });
-    deleteBtn.addEventListener('mouseleave', function() {
+    deleteBtn.addEventListener('mouseleave', function () {
       this.style.boxShadow = '';
     });
 
@@ -805,16 +804,16 @@ function createPlacedElement(elementData, plotState) {
     // Add to stage
     stage.appendChild(element);
 
-     // If the image doesn't have a src or is already cached, onload might not fire
-     if (!img.src || img.complete) {
-         // Manually trigger the logic if needed, or just resolve
-         if(img.complete && img.naturalWidth > 0) {
-             img.onload(); // Call onload manually if image is already loaded
-         } else if (!img.src) {
-              resolve(); // Resolve if there's no image src
-         }
-         // If img.complete but naturalWidth is 0, onerror should handle it
-     }
+    // If the image doesn't have a src or is already cached, onload might not fire
+    if (!img.src || img.complete) {
+      // Manually trigger the logic if needed, or just resolve
+      if (img.complete && img.naturalWidth > 0) {
+        img.onload(); // Call onload manually if image is already loaded
+      } else if (!img.src) {
+        resolve(); // Resolve if there's no image src
+      }
+      // If img.complete but naturalWidth is 0, onerror should handle it
+    }
   }); // End of Promise constructor
 }
 
@@ -825,23 +824,23 @@ function createPlacedElement(elementData, plotState) {
  */
 function makeDraggableOnStage(element, plotState) {
   let startX, startY, startLeft, startTop;
-  
+
   element.addEventListener('mousedown', startDrag);
   element.addEventListener('touchstart', startDrag, { passive: false });
-  
+
   function startDrag(e) {
-      // If clicked on a button or action element, don't start dragging
+    // If clicked on a button or action element, don't start dragging
     if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) {
       return;
     }
 
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Bring to front
     const elementId = parseInt(element.getAttribute('data-id'));
     bringToFront(elementId, plotState);
-    
+
     // Track initial positions
     if (e.type === 'touchstart') {
       startX = e.touches[0].clientX;
@@ -850,22 +849,22 @@ function makeDraggableOnStage(element, plotState) {
       startX = e.clientX;
       startY = e.clientY;
     }
-    
+
     startLeft = parseInt(window.getComputedStyle(element).left);
     startTop = parseInt(window.getComputedStyle(element).top);
-    
+
     // Add move and end events
     document.addEventListener('mousemove', dragMove);
     document.addEventListener('touchmove', dragMove, { passive: false });
     document.addEventListener('mouseup', dragEnd);
     document.addEventListener('touchend', dragEnd);
   }
-  
+
   function dragMove(e) {
     e.preventDefault();
-    
+
     let clientX, clientY;
-    
+
     if (e.type === 'touchmove') {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
@@ -873,42 +872,42 @@ function makeDraggableOnStage(element, plotState) {
       clientX = e.clientX;
       clientY = e.clientY;
     }
-    
+
     // Calculate new position
     const dx = clientX - startX;
     const dy = clientY - startY;
-    
+
     // Calculate the new position in pixels
     let newLeft = startLeft + dx;
     let newTop = startTop + dy;
-    
+
     // Apply constraints to keep within stage
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
     const elementRect = element.getBoundingClientRect();
-    
+
     const maxLeft = stageRect.width - elementRect.width;
     const maxTop = stageRect.height - elementRect.height;
-    
+
     // Apply constraints
     const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
     const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
-    
+
     // Update position
     element.style.left = `${constrainedLeft}px`;
     element.style.top = `${constrainedTop}px`;
-    
+
     // Update state
     const elementId = parseInt(element.getAttribute('data-id'));
-    const elementIndex = plotState.elements.findIndex(el => el.id === elementId);
-    
+    const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+
     if (elementIndex !== -1) {
       plotState.elements[elementIndex].x = constrainedLeft;
       plotState.elements[elementIndex].y = constrainedTop;
       markPlotAsModified(plotState);
     }
   }
-  
+
   function dragEnd() {
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);
@@ -923,36 +922,36 @@ function makeDraggableOnStage(element, plotState) {
  * @param {Object} plotState - The current plot state
  */
 function bringToFront(elementId, plotState) {
-  const elementIndex = plotState.elements.findIndex(el => el.id === elementId);
-  
+  const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+
   if (elementIndex !== -1) {
     // Define a maximum z-index value
     const MAX_Z_INDEX = 500;
-    
+
     // Check if we're approaching the limit
     if (plotState.nextZIndex >= MAX_Z_INDEX) {
       // Reset all z-indexes while maintaining relative order
       // Sort elements by current z-index
       plotState.elements.sort((a, b) => a.zIndex - b.zIndex);
-      
+
       // Reassign z-indexes starting from 1
       plotState.elements.forEach((element, index) => {
         element.zIndex = index + 1;
-        
+
         // Update DOM elements
         const domElement = document.querySelector(`.placed-element[data-id="${element.id}"]`);
         if (domElement) {
           domElement.style.zIndex = element.zIndex;
         }
       });
-      
+
       // Reset counter
       plotState.nextZIndex = plotState.elements.length + 1;
     }
-    
+
     // Now bring the requested element to front
     plotState.elements[elementIndex].zIndex = plotState.nextZIndex++;
-    
+
     // Update z-index in DOM
     const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
     if (domElement) {
@@ -969,45 +968,49 @@ function bringToFront(elementId, plotState) {
 function openPropertiesModal(elementId, plotState) {
   const propsModal = document.getElementById('element-props-modal');
   if (!propsModal) return;
-  
-  const elementIndex = plotState.elements.findIndex(el => el.id === elementId);
-  
+
+  const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+
   if (elementIndex === -1) return;
-  
+
   // Store selected element info
   plotState.selectedElement = elementId;
-  
+
   // Fill form with element data
   const form = document.getElementById('element-props-form');
   form.reset();
-  
+
   document.getElementById('element_index').value = elementIndex;
   document.getElementById('element_label').value = plotState.elements[elementIndex].label || '';
   document.getElementById('element_notes').value = plotState.elements[elementIndex].notes || '';
-  
+
   // Show modal
   openModal(propsModal);
-  
+
   // Focus on label input
   document.getElementById('element_label').focus();
-  
+
   // Handle form submission
   form.onsubmit = (e) => {
     e.preventDefault();
     applyElementProperties(plotState);
   };
-  
+
   // Handle delete button
   document.querySelector('#element-props-form .delete-button').onclick = () => {
-    setupConfirmButton(document.querySelector('#element-props-form .delete-button'), () => {
-      deleteElement(elementId, plotState);
-      closeModal(propsModal);
-    }, {
-      confirmText: 'Confirm',
-      confirmTitle: 'This is Permanent!',
-      originalText: 'Delete',
-    });
-  }
+    setupConfirmButton(
+      document.querySelector('#element-props-form .delete-button'),
+      () => {
+        deleteElement(elementId, plotState);
+        closeModal(propsModal);
+      },
+      {
+        confirmText: 'Confirm',
+        confirmTitle: 'This is Permanent!',
+        originalText: 'Delete',
+      }
+    );
+  };
 }
 
 /**
@@ -1016,27 +1019,27 @@ function openPropertiesModal(elementId, plotState) {
  */
 function applyElementProperties(plotState) {
   const propsModal = document.getElementById('element-props-modal');
-  
+
   const elementIndex = parseInt(document.getElementById('element_index').value);
   // const rotation = parseInt(document.getElementById('element_rotation').value);
   // const flipped = document.getElementById('element_flipped').checked;
   const label = document.getElementById('element_label').value.trim();
   const notes = document.getElementById('element_notes').value.trim();
-  
+
   if (elementIndex < 0 || elementIndex >= plotState.elements.length) return;
-  
+
   // Update state
   plotState.elements[elementIndex].label = label;
   plotState.elements[elementIndex].notes = notes;
-  
+
   // Update DOM element
   const elementId = plotState.elements[elementIndex].id;
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
-  
+
   if (domElement) {
     // Update label
     let labelElement = domElement.querySelector('.element-label');
-    
+
     if (label) {
       // If label exists, update it, otherwise create a new one
       if (labelElement) {
@@ -1052,10 +1055,10 @@ function applyElementProperties(plotState) {
       labelElement.remove();
     }
   }
-  
+
   // Close the modal
   closeModal(propsModal);
-  
+
   markPlotAsModified(plotState);
 }
 
@@ -1070,13 +1073,13 @@ function deleteElement(elementId, plotState) {
   if (domElement) {
     domElement.remove();
   }
-  
+
   // Remove from state
-  const elementIndex = plotState.elements.findIndex(el => el.id === elementId);
+  const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
   if (elementIndex !== -1) {
     plotState.elements.splice(elementIndex, 1);
   }
-  
+
   markPlotAsModified(plotState);
 }
 
@@ -1093,7 +1096,7 @@ function initModalControls(plotState) {
   const saveModal = document.getElementById('save-plot-modal');
   const loadModal = document.getElementById('my-plots-modal');
   const propsModal = document.getElementById('element-props-modal');
-  
+
   // Setup save button
   if (saveButton) {
     saveButton.addEventListener('click', () => {
@@ -1104,48 +1107,52 @@ function initModalControls(plotState) {
         if (plotNameInput) {
           plotNameInput.value = '';
         }
-        
+
         openModal(saveModal);
-        
+
         // Load existing plots for overwrite options
         loadExistingPlotsForOverwrite(plotState);
-        
+
         // Handle form submission for new plot
         const saveForm = document.getElementById('save-new-plot-form');
         const saveNewButton = saveForm ? saveForm.querySelector('#save-new-button') : null;
-        
+
         if (saveForm && saveNewButton) {
           // Remove any existing listeners to prevent multiple bindings
           const newSaveBtn = saveNewButton.cloneNode(true);
           saveNewButton.parentNode.replaceChild(newSaveBtn, saveNewButton);
-          
+
           // Prevent form from submitting when pressing Enter
           saveForm.onsubmit = (e) => {
             e.preventDefault();
             return false;
           };
-          
+
           // Add click handler to the save button with confirmation
           newSaveBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             // Get the plot name
             const plotName = document.getElementById('plot_name').value.trim();
             const plotTitle = document.getElementById('plot-title').textContent.trim();
-            
+
             if (!plotName || plotName === plotTitle) {
               showNotification('Enter a unique plot name.', 'warning');
               return;
             }
-            
-            setupConfirmButton(newSaveBtn, () => {
-              savePlot(true, null, null, null, plotState); // Save as new plot
-            }, {
-              confirmText: 'Confirm Save',
-              confirmTitle: 'This will create a new plot',
-              originalText: 'Save as New',
-              originalTitle: 'Save plot as new'
-            });
+
+            setupConfirmButton(
+              newSaveBtn,
+              () => {
+                savePlot(true, null, null, null, plotState); // Save as new plot
+              },
+              {
+                confirmText: 'Confirm Save',
+                confirmTitle: 'This will create a new plot',
+                originalText: 'Save as New',
+                originalTitle: 'Save plot as new',
+              }
+            );
           });
         }
       } else {
@@ -1153,7 +1160,7 @@ function initModalControls(plotState) {
       }
     });
   }
-  
+
   // Setup load button
   if (loadButton) {
     loadButton.addEventListener('click', () => {
@@ -1161,18 +1168,18 @@ function initModalControls(plotState) {
       loadSavedPlots(plotState);
     });
   }
-  
+
   // Setup modal close buttons
-  document.querySelectorAll('.modal .close-button, .modal .cancel-button').forEach(button => {
+  document.querySelectorAll('.modal .close-button, .modal .cancel-button').forEach((button) => {
     button.addEventListener('click', (e) => {
       e.preventDefault();
       const modal = button.closest('.modal');
       closeModal(modal);
     });
   });
-  
+
   // Close modal on outside click
-  document.querySelectorAll('.modal').forEach(modal => {
+  document.querySelectorAll('.modal').forEach((modal) => {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
         closeModal(modal);
@@ -1184,21 +1191,21 @@ function initModalControls(plotState) {
   if (loadModal) {
     const closeBtn = loadModal.querySelector('.close-button');
     const cancelBtn = loadModal.querySelector('.cancel-button');
-    
+
     if (closeBtn) {
       closeBtn.addEventListener('click', () => closeModal(loadModal));
     }
-    
+
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => closeModal(loadModal));
     }
-    
+
     // Close when clicking outside the modal
     loadModal.addEventListener('click', (e) => {
       if (e.target === loadModal) closeModal(loadModal);
     });
   }
-  
+
   // Add event handler for the save changes button
   if (saveChangesButton) {
     saveChangesButton.addEventListener('click', () => {
@@ -1220,7 +1227,7 @@ function initModalControls(plotState) {
  */
 function savePlot(isNew = true, existingPlotId = null, newName = null, existingName = null, plotState) {
   let plotName;
-  
+
   if (isNew) {
     plotName = document.getElementById('plot_name').value.trim();
   } else if (newName) {
@@ -1233,7 +1240,7 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
     // Saving changes to existing plot - use current name
     plotName = plotState.currentPlotName;
   }
-    
+
   const venueId = document.getElementById('venue_select') ? document.getElementById('venue_select').value : null;
   const eventDateStart = document.getElementById('event_start') ? document.getElementById('event_start').value : null;
   const eventDateEnd = document.getElementById('event_end') ? document.getElementById('event_end').value : null;
@@ -1241,33 +1248,33 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
   // Gather input list data
   const inputData = [];
   const inputItems = document.querySelectorAll('#input-list .input-item');
-  inputItems.forEach(item => {
-      const number = parseInt(item.getAttribute('data-input-number'));
-      const labelInput = item.querySelector('input[type="text"]');
-      const label = labelInput ? labelInput.value.trim() : '';
-      // Only save inputs that have a label
-      if (label) {
-           inputData.push({ input_number: number, input_name: label });
-      }
+  inputItems.forEach((item) => {
+    const number = parseInt(item.getAttribute('data-input-number'));
+    const labelInput = item.querySelector('input[type="text"]');
+    const label = labelInput ? labelInput.value.trim() : '';
+    // Only save inputs that have a label
+    if (label) {
+      inputData.push({ input_number: number, input_name: label });
+    }
   });
-  
+
   if ((isNew || newName) && !plotName) {
     showNotification('Please enter a plot name', 'warning');
     return;
   }
-  
+
   if (!plotName) {
     showNotification('Please enter a plot name', 'warning');
     return;
   }
-  
+
   // Create plot data
   const plotData = {
     plot_name: plotName,
     venue_id: venueId || null,
     event_date_start: eventDateStart || null,
     event_date_end: eventDateEnd || null,
-    elements: plotState.elements.map(el => ({
+    elements: plotState.elements.map((el) => ({
       element_id: el.elementId,
       x_position: el.x,
       y_position: el.y,
@@ -1277,68 +1284,67 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
       flipped: el.flipped ? 1 : 0,
       z_index: el.zIndex,
       label: el.label || '',
-      notes: el.notes || ''
+      notes: el.notes || '',
     })),
-    inputs: inputData
+    inputs: inputData,
   };
-  
+
   // For overwrite, add plot_id
   if (!isNew && existingPlotId) {
     plotData.plot_id = existingPlotId;
   }
-  
+
   console.log('Sending plot data:', plotData);
-  
+
   fetch('/handlers/save_plot.php', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(plotData)
+    body: JSON.stringify(plotData),
   })
-  .then(response => response.json())
-  .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       if (data.success) {
         // Show notification
-          if (isNew) {
-              showNotification('New Plot Saved!', 'success');
-          } else if (newName || existingName) {
-              showNotification('Plot Overwritten!', 'success');
-          } else {
-              showNotification('Changes Saved!', 'success');
-          }
+        if (isNew) {
+          showNotification('New Plot Saved!', 'success');
+        } else if (newName || existingName) {
+          showNotification('Plot Overwritten!', 'success');
+        } else {
+          showNotification('Changes Saved!', 'success');
+        }
 
-          // Update plot state
-          if ((isNew && data.plot_id) || newName || existingPlotId) {
-              if (isNew && data.plot_id) {
-                  plotState.currentPlotId = data.plot_id;
-              }
-              plotState.currentPlotName = plotData.plot_name;
-              const plotTitle = document.getElementById('plot-title');
-              if (plotTitle) plotTitle.textContent = plotData.plot_name;
+        // Update plot state
+        if ((isNew && data.plot_id) || newName || existingPlotId) {
+          if (isNew && data.plot_id) {
+            plotState.currentPlotId = data.plot_id;
           }
+          plotState.currentPlotName = plotData.plot_name;
+          const plotTitle = document.getElementById('plot-title');
+          if (plotTitle) plotTitle.textContent = plotData.plot_name;
+        }
 
-          // Reset UI
-          plotState.isModified = false;
-          const saveChangesButton = document.getElementById('save-changes');
-          if (saveChangesButton) {
-              saveChangesButton.classList.remove('visible');
-               setTimeout(() => saveChangesButton.classList.add('hidden'), 300); // Match transition
-          }
-          const saveModal = document.getElementById('save-plot-modal');
-          closeModal(saveModal);
-          const plotNameInput = document.getElementById('plot_name');
-          if (plotNameInput) plotNameInput.value = '';
-          saveStateToStorage(plotState); // Save updated state
-
+        // Reset UI
+        plotState.isModified = false;
+        const saveChangesButton = document.getElementById('save-changes');
+        if (saveChangesButton) {
+          saveChangesButton.classList.remove('visible');
+          setTimeout(() => saveChangesButton.classList.add('hidden'), 300); // Match transition
+        }
+        const saveModal = document.getElementById('save-plot-modal');
+        closeModal(saveModal);
+        const plotNameInput = document.getElementById('plot_name');
+        if (plotNameInput) plotNameInput.value = '';
+        saveStateToStorage(plotState); // Save updated state
       } else {
-          showNotification('Error saving plot: ' + (data.error || 'Unknown error'), 'error');
+        showNotification('Error saving plot: ' + (data.error || 'Unknown error'), 'error');
       }
-  })
-  .catch(error => {
+    })
+    .catch((error) => {
       console.error('Error saving plot:', error);
       showNotification('Error saving plot. Please try again.', 'error');
-  });
+    });
 }
 
 /**
@@ -1368,14 +1374,14 @@ function loadExistingPlotsForOverwrite(plotState) {
 
   // Add the overlay instead of replacing content
   plotsList.appendChild(loadingOverlay);
-  
+
   // Show loading message
   plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
-  
+
   // Fetch saved plots
   fetch('/handlers/get_plots.php')
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       // Remove the loading overlay first
       if (loadingOverlay.parentNode === plotsList) {
         plotsList.removeChild(loadingOverlay);
@@ -1384,7 +1390,7 @@ function loadExistingPlotsForOverwrite(plotState) {
       if (data.plots && data.plots.length > 0) {
         // Create plots list
         let html = '<ul class="plots-list">';
-        data.plots.forEach(plot => {
+        data.plots.forEach((plot) => {
           const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
           html += `<li class="plot-item">
             <div class="plot-info">
@@ -1402,53 +1408,61 @@ function loadExistingPlotsForOverwrite(plotState) {
         });
         html += '</ul>';
         plotsList.innerHTML = html;
-        
+
         // Add click handlers for overwrite buttons
-        document.querySelectorAll('.overwrite-btn').forEach(btn => {
+        document.querySelectorAll('.overwrite-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
             e.preventDefault();
             const plotId = btn.getAttribute('data-plot-id');
             const plotName = btn.getAttribute('data-plot-name');
-            
+
             // Check if there's a new name entered
             const newNameInput = document.getElementById('plot_name');
             const newName = newNameInput && newNameInput.value.trim() ? newNameInput.value.trim() : null;
-            
-            setupConfirmButton(btn, () => {
-              savePlot(false, plotId, newName, plotName, plotState); // Pass the existing plot name
-            }, {
-              confirmText: 'Confirm',
-              originalText: 'Overwrite'
-            });
+
+            setupConfirmButton(
+              btn,
+              () => {
+                savePlot(false, plotId, newName, plotName, plotState); // Pass the existing plot name
+              },
+              {
+                confirmText: 'Confirm',
+                originalText: 'Overwrite',
+              }
+            );
           });
         });
-        
+
         // Add delete button handlers
-        document.querySelectorAll('.existing-plots-list .delete-plot-btn').forEach(btn => {
+        document.querySelectorAll('.existing-plots-list .delete-plot-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
             // Get plot ID
             const plotId = btn.getAttribute('data-plot-id');
-            
-            setupConfirmButton(btn, () => {
-              deletePlot(plotId, true, plotState);
-            }, {
-              confirmText: 'Delete',
-              confirmTitle: 'This is permanent!',
-              originalTitle: 'Delete plot',
-              stopPropagation: true,
-              event: e
-            });
+
+            setupConfirmButton(
+              btn,
+              () => {
+                deletePlot(plotId, true, plotState);
+              },
+              {
+                confirmText: 'Delete',
+                confirmTitle: 'This is permanent!',
+                originalTitle: 'Delete plot',
+                stopPropagation: true,
+                event: e,
+              }
+            );
           });
         });
       } else {
         plotsList.innerHTML = '<p class="no-plots-message">You have no saved plots.</p>';
       }
     })
-    .catch(error => {
+    .catch((error) => {
       if (loadingOverlay.parentNode === plotsList) {
         plotsList.removeChild(loadingOverlay);
       }
-      
+
       console.error('Error loading plots:', error);
       plotsList.innerHTML = '<p class="error-message">Error loading plots. Please try again.</p>';
     });
@@ -1461,7 +1475,7 @@ function loadExistingPlotsForOverwrite(plotState) {
 function loadSavedPlots(plotState) {
   const plotsList = document.querySelector('.saved-plots-list');
   if (!plotsList) return;
-  
+
   // Add overlay instead of replacing content
   const loadingOverlay = document.createElement('div');
   loadingOverlay.className = 'loading-overlay';
@@ -1475,25 +1489,25 @@ function loadSavedPlots(plotState) {
   loadingOverlay.style.display = 'flex';
   loadingOverlay.style.alignItems = 'center';
   loadingOverlay.style.justifyContent = 'center';
-  
+
   // Make sure the container is positioned relative
   plotsList.style.position = 'relative';
-  
+
   // Add the overlay instead of replacing content
   plotsList.appendChild(loadingOverlay);
 
   // Show loading message
   plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
-  
+
   // Fetch saved plots
   fetch('/handlers/get_plots.php')
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
       // Remove the loading overlay first
       if (loadingOverlay.parentNode === plotsList) {
         plotsList.removeChild(loadingOverlay);
@@ -1502,7 +1516,7 @@ function loadSavedPlots(plotState) {
       if (data.plots && data.plots.length > 0) {
         // Create plots list
         let html = '<ul class="plots-list">';
-        data.plots.forEach(plot => {
+        data.plots.forEach((plot) => {
           const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
           html += `<li class="plot-item">
             <div class="plot-info">
@@ -1520,54 +1534,62 @@ function loadSavedPlots(plotState) {
         });
         html += '</ul>';
         plotsList.innerHTML = html;
-        
+
         // Add load button handlers
-        document.querySelectorAll('.load-plot-btn').forEach(btn => {
+        document.querySelectorAll('.load-plot-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const plotId = btn.getAttribute('data-plot-id');
-            
+
             // Check if there are elements on stage that would be replaced
             if (plotState.elements.length > 0) {
-              setupConfirmButton(btn, () => {
-                loadPlot(plotId, plotState);
-              }, {
-                confirmText: 'Confirm',
-                confirmTitle: 'This will replace your current stage',
-                originalText: 'Load',
-                originalTitle: 'Load plot',
-                stopPropagation: true,
-                event: e
-              });
+              setupConfirmButton(
+                btn,
+                () => {
+                  loadPlot(plotId, plotState);
+                },
+                {
+                  confirmText: 'Confirm',
+                  confirmTitle: 'This will replace your current stage',
+                  originalText: 'Load',
+                  originalTitle: 'Load plot',
+                  stopPropagation: true,
+                  event: e,
+                }
+              );
             } else {
               // No confirmation needed, just load
               loadPlot(plotId, plotState);
             }
           });
         });
-        
+
         // Add delete button handlers
-        document.querySelectorAll('.saved-plots-list .delete-plot-btn').forEach(btn => {
+        document.querySelectorAll('.saved-plots-list .delete-plot-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
             // Get plot ID
             const plotId = btn.getAttribute('data-plot-id');
-            
-            setupConfirmButton(btn, () => {
-              deletePlot(plotId, true, plotState);
-            }, {
-              confirmText: 'Delete',
-              confirmTitle: 'This is permanent!',
-              originalTitle: 'Delete plot',
-              stopPropagation: true,
-              event: e
-            });
+
+            setupConfirmButton(
+              btn,
+              () => {
+                deletePlot(plotId, true, plotState);
+              },
+              {
+                confirmText: 'Delete',
+                confirmTitle: 'This is permanent!',
+                originalTitle: 'Delete plot',
+                stopPropagation: true,
+                event: e,
+              }
+            );
           });
         });
       } else {
         plotsList.innerHTML = '<p class="no-plots-message">You have no saved plots.</p>';
       }
     })
-    .catch(error => {
+    .catch((error) => {
       if (loadingOverlay.parentNode === plotsList) {
         plotsList.removeChild(loadingOverlay);
       }
@@ -1584,92 +1606,93 @@ function loadSavedPlots(plotState) {
  */
 function loadPlot(plotId, plotState) {
   fetch(`/handlers/get_plot.php?id=${plotId}`)
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            plotState.isLoading = true;
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        plotState.isLoading = true;
 
-            // Clear current stage FIRST
-              clearElements(plotState);
-             if (plotState.clearInputList) plotState.clearInputList(); // Clear input list state & DOM
+        // Clear current stage FIRST
+        clearElements(plotState);
+        if (plotState.clearInputList) plotState.clearInputList(); // Clear input list state & DOM
 
-            // ... (update plot title, venue, dates, buttons, favorites) ...
-            const plotTitle = document.getElementById('plot-title');
-            if (plotTitle) plotTitle.textContent = data.plot.plot_name;
-            plotState.currentPlotName = data.plot.plot_name;
-            plotState.currentPlotId = data.plot.plot_id;
+        // ... (update plot title, venue, dates, buttons, favorites) ...
+        const plotTitle = document.getElementById('plot-title');
+        if (plotTitle) plotTitle.textContent = data.plot.plot_name;
+        plotState.currentPlotName = data.plot.plot_name;
+        plotState.currentPlotId = data.plot.plot_id;
 
-            const venueSelect = document.getElementById('venue_select');
-              if (venueSelect && data.plot.effective_venue_id) {
-                  venueSelect.value = data.plot.effective_venue_id;
-                  updateCustomDropdown(venueSelect);
-                  updateStageForVenue(data.plot.effective_venue_id, plotState, true);
-              } else {
-                  updateStageForVenue(null, plotState, true);
-              }
+        const venueSelect = document.getElementById('venue_select');
+        if (venueSelect && data.plot.effective_venue_id) {
+          venueSelect.value = data.plot.effective_venue_id;
+          updateCustomDropdown(venueSelect);
+          updateStageForVenue(data.plot.effective_venue_id, plotState, true);
+        } else {
+          updateStageForVenue(null, plotState, true);
+        }
 
-            const eventStartInput = document.getElementById('event_start');
-            const eventEndInput = document.getElementById('event_end');
-              if (eventStartInput) eventStartInput.value = data.plot.event_date_start || '';
-              if (eventEndInput) {
-                  eventEndInput.value = data.plot.event_date_end || '';
-                  if (eventStartInput.value) eventEndInput.min = eventStartInput.value;
-              }
+        const eventStartInput = document.getElementById('event_start');
+        const eventEndInput = document.getElementById('event_end');
+        if (eventStartInput) eventStartInput.value = data.plot.event_date_start || '';
+        if (eventEndInput) {
+          eventEndInput.value = data.plot.event_date_end || '';
+          if (eventStartInput.value) eventEndInput.min = eventStartInput.value;
+        }
 
-            updatePlotUIState(plotState);
-            updateFavoritesFromServer(plotState, data.favorites);
+        updatePlotUIState(plotState);
+        updateFavoritesFromServer(plotState, data.favorites);
 
-            plotState.inputs = data.inputs || [];
-            if (plotState.renderInputList) {
-              plotState.renderInputList(plotState.inputs);
-          }
+        plotState.inputs = data.inputs || [];
+        if (plotState.renderInputList) {
+          plotState.renderInputList(plotState.inputs);
+        }
 
-      // Load placed elements
-      const elementPromises = (data.elements || []).map((element, index) => {
-        const elementData = {
-          id: index + 1, // Assign new local ID
-          elementId: element.element_id,
-          elementName: element.element_name,
-          categoryId: element.category_id,
-          image: element.element_image,
-          x: element.x_position,
-          y: element.y_position,
-          width: element.width,
-          height: element.height,
-          rotation: element.rotation,
-          flipped: element.flipped === 1,
-          zIndex: element.z_index,
-          label: element.label || '',
-          notes: element.notes || ''
-        };
-        plotState.elements.push(elementData);
-        return createPlacedElement(elementData, plotState);
-      });
+        // Load placed elements
+        const elementPromises = (data.elements || []).map((element, index) => {
+          const elementData = {
+            id: index + 1, // Assign new local ID
+            elementId: element.element_id,
+            elementName: element.element_name,
+            categoryId: element.category_id,
+            image: element.element_image,
+            x: element.x_position,
+            y: element.y_position,
+            width: element.width,
+            height: element.height,
+            rotation: element.rotation,
+            flipped: element.flipped === 1,
+            zIndex: element.z_index,
+            label: element.label || '',
+            notes: element.notes || '',
+          };
+          plotState.elements.push(elementData);
+          return createPlacedElement(elementData, plotState);
+        });
 
-      Promise.all(elementPromises).then(() => {
-        plotState.nextZIndex = Math.max(1, ...plotState.elements.map(el => el.zIndex)) + 1; // Recalculate nextZIndex
+        Promise.all(elementPromises)
+          .then(() => {
+            plotState.nextZIndex = Math.max(1, ...plotState.elements.map((el) => el.zIndex)) + 1; // Recalculate nextZIndex
+            plotState.isLoading = false;
+            console.log('Finished loading elements.');
+            const loadModal = document.getElementById('my-plots-modal');
+            closeModal(loadModal);
+            showNotification('Plot loaded!', 'success');
+            saveStateToStorage(plotState); // Save the loaded state
+          })
+          .catch((error) => {
+            console.error('Error during element loading:', error);
+            plotState.isLoading = false;
+            showNotification('Plot loaded, but some elements might have issues.', 'warning');
+          });
+      } else {
+        showNotification('Error loading plot: ' + (data.error || 'Unknown error'), 'error');
         plotState.isLoading = false;
-        console.log("Finished loading elements.");
-        const loadModal = document.getElementById('my-plots-modal');
-        closeModal(loadModal);
-        showNotification('Plot loaded!', 'success');
-         saveStateToStorage(plotState); // Save the loaded state
-      }).catch(error => {
-          console.error("Error during element loading:", error);
-          plotState.isLoading = false;
-          showNotification('Plot loaded, but some elements might have issues.', 'warning');
-      });
-
-} else {
-    showNotification('Error loading plot: ' + (data.error || 'Unknown error'), 'error');
-    plotState.isLoading = false;
-}
-})
-.catch(error => {
-console.error('Error loading plot:', error);
-showNotification('Error loading plot. Please try again.', 'error');
-plotState.isLoading = false;
-});
+      }
+    })
+    .catch((error) => {
+      console.error('Error loading plot:', error);
+      showNotification('Error loading plot. Please try again.', 'error');
+      plotState.isLoading = false;
+    });
 }
 
 /**
@@ -1680,30 +1703,29 @@ function updateCustomDropdown(selectElement) {
   if (!selectElement) return;
 
   // Find the associated custom dropdown container
-  const customDropdown = document.querySelector(`.custom-dropdown [data-id="${selectElement.id}"]`) ||
-                         document.querySelector(`.custom-dropdown select[id="${selectElement.id}"]`).closest('.custom-dropdown');
-  
+  const customDropdown = document.querySelector(`.custom-dropdown [data-id="${selectElement.id}"]`) || document.querySelector(`.custom-dropdown select[id="${selectElement.id}"]`).closest('.custom-dropdown');
+
   if (!customDropdown) return;
 
   // Get the selected option text
   const selectedOption = selectElement.options[selectElement.selectedIndex];
   const selectedText = selectedOption ? selectedOption.textContent : '';
-  
+
   // Update the visual display of the selection
   const selectedDisplay = customDropdown.querySelector('.selected-option');
   if (selectedDisplay) {
     selectedDisplay.textContent = selectedText;
-    
+
     if (selectedText) {
       selectedDisplay.classList.remove('placeholder');
     } else {
       selectedDisplay.classList.add('placeholder');
     }
   }
-  
+
   // Update the selected class in the dropdown options
   const options = customDropdown.querySelectorAll('.custom-dropdown-option');
-  options.forEach(option => {
+  options.forEach((option) => {
     option.classList.remove('selected');
     if (option.getAttribute('data-value') === selectElement.value) {
       option.classList.add('selected');
@@ -1713,20 +1735,20 @@ function updateCustomDropdown(selectElement) {
 
 /**
  * Update button states and UI for loaded plot
- * @param {Object} plotState - The current plot state 
+ * @param {Object} plotState - The current plot state
  */
 function updatePlotUIState(plotState) {
   const saveButton = document.getElementById('save-plot');
   if (saveButton) {
-      saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
+    saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
   }
-  
+
   // Hide the save changes button initially
   const saveChangesButton = document.getElementById('save-changes');
   if (saveChangesButton) {
-      saveChangesButton.classList.add('hidden');
+    saveChangesButton.classList.add('hidden');
   }
-  
+
   // Reset modified flag
   plotState.isModified = false;
 }
@@ -1738,27 +1760,25 @@ function updatePlotUIState(plotState) {
  */
 function updateFavoritesFromServer(plotState, favorites) {
   if (!favorites) return;
-  
+
   // Update favorites in state
-  plotState.favorites = favorites.map(fav => parseInt(fav.element_id));
+  plotState.favorites = favorites.map((fav) => parseInt(fav.element_id));
   plotState.favoritesData = favorites;
-  
+
   // Update favorites UI
   updateFavoritesCategory(plotState);
-  
+
   // Update the favorite buttons on all elements
   const allButtons = document.querySelectorAll('.draggable-element .favorite-button');
-  allButtons.forEach(button => {
-      const elementContainer = button.closest('.draggable-element');
-      if (!elementContainer) return;
-      
-      const elementId = parseInt(elementContainer.getAttribute('data-element-id'));
-      const isFavorite = plotState.favorites.includes(elementId);
-      
-      button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
-      button.innerHTML = isFavorite ? 
-          '<i class="fa-solid fa-star"></i>' : 
-          '<i class="fa-regular fa-star"></i>';
+  allButtons.forEach((button) => {
+    const elementContainer = button.closest('.draggable-element');
+    if (!elementContainer) return;
+
+    const elementId = parseInt(elementContainer.getAttribute('data-element-id'));
+    const isFavorite = plotState.favorites.includes(elementId);
+
+    button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+    button.innerHTML = isFavorite ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
   });
 }
 
@@ -1770,23 +1790,23 @@ function updateFavoritesFromServer(plotState, favorites) {
 function loadPlacedElements(elements, plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   // Get stage dimensions
   const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
   const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-  
+
   // Calculate dimensions for proper scaling
   const dimensions = calculateStageDimensions(stageWidth, stageDepth);
-  
+
   // Clear existing elements first
   const placedElements = stage.querySelectorAll('.placed-element');
-  placedElements.forEach(element => element.remove());
-  
+  placedElements.forEach((element) => element.remove());
+
   // Reset state but keep z-index counter
   const nextZ = plotState.nextZIndex;
   plotState.elements = [];
   plotState.nextZIndex = nextZ;
-  
+
   // Create each element from the saved data
   elements.forEach((element, index) => {
     // Map database field names to local state format
@@ -1804,15 +1824,15 @@ function loadPlacedElements(elements, plotState) {
       flipped: element.flipped === 1,
       zIndex: element.z_index,
       label: element.label || '',
-      notes: element.notes || ''
+      notes: element.notes || '',
     };
-    
+
     // Add to state
     plotState.elements.push(elementData);
-    
+
     // Create DOM element
     createPlacedElement(elementData, plotState);
-    
+
     // Update next z-index if needed
     plotState.nextZIndex = Math.max(plotState.nextZIndex, element.z_index + 1);
   });
@@ -1825,12 +1845,12 @@ function loadPlacedElements(elements, plotState) {
 function initLoadPlotModal(plotState) {
   const loadButton = document.getElementById('my-plots');
   const loadModal = document.getElementById('my-plots-modal');
-  
+
   if (loadButton && loadModal) {
     loadButton.addEventListener('click', () => {
       // First show the modal
       openModal(loadModal);
-      
+
       // Then populate it with plots
       loadSavedPlots(plotState);
     });
@@ -1849,43 +1869,43 @@ function deletePlot(plotId, confirmed = false, plotState) {
     // The confirmation is now handled by the button itself
     return;
   }
-  
+
   // Create form data
   const formData = new FormData();
   formData.append('plot_id', plotId);
-  
+
   // Send deletion request to server
   fetch('/handlers/delete_plot.php', {
     method: 'POST',
-    body: formData
+    body: formData,
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      // Show notification
-      showNotification('Plot deleted!', 'success');
-      
-      // If we're currently viewing the plot that was deleted, clear the stage
-      if (plotState.currentPlotId && plotState.currentPlotId == plotId) {
-        clearElements(plotState);
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Show notification
+        showNotification('Plot deleted!', 'success');
+
+        // If we're currently viewing the plot that was deleted, clear the stage
+        if (plotState.currentPlotId && plotState.currentPlotId == plotId) {
+          clearElements(plotState);
+        }
+
+        // Reload the plots list
+        loadSavedPlots(plotState);
+
+        // Also reload the overwrite list if the save modal is open
+        const saveModal = document.getElementById('save-plot-modal');
+        if (saveModal && !saveModal.classList.contains('hidden')) {
+          loadExistingPlotsForOverwrite(plotState);
+        }
+      } else {
+        showNotification('Error deleting plot: ' + (data.error || 'Unknown error'), 'error');
       }
-      
-      // Reload the plots list
-      loadSavedPlots(plotState);
-      
-      // Also reload the overwrite list if the save modal is open
-      const saveModal = document.getElementById('save-plot-modal');
-      if (saveModal && !saveModal.classList.contains('hidden')) {
-        loadExistingPlotsForOverwrite(plotState);
-      }
-    } else {
-      showNotification('Error deleting plot: ' + (data.error || 'Unknown error'), 'error');
-    }
-  })
-  .catch(error => {
-    console.error('Error deleting plot:', error);
-    showNotification('Error deleting plot. Please try again.', 'error');
-  });
+    })
+    .catch((error) => {
+      console.error('Error deleting plot:', error);
+      showNotification('Error deleting plot. Please try again.', 'error');
+    });
 }
 
 /**
@@ -1894,27 +1914,27 @@ function deletePlot(plotId, confirmed = false, plotState) {
  */
 function initPageNavigation(plotState) {
   // Save state when navigating away from the page
-  window.addEventListener('beforeunload', function(e) {
+  window.addEventListener('beforeunload', function (e) {
     // Only prompt if there are unsaved changes
     if (plotState.elements.length > 0 && (plotState.isModified || !plotState.currentPlotId)) {
       // Save current state to localStorage
       saveStateToStorage(plotState);
-      
+
       // Show confirmation dialog for unsaved changes
       // const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
       // e.returnValue = confirmationMessage;
       // return confirmationMessage;
     }
   });
-  
+
   // Add click handlers to all navigation links to save state
-  document.querySelectorAll('nav a').forEach(link => {
-    link.addEventListener('click', function(e) {
+  document.querySelectorAll('nav a').forEach((link) => {
+    link.addEventListener('click', function (e) {
       // Don't intercept the current page link
       if (this.classList.contains('active')) {
         return;
       }
-      
+
       // Save state before navigating
       saveStateToStorage(plotState);
     });
@@ -1933,21 +1953,19 @@ function saveStateToStorage(plotState) {
     // Create a serializable state object
     const stateToSave = {
       elements: plotState.elements,
+      inputs: plotState.inputs || [], // <<< ADD THIS LINE: Include inputs array
       nextZIndex: plotState.nextZIndex,
       currentPlotName: plotState.currentPlotName,
       currentPlotId: plotState.currentPlotId,
       isModified: plotState.isModified,
       venueId: document.getElementById('venue_select') ? document.getElementById('venue_select').value : null,
       eventStart: document.getElementById('event_start') ? document.getElementById('event_start').value : null,
-      eventEnd: document.getElementById('event_end') ? document.getElementById('event_end').value : null
-
-      // NOTE: Grid state is saved directly by its toggle functions - Redundancy if needed
-      // gridVisible: localStorage.getItem('gridVisible') === 'true',
-      // detailedGrid: localStorage.getItem('detailedGrid') !== 'false'
+      eventEnd: document.getElementById('event_end') ? document.getElementById('event_end').value : null,
     };
 
     // Save to localStorage
     localStorage.setItem('stageplot_state', JSON.stringify(stateToSave));
+    // console.log("State saved to localStorage:", stateToSave); // Optional: for debugging
   } catch (e) {
     console.error('Error saving state to localStorage:', e);
   }
@@ -1968,63 +1986,64 @@ function restoreStateFromStorage(plotState) {
 
     const state = JSON.parse(savedState);
 
-    if (state.elements && state.elements.length > 0) {
-      // ... (rest of the state restoration logic from stage-plot.js) ...
+    // Only restore if there was saved data (elements or inputs)
+    if ((state.elements && state.elements.length > 0) || (state.inputs && state.inputs.length > 0)) {
+      // <<< UPDATED CONDITION
 
-      // Plot title
+      // ... (rest of the state restoration logic: plot title, state values) ...
       const plotTitle = document.getElementById('plot-title');
       if (plotTitle && state.currentPlotName) {
         plotTitle.textContent = state.currentPlotName;
       } else if (plotTitle) {
-        plotTitle.textContent = 'Restored Plot';
+        // Use a default title if restoring state without a name (e.g., unsaved work)
+        plotTitle.textContent = state.currentPlotId ? 'Restored Plot' : 'Unsaved Work';
       }
 
-      // State values
       plotState.elements = []; // Clear first
       plotState.nextZIndex = state.nextZIndex || 1;
       plotState.currentPlotName = state.currentPlotName;
       plotState.currentPlotId = state.currentPlotId;
       plotState.isModified = state.isModified;
 
-      // Form inputs
+      // Restore Inputs
+      plotState.inputs = state.inputs || []; // Restore inputs or default to empty array
+      if (plotState.renderInputList) {
+        plotState.renderInputList(plotState.inputs); // Render the restored input list
+      }
+
+      // Restore form inputs (venue, dates)
       const venueSelect = document.getElementById('venue_select');
       const eventStartInput = document.getElementById('event_start');
       const eventEndInput = document.getElementById('event_end');
 
-       // Restore venue and update stage dimensions
-       if (venueSelect) {
-           let restoredVenueId = "";
-           if (state.venueId) {
-               venueSelect.value = state.venueId;
-               restoredVenueId = state.venueId;
-           } else {
-               venueSelect.value = "";
-           }
-           // Update custom dropdown UI if applicable
-           updateCustomDropdown(venueSelect);
-           // Update stage dimensions based on restored venue
-           updateStageForVenue(restoredVenueId, plotState, true); // Pass true for restoring
-       } else {
-            // If no venue select, apply default dimensions
-             updateStageForVenue(null, plotState, true);
-       }
-
+      if (venueSelect) {
+        let restoredVenueId = '';
+        if (state.venueId) {
+          venueSelect.value = state.venueId;
+          restoredVenueId = state.venueId;
+        } else {
+          venueSelect.value = '';
+        }
+        updateCustomDropdown(venueSelect);
+        updateStageForVenue(restoredVenueId, plotState, true);
+      } else {
+        updateStageForVenue(null, plotState, true);
+      }
 
       if (eventStartInput && state.eventStart) {
         eventStartInput.value = state.eventStart;
       }
       if (eventEndInput && state.eventEnd) {
         eventEndInput.value = state.eventEnd;
-         // Ensure min date is set correctly
-         if (eventStartInput.value) {
-             eventEndInput.min = eventStartInput.value;
-         }
+        if (eventStartInput && eventStartInput.value) {
+          eventEndInput.min = eventStartInput.value;
+        }
       }
 
-      // Buttons state
+      // Restore button states
       const saveButton = document.getElementById('save-plot');
       if (saveButton && state.currentPlotId) {
-        saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
+        saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>'; // Keep floppy disk icon? Maybe change text?
       }
       const saveChangesButton = document.getElementById('save-changes');
       if (saveChangesButton && state.isModified) {
@@ -2032,30 +2051,31 @@ function restoreStateFromStorage(plotState) {
         saveChangesButton.classList.add('visible');
       }
 
-      // Create elements
-      plotState.isLoading = true; // Set loading flag before creating elements
-      const elementPromises = state.elements.map(elementData => {
-         // Make sure elements have a unique ID if they don't
-         if (elementData.id === undefined) {
-             elementData.id = plotState.elements.length + 1;
-         }
-          plotState.elements.push(elementData);
-          return createPlacedElement(elementData, plotState);
+      // Restore placed elements
+      plotState.isLoading = true;
+      const elementPromises = (state.elements || []).map((elementData) => {
+        // Handle case where elements might be null/undefined
+        if (elementData.id === undefined) {
+          elementData.id = plotState.elements.length + 1;
+        }
+        plotState.elements.push(elementData);
+        return createPlacedElement(elementData, plotState);
       });
 
-       // Wait for all elements to be potentially resized after image load
-       Promise.all(elementPromises).then(() => {
-           plotState.isLoading = false; // Clear loading flag
-           console.log("Finished restoring elements.");
-       }).catch(error => {
-           console.error("Error restoring elements:", error);
-           plotState.isLoading = false; // Ensure flag is cleared even on error
-       });
+      Promise.all(elementPromises)
+        .then(() => {
+          plotState.isLoading = false;
+          console.log('Finished restoring elements and inputs.');
+        })
+        .catch((error) => {
+          console.error('Error restoring elements:', error);
+          plotState.isLoading = false;
+        });
 
       console.log('Stage plot state restored from localStorage');
       return true; // Indicate state was restored
     }
-    return false; // No elements, don't restore
+    return false; // No elements or inputs to restore
   } catch (e) {
     console.error('Error restoring state from localStorage:', e);
     localStorage.removeItem('stageplot_state'); // Clear potentially corrupt state
@@ -2074,20 +2094,15 @@ function setupChangeTracking(plotState) {
 
   // Add a MutationObserver to detect changes to elements on the stage
   const observer = new MutationObserver((mutations) => {
-      // If we are loading, ignore mutations
-      if (plotState.isLoading) return;
+    // If we are loading, ignore mutations
+    if (plotState.isLoading) return;
 
-      // Filter mutations related to placed elements being added/removed or styles changing
-      const relevantMutations = mutations.some(mutation =>
-          (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) &&
-              (Array.from(mutation.addedNodes).some(node => node.classList?.contains('placed-element')) ||
-               Array.from(mutation.removedNodes).some(node => node.classList?.contains('placed-element')))) ||
-          (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style')
-      );
+    // Filter mutations related to placed elements being added/removed or styles changing
+    const relevantMutations = mutations.some((mutation) => (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) && (Array.from(mutation.addedNodes).some((node) => node.classList?.contains('placed-element')) || Array.from(mutation.removedNodes).some((node) => node.classList?.contains('placed-element')))) || (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style'));
 
-      if (relevantMutations) {
-          markPlotAsModified(plotState);
-      }
+    if (relevantMutations) {
+      markPlotAsModified(plotState);
+    }
   });
 
   // Observe the stage for changes
@@ -2095,7 +2110,7 @@ function setupChangeTracking(plotState) {
     childList: true, // Watch for adding/removing elements
     attributes: true, // Watch for style changes (like position)
     attributeFilter: ['style'], // Only watch style attribute
-    subtree: true // Watch descendants as well
+    subtree: true, // Watch descendants as well
   });
 
   // Watch for form input changes (venue, dates, etc.)
@@ -2106,8 +2121,8 @@ function setupChangeTracking(plotState) {
   if (venueSelect) {
     venueSelect.addEventListener('change', () => {
       // updateStageForVenue calls markPlotAsModified internally if needed
-       // updateStageForVenue(venueSelect.value, plotState, false); // Pass false explicitly
-        // No need to call markPlotAsModified here, updateStageForVenue handles it
+      // updateStageForVenue(venueSelect.value, plotState, false); // Pass false explicitly
+      // No need to call markPlotAsModified here, updateStageForVenue handles it
     });
   }
 
@@ -2116,17 +2131,17 @@ function setupChangeTracking(plotState) {
       if (plotState.currentPlotId) {
         markPlotAsModified(plotState);
       }
-       // Also update min date for end date
-       const eventEndInput = document.getElementById('event_end');
-       if (eventEndInput) {
-           eventEndInput.min = eventStartInput.value;
-           // If end date is now before start date, adjust it
-           if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
-               eventEndInput.value = eventStartInput.value;
-               // Trigger its change event if you have logic tied to it
-               eventEndInput.dispatchEvent(new Event('change'));
-           }
-       }
+      // Also update min date for end date
+      const eventEndInput = document.getElementById('event_end');
+      if (eventEndInput) {
+        eventEndInput.min = eventStartInput.value;
+        // If end date is now before start date, adjust it
+        if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
+          eventEndInput.value = eventStartInput.value;
+          // Trigger its change event if you have logic tied to it
+          eventEndInput.dispatchEvent(new Event('change'));
+        }
+      }
     });
   }
 
@@ -2135,19 +2150,19 @@ function setupChangeTracking(plotState) {
       if (plotState.currentPlotId) {
         markPlotAsModified(plotState);
       }
-       // Validate against start date
-       const eventStartInput = document.getElementById('event_start');
-       if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
-           showNotification('End date cannot be before start date.', 'warning');
-           eventEndInput.value = eventStartInput.value; // Reset to start date
-       }
+      // Validate against start date
+      const eventStartInput = document.getElementById('event_start');
+      if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
+        showNotification('End date cannot be before start date.', 'warning');
+        eventEndInput.value = eventStartInput.value; // Reset to start date
+      }
     });
   }
 }
 
 /**
  * Initialize plot controls and buttons
- * @param {Object} plotState - The current plot state 
+ * @param {Object} plotState - The current plot state
  */
 function initPlotControls(plotState) {
   const stage = document.getElementById('stage');
@@ -2160,29 +2175,37 @@ function initPlotControls(plotState) {
   // Setup clear button
   if (clearButton) {
     clearButton.addEventListener('click', () => {
-      setupConfirmButton(clearButton, () => {
-        clearElements(plotState);
-        showNotification('Stage cleared!', 'success');
-      }, {
-        confirmText: 'Clear Stage',
-        confirmTitle: 'Clear all placed elements',
-        originalTitle: 'Clear Stage',
-        originalText: '<i class="fa-solid fa-trash"></i>'
-      });
+      setupConfirmButton(
+        clearButton,
+        () => {
+          clearElements(plotState);
+          showNotification('Stage cleared!', 'success');
+        },
+        {
+          confirmText: 'Clear Stage',
+          confirmTitle: 'Clear all placed elements',
+          originalTitle: 'Clear Stage',
+          originalText: '<i class="fa-solid fa-trash"></i>',
+        }
+      );
     });
   }
 
   // Setup new plot button
   if (newPlotButton) {
     newPlotButton.addEventListener('click', () => {
-      setupConfirmButton(newPlotButton, () => {
-        newPlot(plotState);
-      }, {
-        confirmText: 'New Plot',
-        confirmTitle: 'You will lose unsaved changes',
-        originalTitle: 'New Plot',
-        originalText: '<i class="fa-solid fa-file-circle-plus"></i>'
-      });
+      setupConfirmButton(
+        newPlotButton,
+        () => {
+          newPlot(plotState);
+        },
+        {
+          confirmText: 'New Plot',
+          confirmTitle: 'You will lose unsaved changes',
+          originalTitle: 'New Plot',
+          originalText: '<i class="fa-solid fa-file-circle-plus"></i>',
+        }
+      );
     });
   }
 }
@@ -2195,17 +2218,17 @@ function setupInitialState(plotState) {
   const stage = document.getElementById('stage');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
-  
+
   // Set up initial stage dimensions based on default venue
   if (stage) {
     const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
     const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-    
+
     // Calculate and apply dimensions
     const dimensions = calculateStageDimensions(stageWidth, stageDepth);
     updateStageDimensions(dimensions, stage);
   }
-  
+
   // Set current date for event dates when the page loads
   if (eventStartInput && eventEndInput) {
     const now = new Date();
@@ -2213,7 +2236,7 @@ function setupInitialState(plotState) {
     eventStartInput.value = formattedDate;
     eventEndInput.value = formattedDate;
   }
-  
+
   // Initialize plot title
   const plotTitle = document.getElementById('plot-title');
   if (plotTitle) {
@@ -2230,15 +2253,15 @@ function setupVenueSelectHandler(plotState) {
   if (!venueSelect) return;
 
   venueSelect.addEventListener('change', () => {
-      updateStageForVenue(venueSelect.value, plotState, false);
+    updateStageForVenue(venueSelect.value, plotState, false);
   });
 }
 
 /**
- * 
- * @param {*} venueValue 
- * @param {*} plotState 
- * @returns 
+ *
+ * @param {*} venueValue
+ * @param {*} plotState
+ * @returns
  */
 function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   const stage = document.getElementById('stage');
@@ -2246,66 +2269,62 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
 
   // If no venue is selected, set default stage dimensions
   if (!venueValue) {
-      const dimensions = calculateStageDimensions(20, 15); // Default size
-      updateStageDimensions(dimensions, stage);
-      // Only mark modified if NOT restoring and a plot is loaded
-      if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-          markPlotAsModified(plotState);
-      }
-      return;
+    const dimensions = calculateStageDimensions(20, 15); // Default size
+    updateStageDimensions(dimensions, stage);
+    // Only mark modified if NOT restoring and a plot is loaded
+    if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+      markPlotAsModified(plotState);
+    }
+    return;
   }
 
-  let venueId, isUserVenue = false;
+  let venueId,
+    isUserVenue = false;
   if (venueValue.startsWith('user_')) {
-      isUserVenue = true;
-      venueId = venueValue.replace('user_', '');
+    isUserVenue = true;
+    venueId = venueValue.replace('user_', '');
   } else {
-      venueId = venueValue;
+    venueId = venueValue;
   }
 
-  const endpoint = isUserVenue ?
-      `/handlers/get_user_venue.php?id=${venueId}` :
-      `/handlers/get_venue.php?id=${venueId}`;
+  const endpoint = isUserVenue ? `/handlers/get_user_venue.php?id=${venueId}` : `/handlers/get_venue.php?id=${venueId}`;
 
   fetch(endpoint)
-      .then(response => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.json();
-      })
-      .then(data => {
-          if (data.success && data.venue) {
-              const dimensions = calculateStageDimensions(
-                  parseInt(data.venue.stage_width) || 20,
-                  parseInt(data.venue.stage_depth) || 15
-              );
-              updateStageDimensions(dimensions, stage);
-              stage.setAttribute('data-venue-id', venueId); // Store the actual ID
-              stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
-              // Only mark modified if NOT restoring and a plot is loaded
-              if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-                  markPlotAsModified(plotState);
-              }
-          } else {
-             // Handle case where venue data isn't returned successfully
-             console.error('Failed to get venue data:', data.error);
-             const dimensions = calculateStageDimensions(20, 15); // Fallback to default
-             updateStageDimensions(dimensions, stage);
-             // Optionally mark modified if applicable
-             if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-                 markPlotAsModified(plotState);
-             }
-          }
-      })
-      .catch(error => {
-          console.error('Error fetching venue:', error);
-          const dimensions = calculateStageDimensions(20, 15); // Fallback to default
-          updateStageDimensions(dimensions, stage);
-          // Optionally show a user notification here
-           // Optionally mark modified if applicable
-           if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-               markPlotAsModified(plotState);
-           }
-      });
+    .then((response) => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success && data.venue) {
+        const dimensions = calculateStageDimensions(parseInt(data.venue.stage_width) || 20, parseInt(data.venue.stage_depth) || 15);
+        updateStageDimensions(dimensions, stage);
+        stage.setAttribute('data-venue-id', venueId); // Store the actual ID
+        stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
+        // Only mark modified if NOT restoring and a plot is loaded
+        if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+          markPlotAsModified(plotState);
+        }
+      } else {
+        // Handle case where venue data isn't returned successfully
+        console.error('Failed to get venue data:', data.error);
+        const dimensions = calculateStageDimensions(20, 15); // Fallback to default
+        updateStageDimensions(dimensions, stage);
+        // Optionally mark modified if applicable
+        if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+          markPlotAsModified(plotState);
+        }
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching venue:', error);
+      const dimensions = calculateStageDimensions(20, 15); // Fallback to default
+      updateStageDimensions(dimensions, stage);
+      // Optionally show a user notification here
+      // Optionally mark modified if applicable
+      if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+        markPlotAsModified(plotState);
+      }
+    });
 }
 
 /**
@@ -2315,7 +2334,7 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
 function setupDateHandlers(plotState) {
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
-  
+
   // Add event listeners for date/time changes
   if (eventStartInput) {
     eventStartInput.addEventListener('change', () => {
@@ -2340,30 +2359,30 @@ function setupDateHandlers(plotState) {
 function initCategoryFilter() {
   const categoryFilter = document.getElementById('category-filter');
   if (!categoryFilter) return;
-  
+
   // Get all options except the "All Categories" option (value=0)
-  const options = Array.from(categoryFilter.options).filter(option => option.value !== '0');
-  
+  const options = Array.from(categoryFilter.options).filter((option) => option.value !== '0');
+
   // Find the Favorites option (category_id=1)
-  const favoritesOption = options.find(option => option.value === '1');
-  
+  const favoritesOption = options.find((option) => option.value === '1');
+
   // If Favorites exists, move it to the beginning
   if (favoritesOption) {
     // Remove it from its current position
     categoryFilter.removeChild(favoritesOption);
-    
+
     // Add it right after the "All Categories" option
     const allCategoriesOption = categoryFilter.querySelector('option[value="0"]');
     if (allCategoriesOption) {
       categoryFilter.insertBefore(favoritesOption, allCategoriesOption.nextSibling);
     }
   }
-  
+
   // Event listener logic
   categoryFilter.addEventListener('change', () => {
     const categoryId = categoryFilter.value;
-    
-    document.querySelectorAll('.category-section').forEach(section => {
+
+    document.querySelectorAll('.category-section').forEach((section) => {
       if (categoryId === '0' || section.getAttribute('data-category-id') === categoryId) {
         section.style.display = '';
       } else {
@@ -2384,7 +2403,7 @@ function markPlotAsModified(plotState) {
 
   if (!plotState.isModified && plotState.currentPlotId !== null) {
     plotState.isModified = true;
-    console.log("Marking plot as modified."); // Debug log
+    console.log('Marking plot as modified.'); // Debug log
 
     // Show the save changes button with animation
     if (saveChangesButton) {
@@ -2407,7 +2426,7 @@ function clearElements(plotState) {
 
   // Clear DOM elements
   const placedElements = stage.querySelectorAll('.placed-element');
-  placedElements.forEach(element => element.remove());
+  placedElements.forEach((element) => element.remove());
 
   // Reset elements state
   plotState.elements = [];
@@ -2418,7 +2437,7 @@ function clearElements(plotState) {
     plotState.clearInputList();
   }
 
-  if(plotState.currentPlotId){
+  if (plotState.currentPlotId) {
     markPlotAsModified(plotState);
   }
 }
@@ -2434,32 +2453,32 @@ function newPlot(plotState) {
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
   const plotTitle = document.getElementById('plot-title');
-  
+
   // Clear all elements
   clearElements(plotState);
-  
+
   // Reset plot info
   plotState.currentPlotName = null;
   plotState.currentPlotId = null;
   plotState.isModified = false;
-  
+
   // Reset plot title
   if (plotTitle) plotTitle.textContent = 'New Plot';
-  
+
   // Reset buttons
   if (saveButton) saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
   if (saveChangesButton) {
     saveChangesButton.classList.remove('visible');
     setTimeout(() => saveChangesButton.classList.add('hidden'), 300);
   }
-      
+
   // Clear localStorage
   try {
     localStorage.removeItem('stageplot_state');
   } catch (e) {
     console.error('Error clearing state from localStorage:', e);
   }
-  
+
   // Set default dates
   if (eventStartInput && eventEndInput) {
     const now = new Date();
@@ -2468,12 +2487,12 @@ function newPlot(plotState) {
     eventEndInput.value = formattedDate;
     eventEndInput.min = formattedDate; // Ensure min date is set
   }
-  
+
   // Reset venue
   if (venueSelect) {
-    venueSelect.value = ""; // Reset to "No Venue"
-     updateCustomDropdown(venueSelect); // Update custom dropdown UI
-     updateStageForVenue(null, plotState, false); // Update stage to default dimensions
+    venueSelect.value = ''; // Reset to "No Venue"
+    updateCustomDropdown(venueSelect); // Update custom dropdown UI
+    updateStageForVenue(null, plotState, false); // Update stage to default dimensions
   }
 
   showNotification('New plot created!', 'success');
@@ -2501,7 +2520,7 @@ function initStageGrid() {
   gridToggle.id = 'grid-toggle';
   gridToggle.className = 'grid-button';
   gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
-  gridToggle.title = 'Toggle Grid (5\' squares with 1\' marks)';
+  gridToggle.title = "Toggle Grid (5' squares with 1' marks)";
 
   // Create grid type toggle button
   const gridTypeToggle = document.createElement('button');
@@ -2513,9 +2532,9 @@ function initStageGrid() {
   // Create grid overlay if it doesn't exist
   let gridOverlay = stage.querySelector('.grid-overlay');
   if (!gridOverlay) {
-      gridOverlay = document.createElement('div');
-      gridOverlay.className = 'grid-overlay';
-      stage.appendChild(gridOverlay);
+    gridOverlay = document.createElement('div');
+    gridOverlay.className = 'grid-overlay';
+    stage.appendChild(gridOverlay);
   }
 
   // Get initial dimensions from stage
@@ -2535,86 +2554,86 @@ function initStageGrid() {
 
   // Function to update grid display based on state variables
   function updateGridDisplay() {
-      gridOverlay.style.opacity = gridVisible ? '1' : '0';
-      if (gridVisible) {
-          gridToggle.classList.add('active');
-      } else {
-          gridToggle.classList.remove('active');
-      }
+    gridOverlay.style.opacity = gridVisible ? '1' : '0';
+    if (gridVisible) {
+      gridToggle.classList.add('active');
+    } else {
+      gridToggle.classList.remove('active');
+    }
 
-      // Get current dimensions (might have changed if venue changed)
-      const currentStageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
-      const currentStageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-      const currentDimensions = calculateStageDimensions(currentStageWidth, currentStageDepth);
+    // Get current dimensions (might have changed if venue changed)
+    const currentStageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
+    const currentStageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
+    const currentDimensions = calculateStageDimensions(currentStageWidth, currentStageDepth);
 
-      updateGridOverlay(currentDimensions, stage); // Make sure overlay size is correct
+    updateGridOverlay(currentDimensions, stage); // Make sure overlay size is correct
 
-      if (detailedGrid) {
-          const footSize = currentDimensions.gridSize / 5;
-          gridOverlay.style.backgroundImage = `
+    if (detailedGrid) {
+      const footSize = currentDimensions.gridSize / 5;
+      gridOverlay.style.backgroundImage = `
               linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
               linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
           `;
-          gridOverlay.style.backgroundSize = `
+      gridOverlay.style.backgroundSize = `
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
               ${footSize}px ${footSize}px,
               ${footSize}px ${footSize}px
           `;
-          gridTypeToggle.title = 'Toggle to Simple Grid (5\' only)';
-          gridTypeToggle.classList.add('active'); // Show as active in detailed mode
-      } else {
-          gridOverlay.style.backgroundImage = `
+      gridTypeToggle.title = "Toggle to Simple Grid (5' only)";
+      gridTypeToggle.classList.add('active'); // Show as active in detailed mode
+    } else {
+      gridOverlay.style.backgroundImage = `
               linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px)
           `;
-          gridOverlay.style.backgroundSize = `
+      gridOverlay.style.backgroundSize = `
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px
           `;
-          gridTypeToggle.title = 'Toggle to Detailed Grid (1\' marks)';
-          gridTypeToggle.classList.remove('active'); // Show as inactive in simple mode
-      }
+      gridTypeToggle.title = "Toggle to Detailed Grid (1' marks)";
+      gridTypeToggle.classList.remove('active'); // Show as inactive in simple mode
+    }
 
-      // Update grid type toggle icon rotation
-      const icon = gridTypeToggle.querySelector('i');
-      if (icon) {
-          icon.style.transition = 'transform 0.3s ease';
-          icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(90deg)'; // Rotate for simple view
-      }
+    // Update grid type toggle icon rotation
+    const icon = gridTypeToggle.querySelector('i');
+    if (icon) {
+      icon.style.transition = 'transform 0.3s ease';
+      icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(90deg)'; // Rotate for simple view
+    }
   }
 
   // Apply initial state loaded from localStorage
   updateGridDisplay();
 
   gridToggle.addEventListener('click', () => {
-      gridVisible = !gridVisible;
-      updateGridDisplay();
-      // Save visibility state
-      localStorage.setItem('gridVisible', gridVisible);
+    gridVisible = !gridVisible;
+    updateGridDisplay();
+    // Save visibility state
+    localStorage.setItem('gridVisible', gridVisible);
   });
 
   gridTypeToggle.addEventListener('click', () => {
-      if (!gridVisible) {
-          gridVisible = true; // Turn on grid if changing type while off
-      }
-      detailedGrid = !detailedGrid;
-      updateGridDisplay();
-      // Save detail state
-      localStorage.setItem('detailedGrid', detailedGrid);
-      localStorage.setItem('gridVisible', gridVisible); // Also save visibility in case it was turned on
+    if (!gridVisible) {
+      gridVisible = true; // Turn on grid if changing type while off
+    }
+    detailedGrid = !detailedGrid;
+    updateGridDisplay();
+    // Save detail state
+    localStorage.setItem('detailedGrid', detailedGrid);
+    localStorage.setItem('gridVisible', gridVisible); // Also save visibility in case it was turned on
   });
 
   // Listen for stage dimension changes to re-apply grid display correctly
-  const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-          if (mutation.type === 'attributes' && (mutation.attributeName === 'data-stage-width' || mutation.attributeName === 'data-stage-depth')) {
-              // Re-calculate and apply grid display when stage dimensions change
-              updateGridDisplay();
-          }
-      });
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && (mutation.attributeName === 'data-stage-width' || mutation.attributeName === 'data-stage-depth')) {
+        // Re-calculate and apply grid display when stage dimensions change
+        updateGridDisplay();
+      }
+    });
   });
   observer.observe(stage, { attributes: true });
 }
@@ -2627,16 +2646,14 @@ function checkUrlParameters(plotState) {
   // Parse URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const loadPlotId = urlParams.get('load');
-  
+
   // If there's a load parameter, load the specified plot
   if (loadPlotId) {
     loadPlot(loadPlotId, plotState);
-    
+
     // Remove the parameter from URL to prevent reloading the same plot on page refresh
-    const newUrl = window.location.protocol + "//" + 
-                  window.location.host + 
-                  window.location.pathname;
-    window.history.replaceState({path: newUrl}, '', newUrl);
+    const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+    window.history.replaceState({ path: newUrl }, '', newUrl);
   }
 }
 
@@ -2673,17 +2690,16 @@ function initInputList(plotState) {
 
     // Add event listener to mark plot as modified when input changes
     labelInput.addEventListener('input', () => {
-        // Find the corresponding input in plotState and update it
-        const inputData = plotState.inputs.find(inp => inp.number === number);
-        if (inputData) {
-            inputData.label = labelInput.value;
-        } else {
-            // If it doesn't exist, add it (e.g., for newly added lines)
-            plotState.inputs.push({ number: number, label: labelInput.value });
-        }
-        markPlotAsModified(plotState); // Use existing function
+      // Find the corresponding input in plotState and update it
+      const inputData = plotState.inputs.find((inp) => inp.number === number);
+      if (inputData) {
+        inputData.label = labelInput.value;
+      } else {
+        // If it doesn't exist, add it (e.g., for newly added lines)
+        plotState.inputs.push({ number: number, label: labelInput.value });
+      }
+      markPlotAsModified(plotState); // Use existing function
     });
-
 
     inputItem.appendChild(numberSpan);
     inputItem.appendChild(labelInput);
@@ -2692,13 +2708,13 @@ function initInputList(plotState) {
 
   // Function to render the entire input list
   function renderInputList(inputs) {
-      inputListContainer.innerHTML = ''; // Clear existing list
-      const maxInputs = Math.max(6, inputs.length); // Ensure at least 6 are shown
+    inputListContainer.innerHTML = ''; // Clear existing list
+    const maxInputs = Math.max(6, inputs.length); // Ensure at least 6 are shown
 
-      for (let i = 1; i <= maxInputs; i++) {
-          const inputData = inputs.find(inp => inp.number === i);
-          addInputLineDOM(i, inputData ? inputData.label : '');
-      }
+    for (let i = 1; i <= maxInputs; i++) {
+      const inputData = inputs.find((inp) => inp.number === i);
+      addInputLineDOM(i, inputData ? inputData.label : '');
+    }
   }
 
   // Add button functionality
@@ -2709,23 +2725,22 @@ function initInputList(plotState) {
     // Automatically add to plotState when adding a line
     if (!plotState.inputs) plotState.inputs = [];
     plotState.inputs.push({ number: nextNumber, label: '' });
-     markPlotAsModified(plotState);
+    markPlotAsModified(plotState);
   });
 
-   // Initial render (assuming plotState.inputs is populated during loadPlot)
-   if (!plotState.inputs) plotState.inputs = []; // Ensure inputs array exists
-   renderInputList(plotState.inputs);
+  // Initial render (assuming plotState.inputs is populated during loadPlot)
+  if (!plotState.inputs) plotState.inputs = []; // Ensure inputs array exists
+  renderInputList(plotState.inputs);
 
-   // Expose render function if needed elsewhere (e.g., in loadPlot)
-   plotState.renderInputList = renderInputList;
+  // Expose render function if needed elsewhere (e.g., in loadPlot)
+  plotState.renderInputList = renderInputList;
 
-   // Expose function to clear list (e.g., in newPlot, clearElements)
-   plotState.clearInputList = () => {
-        plotState.inputs = []; // Clear state
-        renderInputList([]); // Re-render empty list (with defaults)
-   };
+  // Expose function to clear list (e.g., in newPlot, clearElements)
+  plotState.clearInputList = () => {
+    plotState.inputs = []; // Clear state
+    renderInputList([]); // Re-render empty list (with defaults)
+  };
 }
-
 
 // --------------------- Make stage plot editor functions available globally ----------------------
 window.initStageEditor = initStageEditor;
