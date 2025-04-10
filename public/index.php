@@ -16,7 +16,19 @@ $elements = $db->fetchAll("SELECT e.*, c.category_name FROM elements e
                           JOIN element_categories c ON e.category_id = c.category_id 
                           ORDER BY c.category_name, e.element_name");
 
-$categories = $db->fetchAll("SELECT * FROM element_categories ORDER BY category_name");
+// Fetch categories, ensuring Favorites (ID 1) is handled separately
+$allCategories = $db->fetchAll("SELECT * FROM element_categories ORDER BY category_name");
+$favoritesCategory = null;
+$otherCategories = [];
+
+foreach ($allCategories as $category) {
+    // --- Assuming Favorites category has ID 1 ---
+    if ($category['category_id'] == 1) { 
+        $favoritesCategory = $category;
+    } else {
+        $otherCategories[] = $category;
+    }
+}
 
 // Get all venues for the save dialog
 $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_name");
@@ -25,8 +37,8 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
 $userVenues = [];
 if ($isLoggedIn) {
     $userVenues = $db->fetchAll("SELECT user_venue_id, venue_name, stage_width, stage_depth FROM user_venues 
-                               WHERE user_id = ? ORDER BY venue_name", 
-                               [$_SESSION['user_id']]);
+                                WHERE user_id = ? ORDER BY venue_name", 
+                                [$_SESSION['user_id']]);
 }
 ?>
 
@@ -36,20 +48,41 @@ if ($isLoggedIn) {
             <h2>Stage Elements</h2>
             <select id="category-filter">
                 <option value="0">All Categories</option>
-                <?php foreach ($categories as $category): ?>
+                <?php if ($favoritesCategory): // Add Favorites second if it exists ?>
+                    <option value="<?= $favoritesCategory['category_id'] ?>"><?= htmlspecialchars($favoritesCategory['category_name']) ?></option>
+                    <option disabled class="select-separator">────────────</option> 
+                <?php endif; ?>
+                <?php foreach ($otherCategories as $category): // Add remaining categories ?>
                     <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['category_name']) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         
         <div id="elements-list">
-            <?php foreach ($categories as $category): ?>
-                <div class="category-section" data-category-id="<?= $category['category_id'] ?>">
-                    <h3><?= htmlspecialchars($category['category_name']) ?></h3>
+            <?php 
+            // Render Favorites category first if it exists
+            if ($favoritesCategory): 
+                $currentCategory = $favoritesCategory;
+            ?>
+                <div class="category-section favorites-section" data-category-id="<?= $currentCategory['category_id'] ?>">
+                    <h3><?= htmlspecialchars($currentCategory['category_name']) ?></h3>
+                    <div class="elements-grid">
+                        <!-- Content populated by JS and PHP -->
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php 
+            // Render other categories
+            foreach ($otherCategories as $currentCategory): 
+            ?>
+                <div class="category-section" data-category-id="<?= $currentCategory['category_id'] ?>">
+                    <h3><?= htmlspecialchars($currentCategory['category_name']) ?></h3>
                     <div class="elements-grid">
                         <?php 
+                        // Loop through elements for this category
                         foreach ($elements as $element): 
-                            if ($element['category_id'] == $category['category_id']):
+                            if ($element['category_id'] == $currentCategory['category_id']):
                         ?>
                             <div class="draggable-element" 
                                   data-element-id="<?= $element['element_id'] ?>"
@@ -62,7 +95,7 @@ if ($isLoggedIn) {
                             </div>
                         <?php 
                             endif; 
-                        endforeach; 
+                            endforeach; 
                         ?>
                     </div>
                 </div>

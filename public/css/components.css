@@ -720,10 +720,7 @@ th.sortable {
   }
 }
 
-/**
- * StageWrite Custom Dropdown 
- * Styling for custom dropdown menus that replace native selects
- */
+/* -------------------- Custom Dropdowns --------------------- */
 
 .custom-dropdown {
   position: relative;
@@ -851,6 +848,30 @@ th.sortable {
   }
 }
 
+/* Style the separator DIV within the custom dropdown menu */
+.custom-dropdown-menu .custom-dropdown-option.select-separator.disabled {
+  background-color: var(--color-border); /* Use border color for the line */
+  color: var(--color-border);          /* Hide text by matching background */
+  font-size: 1px;                      /* Make text tiny */
+  height: 1px;                         /* Define line thickness */
+  padding: 0;                          /* Remove padding */
+  margin: 5px 2%;                      /* Add vertical space and slight horizontal indent */
+  cursor: default;                     /* Standard cursor */
+  min-height: 1px;                     /* Ensure minimum height */
+  line-height: 1px;                    /* Ensure line height matches */
+  overflow: hidden;                    /* Hide any overflow */
+  width: 96%;                          /* Control width (adjust % for indent) */
+  box-sizing: border-box;
+  user-select: none;                   /* Prevent text selection */
+  pointer-events: none;                /* Make unclickable */
+  text-indent: -9999px;                /* Push original text ('----') off-screen */
+  
+  &:hover {
+     background-color: var(--color-border); /* Keep background color */
+  }
+}
+
+/* ------------------------- Accessibility --------------------------- */
 /* Focus styles for keyboard accessibility */
 .custom-dropdown-option:focus {
   outline: none;

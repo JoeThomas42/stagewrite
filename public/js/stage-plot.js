@@ -432,105 +432,111 @@ function getElementData(elementId) {
 }
 
 /**
- * Update the Favorites category with current favorites
+ * Update the Favorites category content.
  * @param {Object} plotState - The current plot state
  */
 function updateFavoritesCategory(plotState) {
-  // Get the Favorites category section
-  const favoritesSection = document.querySelector('.category-section[data-category-id="1"]');
+  const elementsPanel = document.getElementById('elements-list');
+  if (!elementsPanel) return;
 
+  let favoritesSection = elementsPanel.querySelector('.category-section.favorites-section');
+  // (Logic to potentially create the section if missing - same as before)
   if (!favoritesSection) {
-    console.warn('Favorites section not found');
-    return;
+      favoritesSection = document.createElement('div');
+      favoritesSection.className = 'category-section favorites-section';
+      favoritesSection.setAttribute('data-category-id', '1');
+      const heading = document.createElement('h3');
+      heading.textContent = 'Favorites';
+      favoritesSection.appendChild(heading);
+      const grid = document.createElement('div');
+      grid.className = 'elements-grid';
+      favoritesSection.appendChild(grid);
+      elementsPanel.insertBefore(favoritesSection, elementsPanel.firstChild);
   }
 
-  // Get or create elements grid
+
   let favoritesGrid = favoritesSection.querySelector('.elements-grid');
-
   if (!favoritesGrid) {
-    favoritesGrid = document.createElement('div');
-    favoritesGrid.className = 'elements-grid';
-    favoritesSection.appendChild(favoritesGrid);
+      favoritesGrid = document.createElement('div');
+      favoritesGrid.className = 'elements-grid';
+      favoritesSection.appendChild(favoritesGrid);
   }
 
-  // Clear existing favorites
-  favoritesGrid.innerHTML = '';
+  favoritesGrid.innerHTML = ''; // Clear existing grid content
 
-  // If no favorites, show message
-  if (plotState.favorites.length === 0) {
+  // Handle empty favorites state
+  if (!plotState.favorites || plotState.favorites.length === 0) {
     const noFavorites = document.createElement('p');
     noFavorites.className = 'no-favorites-message';
-    noFavorites.textContent = 'No favorites added yet. Click the star icon on any element to add it to your favorites.';
+    noFavorites.textContent = 'No favorites yet. Click the ☆ icon on any element.';
     favoritesGrid.appendChild(noFavorites);
-    return;
-  }
+    // --- Removed separator handling ---
+  } else {
+     // --- Removed separator handling ---
+     // Populate grid with favorite elements (same logic as before)
+    plotState.favorites.forEach((elementId) => {
+      // ... (element creation logic remains the same)
+        const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
+        if (elementData) {
+            const favoriteElement = document.createElement('div');
+            favoriteElement.className = 'draggable-element favorite-element';
+            favoriteElement.setAttribute('draggable', true);
+            favoriteElement.setAttribute('data-element-id', elementData.element_id);
+            favoriteElement.setAttribute('data-element-name', elementData.element_name);
+            favoriteElement.setAttribute('data-category-id', elementData.category_id);
+            favoriteElement.setAttribute('data-image', elementData.element_image);
 
-  // Create elements for each favorite
-  plotState.favorites.forEach((elementId) => {
-    // Find element data
-    const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
+            const img = document.createElement('img');
+            img.src = `/images/elements/${elementData.element_image}`;
+            img.alt = elementData.element_name;
+            favoriteElement.appendChild(img);
 
-    if (elementData) {
-      // Create favorite element
-      const favoriteElement = document.createElement('div');
-      favoriteElement.className = 'draggable-element favorite-element';
-      favoriteElement.setAttribute('draggable', true);
-      favoriteElement.setAttribute('data-element-id', elementData.element_id);
-      favoriteElement.setAttribute('data-element-name', elementData.element_name);
-      favoriteElement.setAttribute('data-category-id', elementData.category_id);
-      favoriteElement.setAttribute('data-image', elementData.element_image);
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'element-name';
+            nameDiv.textContent = elementData.element_name;
+            favoriteElement.appendChild(nameDiv);
 
-      // Create element image
-      const img = document.createElement('img');
-      img.src = `/images/elements/${elementData.element_image}`;
-      img.alt = elementData.element_name;
-      favoriteElement.appendChild(img);
+            const favoriteBtn = document.createElement('button');
+            favoriteBtn.className = 'favorite-button';
+            favoriteBtn.setAttribute('type', 'button');
+            favoriteBtn.title = 'Remove from favorites';
+            favoriteBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
+            favoriteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFavorite(elementId, plotState);
+            });
+            favoriteElement.appendChild(favoriteBtn);
 
-      // Create element name
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'element-name';
-      nameDiv.textContent = elementData.element_name;
-      favoriteElement.appendChild(nameDiv);
+            favoriteElement.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
+            favoritesGrid.appendChild(favoriteElement);
+        }
+    });
+}
 
-      // Create favorite button
-      const favoriteBtn = document.createElement('button');
-      favoriteBtn.className = 'favorite-button';
-      favoriteBtn.setAttribute('type', 'button');
-      favoriteBtn.title = 'Remove from favorites';
-      favoriteBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
-
-      // Add click handler to toggle favorite
-      favoriteBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleFavorite(elementId, plotState);
-      });
-
-      favoriteElement.appendChild(favoriteBtn);
-
-      // Add drag start event listener
-      favoriteElement.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
-
-      // Add to favorites grid
-      favoritesGrid.appendChild(favoriteElement);
-    }
-  });
+  // Ensure Favorites section is still at the top
+  moveFavoritesToTop();
 }
 
 /**
- * Ensures Favorites are at the top of the list
+ * Ensures Favorites section is at the top of the elements list.
  */
 function moveFavoritesToTop() {
   const elementsPanel = document.getElementById('elements-list');
   if (!elementsPanel) return;
 
   // Find the Favorites section
-  const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"]');
-  if (!favoritesSection) return;
+  const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"], .category-section.favorites-section');
+  if (!favoritesSection) return; // Exit if no Favorites section
 
-  // Move it to the top
+  // Ensure it has the class for consistency
+  favoritesSection.classList.add('favorites-section');
+
+  // Move Favorites section to the top if it's not already there
   const firstChild = elementsPanel.firstChild;
-  elementsPanel.insertBefore(favoritesSection, firstChild);
+  if (favoritesSection !== firstChild) {
+    elementsPanel.insertBefore(favoritesSection, firstChild);
+  }
 }
 
 /**
@@ -2354,42 +2360,30 @@ function setupDateHandlers(plotState) {
 }
 
 /**
- * Initialize the category filter dropdown
+ * Initialize the category filter dropdown event listener
  */
 function initCategoryFilter() {
   const categoryFilter = document.getElementById('category-filter');
   if (!categoryFilter) return;
 
-  // Get all options except the "All Categories" option (value=0)
-  const options = Array.from(categoryFilter.options).filter((option) => option.value !== '0');
+  // PHP handles the initial rendering order of options in the <select>
 
-  // Find the Favorites option (category_id=1)
-  const favoritesOption = options.find((option) => option.value === '1');
-
-  // If Favorites exists, move it to the beginning
-  if (favoritesOption) {
-    // Remove it from its current position
-    categoryFilter.removeChild(favoritesOption);
-
-    // Add it right after the "All Categories" option
-    const allCategoriesOption = categoryFilter.querySelector('option[value="0"]');
-    if (allCategoriesOption) {
-      categoryFilter.insertBefore(favoritesOption, allCategoriesOption.nextSibling);
-    }
-  }
-
-  // Event listener logic
   categoryFilter.addEventListener('change', () => {
     const categoryId = categoryFilter.value;
+    const elementsPanel = document.getElementById('elements-list');
+    if (!elementsPanel) return;
 
+    // Filter category sections visibility
     document.querySelectorAll('.category-section').forEach((section) => {
-      if (categoryId === '0' || section.getAttribute('data-category-id') === categoryId) {
-        section.style.display = '';
-      } else {
-        section.style.display = 'none';
-      }
+      const sectionVisible = (categoryId === '0' || section.getAttribute('data-category-id') === categoryId);
+      section.style.display = sectionVisible ? '' : 'none';
     });
+
+    // --- No separator logic needed here anymore ---
   });
+
+  // Ensure correct order of sections initially after page load
+  moveFavoritesToTop();
 }
 
 /**

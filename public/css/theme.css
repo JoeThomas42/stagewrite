@@ -258,5 +258,14 @@
   .placed-element img {
     filter: invert() brightness(.75);
   }
+
+  /* ----- Element List ----- */
+  .custom-dropdown-menu .custom-dropdown-option.select-separator.disabled {
+    background-color: var(--color-grey-3);
+    color: var(--color-grey-3);
+  }
+
+  .custom-dropdown-menu .custom-dropdown-option.select-separator.disabled:hover {
+    background-color: var(--color-grey-3);
+  }
 }
-  

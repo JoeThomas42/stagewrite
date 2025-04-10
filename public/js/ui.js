@@ -605,22 +605,37 @@ function populateDropdownMenu(dropdown, select) {
  */
 function createOptionElement(option, isInGroup) {
   const optionElement = document.createElement('div');
-  optionElement.className = 'custom-dropdown-option';
+
+  // Start with base class
+  optionElement.className = 'custom-dropdown-option'; 
+  // Copy all classes from the original option element
+  if (option.classList.length > 0) {
+      option.classList.forEach(cls => {
+          // Avoid adding 'custom-dropdown-option' twice if it somehow exists on source
+          if (cls !== 'custom-dropdown-option') {
+              optionElement.classList.add(cls);
+          }
+      });
+  }
+
   if (isInGroup) {
+    // Add optgroup-specific class if needed (already handles this)
     optionElement.classList.add('optgroup-option');
   }
   optionElement.setAttribute('data-value', option.value);
   optionElement.textContent = option.textContent;
-  optionElement.setAttribute('tabindex', '-1');
-  
+  optionElement.setAttribute('tabindex', '-1'); // Make focusable programmatically
+
   if (option.disabled) {
+    // Add disabled class (already handles this)
     optionElement.classList.add('disabled');
   }
-  
+
   if (option.selected) {
+    // Add selected class (already handles this)
     optionElement.classList.add('selected');
   }
-  
+
   return optionElement;
 }
 
