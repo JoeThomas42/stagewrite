@@ -188,8 +188,8 @@
     background: linear-gradient(to right, 
     var(--color-secondary) 0px,      /* Colored border starts */
     var(--color-secondary) 10px,     /* Colored border ends */
-    var(--color-white) 10px,                    /* Start of white separation */
-    var(--color-white) 12px,                    /* End of white separation */
+    var(--color-grey-4) 10px,                    /* Start of white separation */
+    var(--color-grey-4) 12px,                    /* End of white separation */
     var(--color-primary-dark) 12px,  /* Main background starts */
     var(--color-primary-dark) 100%   /* Main background ends */
     );
@@ -198,8 +198,8 @@
       background: linear-gradient(to right, 
       var(--color-success-light) 0px, 
       var(--color-success-light) 10px, 
-      var(--color-white) 10px, 
-      var(--color-white) 12px, 
+      var(--color-grey-4) 10px, 
+      var(--color-grey-4) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
       );
@@ -209,8 +209,8 @@
       background: linear-gradient(to right, 
       var(--color-error) 0px, 
       var(--color-error) 10px, 
-      var(--color-white) 10px, 
-      var(--color-white) 12px, 
+      var(--color-grey-4) 10px, 
+      var(--color-grey-4) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
       );
@@ -220,8 +220,8 @@
       background: linear-gradient(to right, 
       var(--color-secondary) 0px, 
       var(--color-secondary) 10px, 
-      var(--color-white) 10px, 
-      var(--color-white) 12px, 
+      var(--color-grey-4) 10px, 
+      var(--color-grey-4) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
       );
@@ -231,8 +231,8 @@
       background: linear-gradient(to right, 
       var(--color-danger) 0px, 
       var(--color-danger) 10px, 
-      var(--color-white) 10px, 
-      var(--color-white) 12px, 
+      var(--color-grey-4) 10px, 
+      var(--color-grey-4) 12px, 
       var(--color-primary-dark) 12px, 
       var(--color-primary-dark) 100%
       );
