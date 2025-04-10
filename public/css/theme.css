@@ -298,4 +298,9 @@
   .custom-dropdown-menu .custom-dropdown-option.select-separator.disabled:hover {
     background-color: var(--color-grey-3);
   }
+  
+  .element-info-item-label {
+    color: var(--color-primary-lightest);
+  }
 }
+

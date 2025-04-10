@@ -211,20 +211,14 @@
   margin-top: var(--spacing-md);
 }
 
-/* Clickable venue rows */
+/* venue rows */
 .clickable-venue-row {
   cursor: pointer;
   transition: background-color 0.2s ease;
-}
-
-.clickable-venue-row:hover {
-  background-color: var(--color-table-hover) !important;
-}
-
-/* Highlight animation for rows */
-@keyframes highlightRow {
-  0% { background-color: var(--color-primary-light); }
-  100% { background-color: inherit; }
+  
+  &:hover {
+    background-color: var(--color-table-hover) !important;
+  }
 }
 
 /* -------------------- Responsive Styles --------------------- */

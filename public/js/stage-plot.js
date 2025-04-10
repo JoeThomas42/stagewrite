@@ -2773,37 +2773,29 @@ function renderElementInfoList(plotState) {
   sortedElements.forEach(elementData => {
       const listItem = document.createElement('li');
       listItem.className = 'element-info-item';
-      listItem.setAttribute('data-id', elementData.id); // Use the unique instance ID
+      listItem.setAttribute('data-id', elementData.id);
 
-      // Element Name
+      // Element Name Span
       const nameSpan = document.createElement('span');
       nameSpan.className = 'element-info-name';
       nameSpan.textContent = elementData.elementName;
       listItem.appendChild(nameSpan);
 
-      // Label (if exists)
+      // Append Label Span if label exists
       if (elementData.label) {
           const labelSpan = document.createElement('span');
-          labelSpan.className = 'element-info-label';
-          labelSpan.textContent = `Label: ${elementData.label}`;
-          listItem.appendChild(labelSpan);
+          labelSpan.className = 'element-info-item-label';
+          labelSpan.textContent = ` - ${elementData.label}`;
+          nameSpan.appendChild(labelSpan);
       }
 
       // Notes (if exists)
       if (elementData.notes) {
           const notesSpan = document.createElement('span');
           notesSpan.className = 'element-info-notes';
-          notesSpan.textContent = `Notes: ${elementData.notes}`; // Consider truncating long notes
+          notesSpan.textContent = `${elementData.notes}`;
           listItem.appendChild(notesSpan);
       }
-
-      // Edit Button
-      const editButton = document.createElement('button');
-      editButton.className = 'element-info-edit-btn';
-      editButton.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
-      editButton.title = `Edit ${elementData.elementName}`;
-      editButton.setAttribute('data-element-id', elementData.id); // Link button to the element instance
-      listItem.appendChild(editButton);
 
       listContainer.appendChild(listItem);
   });
@@ -2818,9 +2810,10 @@ function initElementInfoListEvents(plotState) {
   if (!listContainer) return;
 
   listContainer.addEventListener('click', (event) => {
-      if (event.target.closest('.element-info-edit-btn')) {
-          const button = event.target.closest('.element-info-edit-btn');
-          const elementId = parseInt(button.getAttribute('data-element-id'));
+      // Check if the click is directly on an item or its child span
+      const listItem = event.target.closest('.element-info-item');
+      if (listItem) {
+          const elementId = parseInt(listItem.getAttribute('data-id'));
           if (!isNaN(elementId)) {
               openPropertiesModal(elementId, plotState);
           }
