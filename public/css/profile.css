@@ -84,7 +84,7 @@
     text-decoration: none;
   }
 
-  &:has(.dropdown-menu.active) {   /* FIND MORE ELEGANT SOLUTION */
+  &:has(.dropdown-menu.active) {
     overflow: auto;
   }
 }
@@ -185,8 +185,8 @@
 }
 
 .detail-label {
-  color: var(--color-text-light);
-  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
   font-weight: 600;
 }
 
@@ -198,7 +198,7 @@
   border-top: 1px solid var(--color-border);
   display: flex;
   gap: var(--spacing-md);
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: var(--spacing-md);
 }
 

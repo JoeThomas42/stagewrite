@@ -511,30 +511,50 @@
   display: flex;
   gap: var(--spacing-lg);
   margin: 0 0 var(--spacing-lg);
+}
 
-  h2 {
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
-    font-size: var(--font-size-xl);
-  }
+#input-list,
+#element-info-list {
+  box-shadow: inset var(--shadow-inset-md);
 }
 
 /* ----- Input List Section ----- */
 .input-list-section {
-  flex: 1;
-  min-width: 300px;
   background-color: var(--color-background-light);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
-  padding: var(--spacing-lg);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-height: 500px;
+  min-width: 300px;
+  position: relative;
+}
+
+.input-list-section h2,
+.element-info h2 {
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+  border-top-left-radius: var(--border-radius-lg);
+  border-top-right-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-inset-md);
+  flex-shrink: 0;
+  font-size: var(--font-size-xl);
+  padding: var(--spacing-md) var(--spacing-lg);
+  position: sticky;
+  text-align: center;
+  top: 0;
+  z-index: 10;
 }
 
 .input-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--spacing-md) var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .input-number {
@@ -561,7 +581,7 @@
 
 .add-line-button {
   display: block;
-  margin: var(--spacing-md) auto 0;
+  margin: var(--spacing-lg) auto;
   min-width: 120px;
 }
 
@@ -571,18 +591,21 @@
   min-width: 300px;
   background-color: var(--color-background-light);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
-  padding: var(--spacing-lg);
-  max-height: 900px;
-  overflow-y: auto;
+  max-height: 500px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 #element-info-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   counter-reset: element-counter;
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-lg);
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
 .element-info-item {
@@ -675,6 +698,6 @@
   color: var(--color-text-light);
   font-style: italic;
   text-align: center;
-  padding: var(--spacing-lg);
   list-style: none;
+  margin-top: var(--spacing-md);
 }

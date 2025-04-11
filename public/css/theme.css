@@ -87,7 +87,6 @@
   }
   
   /* ----- Modals ----- */
-  .modal-content,
   #elements-list h3 {
     background-color: var(--color-background);
   }
@@ -314,5 +313,9 @@
   .no-venue-selected {
       color: var(--color-grey-3);
   }
+  
+  /* ----- Profile ----- */
+  .detail-label {
+    color: var(--color-primary-lightest);
+  }
 }
-

@@ -134,13 +134,12 @@
 }
 
 .modal-content {
-  background-color: var(--color-white);
+  background-color: var(--color-background-light);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg);
   margin: 0 auto;
   max-width: 600px;
   opacity: 0;
-  /* overflow-y: auto; */
   padding: var(--spacing-xl);
   position: relative;
   transform: translateY(20px);
@@ -359,6 +358,7 @@ th.sortable {
   }
 
   .search-input {
+    background-color: transparent;
     border: none;
     box-shadow: none;
     flex: 1;
