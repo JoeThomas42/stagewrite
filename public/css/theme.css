@@ -107,7 +107,6 @@
   }
   
   /* ----- Tables ----- */
-  .table-actions,
   .custom-dropdown-optgroup {
     background-color: var(--color-background-dark);
   }
@@ -237,50 +236,38 @@
     }
   }
 
-  /* ----- Input List ----- */
-  .input-list-section {
+  /* ----- Containers / Sections ----- */
+  .profile-container,
+  #stage-plot-container,
+  .input-list-section,
+  .element-info {
     background-color: var(--color-background-dark);
-    border-color: var(--color-input-border);
-  }
-  
-  .input-list-section h2 {
-      color: var(--color-text);
   }
   
   .input-number {
     color: var(--color-grey-4);
   }
 
-  /* ----- Element Info List */
-  .element-info {
-    background-color: var(--color-background-dark);
-    border-color: var(--color-input-border);
-  }
-
-  .element-info h2 {
-      color: var(--color-text);
-  }
-
   .element-info-item {
-      background-color: var(--color-background-light);
-      border-color: var(--color-border);
-  }
-
-  .element-info-item::before {
+    background-color: var(--color-background-light);
+    border-color: var(--color-border);
+  
+    &::before {
       color: var(--color-primary-light);
+    }
   }
 
   .element-info-name {
-      color: var(--color-text);
+    color: var(--color-text);
   }
 
   .element-info-label,
   .element-info-notes {
-      color: var(--color-grey-4);
+    color: var(--color-grey-4);
   }
 
   .no-elements-message {
-      color: var(--color-grey-3);
+    color: var(--color-grey-3);
   }
 
   /* ----- Plot Elements ----- */

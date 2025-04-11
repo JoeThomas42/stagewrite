@@ -5,16 +5,16 @@
 
 @import url('_variables.css');
 
-/* -------------------- Main Container --------------------- */
+/* -------------------- Stage Plot Container --------------------- */
 #stage-plot-container {
-  background-color: var(--color-background-alt);
-  border: 1px solid var(--color-grey-1);
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   display: flex;
   gap: var(--spacing-lg);
   justify-content: space-between;
-  margin: var(--spacing-xl) auto;
+  margin: var(--spacing-xl) auto 0;
   overflow: hidden;
   padding: var(--spacing-lg);
   transition: all var(--transition-medium);
@@ -23,8 +23,8 @@
 /* -------------------- Elements Panel --------------------- */
 #elements-header {
   align-items: center;
-  background-color: var(--color-background-light);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -56,6 +56,7 @@
   
   h3 {
     background-color: var(--color-background-light);
+    border: 1px solid var(--color-border);
     border-radius: var(--border-radius-sm);
     box-shadow: var(--shadow-sm);
     color: var(--color-primary-dark);
@@ -218,7 +219,8 @@
 }
 
 #stage-controls {
-  background-color: var(--color-background-light);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-md);
   display: flex;
@@ -454,7 +456,7 @@
   align-items: flex-start;
   display: flex;
   gap: var(--spacing-lg);
-  margin: var(--spacing-xl) 0;
+  margin: 0 0 var(--spacing-lg);
 
   h2 {
     margin-bottom: var(--spacing-lg);
@@ -526,7 +528,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  counter-reset: element-counter; /* Initialize counter */
+  counter-reset: element-counter;
 }
 
 .element-info-item {
@@ -538,13 +540,13 @@
   padding: var(--spacing-sm) var(--spacing-md);
   position: relative;
   padding-right: 45px;
-  counter-increment: element-counter; /* Increment counter for each item */
+  counter-increment: element-counter;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
   transition: all var(--transition-medium);
   
-  /* Add automatic numbering */
+  /* Automatic numbering */
   &::before {
     content: counter(element-counter) ". ";
     font-weight: bold;
@@ -557,7 +559,7 @@
   > span {
     display: block;
     font-size: var(--font-size-sm);
-    padding-left: 2em; /* Indent text past the number */
+    padding-left: 2em;
   }
 
   &:hover {
@@ -583,7 +585,7 @@
 .element-info-notes {
   color: var(--color-text-secondary);
   font-size: 0.8rem;
-  white-space: pre-wrap; /* Respect line breaks in notes */
+  white-space: pre-wrap;
   word-break: break-word;
 }
 
@@ -620,5 +622,5 @@
   font-style: italic;
   text-align: center;
   padding: var(--spacing-lg);
-  list-style: none; /* Ensure no marker shows */
+  list-style: none;
 }

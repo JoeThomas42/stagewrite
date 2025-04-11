@@ -17,7 +17,7 @@ html {
 }
 
 body {
-  background-color: var(--color-background-body);
+  background-color: var(--color-background-dark);
   color: var(--color-text);
   display: flex;
   flex-direction: column;
@@ -171,6 +171,7 @@ ul {
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 1rem;
   justify-content: flex-start;
   margin: 0 auto;
   padding-top: 6rem;
