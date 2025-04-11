@@ -5,7 +5,7 @@
 
 @import url('_variables.css');
 
-/* -------------------- Medium Screens --------------------- */
+/* -------------------- 1000px --------------------- */
 @media screen and (max-width: 1000px) {
   .action-cell {
     padding: var(--spacing-md);
@@ -44,7 +44,22 @@
   }
 }
 
-/* -------------------- Small Screens/Tablets --------------------- */
+/* ----------------------- 992px ------------------------ */
+@media screen and (max-width: 992px) {
+  .plot-card-content {
+    flex-direction: row; /* Keep row layout for tablets */
+  }
+  
+  .plot-card-snapshot {
+    max-width: 150px; /* Smaller on tablets */
+  }
+  
+  .plot-snapshot {
+    height: 100px; /* Slightly smaller height on tablets */
+  }
+}
+
+/* -------------------- 768px --------------------- */
 @media screen and (max-width: 768px) {
   /* General Layout */
   #login-container {
@@ -206,6 +221,42 @@
     width: 100%;
   }
 
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .plots-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  #profile-venues-table th {
+    display: none;
+  }
+  
+  #profile-venues-table td {
+    display: block;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+  
+  #profile-venues-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: var(--spacing-md);
+    width: 45%;
+    white-space: nowrap;
+    font-weight: bold;
+    text-align: left;
+  }
+
   /* Tables */
   table {
     margin-top: 0;
@@ -321,7 +372,7 @@
 
   /* Input List */
   .input-grid {
-    grid-template-columns: repeat(2, 1fr); /* Two columns on tablets */
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm) var(--spacing-md);
   }
 
@@ -333,13 +384,12 @@
   .input-list-section,
   .element-info {
     max-width: 100%;
-    max-height: 300px; /* Adjust height for smaller screens */
+    max-height: 300px;
   }
 }
 
-/* Media query for shorter height screens */
+/* --------------------------- 700px------------------------------ */
 @media screen and (max-height: 700px) {
-  /* Adjust the modal content to be more compact */
   .modal-content {
     padding: var(--spacing-md);
   }
@@ -364,7 +414,28 @@
   }
 }
 
-/* For very short screens */
+/* --------------------------- 576px ---------------------------- */
+@media screen and (max-width: 576px) {
+  .plot-card-content {
+    flex-direction: column;
+  }
+  
+  .plot-card-details {
+    width: 100%;
+  }
+  
+  .plot-card-snapshot {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .plot-snapshot {
+    height: auto;
+    max-height: 150px;
+  }
+}
+
+/* ---------------------------- 500px ----------------------------- */
 @media screen and (max-height: 500px) {
   .plots-list,
   .saved-plots-list,
@@ -380,7 +451,7 @@
   }
 }
 
-/* -------------------- Mobile Screens --------------------- */
+/* ------------------------- 480px -------------------------- */
 @media screen and (max-width: 480px) {
   body {
     font-size: 14px;

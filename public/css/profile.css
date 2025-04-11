@@ -151,7 +151,7 @@
 
 .plot-card-details {
   flex: 1;
-  min-width: 0; /* Allow the details to shrink below min-content */
+  min-width: 0;
 }
 
 .plot-card-snapshot {
@@ -160,7 +160,7 @@
   box-shadow: var(--shadow-md);
   flex-shrink: 0;
   height: auto;
-  max-width: 180px; /* Limit width */
+  max-width: 180px;
   overflow: auto;
   transform: none;
   transition: all var(--transition-fast);
@@ -168,15 +168,14 @@
   
   &:hover {
     box-shadow: var(--shadow-lg);
-    transform: scale(2);
-    z-index: 1000;
+    transform: scale(3);
+    z-index: 8000;
   }
 }
 
 .plot-snapshot {
   display: block;
-  height: 120px; /* Fixed height */
-  /* object-fit: contain; */
+  height: 120px;
   width: 100%;
 }
 
@@ -218,80 +217,5 @@
   
   &:hover {
     background-color: var(--color-table-hover) !important;
-  }
-}
-
-/* -------------------- Responsive Styles --------------------- */
-@media screen and (max-width: 992px) {
-  .plot-card-content {
-    flex-direction: row; /* Keep row layout for tablets */
-  }
-  
-  .plot-card-snapshot {
-    max-width: 150px; /* Smaller on tablets */
-  }
-  
-  .plot-snapshot {
-    height: 100px; /* Slightly smaller height on tablets */
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-  }
-  
-  .action-button {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .plots-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  /* Handle table display on small screens */
-  #profile-venues-table th {
-    display: none;
-  }
-  
-  #profile-venues-table td {
-    display: block;
-    text-align: right;
-    padding-left: 50%;
-    position: relative;
-  }
-  
-  #profile-venues-table td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: var(--spacing-md);
-    width: 45%;
-    white-space: nowrap;
-    font-weight: bold;
-    text-align: left;
-  }
-}
-
-/* Media query for mobile screens */
-@media screen and (max-width: 576px) {
-  .plot-card-content {
-    flex-direction: column; /* Stack on mobile */
-  }
-  
-  .plot-card-details {
-    width: 100%;
-  }
-  
-  .plot-card-snapshot {
-    max-width: 100%;
-    width: 100%;
-  }
-  
-  .plot-snapshot {
-    height: auto;
-    max-height: 150px;
   }
 }

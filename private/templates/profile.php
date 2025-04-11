@@ -107,7 +107,7 @@ $userVenues = $db->fetchAll("
                             </div>
                             <?php if (!empty($plot['snapshot_filename'])): ?>
                                 <div class="plot-card-snapshot">
-                                <img src="/handlers/get_snapshot.php?filename=<?= urlencode($plot['snapshot_filename']) ?>&v=<?= $plot['snapshot_version'] ?? time() ?>" 
+                                    <img src="/handlers/get_snapshot.php?filename=<?= urlencode($plot['snapshot_filename']) ?>&v=<?= $plot['snapshot_version'] ?? time() ?>" 
                                     alt="Preview of <?= htmlspecialchars($plot['plot_name']) ?>" 
                                     class="plot-snapshot" />
                                 </div>
