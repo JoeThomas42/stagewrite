@@ -150,6 +150,15 @@ if ($isLoggedIn) {
                     <input type="date" id="event_end" name="event_date_end" min="">
                 </div>
             </div>
+            <div id="venue-info-panel" class="venue-info-panel hidden">
+                <h3>Venue Information</h3>
+                <div class="venue-details">
+                    <p><strong>Name:</strong> <span id="venue-info-name">N/A</span></p>
+                    <p><strong>Address:</strong> <span id="venue-info-address">N/A</span></p>
+                    <p><strong>Stage:</strong> <span id="venue-info-stage">N/A</span></p>
+                </div>
+                <p class="no-venue-selected">No venue selected.</p>
+            </div>
         </div>
 
         <div id="control-buttons">

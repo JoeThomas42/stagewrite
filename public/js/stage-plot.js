@@ -2099,79 +2099,77 @@ function restoreStateFromStorage(plotState) {
 }
 
 /**
- * Setup change tracking after state is restored
+ * Setup change tracking after state is restored or for a new plot
  * @param {Object} plotState - The current plot state
  */
 function setupChangeTracking(plotState) {
-  // Set up change detection for elements on the stage
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Add a MutationObserver to detect changes to elements on the stage
   const observer = new MutationObserver((mutations) => {
-    // If we are loading, ignore mutations
-    if (plotState.isLoading) return;
+      if (plotState.isLoading) return; // Ignore mutations during loading
 
-    // Filter mutations related to placed elements being added/removed or styles changing
-    const relevantMutations = mutations.some((mutation) => (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) && (Array.from(mutation.addedNodes).some((node) => node.classList?.contains('placed-element')) || Array.from(mutation.removedNodes).some((node) => node.classList?.contains('placed-element')))) || (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style'));
+      const relevantMutations = mutations.some((mutation) =>
+          (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) && (Array.from(mutation.addedNodes).some(node => node.classList?.contains('placed-element')) || Array.from(mutation.removedNodes).some(node => node.classList?.contains('placed-element')))) ||
+          (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style')
+      );
 
-    if (relevantMutations) {
-      markPlotAsModified(plotState);
-    }
+      if (relevantMutations) {
+          markPlotAsModified(plotState);
+      }
   });
 
-  // Observe the stage for changes
   observer.observe(stage, {
-    childList: true, // Watch for adding/removing elements
-    attributes: true, // Watch for style changes (like position)
-    attributeFilter: ['style'], // Only watch style attribute
-    subtree: true, // Watch descendants as well
+      childList: true,
+      attributes: true,
+      attributeFilter: ['style'],
+      subtree: true,
   });
 
-  // Watch for form input changes (venue, dates, etc.)
   const venueSelect = document.getElementById('venue_select');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
 
-  if (venueSelect) {
-    venueSelect.addEventListener('change', () => {
-      // updateStageForVenue calls markPlotAsModified internally if needed
-      // updateStageForVenue(venueSelect.value, plotState, false); // Pass false explicitly
-      // No need to call markPlotAsModified here, updateStageForVenue handles it
-    });
-  }
-
+  // Add listener for event start date change
   if (eventStartInput) {
-    eventStartInput.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
-        markPlotAsModified(plotState);
-      }
-      // Also update min date for end date
-      const eventEndInput = document.getElementById('event_end');
-      if (eventEndInput) {
-        eventEndInput.min = eventStartInput.value;
-        // If end date is now before start date, adjust it
-        if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
-          eventEndInput.value = eventStartInput.value;
-          // Trigger its change event if you have logic tied to it
-          eventEndInput.dispatchEvent(new Event('change'));
-        }
-      }
-    });
+      eventStartInput.addEventListener('change', () => {
+          // Use the correctly scoped variables
+          if (plotState && plotState.currentPlotId && !plotState.isLoading) {
+              markPlotAsModified(plotState);
+          }
+          // Ensure eventEndInput exists before modifying it
+          if (eventEndInput) {
+              eventEndInput.min = eventStartInput.value;
+              if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
+                  eventEndInput.value = eventStartInput.value;
+                  eventEndInput.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+          } else {
+              console.warn("End date input ('event_end') not found when start date changed.");
+          }
+      });
+  } else {
+      console.warn("Start date input ('event_start') not found.");
   }
 
+  // Add listener for event end date change
   if (eventEndInput) {
-    eventEndInput.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
-        markPlotAsModified(plotState);
-      }
-      // Validate against start date
-      const eventStartInput = document.getElementById('event_start');
-      if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
-        showNotification('End date cannot be before start date.', 'warning');
-        eventEndInput.value = eventStartInput.value; // Reset to start date
-      }
-    });
+      eventEndInput.addEventListener('change', () => {
+          if (plotState && plotState.currentPlotId && !plotState.isLoading) {
+              markPlotAsModified(plotState);
+          }
+          // Ensure eventStartInput exists before comparing
+          if (eventStartInput) {
+              if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
+                  showNotification('End date cannot be before start date.', 'warning');
+                   eventEndInput.value = eventStartInput.value; // Reset to start date
+              }
+          } else {
+              console.warn("Start date input ('event_start') not found when end date changed.");
+          }
+      });
+  } else {
+      console.warn("End date input ('event_end') not found.");
   }
 }
 
@@ -2273,73 +2271,104 @@ function setupVenueSelectHandler(plotState) {
 }
 
 /**
- *
- * @param {*} venueValue
- * @param {*} plotState
- * @returns
+ * 
+ * @param {*} venueValue 
+ * @param {*} plotState 
+ * @param {*} isRestoring 
+ * @returns 
  */
 function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   const stage = document.getElementById('stage');
-  if (!stage) return;
+  const venueInfoPanel = document.getElementById('venue-info-panel');
+  const venueNameEl = document.getElementById('venue-info-name');
+  const venueAddressEl = document.getElementById('venue-info-address');
+  const venueStageEl = document.getElementById('venue-info-stage');
+  const noVenueMsg = venueInfoPanel.querySelector('.no-venue-selected');
+  const detailsDiv = venueInfoPanel.querySelector('.venue-details');
 
-  // If no venue is selected, set default stage dimensions
-  if (!venueValue) {
-    const dimensions = calculateStageDimensions(20, 15); // Default size
-    updateStageDimensions(dimensions, stage);
-    // Only mark modified if NOT restoring and a plot is loaded
-    if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-      markPlotAsModified(plotState);
-    }
-    return;
+  if (!stage || !venueInfoPanel || !venueNameEl || !venueAddressEl || !venueStageEl || !noVenueMsg || !detailsDiv) {
+      console.error("Required elements for venue info display not found.");
+      return;
   }
 
-  let venueId,
-    isUserVenue = false;
+  // Function to reset and hide venue info panel
+  const showNoVenueInfo = () => {
+      const dimensions = calculateStageDimensions(20, 15); // Default size
+      updateStageDimensions(dimensions, stage);
+      venueInfoPanel.classList.remove('hidden'); // Show the panel
+      detailsDiv.style.display = 'none';         // Hide details
+      noVenueMsg.style.display = 'block';        // Show 'no venue' message
+      venueNameEl.textContent = 'N/A';
+      venueAddressEl.textContent = 'N/A';
+      venueStageEl.textContent = 'N/A';
+      // Only mark modified if NOT restoring and a plot is loaded
+      if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+          markPlotAsModified(plotState);
+      }
+  };
+
+  // If no venue is selected, set defaults and show "No venue selected"
+  if (!venueValue) {
+      showNoVenueInfo();
+      return;
+  }
+
+  let venueId, isUserVenue = false;
   if (venueValue.startsWith('user_')) {
-    isUserVenue = true;
-    venueId = venueValue.replace('user_', '');
+      isUserVenue = true;
+      venueId = venueValue.replace('user_', '');
   } else {
-    venueId = venueValue;
+      venueId = venueValue;
   }
 
   const endpoint = isUserVenue ? `/handlers/get_user_venue.php?id=${venueId}` : `/handlers/get_venue.php?id=${venueId}`;
 
   fetch(endpoint)
-    .then((response) => {
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
-    })
-    .then((data) => {
-      if (data.success && data.venue) {
-        const dimensions = calculateStageDimensions(parseInt(data.venue.stage_width) || 20, parseInt(data.venue.stage_depth) || 15);
-        updateStageDimensions(dimensions, stage);
-        stage.setAttribute('data-venue-id', venueId); // Store the actual ID
-        stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
-        // Only mark modified if NOT restoring and a plot is loaded
-        if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-          markPlotAsModified(plotState);
-        }
-      } else {
-        // Handle case where venue data isn't returned successfully
-        console.error('Failed to get venue data:', data.error);
-        const dimensions = calculateStageDimensions(20, 15); // Fallback to default
-        updateStageDimensions(dimensions, stage);
-        // Optionally mark modified if applicable
-        if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-          markPlotAsModified(plotState);
-        }
-      }
-    })
-    .catch((error) => {
-      console.error('Error fetching venue:', error);
-      const dimensions = calculateStageDimensions(20, 15); // Fallback to default
-      updateStageDimensions(dimensions, stage);
-      // Optionally show a user notification here
-      // Optionally mark modified if applicable
-      if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-        markPlotAsModified(plotState);
-      }
-    });
+      .then((response) => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+      })
+      .then((data) => {
+          if (data.success && data.venue) {
+              const venue = data.venue;
+              const dimensions = calculateStageDimensions(parseInt(venue.stage_width) || 20, parseInt(venue.stage_depth) || 15);
+              updateStageDimensions(dimensions, stage);
+              stage.setAttribute('data-venue-id', venueId);
+              stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
+
+              // Populate Venue Info Panel
+              venueNameEl.textContent = venue.venue_name || 'N/A';
+
+              let addressParts = [];
+              if (venue.venue_street) addressParts.push(venue.venue_street);
+              if (venue.venue_city) addressParts.push(venue.venue_city);
+              if (venue.state_abbr) addressParts.push(venue.state_abbr);
+              if (venue.venue_zip) addressParts.push(venue.venue_zip);
+              venueAddressEl.textContent = addressParts.length > 0 ? addressParts.join(', ') : 'N/A';
+
+              let stageParts = [];
+              if (venue.stage_width) stageParts.push(`Width: ${venue.stage_width}'`);
+              if (venue.stage_depth) stageParts.push(`Depth: ${venue.stage_depth}'`);
+              venueStageEl.textContent = stageParts.length > 0 ? stageParts.join(' / ') : 'N/A';
+
+              // Show the details and hide the 'no venue' message
+              venueInfoPanel.classList.remove('hidden');
+              detailsDiv.style.display = 'block';
+              noVenueMsg.style.display = 'none';
+
+              // Only mark modified if NOT restoring and a plot is loaded
+              if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+                  markPlotAsModified(plotState);
+              }
+          } else {
+              console.error('Failed to get venue data:', data.error);
+              showNoVenueInfo(); // Fallback to default view
+          }
+      })
+      .catch((error) => {
+          console.error('Error fetching venue:', error);
+          showNoVenueInfo(); // Fallback to default view
+      });
 }
 
 /**

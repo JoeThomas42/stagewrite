@@ -122,20 +122,7 @@
   .custom-dropdown-option:focus {
     background-color: var(--color-background-light);
   }
-  
-  /* ----- Sections / Headings ----- */
-  #plot-title {
-    color: var(--color-text);
-  }
-  
-  .category-section h3 {
-    color: var(--color-grey-5);
-  }
-  
-  .search-container {
-    background-color: var(--color-background-light);
-  }
-  
+
   /* ----- Scrollbars ----- */
   #elements-list {
     scrollbar-color: var(--color-grey-4) var(--color-background);
@@ -237,6 +224,18 @@
   }
 
   /* ----- Containers / Sections ----- */
+  #plot-title {
+    color: var(--color-text);
+  }
+  
+  .category-section h3 {
+    color: var(--color-grey-5);
+  }
+  
+  .search-container {
+    background-color: var(--color-background-light);
+  }
+
   .profile-container,
   #stage-plot-container,
   .input-list-section,
@@ -288,6 +287,28 @@
   
   .element-info-item-label {
     color: var(--color-primary-lightest);
+  }
+
+  /* ----- Venue Information Panel ----- */
+  .venue-info-panel {
+    background-color: var(--color-background-light);
+    border-color: var(--color-border);
+  }
+  
+  .venue-info-panel h3 {
+    color: var(--color-grey-5);
+    border-bottom-color: var(--color-border);
+  }
+  
+  .venue-details p {
+    color: var(--color-text);
+  }
+  
+  .venue-details strong {
+    color: var(--color-grey-4);
+  }
+  .no-venue-selected {
+      color: var(--color-grey-3);
   }
 }
 
