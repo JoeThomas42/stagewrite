@@ -262,7 +262,6 @@ header.header-container {
 
     &.current-page {
       border-bottom: 3px solid var(--color-primary-light);
-      box-shadow: inset var(--shadow-inset-sm);
       position: relative;
     }
 
@@ -271,7 +270,7 @@ header.header-container {
     }
 
     &:active {
-      box-shadow: inset var(--shadow-inset-lg);
+      box-shadow: inset var(--shadow-inset-sm);
     }
   }
 }
