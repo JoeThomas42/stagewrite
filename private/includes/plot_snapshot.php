@@ -95,108 +95,123 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     foreach ($elements as $element) {
         $elementDetails = $db->fetchOne(
             "SELECT e.element_name, e.element_image 
-             FROM elements e 
-             WHERE e.element_id = ?",
+              FROM elements e 
+              WHERE e.element_id = ?",
             [$element['element_id']]
         );
         
         if (!$elementDetails) {
             drawElementAsRectangle($image, $element, $snapshotBaseWidth, $snapshotCanvasHeight, $referenceUIWidth, $referenceUIHeight);
-            continue;
-        }
-        
-        // --- Calculate Element Position and Size for Snapshot ---
-        // Calculate relative position/size based on reference UI dimensions
-        $relativeX = $element['x_position'] / $referenceUIWidth;
-        $relativeY = $element['y_position'] / $referenceUIHeight;
-        $relativeWidth = $element['width'] / $referenceUIWidth;
-        $relativeHeight = $element['height'] / $referenceUIHeight; // Use relative height based on reference UI
+        } else {
+            // --- Calculate Element Position and Size for Snapshot ---
+            // Calculate relative position/size based on reference UI dimensions
+            $relativeX = $element['x_position'] / $referenceUIWidth;
+            $relativeY = $element['y_position'] / $referenceUIHeight;
+            $relativeWidth = $element['width'] / $referenceUIWidth;
+            $relativeHeight = $element['height'] / $referenceUIHeight; // Use relative height based on reference UI
 
-        // Calculate actual pixel position/size on the snapshot canvas
-        $x = $relativeX * $snapshotBaseWidth;
-        $y = $relativeY * $snapshotCanvasHeight;
-        $width = $relativeWidth * $snapshotBaseWidth;
-        $height = $relativeHeight * $snapshotCanvasHeight; // Scale height relative to snapshot canvas
+            // Calculate actual pixel position/size on the snapshot canvas
+            $x = $relativeX * $snapshotBaseWidth;
+            $y = $relativeY * $snapshotCanvasHeight;
+            $width = $relativeWidth * $snapshotBaseWidth;
+            $height = $relativeHeight * $snapshotCanvasHeight; // Scale height relative to snapshot canvas
 
-        // Attempt to load element image
-        $elementImagePath = PUBLIC_PATH . '/images/elements/' . $elementDetails['element_image'];
-        
-        if (file_exists($elementImagePath)) {
-            $imageInfo = getimagesize($elementImagePath);
-            $elementImg = null;
+            // Attempt to load element image
+            $elementImagePath = PUBLIC_PATH . '/images/elements/' . $elementDetails['element_image'];
             
-            switch ($imageInfo[2]) {
-                case IMAGETYPE_JPEG: $elementImg = imagecreatefromjpeg($elementImagePath); break;
-                case IMAGETYPE_PNG: $elementImg = imagecreatefrompng($elementImagePath); break;
-                case IMAGETYPE_GIF: $elementImg = imagecreatefromgif($elementImagePath); break;
-            }
-            
-            if ($elementImg) {
-                if ($imageInfo[2] == IMAGETYPE_PNG) {
-                    imagealphablending($elementImg, true);
-                    imagesavealpha($elementImg, true);
+            if (file_exists($elementImagePath)) {
+                $imageInfo = getimagesize($elementImagePath);
+                $elementImg = null;
+                
+                switch ($imageInfo[2]) {
+                    case IMAGETYPE_JPEG: $elementImg = imagecreatefromjpeg($elementImagePath); break;
+                    case IMAGETYPE_PNG: $elementImg = imagecreatefrompng($elementImagePath); break;
+                    case IMAGETYPE_GIF: $elementImg = imagecreatefromgif($elementImagePath); break;
                 }
+                
+                if ($elementImg) {
+                    if ($imageInfo[2] == IMAGETYPE_PNG) {
+                        imagealphablending($elementImg, true);
+                        imagesavealpha($elementImg, true);
+                    }
 
-                $resizedImg = imagecreatetruecolor(max(1, round($width)), max(1, round($height))); // Ensure dimensions are at least 1
-                imagealphablending($resizedImg, false); // Use false for better transparency handling
-                imagesavealpha($resizedImg, true);
-                $transparent = imagecolorallocatealpha($resizedImg, 255, 255, 255, 127);
-                imagefill($resizedImg, 0, 0, $transparent);
-                
-                imagecopyresampled(
-                    $resizedImg, $elementImg,
-                    0, 0, 0, 0,
-                    max(1, round($width)), max(1, round($height)), // Use rounded dimensions >= 1
-                    imagesx($elementImg), imagesy($elementImg)
-                );
-                
-                if ($element['rotation'] != 0 || $element['flipped'] == 1) {
-                    $resizedImg = rotateAndFlipImage(
-                        $resizedImg, 
-                        $element['rotation'], 
-                        $element['flipped'] == 1
+                    $resizedImg = imagecreatetruecolor(max(1, round($width)), max(1, round($height))); // Ensure dimensions are at least 1
+                    imagealphablending($resizedImg, false); // Use false for better transparency handling
+                    imagesavealpha($resizedImg, true);
+                    $transparent = imagecolorallocatealpha($resizedImg, 255, 255, 255, 127);
+                    imagefill($resizedImg, 0, 0, $transparent);
+                    
+                    imagecopyresampled(
+                        $resizedImg, $elementImg,
+                        0, 0, 0, 0,
+                        max(1, round($width)), max(1, round($height)), // Use rounded dimensions >= 1
+                        imagesx($elementImg), imagesy($elementImg)
                     );
                     
-                    $newWidth = imagesx($resizedImg);
-                    $newHeight = imagesy($resizedImg);
-                    // Adjust position to center the rotated image
-                    $x = $x - ($newWidth - $width) / 2;
-                    $y = $y - ($newHeight - $height) / 2;
+                    if ($element['rotation'] != 0 || $element['flipped'] == 1) {
+                        $resizedImg = rotateAndFlipImage(
+                            $resizedImg, 
+                            $element['rotation'], 
+                            $element['flipped'] == 1
+                        );
+                        
+                        $newWidth = imagesx($resizedImg);
+                        $newHeight = imagesy($resizedImg);
+                        // Adjust position to center the rotated image
+                        $x = $x - ($newWidth - $width) / 2;
+                        $y = $y - ($newHeight - $height) / 2;
+                    }
+                    
+                    imagecopy(
+                        $image, $resizedImg,
+                        round($x), round($y), 0, 0, // Use rounded positions
+                        imagesx($resizedImg), imagesy($resizedImg)
+                    );
+                    
+                    imagedestroy($resizedImg);
+                    imagedestroy($elementImg);
+                } else {
+                    drawElementAsRectangle($image, $element, $snapshotBaseWidth, $snapshotCanvasHeight, $referenceUIWidth, $referenceUIHeight);
                 }
-                
-                imagecopy(
-                    $image, $resizedImg,
-                    round($x), round($y), 0, 0, // Use rounded positions
-                    imagesx($resizedImg), imagesy($resizedImg)
-                );
-                
-                imagedestroy($resizedImg);
-                imagedestroy($elementImg);
             } else {
                 drawElementAsRectangle($image, $element, $snapshotBaseWidth, $snapshotCanvasHeight, $referenceUIWidth, $referenceUIHeight);
             }
-        } else {
-            drawElementAsRectangle($image, $element, $snapshotBaseWidth, $snapshotCanvasHeight, $referenceUIWidth, $referenceUIHeight);
         }
-        
+        // --- ADD LABEL DRAWING CODE START ---
         // Add label if present
         if (!empty($element['label'])) {
-            $labelBgColor = imagecolorallocatealpha($image, 82, 108, 129, 30); 
-            $labelTextColor = imagecolorallocate($image, 255, 255, 255); 
-            $labelFont = 1; 
-            
-            $labelWidth = imagefontwidth($labelFont) * strlen($element['label']);
+            // Define label properties
+            $labelTextColor = imagecolorallocate($image, 30, 30, 30); // Dark grey text
+            $labelFont = 2; // Use a small built-in GD font (1-5)
+
+            $labelText = trim($element['label']);
+            $labelWidth = imagefontwidth($labelFont) * strlen($labelText);
             $labelHeight = imagefontheight($labelFont);
-            
-            // Position label at the bottom-center of the element's snapshot representation
-            $labelX = round($x + ($width / 2) - ($labelWidth / 2)); 
-            $labelY = round($y + $height - $labelHeight - 2); 
-            
-            // Draw label background (optional, adjust as needed)
+
+            // Calculate position: Centered horizontally, slightly below the element
+            // Use the calculated $x, $y, $width, $height for the element's snapshot representation
+            $labelX = round($x + ($width / 2) - ($labelWidth / 2));
+            $labelY = round($y + $height + 2); // Position 2px below the element
+
+            // Ensure label doesn't go off the bottom edge
+            if ($labelY + $labelHeight > $snapshotCanvasHeight - 2) {
+                $labelY = round($y - $labelHeight - 2); // Position above if no space below
+            }
+            // Ensure label doesn't go off the top edge (if positioned above)
+            if ($labelY < 2) {
+                 $labelY = round($y + ($height / 2) - ($labelHeight / 2)); // Center vertically if no space above/below
+            }
+            // Ensure label doesn't go off the left/right edges
+            $labelX = max(2, min($labelX, $snapshotBaseWidth - $labelWidth - 2));
+
+            // Optional: Draw a faint background for better readability (adjust alpha for transparency)
+            // $labelBgColor = imagecolorallocatealpha($image, 255, 255, 255, 60); // Semi-transparent white
             // imagefilledrectangle($image, $labelX - 1, $labelY - 1, $labelX + $labelWidth, $labelY + $labelHeight, $labelBgColor);
-            
-            imagestring($image, $labelFont, $labelX, $labelY, $element['label'], $labelTextColor);
+
+            // Draw the label string
+            imagestring($image, $labelFont, $labelX, $labelY, $labelText, $labelTextColor);
         }
+        // --- ADD LABEL DRAWING CODE END ---
     }
     
     // Add a subtle drop shadow effect (optional)
