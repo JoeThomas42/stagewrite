@@ -152,6 +152,7 @@
 
 .plot-card-details {
   flex: 1;
+  min-width: 150px;
 }
 
 .plot-card-snapshot {
