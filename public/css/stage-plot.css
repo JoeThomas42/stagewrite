@@ -523,7 +523,10 @@
 
 #input-list,
 #element-info-list {
+  border-bottom-left-radius: var(--border-radius-lg);
+  border-bottom-right-radius: var(--border-radius-lg);
   box-shadow: inset var(--shadow-inset-md);
+  margin: 0 var(--spacing-md);
 }
 
 /* ----- Input List Section ----- */
@@ -608,9 +611,11 @@
 }
 
 #element-info-list {
+  border-bottom-left-radius: var(--border-radius-lg);
+  border-bottom-right-radius: var(--border-radius-lg);
   counter-reset: element-counter;
   list-style: none;
-  margin: 0;
+  margin: 0 var(--spacing-md) var(--spacing-md);
   padding: var(--spacing-lg);
   flex-grow: 1;
   overflow-y: auto;

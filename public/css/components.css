@@ -966,34 +966,6 @@ input[type="number"]::-webkit-outer-spin-button {
   color: var(--color-primary-dark);
 }
 
-/* ------------------- Scrollbar Styling -------------------------- */
-/* For WebKit browsers */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-background-dark);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-grey-4);
-  border-radius: 5px;
-  border: 2px solid var(--color-background-dark);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-grey-3);
-}
-
-/* For Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-grey-4) var(--color-background-dark);
-}
-
 /* ----------------- Form Errors ---------------------- */
 .error-input {
   border: 1px solid #dc3545 !important;
