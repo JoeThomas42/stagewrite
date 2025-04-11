@@ -2552,14 +2552,14 @@ function initStageGrid() {
   gridToggle.id = 'grid-toggle';
   gridToggle.className = 'grid-button';
   gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
-  gridToggle.title = "Toggle Grid (5' squares with 1' marks)";
+  gridToggle.title = "Toggle Grid (5' squares)";
 
   // Create grid type toggle button
   const gridTypeToggle = document.createElement('button');
   gridTypeToggle.id = 'grid-type-toggle';
   gridTypeToggle.className = 'grid-button';
   gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';
-  // gridTypeToggle.title = 'Toggle Detail Level'; // Title set later based on state
+  gridTypeToggle.title = 'Toggle Detail Level';
 
   // Create grid overlay if it doesn't exist
   let gridOverlay = stage.querySelector('.grid-overlay');
@@ -2614,7 +2614,6 @@ function initStageGrid() {
               ${footSize}px ${footSize}px,
               ${footSize}px ${footSize}px
           `;
-      gridTypeToggle.title = "Toggle to Simple Grid (5' only)";
       gridTypeToggle.classList.add('active'); // Show as active in detailed mode
     } else {
       gridOverlay.style.backgroundImage = `
@@ -2625,7 +2624,6 @@ function initStageGrid() {
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px
           `;
-      gridTypeToggle.title = "Toggle to Detailed Grid (1' marks)";
       gridTypeToggle.classList.remove('active'); // Show as inactive in simple mode
     }
 

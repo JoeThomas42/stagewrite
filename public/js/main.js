@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     '/js/theme.js',
     '/js/stage-plot.js',
     '/js/profile.js',
-    '/js/experimental.js',
   ];
   
   // Load scripts sequentially
