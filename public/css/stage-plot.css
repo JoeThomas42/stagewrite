@@ -619,6 +619,9 @@
   padding: var(--spacing-lg);
   flex-grow: 1;
   overflow-y: auto;
+  /* display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md); */
 }
 
 .element-info-item {
@@ -640,7 +643,7 @@
   &::before {
     content: counter(element-counter) ". ";
     font-weight: bold;
-    color: var(--color-primary);
+    color: var(--color-grey-4);
     position: absolute;
     left: var(--spacing-md);
     top: var(--spacing-sm);

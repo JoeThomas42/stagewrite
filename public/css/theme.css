@@ -255,7 +255,7 @@
     border-color: var(--color-border);
   
     &::before {
-      color: var(--color-primary-light);
+      /* color: var(--color-primary-light); */
     }
   }
 
