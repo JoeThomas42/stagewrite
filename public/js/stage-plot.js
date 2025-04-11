@@ -842,11 +842,6 @@ function createPlacedElement(elementData, plotState) {
     // Make draggable within stage
     makeDraggableOnStage(element, plotState);
 
-    // Double-click to edit
-    element.addEventListener('dblclick', () => {
-      openPropertiesModal(elementData.id, plotState);
-    });
-
     // Add to stage
     stage.appendChild(element);
 
@@ -1966,11 +1961,6 @@ function initPageNavigation(plotState) {
     if (plotState.elements.length > 0 && (plotState.isModified || !plotState.currentPlotId)) {
       // Save current state to localStorage
       saveStateToStorage(plotState);
-
-      // Show confirmation dialog for unsaved changes
-      // const confirmationMessage = 'You have unsaved changes. Are you sure you want to leave?';
-      // e.returnValue = confirmationMessage;
-      // return confirmationMessage;
     }
   });
 
