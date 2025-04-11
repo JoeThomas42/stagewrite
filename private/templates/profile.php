@@ -90,12 +90,12 @@ $userVenues = $db->fetchAll("
                         <div class="plot-card-content">
                             <div class="plot-card-details">
                                 <div class="detail-item">
-                                    <span class="detail-label">Venue:</span>
+                                    <span class="detail-label">Venue:</span><br>
                                     <span class="detail-value"><?= htmlspecialchars($plot['venue_name']) ?></span>
                                 </div>
                                 <?php if (!empty($plot['event_date_start'])): ?>
                                     <div class="detail-item">
-                                        <span class="detail-label">Date:</span>
+                                        <span class="detail-label">Date:</span><br>
                                         <span class="detail-value">
                                             <?= date('M j, Y', strtotime($plot['event_date_start'])) ?>
                                             <?php if (!empty($plot['event_date_end']) && $plot['event_date_end'] != $plot['event_date_start']): ?>

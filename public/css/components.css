@@ -723,19 +723,15 @@ th.sortable {
 /* -------------------- Custom Dropdowns --------------------- */
 
 .custom-dropdown {
-  position: relative;
-  width: 100%;
+  background-color: var(--color-background);
   border: 1px solid var(--color-input-border);
-  box-shadow: var(--shadow-sm);
   border-radius: var(--border-radius-sm);
-  background-color: var(--color-white);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   height: 30px;
+  position: relative;
   transition: all var(--transition-fast);
-}
-
-.select-with-button .custom-dropdown-menu {
-  width: 120%;
+  width: 100%;
 }
 
 .custom-dropdown:hover {
@@ -749,15 +745,14 @@ th.sortable {
 }
 
 .custom-dropdown-header {
-  display: flex;
   align-items: center;
+  display: flex;
+  font-size: var(--font-size-sm);
   justify-content: space-between;
   padding: 0 var(--spacing-md);
   position: relative;
-  font-size: var(--font-size-sm);
   min-height: 30px;
   min-width: 140px;
-  box-sizing: border-box;
 }
 
 .selected-option {

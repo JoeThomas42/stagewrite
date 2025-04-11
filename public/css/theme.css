@@ -62,7 +62,8 @@
     color: var(--color-text);
   }
   
-  h2 {
+  h2,
+  label {
     color: var(--color-text);
   }
   
@@ -74,8 +75,12 @@
   input,
   select,
   textarea,
-  #elements-list,
   .custom-dropdown {
+    border-color: var(--color-input-border);
+    color: var(--color-text);
+  }
+
+  #elements-list {
     background-color: var(--color-background-light);
     border-color: var(--color-input-border);
     color: var(--color-text);
@@ -88,7 +93,6 @@
   }
   
   .modal-content h3,
-  .modal-content label,
   .profile-container h3{
     color: var(--color-text);
   }

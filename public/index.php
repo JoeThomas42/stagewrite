@@ -108,56 +108,59 @@ if ($isLoggedIn) {
             <h2 id="plot-title">New Plot</h2>
             
             <!-- Plot configuration panel -->
-            <div class="plot-config-panel">
-                <div class="config-field venue-select-container">
-                    <label for="venue_select">Venue:</label>
-                    <div class="select-with-button">
-                        <select id="venue_select" name="venue_id">
-                            <option value="" selected>No Venue</option>
-                            <?php if (count($venues) > 0): ?>
-                            <optgroup label="Official Venues">
-                                <?php foreach ($venues as $venue): ?>
-                                    <option value="<?= $venue['venue_id'] ?>">
-                                        <?= htmlspecialchars($venue['venue_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
+            <div id="venue-info-container">
+                <div class="venue-config-panel">
+                    <div class="config-field venue-select-container">
+                        <label for="venue_select">Venue Select:</label>
+                        <div class="select-with-button">
+                            <select id="venue_select" name="venue_id">
+                                <option value="" selected>No Venue</option>
+                                <?php if (count($venues) > 0): ?>
+                                <optgroup label="Official Venues">
+                                    <?php foreach ($venues as $venue): ?>
+                                        <option value="<?= $venue['venue_id'] ?>">
+                                            <?= htmlspecialchars($venue['venue_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                                <?php endif; ?>
+                
+                                <?php if ($isLoggedIn && count($userVenues) > 0): ?>
+                                <optgroup label="My Venues">
+                                    <?php foreach ($userVenues as $venue): ?>
+                                        <option value="user_<?= $venue['user_venue_id'] ?>">
+                                            <?= htmlspecialchars($venue['venue_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </optgroup>
+                                <?php endif; ?>
+                            </select>
+                            <?php if ($isLoggedIn): ?>
+                            <button type="button" id="add-venue-button" class="small-button" title="Add Custom Venue"><i class="fa-solid fa-plus"></i></button>
                             <?php endif; ?>
-                            
-                            <?php if ($isLoggedIn && count($userVenues) > 0): ?>
-                            <optgroup label="My Venues">
-                                <?php foreach ($userVenues as $venue): ?>
-                                    <option value="user_<?= $venue['user_venue_id'] ?>">
-                                        <?= htmlspecialchars($venue['venue_name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
-                            <?php endif; ?>
-                        </select>
-                        <?php if ($isLoggedIn): ?>
-                        <button type="button" id="add-venue-button" class="small-button" title="Add Custom Venue"><i class="fa-solid fa-plus"></i></button>
-                        <?php endif; ?>
+                        </div>
+                    </div>
+                
+                    <div id="date-container">
+                      <div class="config-field">
+                          <label for="event_start">Event Start:</label>
+                          <input type="date" id="event_start" name="event_date_start">
+                      </div>
+                      <div class="config-field">
+                          <label for="event_end">Event End:</label>
+                          <input type="date" id="event_end" name="event_date_end" min="">
+                      </div>
                     </div>
                 </div>
-                
-                <div class="config-field">
-                    <label for="event_start">Event Start:</label>
-                    <input type="date" id="event_start" name="event_date_start">
+                <div id="venue-info-panel" class="venue-info-panel hidden">
+                    <h3>Venue Information</h3>
+                    <div class="venue-details">
+                        <p><strong>Name:</strong> <span id="venue-info-name">N/A</span></p>
+                        <p><strong>Address:</strong> <span id="venue-info-address">N/A</span></p>
+                        <p><strong>Stage:</strong> <span id="venue-info-stage">N/A</span></p>
+                    </div>
+                    <p class="no-venue-selected">No venue selected.</p>
                 </div>
-                
-                <div class="config-field">
-                    <label for="event_end">Event End:</label>
-                    <input type="date" id="event_end" name="event_date_end" min="">
-                </div>
-            </div>
-            <div id="venue-info-panel" class="venue-info-panel hidden">
-                <h3>Venue Information</h3>
-                <div class="venue-details">
-                    <p><strong>Name:</strong> <span id="venue-info-name">N/A</span></p>
-                    <p><strong>Address:</strong> <span id="venue-info-address">N/A</span></p>
-                    <p><strong>Stage:</strong> <span id="venue-info-stage">N/A</span></p>
-                </div>
-                <p class="no-venue-selected">No venue selected.</p>
             </div>
         </div>
 

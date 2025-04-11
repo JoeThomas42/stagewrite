@@ -250,48 +250,78 @@
 }
 
 /* --------------------- Venue Information ------------------------ */
-.venue-info-panel {
-  background-color: var(--color-background); /* Match plot-config-panel */
+#venue-info-container {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-md);
+}
+
+#date-container {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-md);
+}
+
+.venue-config-panel {
+  background-color: var(--color-background-light);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-md);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+}
+
+.config-field {
+  flex: 1;
+  text-align: left;
+}
+
+.venue-info-panel {
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  flex: 1;
   padding: var(--spacing-md);
-  margin-top: var(--spacing-md); /* Space below config panel */
   transition: all var(--transition-medium);
-  max-width: 900px; /* Match stage controls */
-}
-
-.venue-info-panel.hidden {
-  display: none;
-}
-
-.venue-info-panel h3 {
-  color: var(--color-primary-dark);
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--spacing-sm) 0; /* Adjusted margin */
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--spacing-xs);
+  max-width: 900px;
+  
+  &.hidden {
+    display: none;
+  }
+  
+  h3 {
+    color: var(--color-primary-dark);
+    font-size: var(--font-size-lg);
+    margin: 0 0 var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--spacing-xs);
+  }
 }
 
 .venue-details p {
   font-size: var(--font-size-sm);
   margin: var(--spacing-xs) 0;
   color: var(--color-text);
-  text-align: left; /* Override default centered p */
+  text-align: left;
 }
 
 .venue-details strong {
   color: var(--color-text-secondary);
-  min-width: 70px; /* Align labels */
+  min-width: 70px;
   display: inline-block;
 }
 
 .no-venue-selected {
     font-style: italic;
     color: var(--color-text-light);
-    text-align: center; /* Center this specific message */
+    text-align: center;
     padding: var(--spacing-md) 0;
-    margin: 0; /* Remove default margin */
+    margin: 0;
 }
 
 /* Hide details when no venue is selected */
@@ -424,32 +454,6 @@
   
   &:active {
     cursor: grabbing;
-  }
-}
-
-/* -------------------- Plot Configuration --------------------- */
-.plot-config-panel {
-  align-items: flex-end;
-  background-color: var(--color-background-light);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-sm);
-}
-
-.config-field {
-  flex: 1;
-  text-align: left;
-  
-  label {
-    color: var(--color-text-secondary);
-    display: block;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    margin-bottom: var(--spacing-xs);
   }
 }
 
