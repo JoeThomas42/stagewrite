@@ -171,7 +171,6 @@ $userVenues = $db->fetchAll("
             </div>
         <?php endif; ?>
     </div>
-    <div id="notification-area" class="notification-area pinned"></div>
 </div>
 
 <!-- Add User Venue Modal -->

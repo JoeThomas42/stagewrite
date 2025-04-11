@@ -57,6 +57,7 @@
   h3 {
     background-color: var(--color-background-light);
     border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-sm);
     color: var(--color-primary-dark);
     margin-bottom: var(--spacing-md);
     padding: var(--spacing-xs) var(--spacing-sm);

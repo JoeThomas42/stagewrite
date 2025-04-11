@@ -159,7 +159,6 @@ if ($isLoggedIn) {
             <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
             <button id="save-changes" class="action-button hidden">Save Changes</button>
           <?php endif; ?>
-          <!-- <div id="notification-area" class="notification-area"></div> -->
           <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
         </div>
 
@@ -168,7 +167,6 @@ if ($isLoggedIn) {
             data-stage-width="<?= $venue['stage_width'] ?>"
             data-stage-depth="<?= $venue['stage_depth'] ?>">
           <div id="front-label">FRONT OF STAGE</div>
-          <div id="notification-area" class="notification-area"></div>
         </div>
     </div>
 </div>

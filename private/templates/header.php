@@ -94,3 +94,5 @@
     </header>
 
     <div id="page-wrapper">
+      <div id="notification-area" class="notification-area pinned"></div>
+
