@@ -8,6 +8,7 @@
 /* -------------------- Core Styles --------------------- */
 * {
   box-sizing: border-box;
+  overscroll-behavior: contain;
 }
 
 html {
