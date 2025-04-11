@@ -233,7 +233,7 @@
   color: var(--color-primary-dark);
   font-size: var(--font-size-xl);
   font-weight: 600;
-  margin: var(--spacing-sm) 0 var(--spacing-md);
+  margin: 0 0 var(--spacing-lg);
   text-align: center;
 }
 
