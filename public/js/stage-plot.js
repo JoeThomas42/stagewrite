@@ -636,8 +636,8 @@ function handleDrop(e, plotState) {
     image: imageSrc,
     x: x,
     y: y,
-    width: 75, // Initial default width that will be adjusted when image loads
-    height: 75, // Fixed height
+    width: 75,
+    height: 75,
     rotation: 0,
     flipped: false,
     zIndex: plotState.nextZIndex++,
@@ -701,7 +701,6 @@ function createPlacedElement(elementData, plotState) {
     img.src = `/images/elements/${elementData.image}`;
     img.alt = elementData.elementName;
 
-    // Add onload handler to adjust width based on actual image dimensions
     img.onload = function () {
       // Calculate the appropriate width based on the image's aspect ratio
       const aspectRatio = this.naturalWidth / this.naturalHeight;
@@ -716,16 +715,12 @@ function createPlacedElement(elementData, plotState) {
         plotState.elements[elementIndex].width = newWidth;
       }
 
-      // --- REMOVED THE CONDITIONAL CALL TO markPlotAsModified ---
-      // if (plotState.currentPlotId && plotState.isModified) { // <<< REMOVE THIS CHECK
-      //   markPlotAsModified(plotState); // <<< REMOVE THIS CALL
-      // }
-      resolve(); // Resolve the promise once image is loaded and width adjusted
+      resolve();
     };
     // Handle image loading errors
     img.onerror = function () {
       console.warn(`Failed to load image for element ${elementData.elementName}`);
-      resolve(); // Resolve even if image fails to load
+      resolve();
     };
 
     element.appendChild(img);
@@ -777,6 +772,7 @@ function createPlacedElement(elementData, plotState) {
     deleteBtn.className = 'edit-element';
     deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
     deleteBtn.title = 'Delete Element';
+    deleteBtn.id = 'delete-action-btn';
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       setupConfirmButton(

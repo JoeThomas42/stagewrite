@@ -209,13 +209,14 @@
 
 /* Snapshot Modal Styles */
 #snapshot-modal .modal-content {
+  background-color: var(--color-background);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  padding: var(--spacing-sm);
+  height: auto;
   max-width: 90vw;
   max-height: 90vh;
   width: auto;
-  height: auto;
-  padding: var(--spacing-sm);
-  background-color: var(--color-background);
-  overflow: hidden;
 }
 
 #snapshot-modal-image {
