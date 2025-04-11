@@ -105,11 +105,15 @@ $userVenues = $db->fetchAll("
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            <?php if (!empty($plot['snapshot_filename'])): ?>
-                                <div class="plot-card-snapshot">
-                                    <img src="/handlers/get_snapshot.php?filename=<?= urlencode($plot['snapshot_filename']) ?>&v=<?= $plot['snapshot_version'] ?? time() ?>" 
-                                    alt="Preview of <?= htmlspecialchars($plot['plot_name']) ?>" 
-                                    class="plot-snapshot" />
+                            <?php if (!empty($plot['snapshot_filename'])): 
+                                $snapshotUrl = "/handlers/get_snapshot.php?filename=" . urlencode($plot['snapshot_filename']) . "&v=" . ($plot['snapshot_version'] ?? time());
+                            ?>
+                                <div class="plot-card-snapshot snapshot-trigger" 
+                                    data-snapshot-src="<?= $snapshotUrl ?>" 
+                                    title="Click to enlarge snapshot">
+                                    <img src="<?= $snapshotUrl ?>" 
+                                        alt="Preview of <?= htmlspecialchars($plot['plot_name']) ?>" 
+                                        class="plot-snapshot" />
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -298,6 +302,14 @@ $userVenues = $db->fetchAll("
             </div>
         </form>
         <div class="modal-notification-area"></div>
+    </div>
+</div>
+
+<!-- Snapshot Modal -->
+<div id="snapshot-modal" class="modal hidden">
+    <div class="modal-content snapshot-modal-content">
+        <span class="close-button">&times;</span>
+        <img id="snapshot-modal-image" src="" alt="Enlarged Plot Snapshot" />
     </div>
 </div>
 

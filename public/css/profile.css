@@ -123,10 +123,6 @@
   transition: all var(--transition-fast);
 }
 
-.plot-card:hover {
-  box-shadow: var(--shadow-md);
-}
-
 .plot-card-header {
   align-items: center;
   border-bottom: 1px solid var(--color-border);
@@ -162,18 +158,17 @@
   flex: 2;
   flex-shrink: 0;
   width: 180px;
-  transform: none;
   transition: all var(--transition-fast);
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-background-alt); /* Optional: background for letterboxing */
+  background-color: var(--color-background-alt);
+  cursor: pointer;
 
   &:hover {
     box-shadow: var(--shadow-lg);
-    transform: scale(3);
-    z-index: 8000;
+    transform: scale(1.05);
   }
 }
 
@@ -210,6 +205,41 @@
 
 .open-plot-btn {
   width: 100px;
+}
+
+/* Snapshot Modal Styles */
+#snapshot-modal .modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  padding: var(--spacing-sm);
+  background-color: var(--color-background);
+  overflow: hidden;
+}
+
+#snapshot-modal-image {
+  display: block;
+  max-width: 100%;
+  max-height: calc(90vh - 60px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+#snapshot-modal .close-button {
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  color: var(--color-white);
+  height: 25px;
+  line-height: 25px;
+  position: absolute;
+  right: 14px;
+  text-align: center;
+  top: 14px;
+  width: 25px;
 }
 
 /* -------------------- Venues Table --------------------- */

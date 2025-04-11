@@ -39,7 +39,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: inset var(--shadow-inset-md);
-  max-height: 854px;
+  max-height: 900px;
   max-width: 330px;
   overflow-y: auto;
   padding: var(--spacing-md);

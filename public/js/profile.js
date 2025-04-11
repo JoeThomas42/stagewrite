@@ -90,6 +90,9 @@ function initProfileFunctionality() {
 
   // Initialize plot opening
   initPlotOpening();
+
+  // Initialize snapshot modal
+  initSnapshotModal(); 
 }
 
 /**
@@ -633,9 +636,43 @@ function initPlotOpening() {
   });
 }
 
+/**
+ * Initialize snapshot modal functionality
+ */
+function initSnapshotModal() {
+  const modal = document.getElementById('snapshot-modal');
+  if (!modal) return;
+
+  const modalImage = document.getElementById('snapshot-modal-image');
+  const closeBtn = modal.querySelector('.close-button');
+
+  document.querySelectorAll('.snapshot-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const snapshotSrc = trigger.getAttribute('data-snapshot-src');
+      if (snapshotSrc && modalImage) {
+        modalImage.setAttribute('src', snapshotSrc);
+        openModal(modal); // Use existing openModal function from ui.js
+      }
+    });
+  });
+
+  // Close functionality
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => closeModal(modal)); // Use existing closeModal
+  }
+
+  modal.addEventListener('click', (e) => {
+    // Close if clicking on the background overlay, not the content/image
+    if (e.target === modal) {
+      closeModal(modal); // Use existing closeModal
+    }
+  });
+}
+
 window.initProfileFunctionality = initProfileFunctionality;
 window.initUserVenueModal = initUserVenueModal;
 window.initVenueDetailModal = initVenueDetailModal;
 window.initPlotDeletion = initPlotDeletion;
 window.initPlotDuplication = initPlotDuplication;
 window.initPlotOpening = initPlotOpening;
+window.initSnapshotModal = initSnapshotModal;
