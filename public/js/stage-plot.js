@@ -686,20 +686,22 @@ function createPlacedElement(elementData, plotState) {
     // Initially set width, will be adjusted when image loads
     element.style.width = `${elementData.width}px`;
 
-    // Apply rotation if any
+    // Apply rotation if any - Apply only rotation initially
     if (elementData.rotation) {
       element.style.transform = `rotate(${elementData.rotation}deg)`;
-    }
-
-    // Apply flip if needed
-    if (elementData.flipped) {
-      element.style.transform = element.style.transform ? `${element.style.transform} scaleX(-1)` : 'scaleX(-1)';
+    } else {
+      element.style.transform = ''; // Ensure transform is initialized
     }
 
     // Create image
     const img = document.createElement('img');
     img.src = `/images/elements/${elementData.image}`;
     img.alt = elementData.elementName;
+
+    // Apply flip state to the image initially
+    if (elementData.flipped) {
+      img.style.transform = 'scaleX(-1)';
+    }
 
     img.onload = function () {
       // Calculate the appropriate width based on the image's aspect ratio
@@ -748,16 +750,10 @@ function createPlacedElement(elementData, plotState) {
       openPropertiesModal(elementData.id, plotState);
     });
 
-    // Add button event handlers
-    editBtn.addEventListener('mousedown', function (e) {
-      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-    });
-    editBtn.addEventListener('mouseup', function () {
-      this.style.boxShadow = '';
-    });
-    editBtn.addEventListener('mouseleave', function () {
-      this.style.boxShadow = '';
-    });
+    // Add button event handlers (mousedown/up/leave for visual feedback)
+    editBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
+    editBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
+    editBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
 
     editAction.appendChild(editBtn);
     element.appendChild(editAction);
@@ -789,19 +785,59 @@ function createPlacedElement(elementData, plotState) {
       );
     });
 
-    // Add button event handlers
-    deleteBtn.addEventListener('mousedown', function (e) {
-      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-    });
-    deleteBtn.addEventListener('mouseup', function () {
-      this.style.boxShadow = '';
-    });
-    deleteBtn.addEventListener('mouseleave', function () {
-      this.style.boxShadow = '';
-    });
+    // Add button event handlers (mousedown/up/leave for visual feedback)
+    deleteBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
+    deleteBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
+    deleteBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
 
     deleteAction.appendChild(deleteBtn);
     element.appendChild(deleteAction);
+
+    // Add flip button
+    const flipAction = document.createElement('div');
+    flipAction.className = 'element-actions';
+    flipAction.id = 'flip-action';
+
+    const flipBtn = document.createElement('button');
+    flipBtn.className = 'edit-element';
+    flipBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
+    flipBtn.title = 'Flip Horizontally';
+    if (elementData.flipped) {
+        flipBtn.classList.add('flipped'); // Add class if initially flipped
+    }
+
+    flipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const elementId = parseInt(element.getAttribute('data-id'));
+        const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+
+        if (elementIndex !== -1) {
+            // Toggle state
+            plotState.elements[elementIndex].flipped = !plotState.elements[elementIndex].flipped;
+            const isFlipped = plotState.elements[elementIndex].flipped;
+
+            // Update image transform
+            const imageElement = element.querySelector('img');
+            if (imageElement) {
+                imageElement.style.transform = isFlipped ? 'scaleX(-1)' : '';
+            }
+
+            // Update button appearance
+            flipBtn.classList.toggle('flipped', isFlipped);
+            flipBtn.title = isFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
+
+            markPlotAsModified(plotState);
+        }
+    });
+
+    // Add button event handlers (mousedown/up/leave for visual feedback)
+    flipBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
+    flipBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
+    flipBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
+
+    flipAction.appendChild(flipBtn);
+    element.appendChild(flipAction);
+    // End of flip button <<<
 
     // Make draggable within stage
     makeDraggableOnStage(element, plotState);

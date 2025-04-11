@@ -391,10 +391,10 @@
 #delete-action {
   bottom: -14px;
   right: -14px;
-  
+
   button {
     background-color: var(--color-danger);
-    
+
     &.confirming {
       animation: pulse 1s alternate infinite;
       width: 60px;
@@ -402,9 +402,17 @@
   }
 }
 
-#favorite-action {
+#flip-action {
   bottom: -14px;
   left: -14px;
+
+  button {
+    background-color: var(--color-secondary);
+
+    &.flipped {
+      background-color: var(--color-secondary-dark);
+    }
+  }
 }
 
 .element-label {
