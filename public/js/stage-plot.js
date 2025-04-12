@@ -2200,10 +2200,6 @@ function setupChangeTracking(plotState) {
  * @param {Object} plotState - The current plot state
  */
 function initPlotControls(plotState) {
-  const stage = document.getElementById('stage');
-  const saveButton = document.getElementById('save-plot');
-  const saveChangesButton = document.getElementById('save-changes');
-  const loadButton = document.getElementById('my-plots');
   const clearButton = document.getElementById('clear-plot');
   const newPlotButton = document.getElementById('new-plot');
 
