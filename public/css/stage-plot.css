@@ -360,7 +360,7 @@
   position: absolute;
   transition: opacity 0.2s;
   z-index: 1001;
-
+  
   button {
     align-items: center;
     display: flex;
@@ -439,6 +439,7 @@
   cursor: move;
   display: flex;
   justify-content: center;
+  margin: 14px;
   position: absolute;
   transition: box-shadow 0.2s ease, transform 0.1s ease;
 
@@ -472,7 +473,7 @@
   padding: var(--spacing-xs) var(--spacing-sm);
   position: absolute;
   width: 30px;
-  z-index: 2;
+  z-index: 2000;
 }
 
 #grid-toggle.grid-button {  

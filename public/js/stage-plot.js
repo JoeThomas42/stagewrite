@@ -918,10 +918,18 @@ function makeDraggableOnStage(element, plotState) {
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
     const elementRect = element.getBoundingClientRect();
-
-    const maxLeft = stageRect.width - elementRect.width;
-    const maxTop = stageRect.height - elementRect.height;
-
+    
+    // Get computed margin
+    const computedStyle = window.getComputedStyle(element);
+    const marginRight = parseInt(computedStyle.marginRight) || 0;
+    const marginBottom = parseInt(computedStyle.marginBottom) || 0;
+    const marginLeft = parseInt(computedStyle.marginLeft) || 0;
+    const marginTop = parseInt(computedStyle.marginTop) || 0;
+    
+    // Calculate max position accounting for margins
+    const maxLeft = stageRect.width - elementRect.width - marginRight - marginLeft;
+    const maxTop = stageRect.height - elementRect.height - marginBottom - marginTop;
+    
     // Apply constraints
     const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
     const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
