@@ -93,11 +93,11 @@ try {
     foreach ($data['elements'] as $element) {
         $db->query(
             "INSERT INTO placed_elements
-            (plot_id, element_id, x_position, y_position, width, height, rotation, flipped, z_index, label, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (plot_id, element_id, x_position, y_position, width, height, flipped, z_index, label, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 $plotId, $element['element_id'], $element['x_position'], $element['y_position'],
-                $element['width'], $element['height'], $element['rotation'], $element['flipped'],
+                $element['width'], $element['height'], $element['flipped'],
                 $element['z_index'], $element['label'] ?? '', $element['notes'] ?? ''
             ]
         );
@@ -122,7 +122,7 @@ try {
         }
     }
 
-    // Generate snapshot (optional, keep if needed)
+    // Generate snapshot
     $snapshotFilename = generatePlotSnapshot($plotId, $data['elements'], $venueId, $userVenueId);
     if ($snapshotFilename) {
         $db->query(

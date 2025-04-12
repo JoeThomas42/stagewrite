@@ -148,18 +148,10 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
                         imagesx($elementImg), imagesy($elementImg)
                     );
                     
-                    if ($element['rotation'] != 0 || $element['flipped'] == 1) {
-                        $resizedImg = rotateAndFlipImage(
-                            $resizedImg, 
-                            $element['rotation'], 
-                            $element['flipped'] == 1
-                        );
-                        
-                        $newWidth = imagesx($resizedImg);
-                        $newHeight = imagesy($resizedImg);
-                        // Adjust position to center the rotated image
-                        $x = $x - ($newWidth - $width) / 2;
-                        $y = $y - ($newHeight - $height) / 2;
+                    // Apply flip if needed
+                    if ($element['flipped'] == 1) {
+                      $resizedImg = flipImage($resizedImg, true);
+                      
                     }
                     
                     imagecopy(
@@ -214,9 +206,6 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
         // --- ADD LABEL DRAWING CODE END ---
     }
     
-    // Add a subtle drop shadow effect (optional)
-    // ... (shadow code can remain similar if desired) ...
-    
     // Generate filename
     if ($existingSnapshot && !empty($existingSnapshot['snapshot_filename'])) {
         $filename = $existingSnapshot['snapshot_filename'];
@@ -268,9 +257,6 @@ function drawElementAsRectangle($image, $element, $snapshotWidth, $snapshotHeigh
     
     imagefilledrectangle($image, round($x + 1), round($y + 1), round($x + $width - 1), round($y + $height - 1), $fillColor);
     imagerectangle($image, round($x), round($y), round($x + $width), round($y + $height), $borderColor);
-    
-    // Add a slight 3D effect (optional)
-    // ... (highlight/shadow code can remain similar if desired) ...
 }
 
 /**
@@ -281,17 +267,9 @@ function drawElementAsRectangle($image, $element, $snapshotWidth, $snapshotHeigh
  * @param bool $flip Whether to flip the image horizontally.
  * @return resource The modified image resource.
  */
-function rotateAndFlipImage($image, $angle, $flip) {
+function flipImage($image, $flip) {
     if ($flip) {
         imageflip($image, IMG_FLIP_HORIZONTAL);
-    }
-    if ($angle != 0) {
-        // Rotate the image using white as the background color (or transparent if possible)
-        $transparent = imagecolorallocatealpha($image, 255, 255, 255, 127);
-        $rotatedImage = imagerotate($image, -$angle, $transparent); // GD rotates counter-clockwise
-        imagesavealpha($rotatedImage, true); // Preserve transparency after rotation
-        imagedestroy($image); // Free original image memory
-        return $rotatedImage;
     }
     return $image;
 }

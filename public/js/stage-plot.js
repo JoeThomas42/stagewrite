@@ -638,7 +638,6 @@ function handleDrop(e, plotState) {
     y: y,
     width: 75,
     height: 75,
-    rotation: 0,
     flipped: false,
     zIndex: plotState.nextZIndex++,
     label: '',
@@ -685,13 +684,6 @@ function createPlacedElement(elementData, plotState) {
 
     // Initially set width, will be adjusted when image loads
     element.style.width = `${elementData.width}px`;
-
-    // Apply rotation if any - Apply only rotation initially
-    if (elementData.rotation) {
-      element.style.transform = `rotate(${elementData.rotation}deg)`;
-    } else {
-      element.style.transform = ''; // Ensure transform is initialized
-    }
 
     // Create image
     const img = document.createElement('img');
@@ -1321,7 +1313,6 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
       y_position: el.y,
       width: el.width,
       height: el.height,
-      rotation: el.rotation,
       flipped: el.flipped ? 1 : 0,
       z_index: el.zIndex,
       label: el.label || '',
@@ -1699,7 +1690,6 @@ function loadPlot(plotId, plotState) {
             y: element.y_position,
             width: element.width,
             height: element.height,
-            rotation: element.rotation,
             flipped: element.flipped === 1,
             zIndex: element.z_index,
             label: element.label || '',
