@@ -189,11 +189,7 @@ function initVenueEditModal() {
               const errorSpan = document.createElement('span');
               errorSpan.className = 'field-error';
               errorSpan.textContent = message;
-              errorSpan.style.color = 'red';
-              errorSpan.style.fontSize = '12px';
               errorSpan.style.display = 'block';
-              errorSpan.style.marginTop = '-10px';
-              errorSpan.style.marginBottom = '10px';
               
               inputField.parentNode.insertBefore(errorSpan, inputField.nextSibling);
             }
