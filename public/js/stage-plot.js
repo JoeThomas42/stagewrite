@@ -647,7 +647,9 @@ function handleDrop(e, plotState) {
     notes: '',
   };
 
-  // Rest of the function remains the same
+  // Add to state and create DOM element
+  plotState.elements.push(newElement);
+  
   createPlacedElement(newElement, plotState).then(() => {
     renderElementInfoList(plotState); // Update the info list
   });
