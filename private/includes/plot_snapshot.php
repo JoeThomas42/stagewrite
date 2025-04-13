@@ -196,10 +196,6 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
             // Ensure label doesn't go off the left/right edges
             $labelX = max(2, min($labelX, $snapshotBaseWidth - $labelWidth - 2));
 
-            // Optional: Draw a faint background for better readability (adjust alpha for transparency)
-            // $labelBgColor = imagecolorallocatealpha($image, 255, 255, 255, 60); // Semi-transparent white
-            // imagefilledrectangle($image, $labelX - 1, $labelY - 1, $labelX + $labelWidth, $labelY + $labelHeight, $labelBgColor);
-
             // Draw the label string
             imagestring($image, $labelFont, $labelX, $labelY, $labelText, $labelTextColor);
         }
