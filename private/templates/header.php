@@ -47,7 +47,7 @@
                         <ul>
                             <li>
                                 <a href="<?= WEB_ROOT ?>/index.php" class="<?= $current_page === 'Home' ? 'current-page' : '' ?>">
-                                    Home
+                                    Stage Plot
                                 </a>
                             </li>
                             <li>

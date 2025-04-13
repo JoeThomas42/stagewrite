@@ -16,75 +16,7 @@
   width: 400px;
 
   h2 {
-    font-size: var(--font-size-xl);
-    margin-bottom: var(--spacing-xl);
-    text-align: center;
-  }
-  
-  .form {
-    transition: all var(--transition-medium);
-    
-    &.hidden {
-      display: none;
-    }
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-lg);
-  }
-  
-  label {
-    color: var(--color-text-secondary);
-    display: block;
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    margin-bottom: var(--spacing-xs);
-  }
-  
-  input {
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-sm);
-    padding: var(--spacing-md);
-    transition: all var(--transition-fast);
-    width: 100%;
-  }
-  
-  button {
-    background-color: var(--color-primary);
-    border: none;
-    border-radius: var(--border-radius-sm);
-    color: white;
-    cursor: pointer;
-    font-size: var(--font-size-md);
-    font-weight: 500;
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-md);
-    transition: all var(--transition-fast);
-    
-    &:hover {
-      background-color: var(--color-primary-dark);
-      box-shadow: var(--shadow-sm);
-    }
-  }
-  
-  p {
-    margin-top: var(--spacing-lg);
-    text-align: center;
-  }
-  
-  a {
-    color: var(--color-primary);
-    font-weight: 500;
-    text-decoration: none;
-    transition: all var(--transition-fast);
-    
-    &:hover {
-      color: var(--color-primary-dark);
-      text-decoration: underline;
-    }
+    margin-bottom: var(--spacing-lg);
   }
 }
 
@@ -486,9 +418,7 @@ th.sortable {
 }
 
 .delete-plot-btn {
-  background-color: transparent;
-  box-shadow: none;
-  color: var(--color-danger);
+  background-color: var(--color-danger);
   height: 38px;
   width: 38px;
 
@@ -718,6 +648,14 @@ th.sortable {
     margin-right: var(--spacing-xs);
     width: auto;
   }
+}
+
+/* -------------------- Heading Spans --------------------- */
+h2 span,
+h3 span {
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
+  font-weight: 300;
 }
 
 /* -------------------- Custom Dropdowns --------------------- */

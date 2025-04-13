@@ -303,12 +303,6 @@ function initAddVenueModal() {
   addVenueModal.addEventListener('click', (e) => {
     if (e.target === addVenueModal) closeModal(addVenueModal);
   });
-  
-  // Add ZIP code auto-complete
-  initZipCodeAutoComplete();
-  
-  // Add city autocomplete
-  initCityAutocomplete();
 
   // Handle form submission
   if (venueForm) {

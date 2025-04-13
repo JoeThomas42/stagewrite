@@ -78,7 +78,7 @@ $userVenues = $db->fetchAll("
         <?php if (empty($plots)): ?>
             <div class="empty-section">
                 <p>You don't have any saved plots yet. Start by creating a new plot!</p>
-                <a href="/index.php" class="primary-button">Create Plot</a>
+                <button class="primary-button"><a href="/index.php">Create Plot</a></button>
             </div>
         <?php else: ?>
             <div class="plots-grid">
@@ -130,7 +130,9 @@ $userVenues = $db->fetchAll("
     <!-- Custom Venues Section -->
     <div class="profile-section">
         <div class="section-header">
-            <h2>Your Custom Venues</h2>
+            <h2>Your Custom Venues
+                <span> - Click on a venue to edit or remove</span>
+            </h2>
             <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
         </div>
         

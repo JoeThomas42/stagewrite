@@ -56,6 +56,7 @@ if ($isLoggedIn) {
                     <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['category_name']) ?></option>
                 <?php endforeach; ?>
             </select>
+            <p>Drag elements to the stage</p>
         </div>
         
         <div id="elements-list">
@@ -185,7 +186,9 @@ if ($isLoggedIn) {
 
 <div id="stage-info-container">
   <div class="input-list-section">
-      <h2>Input List</h2>
+      <h2>Input List
+        <br><span>Keep track of your audio inputs</span>
+      </h2>
       <div id="input-list" class="input-grid">
           </div>
       <button id="add-input-line" class="primary-button add-line-button">
@@ -194,7 +197,9 @@ if ($isLoggedIn) {
   </div> 
 
   <div class="element-info">
-    <h2>Stage Element List</h2>
+    <h2>Stage Element List
+      <br><span>Click on an element to edit or remove</span>
+    </h2>
     <ol id="element-info-list">
       <li class="no-elements-message">No elements placed yet.</li>
     </ol>
@@ -309,7 +314,9 @@ if ($isLoggedIn) {
         
         <!-- Existing plots section -->
         <div class="save-section existing-plots-section">
-            <h3>Overwrite Existing Plot</h3>
+            <h3>Overwrite Existing Plot
+                <br><span>Use new name entered above or leave empty to reuse existing name</span>
+            </h3>
             <div class="existing-plots-list">
                 <!-- Will be populated via JavaScript -->
                 <p class="loading-message">Loading your saved plots...</p>

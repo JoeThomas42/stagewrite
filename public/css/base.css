@@ -76,6 +76,11 @@ button,
   }
 }
 
+a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
 img {
   display: block;
   margin: 0 auto;

@@ -20,8 +20,6 @@ window.initializeApp = function() {
   safeInit(window.initNotificationSystem, "Notification System");
   safeInit(window.initThemeSystem, "Theme System");
   safeInit(window.initStageEditor, "Stage Editor");
-  safeInit(window.initCityAutocomplete, "City Autocompletion");
-  safeInit(window.initZipCodeAutoComplete, "Zip Autocompletion");
   safeInit(window.initProfileFunctionality, "Profile Functionality");
   safeInit(window.initCustomNumberInputs, "Custom Number Inputs");
   safeInit(window.initTooltips, "Enhanced Tooltips");
