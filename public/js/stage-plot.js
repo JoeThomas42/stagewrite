@@ -622,9 +622,13 @@ function handleDrop(e, plotState) {
   // Calculate position relative to the stage
   const stageRect = stage.getBoundingClientRect();
 
-  // Get the position relative to the stage
-  let x = Math.max(0, Math.min(e.clientX - stageRect.left, stageRect.width - 80));
-  let y = Math.max(0, Math.min(e.clientY - stageRect.top, stageRect.height - 50));
+  // Default element dimensions
+  const elementWidth = 75;
+  const elementHeight = 75;
+  
+  // Get the position relative to the stage, centered on cursor
+  let x = Math.max(0, Math.min(e.clientX - stageRect.left - (elementWidth / 1.5), stageRect.width - elementWidth));
+  let y = Math.max(0, Math.min(e.clientY - stageRect.top - (elementHeight / 1.5), stageRect.height - elementHeight));
 
   // Create a new element object
   const newElement = {
@@ -643,10 +647,7 @@ function handleDrop(e, plotState) {
     notes: '',
   };
 
-  // Add to state
-  plotState.elements.push(newElement);
-
-  // Create element in DOM
+  // Rest of the function remains the same
   createPlacedElement(newElement, plotState).then(() => {
     renderElementInfoList(plotState); // Update the info list
   });
