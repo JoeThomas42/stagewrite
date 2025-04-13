@@ -153,7 +153,7 @@ if ($isLoggedIn) {
                       </div>
                     </div>
                 </div>
-                <div id="venue-info-panel" class="venue-info-panel hidden">
+                <div id="venue-info-panel" class="venue-info-panel">
                     <h3>Venue Information</h3>
                     <div class="venue-details">
                         <p><strong>Name:</strong> <span id="venue-info-name">N/A</span></p>

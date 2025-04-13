@@ -449,24 +449,23 @@ function updateFavoritesCategory(plotState) {
   let favoritesSection = elementsPanel.querySelector('.category-section.favorites-section');
   // (Logic to potentially create the section if missing - same as before)
   if (!favoritesSection) {
-      favoritesSection = document.createElement('div');
-      favoritesSection.className = 'category-section favorites-section';
-      favoritesSection.setAttribute('data-category-id', '1');
-      const heading = document.createElement('h3');
-      heading.textContent = 'Favorites';
-      favoritesSection.appendChild(heading);
-      const grid = document.createElement('div');
-      grid.className = 'elements-grid';
-      favoritesSection.appendChild(grid);
-      elementsPanel.insertBefore(favoritesSection, elementsPanel.firstChild);
+    favoritesSection = document.createElement('div');
+    favoritesSection.className = 'category-section favorites-section';
+    favoritesSection.setAttribute('data-category-id', '1');
+    const heading = document.createElement('h3');
+    heading.textContent = 'Favorites';
+    favoritesSection.appendChild(heading);
+    const grid = document.createElement('div');
+    grid.className = 'elements-grid';
+    favoritesSection.appendChild(grid);
+    elementsPanel.insertBefore(favoritesSection, elementsPanel.firstChild);
   }
-
 
   let favoritesGrid = favoritesSection.querySelector('.elements-grid');
   if (!favoritesGrid) {
-      favoritesGrid = document.createElement('div');
-      favoritesGrid.className = 'elements-grid';
-      favoritesSection.appendChild(favoritesGrid);
+    favoritesGrid = document.createElement('div');
+    favoritesGrid.className = 'elements-grid';
+    favoritesSection.appendChild(favoritesGrid);
   }
 
   favoritesGrid.innerHTML = ''; // Clear existing grid content
@@ -479,47 +478,47 @@ function updateFavoritesCategory(plotState) {
     favoritesGrid.appendChild(noFavorites);
     // --- Removed separator handling ---
   } else {
-     // --- Removed separator handling ---
-     // Populate grid with favorite elements (same logic as before)
+    // --- Removed separator handling ---
+    // Populate grid with favorite elements (same logic as before)
     plotState.favorites.forEach((elementId) => {
       // ... (element creation logic remains the same)
-        const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
-        if (elementData) {
-            const favoriteElement = document.createElement('div');
-            favoriteElement.className = 'draggable-element favorite-element';
-            favoriteElement.setAttribute('draggable', true);
-            favoriteElement.setAttribute('data-element-id', elementData.element_id);
-            favoriteElement.setAttribute('data-element-name', elementData.element_name);
-            favoriteElement.setAttribute('data-category-id', elementData.category_id);
-            favoriteElement.setAttribute('data-image', elementData.element_image);
+      const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
+      if (elementData) {
+        const favoriteElement = document.createElement('div');
+        favoriteElement.className = 'draggable-element favorite-element';
+        favoriteElement.setAttribute('draggable', true);
+        favoriteElement.setAttribute('data-element-id', elementData.element_id);
+        favoriteElement.setAttribute('data-element-name', elementData.element_name);
+        favoriteElement.setAttribute('data-category-id', elementData.category_id);
+        favoriteElement.setAttribute('data-image', elementData.element_image);
 
-            const img = document.createElement('img');
-            img.src = `/images/elements/${elementData.element_image}`;
-            img.alt = elementData.element_name;
-            favoriteElement.appendChild(img);
+        const img = document.createElement('img');
+        img.src = `/images/elements/${elementData.element_image}`;
+        img.alt = elementData.element_name;
+        favoriteElement.appendChild(img);
 
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'element-name';
-            nameDiv.textContent = elementData.element_name;
-            favoriteElement.appendChild(nameDiv);
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'element-name';
+        nameDiv.textContent = elementData.element_name;
+        favoriteElement.appendChild(nameDiv);
 
-            const favoriteBtn = document.createElement('button');
-            favoriteBtn.className = 'favorite-button';
-            favoriteBtn.setAttribute('type', 'button');
-            favoriteBtn.title = 'Remove from favorites';
-            favoriteBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
-            favoriteBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleFavorite(elementId, plotState);
-            });
-            favoriteElement.appendChild(favoriteBtn);
+        const favoriteBtn = document.createElement('button');
+        favoriteBtn.className = 'favorite-button';
+        favoriteBtn.setAttribute('type', 'button');
+        favoriteBtn.title = 'Remove from favorites';
+        favoriteBtn.innerHTML = '<i class="fa-solid fa-star"></i>';
+        favoriteBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleFavorite(elementId, plotState);
+        });
+        favoriteElement.appendChild(favoriteBtn);
 
-            favoriteElement.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
-            favoritesGrid.appendChild(favoriteElement);
-        }
+        favoriteElement.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
+        favoritesGrid.appendChild(favoriteElement);
+      }
     });
-}
+  }
 
   // Ensure Favorites section is still at the top
   moveFavoritesToTop();
@@ -743,9 +742,15 @@ function createPlacedElement(elementData, plotState) {
     });
 
     // Add button event handlers (mousedown/up/leave for visual feedback)
-    editBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
-    editBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
-    editBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
+    editBtn.addEventListener('mousedown', function (e) {
+      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+    });
+    editBtn.addEventListener('mouseup', function () {
+      this.style.boxShadow = '';
+    });
+    editBtn.addEventListener('mouseleave', function () {
+      this.style.boxShadow = '';
+    });
 
     editAction.appendChild(editBtn);
     element.appendChild(editAction);
@@ -778,9 +783,15 @@ function createPlacedElement(elementData, plotState) {
     });
 
     // Add button event handlers (mousedown/up/leave for visual feedback)
-    deleteBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
-    deleteBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
-    deleteBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
+    deleteBtn.addEventListener('mousedown', function (e) {
+      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+    });
+    deleteBtn.addEventListener('mouseup', function () {
+      this.style.boxShadow = '';
+    });
+    deleteBtn.addEventListener('mouseleave', function () {
+      this.style.boxShadow = '';
+    });
 
     deleteAction.appendChild(deleteBtn);
     element.appendChild(deleteAction);
@@ -795,37 +806,43 @@ function createPlacedElement(elementData, plotState) {
     flipBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
     flipBtn.title = 'Flip Horizontally';
     if (elementData.flipped) {
-        flipBtn.classList.add('flipped'); // Add class if initially flipped
+      flipBtn.classList.add('flipped'); // Add class if initially flipped
     }
 
     flipBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const elementId = parseInt(element.getAttribute('data-id'));
-        const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+      e.stopPropagation();
+      const elementId = parseInt(element.getAttribute('data-id'));
+      const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
 
-        if (elementIndex !== -1) {
-            // Toggle state
-            plotState.elements[elementIndex].flipped = !plotState.elements[elementIndex].flipped;
-            const isFlipped = plotState.elements[elementIndex].flipped;
+      if (elementIndex !== -1) {
+        // Toggle state
+        plotState.elements[elementIndex].flipped = !plotState.elements[elementIndex].flipped;
+        const isFlipped = plotState.elements[elementIndex].flipped;
 
-            // Update image transform
-            const imageElement = element.querySelector('img');
-            if (imageElement) {
-                imageElement.style.transform = isFlipped ? 'scaleX(-1)' : '';
-            }
-
-            // Update button appearance
-            flipBtn.classList.toggle('flipped', isFlipped);
-            flipBtn.title = isFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
-
-            markPlotAsModified(plotState);
+        // Update image transform
+        const imageElement = element.querySelector('img');
+        if (imageElement) {
+          imageElement.style.transform = isFlipped ? 'scaleX(-1)' : '';
         }
+
+        // Update button appearance
+        flipBtn.classList.toggle('flipped', isFlipped);
+        flipBtn.title = isFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
+
+        markPlotAsModified(plotState);
+      }
     });
 
     // Add button event handlers (mousedown/up/leave for visual feedback)
-    flipBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
-    flipBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
-    flipBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
+    flipBtn.addEventListener('mousedown', function (e) {
+      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
+    });
+    flipBtn.addEventListener('mouseup', function () {
+      this.style.boxShadow = '';
+    });
+    flipBtn.addEventListener('mouseleave', function () {
+      this.style.boxShadow = '';
+    });
 
     flipAction.appendChild(flipBtn);
     element.appendChild(flipAction);
@@ -918,18 +935,18 @@ function makeDraggableOnStage(element, plotState) {
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
     const elementRect = element.getBoundingClientRect();
-    
+
     // Get computed margin
     const computedStyle = window.getComputedStyle(element);
     const marginRight = parseInt(computedStyle.marginRight) || 0;
     const marginBottom = parseInt(computedStyle.marginBottom) || 0;
     const marginLeft = parseInt(computedStyle.marginLeft) || 0;
     const marginTop = parseInt(computedStyle.marginTop) || 0;
-    
+
     // Calculate max position accounting for margins
     const maxLeft = stageRect.width - elementRect.width - marginRight - marginLeft;
     const maxTop = stageRect.height - elementRect.height - marginBottom - marginTop;
-    
+
     // Apply constraints
     const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
     const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
@@ -2127,23 +2144,20 @@ function setupChangeTracking(plotState) {
   if (!stage) return;
 
   const observer = new MutationObserver((mutations) => {
-      if (plotState.isLoading) return; // Ignore mutations during loading
+    if (plotState.isLoading) return; // Ignore mutations during loading
 
-      const relevantMutations = mutations.some((mutation) =>
-          (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) && (Array.from(mutation.addedNodes).some(node => node.classList?.contains('placed-element')) || Array.from(mutation.removedNodes).some(node => node.classList?.contains('placed-element')))) ||
-          (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style')
-      );
+    const relevantMutations = mutations.some((mutation) => (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) && (Array.from(mutation.addedNodes).some((node) => node.classList?.contains('placed-element')) || Array.from(mutation.removedNodes).some((node) => node.classList?.contains('placed-element')))) || (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style'));
 
-      if (relevantMutations) {
-          markPlotAsModified(plotState);
-      }
+    if (relevantMutations) {
+      markPlotAsModified(plotState);
+    }
   });
 
   observer.observe(stage, {
-      childList: true,
-      attributes: true,
-      attributeFilter: ['style'],
-      subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['style'],
+    subtree: true,
   });
 
   const venueSelect = document.getElementById('venue_select');
@@ -2152,44 +2166,44 @@ function setupChangeTracking(plotState) {
 
   // Add listener for event start date change
   if (eventStartInput) {
-      eventStartInput.addEventListener('change', () => {
-          // Use the correctly scoped variables
-          if (plotState && plotState.currentPlotId && !plotState.isLoading) {
-              markPlotAsModified(plotState);
-          }
-          // Ensure eventEndInput exists before modifying it
-          if (eventEndInput) {
-              eventEndInput.min = eventStartInput.value;
-              if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
-                  eventEndInput.value = eventStartInput.value;
-                  eventEndInput.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-          } else {
-              console.warn("End date input ('event_end') not found when start date changed.");
-          }
-      });
+    eventStartInput.addEventListener('change', () => {
+      // Use the correctly scoped variables
+      if (plotState && plotState.currentPlotId && !plotState.isLoading) {
+        markPlotAsModified(plotState);
+      }
+      // Ensure eventEndInput exists before modifying it
+      if (eventEndInput) {
+        eventEndInput.min = eventStartInput.value;
+        if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
+          eventEndInput.value = eventStartInput.value;
+          eventEndInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      } else {
+        console.warn("End date input ('event_end') not found when start date changed.");
+      }
+    });
   } else {
-      console.warn("Start date input ('event_start') not found.");
+    console.warn("Start date input ('event_start') not found.");
   }
 
   // Add listener for event end date change
   if (eventEndInput) {
-      eventEndInput.addEventListener('change', () => {
-          if (plotState && plotState.currentPlotId && !plotState.isLoading) {
-              markPlotAsModified(plotState);
-          }
-          // Ensure eventStartInput exists before comparing
-          if (eventStartInput) {
-              if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
-                  showNotification('End date cannot be before start date.', 'warning');
-                   eventEndInput.value = eventStartInput.value; // Reset to start date
-              }
-          } else {
-              console.warn("Start date input ('event_start') not found when end date changed.");
-          }
-      });
+    eventEndInput.addEventListener('change', () => {
+      if (plotState && plotState.currentPlotId && !plotState.isLoading) {
+        markPlotAsModified(plotState);
+      }
+      // Ensure eventStartInput exists before comparing
+      if (eventStartInput) {
+        if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
+          showNotification('End date cannot be before start date.', 'warning');
+          eventEndInput.value = eventStartInput.value; // Reset to start date
+        }
+      } else {
+        console.warn("Start date input ('event_start') not found when end date changed.");
+      }
+    });
   } else {
-      console.warn("End date input ('event_end') not found.");
+    console.warn("End date input ('event_end') not found.");
   }
 }
 
@@ -2256,6 +2270,9 @@ function setupInitialState(plotState) {
     // Calculate and apply dimensions
     const dimensions = calculateStageDimensions(stageWidth, stageDepth);
     updateStageDimensions(dimensions, stage);
+
+    // Initialize venue info panel with no venue selected
+    updateStageForVenue(null, plotState, true);
   }
 
   // Set current date for event dates when the page loads
@@ -2287,11 +2304,11 @@ function setupVenueSelectHandler(plotState) {
 }
 
 /**
- * 
- * @param {*} venueValue 
- * @param {*} plotState 
- * @param {*} isRestoring 
- * @returns 
+ *
+ * @param {*} venueValue
+ * @param {*} plotState
+ * @param {*} isRestoring
+ * @returns
  */
 function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   const stage = document.getElementById('stage');
@@ -2303,88 +2320,87 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   const detailsDiv = venueInfoPanel.querySelector('.venue-details');
 
   if (!stage || !venueInfoPanel || !venueNameEl || !venueAddressEl || !venueStageEl || !noVenueMsg || !detailsDiv) {
-      console.error("Required elements for venue info display not found.");
-      return;
+    console.error('Required elements for venue info display not found.');
+    return;
   }
 
-  // Function to reset and hide venue info panel
+  // Function to reset and show "No venue selected" message
   const showNoVenueInfo = () => {
-      const dimensions = calculateStageDimensions(20, 15); // Default size
-      updateStageDimensions(dimensions, stage);
-      venueInfoPanel.classList.remove('hidden'); // Show the panel
-      detailsDiv.style.display = 'none';         // Hide details
-      noVenueMsg.style.display = 'block';        // Show 'no venue' message
-      venueNameEl.textContent = 'N/A';
-      venueAddressEl.textContent = 'N/A';
-      venueStageEl.textContent = 'N/A';
-      // Only mark modified if NOT restoring and a plot is loaded
-      if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-          markPlotAsModified(plotState);
-      }
+    const dimensions = calculateStageDimensions(20, 15); // Default size
+    updateStageDimensions(dimensions, stage);
+    detailsDiv.style.display = 'none'; // Hide details
+    noVenueMsg.style.display = 'block'; // Show 'no venue' message
+    venueNameEl.textContent = 'N/A';
+    venueAddressEl.textContent = 'N/A';
+    venueStageEl.textContent = 'N/A';
+    // Only mark modified if NOT restoring and a plot is loaded
+    if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+      markPlotAsModified(plotState);
+    }
   };
 
   // If no venue is selected, set defaults and show "No venue selected"
   if (!venueValue) {
-      showNoVenueInfo();
-      return;
+    showNoVenueInfo();
+    return;
   }
 
-  let venueId, isUserVenue = false;
+  let venueId,
+    isUserVenue = false;
   if (venueValue.startsWith('user_')) {
-      isUserVenue = true;
-      venueId = venueValue.replace('user_', '');
+    isUserVenue = true;
+    venueId = venueValue.replace('user_', '');
   } else {
-      venueId = venueValue;
+    venueId = venueValue;
   }
 
   const endpoint = isUserVenue ? `/handlers/get_user_venue.php?id=${venueId}` : `/handlers/get_venue.php?id=${venueId}`;
 
   fetch(endpoint)
-      .then((response) => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.json();
-      })
-      .then((data) => {
-          if (data.success && data.venue) {
-              const venue = data.venue;
-              const dimensions = calculateStageDimensions(parseInt(venue.stage_width) || 20, parseInt(venue.stage_depth) || 15);
-              updateStageDimensions(dimensions, stage);
-              stage.setAttribute('data-venue-id', venueId);
-              stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
+    .then((response) => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success && data.venue) {
+        const venue = data.venue;
+        const dimensions = calculateStageDimensions(parseInt(venue.stage_width) || 20, parseInt(venue.stage_depth) || 15);
+        updateStageDimensions(dimensions, stage);
+        stage.setAttribute('data-venue-id', venueId);
+        stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
 
-              // Populate Venue Info Panel
-              venueNameEl.textContent = venue.venue_name || 'N/A';
+        // Populate Venue Info Panel
+        venueNameEl.textContent = venue.venue_name || 'N/A';
 
-              let addressParts = [];
-              if (venue.venue_street) addressParts.push(venue.venue_street);
-              if (venue.venue_city) addressParts.push(venue.venue_city);
-              if (venue.state_abbr) addressParts.push(venue.state_abbr);
-              if (venue.venue_zip) addressParts.push(venue.venue_zip);
-              venueAddressEl.textContent = addressParts.length > 0 ? addressParts.join(', ') : 'N/A';
+        let addressParts = [];
+        if (venue.venue_street) addressParts.push(venue.venue_street);
+        if (venue.venue_city) addressParts.push(venue.venue_city);
+        if (venue.state_abbr) addressParts.push(venue.state_abbr);
+        if (venue.venue_zip) addressParts.push(venue.venue_zip);
+        venueAddressEl.textContent = addressParts.length > 0 ? addressParts.join(', ') : 'N/A';
 
-              let stageParts = [];
-              if (venue.stage_width) stageParts.push(`Width: ${venue.stage_width}'`);
-              if (venue.stage_depth) stageParts.push(`Depth: ${venue.stage_depth}'`);
-              venueStageEl.textContent = stageParts.length > 0 ? stageParts.join(' / ') : 'N/A';
+        let stageParts = [];
+        if (venue.stage_width) stageParts.push(`Width: ${venue.stage_width}'`);
+        if (venue.stage_depth) stageParts.push(`Depth: ${venue.stage_depth}'`);
+        venueStageEl.textContent = stageParts.length > 0 ? stageParts.join(' / ') : 'N/A';
 
-              // Show the details and hide the 'no venue' message
-              venueInfoPanel.classList.remove('hidden');
-              detailsDiv.style.display = 'block';
-              noVenueMsg.style.display = 'none';
+        // Show the details and hide the 'no venue' message
+        detailsDiv.style.display = 'block';
+        noVenueMsg.style.display = 'none';
 
-              // Only mark modified if NOT restoring and a plot is loaded
-              if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
-                  markPlotAsModified(plotState);
-              }
-          } else {
-              console.error('Failed to get venue data:', data.error);
-              showNoVenueInfo(); // Fallback to default view
-          }
-      })
-      .catch((error) => {
-          console.error('Error fetching venue:', error);
-          showNoVenueInfo(); // Fallback to default view
-      });
+        // Only mark modified if NOT restoring and a plot is loaded
+        if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
+          markPlotAsModified(plotState);
+        }
+      } else {
+        console.error('Failed to get venue data:', data.error);
+        showNoVenueInfo(); // Fallback to default view
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching venue:', error);
+      showNoVenueInfo(); // Fallback to default view
+    });
 }
 
 /**
@@ -2429,7 +2445,7 @@ function initCategoryFilter() {
 
     // Filter category sections visibility
     document.querySelectorAll('.category-section').forEach((section) => {
-      const sectionVisible = (categoryId === '0' || section.getAttribute('data-category-id') === categoryId);
+      const sectionVisible = categoryId === '0' || section.getAttribute('data-category-id') === categoryId;
       section.style.display = sectionVisible ? '' : 'none';
     });
 
@@ -2803,44 +2819,44 @@ function renderElementInfoList(plotState) {
   listContainer.innerHTML = ''; // Clear existing list
 
   if (plotState.elements.length === 0) {
-      const noElementsMsg = document.createElement('li');
-      noElementsMsg.className = 'no-elements-message';
-      noElementsMsg.textContent = 'No elements placed yet.';
-      listContainer.appendChild(noElementsMsg);
-      return;
+    const noElementsMsg = document.createElement('li');
+    noElementsMsg.className = 'no-elements-message';
+    noElementsMsg.textContent = 'No elements placed yet.';
+    listContainer.appendChild(noElementsMsg);
+    return;
   }
 
   // Sort elements by z-index or ID for consistent order (optional, z-index might be better)
   const sortedElements = [...plotState.elements].sort((a, b) => a.zIndex - b.zIndex);
 
-  sortedElements.forEach(elementData => {
-      const listItem = document.createElement('li');
-      listItem.className = 'element-info-item';
-      listItem.setAttribute('data-id', elementData.id);
+  sortedElements.forEach((elementData) => {
+    const listItem = document.createElement('li');
+    listItem.className = 'element-info-item';
+    listItem.setAttribute('data-id', elementData.id);
 
-      // Element Name Span
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'element-info-name';
-      nameSpan.textContent = elementData.elementName;
-      listItem.appendChild(nameSpan);
+    // Element Name Span
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'element-info-name';
+    nameSpan.textContent = elementData.elementName;
+    listItem.appendChild(nameSpan);
 
-      // Append Label Span if label exists
-      if (elementData.label) {
-          const labelSpan = document.createElement('span');
-          labelSpan.className = 'element-info-item-label';
-          labelSpan.textContent = ` - ${elementData.label}`;
-          nameSpan.appendChild(labelSpan);
-      }
+    // Append Label Span if label exists
+    if (elementData.label) {
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'element-info-item-label';
+      labelSpan.textContent = ` - ${elementData.label}`;
+      nameSpan.appendChild(labelSpan);
+    }
 
-      // Notes (if exists)
-      if (elementData.notes) {
-          const notesSpan = document.createElement('span');
-          notesSpan.className = 'element-info-notes';
-          notesSpan.textContent = `${elementData.notes}`;
-          listItem.appendChild(notesSpan);
-      }
+    // Notes (if exists)
+    if (elementData.notes) {
+      const notesSpan = document.createElement('span');
+      notesSpan.className = 'element-info-notes';
+      notesSpan.textContent = `${elementData.notes}`;
+      listItem.appendChild(notesSpan);
+    }
 
-      listContainer.appendChild(listItem);
+    listContainer.appendChild(listItem);
   });
 }
 
@@ -2853,14 +2869,14 @@ function initElementInfoListEvents(plotState) {
   if (!listContainer) return;
 
   listContainer.addEventListener('click', (event) => {
-      // Check if the click is directly on an item or its child span
-      const listItem = event.target.closest('.element-info-item');
-      if (listItem) {
-          const elementId = parseInt(listItem.getAttribute('data-id'));
-          if (!isNaN(elementId)) {
-              openPropertiesModal(elementId, plotState);
-          }
+    // Check if the click is directly on an item or its child span
+    const listItem = event.target.closest('.element-info-item');
+    if (listItem) {
+      const elementId = parseInt(listItem.getAttribute('data-id'));
+      if (!isNaN(elementId)) {
+        openPropertiesModal(elementId, plotState);
       }
+    }
   });
 }
 

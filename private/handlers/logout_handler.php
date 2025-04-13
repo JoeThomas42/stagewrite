@@ -6,8 +6,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 $userObj = new User();
 $userObj->logout();
 
-// Send a response that clears LocalStorage before redirecting
-// This ensures stage plot data doesn't persist between users
 ?>
 <!DOCTYPE html>
 <html>
