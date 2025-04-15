@@ -867,6 +867,9 @@ function createPlacedElement(elementData, plotState) {
       }
       // If img.complete but naturalWidth is 0, onerror should handle it
     }
+
+    if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
+
   }); // End of Promise constructor
 }
 
@@ -1120,6 +1123,8 @@ function applyElementProperties(plotState) {
 
   renderElementInfoList(plotState);
   markPlotAsModified(plotState);
+
+  if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
 }
 
 /**
@@ -1142,6 +1147,8 @@ function deleteElement(elementId, plotState) {
 
   renderElementInfoList(plotState);
   markPlotAsModified(plotState);
+
+  if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
 }
 
 /**
@@ -2733,10 +2740,47 @@ function checkUrlParameters(plotState) {
 function initInputList(plotState) {
   const inputListContainer = document.getElementById('input-list');
   const addButton = document.getElementById('add-input-line');
+  const inputSuggestions = document.getElementById('input-suggestions');
 
   if (!inputListContainer || !addButton) {
     console.warn('Input list elements not found, skipping initialization.');
     return;
+  }
+
+  // Create a function to update the datalist options based on placed elements
+  function updateInputSuggestions() {
+    if (!inputSuggestions) return;
+    
+    // Clear existing options
+    inputSuggestions.innerHTML = '';
+    
+    // Create a Set to track unique suggestions and avoid duplicates
+    const suggestions = new Set();
+    
+    // Add element names and labels from placed elements
+    plotState.elements.forEach(element => {
+      // Add element name
+      if (element.elementName) {
+        suggestions.add(element.elementName);
+      }
+      
+      // Add element label if it exists
+      if (element.label && element.label.trim() !== '') {
+        suggestions.add(element.label);
+      }
+      
+      // Add combined name+label if both exist
+      if (element.elementName && element.label && element.label.trim() !== '') {
+        suggestions.add(`${element.elementName} - ${element.label}`);
+      }
+    });
+    
+    // Create option elements for each suggestion
+    suggestions.forEach(suggestion => {
+      const option = document.createElement('option');
+      option.value = suggestion;
+      inputSuggestions.appendChild(option);
+    });
   }
 
   // Function to add a new input line to the DOM
@@ -2756,6 +2800,7 @@ function initInputList(plotState) {
     labelInput.placeholder = `Input ${number} Label`;
     labelInput.value = label;
     labelInput.maxLength = 50; // Match database schema
+    labelInput.setAttribute('list', 'input-suggestions'); // Connect to datalist
 
     // Add event listener to mark plot as modified when input changes
     labelInput.addEventListener('input', () => {
@@ -2775,7 +2820,6 @@ function initInputList(plotState) {
     inputListContainer.appendChild(inputItem);
   }
 
-  // Function to render the entire input list
   function renderInputList(inputs) {
     inputListContainer.innerHTML = ''; // Clear existing list
     const maxInputs = Math.max(6, inputs.length); // Ensure at least 6 are shown
@@ -2784,6 +2828,9 @@ function initInputList(plotState) {
       const inputData = inputs.find((inp) => inp.number === i);
       addInputLineDOM(i, inputData ? inputData.label : '');
     }
+    
+    // Update suggestions after rendering the list
+    updateInputSuggestions();
   }
 
   // Add button functionality
@@ -2809,6 +2856,12 @@ function initInputList(plotState) {
     plotState.inputs = []; // Clear state
     renderInputList([]); // Re-render empty list (with defaults)
   };
+  
+  // Store the update function in plotState so we can call it from other functions
+  plotState.updateInputSuggestions = updateInputSuggestions;
+  
+  // Initial update of suggestions
+  updateInputSuggestions();
 }
 
 /**

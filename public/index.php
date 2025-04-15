@@ -190,7 +190,9 @@ if ($isLoggedIn) {
         <br><span>Keep track of your audio inputs</span>
       </h2>
       <div id="input-list" class="input-grid">
-          </div>
+      </div>
+      <!-- Add the datalist for input suggestions -->
+      <datalist id="input-suggestions"></datalist>
       <button id="add-input-line" class="primary-button add-line-button">
           <i class="fa-solid fa-plus"></i> Add Line
       </button>
