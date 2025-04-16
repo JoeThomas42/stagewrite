@@ -1,6 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 require_once INCLUDES_PATH . '/plot_snapshot.php';
+require_once INCLUDES_PATH . '/functions.php';
 
 // Ensure user is logged in
 $userObj = new User();
@@ -56,19 +57,9 @@ try {
         mkdir($tempDir, 0755, true);
     }
     
-    // Generate a PDF attachment
-    $filename = 'stage_plot_' . preg_replace('/[^a-z0-9_-]/i', '_', $plotTitle) . '.pdf';
-    $filepath = $tempDir . '/' . $filename;
-    $pdf->Output($filepath, 'F');
-    
-    /*
-    // PLACEHOLDER FOR PDF GENERATION
-    $pdfAttachmentPath = null;
-    */
-    
-    // If we have a plotId, get the existing snapshot instead of generating a new one
+    // Get or generate the snapshot for email
+    $snapshotPath = null;
     if ($plotId) {
-        // Get existing snapshot filename from database
         $snapshotInfo = $db->fetchOne(
             "SELECT snapshot_filename FROM saved_plots WHERE plot_id = ?",
             [$plotId]
@@ -77,28 +68,12 @@ try {
         if ($snapshotInfo && !empty($snapshotInfo['snapshot_filename'])) {
             $snapshotPath = PRIVATE_PATH . '/snapshots/' . $snapshotInfo['snapshot_filename'];
             if (!file_exists($snapshotPath)) {
-                // Fallback to generating a new snapshot if file doesn't exist
-                $elements = $data['elements'];
-                
-                // Extract venue ID and user venue ID
-                $venueId = null;
-                $userVenueId = null;
-                if (!empty($data['venueId'])) {
-                    if (strpos($data['venueId'], 'user_') === 0) {
-                        $userVenueId = (int)str_replace('user_', '', $data['venueId']);
-                    } else {
-                        $venueId = (int)$data['venueId'];
-                    }
-                }
-                
-                // Generate the snapshot
-                $snapshotFilename = generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId);
-                if ($snapshotFilename) {
-                    $snapshotPath = PRIVATE_PATH . '/snapshots/' . $snapshotFilename;
-                }
+                $snapshotPath = null;
             }
-        } else {
-            // Fallback to generating a new snapshot if no filename in database
+        }
+        
+        // If no existing snapshot, generate one
+        if (!$snapshotPath) {
             $elements = $data['elements'];
             
             // Extract venue ID and user venue ID
@@ -119,6 +94,10 @@ try {
             }
         }
     }
+    
+    // Generate the PDF
+    $pdfResult = generatePlotPDF($data, $db, $tempDir, false);
+    $pdfAttachmentPath = $pdfResult['filepath'];
     
     // Prepare email content
     $subject = "Stage Plot: $plotTitle";
@@ -186,6 +165,7 @@ try {
     $htmlContent .= "
             <div class='footer'>
                 <p>This email was sent via StageWrite, the stage plot management tool for event production.</p>
+                <p>A PDF version of this stage plot is attached to this email.</p>
             </div>
         </div>
     </body>
@@ -228,74 +208,55 @@ try {
     $headers .= "Reply-To: $senderEmail\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     
-    // If we have attachments, create a multipart message
-    if (isset($snapshotPath) || isset($pdfAttachmentPath)) {
-        // Generate a boundary string
-        $boundary = md5(time());
+    // Create multipart message with attachments
+    $boundary = md5(time());
+    $headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
+    
+    // Email body for multipart messages
+    $body = "--$boundary\r\n";
+    $body .= "Content-Type: multipart/alternative; boundary=\"alt-$boundary\"\r\n\r\n";
+    
+    // Plain text part
+    $body .= "--alt-$boundary\r\n";
+    $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
+    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $body .= $textContent . "\r\n\r\n";
+    
+    // HTML part
+    $body .= "--alt-$boundary\r\n";
+    $body .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $body .= $htmlContent . "\r\n\r\n";
+    
+    // End of alternative part
+    $body .= "--alt-$boundary--\r\n\r\n";
+    
+    // Attach snapshot image if available
+    if (isset($snapshotPath) && file_exists($snapshotPath)) {
+        $imgData = file_get_contents($snapshotPath);
+        $imgData = chunk_split(base64_encode($imgData));
         
-        $headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
-        
-        // Email body for multipart messages
-        $body = "--$boundary\r\n";
-        $body .= "Content-Type: multipart/alternative; boundary=\"alt-$boundary\"\r\n\r\n";
-        
-        // Plain text part
-        $body .= "--alt-$boundary\r\n";
-        $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-        $body .= $textContent . "\r\n\r\n";
-        
-        // HTML part
-        $body .= "--alt-$boundary\r\n";
-        $body .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-        $body .= $htmlContent . "\r\n\r\n";
-        
-        // End of alternative part
-        $body .= "--alt-$boundary--\r\n\r\n";
-        
-        // Attach snapshot image if available
-        if (isset($snapshotPath)) {
-            $imgData = file_get_contents($snapshotPath);
-            $imgData = chunk_split(base64_encode($imgData));
-            
-            $body .= "--$boundary\r\n";
-            $body .= "Content-Type: image/png; name=\"stage_plot.png\"\r\n";
-            $body .= "Content-Disposition: attachment; filename=\"stage_plot.png\"\r\n";
-            $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
-            $body .= $imgData . "\r\n\r\n";
-        }
-        
-        // Attach PDF if available
-        if (isset($pdfAttachmentPath)) {
-            $pdfData = file_get_contents($pdfAttachmentPath);
-            $pdfData = chunk_split(base64_encode($pdfData));
-            
-            $body .= "--$boundary\r\n";
-            $body .= "Content-Type: application/pdf; name=\"stage_plot.pdf\"\r\n";
-            $body .= "Content-Disposition: attachment; filename=\"stage_plot.pdf\"\r\n";
-            $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
-            $body .= $pdfData . "\r\n\r\n";
-        }
-        
-        // End of the message
-        $body .= "--$boundary--";
-    } else {
-        // Simple HTML email without attachments
-        $headers .= "Content-Type: multipart/alternative; boundary=\"alt-boundary\"\r\n";
-        
-        $body = "--alt-boundary\r\n";
-        $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-        $body .= $textContent . "\r\n\r\n";
-        
-        $body .= "--alt-boundary\r\n";
-        $body .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-        $body .= $htmlContent . "\r\n\r\n";
-        
-        $body .= "--alt-boundary--";
+        $body .= "--$boundary\r\n";
+        $body .= "Content-Type: image/png; name=\"stage_plot.png\"\r\n";
+        $body .= "Content-Disposition: attachment; filename=\"stage_plot.png\"\r\n";
+        $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $body .= $imgData . "\r\n\r\n";
     }
+    
+    // Attach PDF
+    if (file_exists($pdfAttachmentPath)) {
+        $pdfData = file_get_contents($pdfAttachmentPath);
+        $pdfData = chunk_split(base64_encode($pdfData));
+        
+        $body .= "--$boundary\r\n";
+        $body .= "Content-Type: application/pdf; name=\"" . $pdfResult['filename'] . "\"\r\n";
+        $body .= "Content-Disposition: attachment; filename=\"" . $pdfResult['filename'] . "\"\r\n";
+        $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $body .= $pdfData . "\r\n\r\n";
+    }
+    
+    // End of the message
+    $body .= "--$boundary--";
     
     // Send the email
     $recipient = $data['recipient'];
@@ -304,8 +265,8 @@ try {
     // This basic mail() function may not work in all environments
     $mailSent = mail($recipient, $subject, $body, $headers);
     
-    // Clean up temporary files if they exist
-    if (isset($pdfAttachmentPath) && file_exists($pdfAttachmentPath)) {
+    // Clean up temporary files
+    if (file_exists($pdfAttachmentPath)) {
         unlink($pdfAttachmentPath);
     }
     
