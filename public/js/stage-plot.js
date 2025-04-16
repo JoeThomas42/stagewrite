@@ -1135,13 +1135,19 @@ function applyElementProperties(plotState) {
  * @param {Object} plotState - The current plot state
  */
 function deleteElement(elementId, plotState) {
-  // Remove from DOM
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
+  
   if (domElement) {
-    domElement.remove();
+    // Add deleting class to trigger animation
+    domElement.classList.add('deleting');
+    
+    // Remove the element after animation completes
+    domElement.addEventListener('animationend', () => {
+      domElement.remove();
+    });
   }
 
-  // Remove from state
+  // Remove from state immediately (don't wait for animation)
   const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
   if (elementIndex !== -1) {
     plotState.elements.splice(elementIndex, 1);

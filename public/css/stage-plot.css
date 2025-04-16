@@ -489,6 +489,25 @@
   }
 }
 
+/* Element Delete Animation */
+.placed-element.deleting {
+  animation: element-delete 0.3s ease-in forwards;
+  pointer-events: none;
+  transform-origin: center center;
+  z-index: 9999 !important;
+}
+
+@keyframes element-delete {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
 /* -------------------- Stage Grid --------------------- */
 .grid-button {
   font-size: var(--font-size-xs);
