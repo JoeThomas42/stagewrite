@@ -280,7 +280,7 @@ try {
         $mail->Port       = 587;                // TCP port to connect to
         
         // For local testing only - uses PHP's mail() function but with better handling
-        $mail->isMail();
+        // $mail->isMail();
         
         // Recipients
         $mail->setFrom($senderEmail, 'StageWrite');
