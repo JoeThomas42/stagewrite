@@ -203,7 +203,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
         if (!empty($element['label'])) {
             // Define label properties
             $labelTextColor = imagecolorallocate($image, 30, 30, 30); // Dark grey text
-            $labelFont = 2; // Use a small built-in GD font (1-5)
+            $labelFont = 3; // Use built-in GD font (1-5)
 
             $labelText = trim($element['label']);
             $labelWidth = imagefontwidth($labelFont) * strlen($labelText);

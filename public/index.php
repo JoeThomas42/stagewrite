@@ -394,12 +394,10 @@ if ($isLoggedIn) {
             <div class="form-actions">
                 <button type="button" id="send-email-btn" class="primary-button">Send</button>
                 <button type="button" id="back-to-options-btn" class="secondary-button">Back</button>
+                <button type="button" class="cancel-button">Cancel</button>
             </div>
         </div>
         
-        <div class="form-actions modal-bottom-actions">
-            <button type="button" class="cancel-button">Cancel</button>
-        </div>
         <div class="modal-notification-area"></div>
     </div>
 </div>

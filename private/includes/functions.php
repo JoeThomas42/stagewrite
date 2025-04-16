@@ -283,7 +283,7 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false) {
   
   // Add auto-print JavaScript if requested
   if ($autoPrint) {
-      $pdf->IncludeJS("print();");
+    $pdf->IncludeJS("setTimeout(function() { print(); }, 1000);");
   }
   
   // Add a page for the stage plot
