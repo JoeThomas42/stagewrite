@@ -76,23 +76,13 @@ async function deleteUserVenue(venueId, venueName, rowElement) {
 * Initialize all profile page functionality
 */
 function initProfileFunctionality() {
-  // Initialize venue modal
   initUserVenueModal();
-  
-  // Initialize venue detail modal
   initVenueDetailModal();
-  
-  // Initialize plot deletion
   initPlotDeletion();
-  
-  // Initialize plot duplication
   initPlotDuplication();
-
-  // Initialize plot opening
   initPlotOpening();
-
-  // Initialize snapshot modal
   initSnapshotModal(); 
+  initProfileSharePlot();
 }
 
 /**
@@ -669,6 +659,106 @@ function initSnapshotModal() {
   });
 }
 
+/**
+ * Initialize share plot functionality for the profile page
+ */
+function initProfileSharePlot() {
+  // Get all share plot buttons on the profile page
+  const shareButtons = document.querySelectorAll('.share-plot-btn');
+  const shareModal = document.getElementById('share-plot-modal');
+  
+  if (!shareButtons.length || !shareModal) return;
+  
+  // Add click event to each share button
+  shareButtons.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      
+      // Get plot data from button attributes
+      const plotId = btn.getAttribute('data-plot-id');
+      const plotName = btn.getAttribute('data-plot-name');
+      
+      // Set the current share plot data in temporary state
+      if (!window.plotState) {
+        window.plotState = {};
+      }
+      
+      // Start with loading indicator
+      showNotification('Loading plot data...', 'info');
+      
+      try {
+        // Fetch the plot data from the server
+        const response = await fetch(`/handlers/get_plot.php?id=${plotId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to load plot data');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Set necessary plot data for sharing/printing
+          window.plotState.currentPlotId = plotId;
+          window.plotState.currentPlotName = plotName;
+          window.plotState.elements = data.elements || [];
+          window.plotState.inputs = data.inputs || [];
+          
+          // Also set venue and date info from the plot data
+          if (data.plot) {
+            window.plotState.venueId = data.plot.effective_venue_id;
+            window.plotState.venueName = data.plot.venue_name;
+            window.plotState.eventStart = data.plot.event_date_start;
+            window.plotState.eventEnd = data.plot.event_date_end;
+          }
+          
+          // Show the modal
+          openModal(shareModal);
+          
+          // Initialize print and share functionality with the updated plotState
+          if (typeof initPrintAndShare === 'function') {
+            initPrintAndShare(window.plotState);
+          }
+          
+          showNotification('Plot data loaded successfully', 'success');
+        } else {
+          showNotification('Error loading plot data: ' + (data.error || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        console.error('Error fetching plot data:', error);
+        showNotification('Error loading plot data. Please try again.', 'error');
+      }
+    });
+  });
+  
+  // Add close functionality to the modal
+  const closeBtn = shareModal.querySelector('.close-button');
+  const cancelBtn = shareModal.querySelector('.cancel-button');
+  
+  if (closeBtn) closeBtn.addEventListener('click', () => closeModal(shareModal));
+  if (cancelBtn) cancelBtn.addEventListener('click', () => closeModal(shareModal));
+  
+  // Close when clicking outside
+  shareModal.addEventListener('click', (e) => {
+    if (e.target === shareModal) closeModal(shareModal);
+  });
+}
+
+// Add the profile share initialization to the profile functionality
+window.addEventListener('DOMContentLoaded', () => {
+  // This will run after all scripts are loaded
+  if (document.querySelector('.plots-grid')) {
+    setTimeout(() => {
+      // Initialize share plot functionality for profile page
+      initProfileSharePlot();
+      
+      // Initialize print and share functionality if it exists
+      if (typeof initPrintAndShare === 'function' && window.plotState) {
+        initPrintAndShare(window.plotState);
+      }
+    }, 500); // Small delay to ensure other scripts are loaded
+  }
+});
+
 window.initProfileFunctionality = initProfileFunctionality;
 window.initUserVenueModal = initUserVenueModal;
 window.initVenueDetailModal = initVenueDetailModal;
@@ -676,3 +766,4 @@ window.initPlotDeletion = initPlotDeletion;
 window.initPlotDuplication = initPlotDuplication;
 window.initPlotOpening = initPlotOpening;
 window.initSnapshotModal = initSnapshotModal;
+window.initProfileSharePlot = initProfileSharePlot;

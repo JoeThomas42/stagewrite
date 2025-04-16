@@ -119,6 +119,7 @@ $userVenues = $db->fetchAll("
                         </div>
                         <div class="plot-card-actions">
                             <button class="open-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>">Open Plot</button>
+                            <button class="share-plot-btn action-button" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
                             <button class="delete-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
                         </div>
                     </div>
@@ -315,6 +316,60 @@ $userVenues = $db->fetchAll("
     </div>
 </div>
 
+<!-- Print/Share Modal -->
+<div id="share-plot-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Print & Share Options</h2>
+        
+        <div class="share-options-container">
+            <div class="share-option">
+                <button id="print-plot-btn" class="share-action-button">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Print Stage Plot</span>
+                </button>
+                <p class="option-description">Print a detailed version of your stage plot with elements list and input list.</p>
+            </div>
+            
+            <div class="share-option">
+                <button id="pdf-download-btn" class="share-action-button">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Download as PDF</span>
+                </button>
+                <p class="option-description">Download your stage plot as a PDF document.</p>
+            </div>
+            
+            <div class="share-option">
+                <button id="email-share-btn" class="share-action-button">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Share via Email</span>
+                </button>
+                <p class="option-description">Share your stage plot with others via email.</p>
+            </div>
+        </div>
+        
+        <!-- Email sharing form, initially hidden -->
+        <div id="email-share-form" class="hidden">
+            <div class="form-group">
+                <label for="share_email">Recipient Email:</label>
+                <input type="email" id="share_email" name="share_email" required>
+            </div>
+            <div class="form-group">
+                <label for="share_message">Message (Optional):</label>
+                <textarea id="share_message" name="share_message" rows="3"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="button" id="send-email-btn" class="primary-button">Send</button>
+                <button type="button" id="back-to-options-btn" class="secondary-button">Back</button>
+                <button type="button" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+        
+        <div class="modal-notification-area"></div>
+    </div>
+</div>
+
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! IS THIS NEEDED?? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 <script src="<?= JS_PATH ?>/profile.js" defer></script>
 
 <?php

@@ -62,12 +62,6 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: var(--spacing-lg);
-
-  /* h2 span {
-    color: var(--color-text-light);
-    font-size: var(--font-size-sm);
-    font-weight: 300;
-  } */
 }
 
 .profile-section .action-button {
@@ -211,6 +205,10 @@
 
 .open-plot-btn {
   width: 100px;
+}
+
+.share-plot-btn {
+  margin-right: auto;
 }
 
 /* Snapshot Modal Styles */
