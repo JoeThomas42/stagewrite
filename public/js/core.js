@@ -23,6 +23,7 @@ window.initializeApp = function() {
   safeInit(window.initProfileFunctionality, "Profile Functionality");
   safeInit(window.initCustomNumberInputs, "Custom Number Inputs");
   safeInit(window.initTooltips, "Enhanced Tooltips");
+  safeInit(window.initPrintAndShare, "Print and Share Functionality");
 
   console.log("Application initialization complete!");
 };

@@ -26,6 +26,8 @@ function initStageEditor() {
     clearInputList: null, // Placeholder for clear function
   };
 
+  window.plotState = plotState;
+
   // Initialize components
   initPlotControls(plotState);
   initDragAndDrop(plotState);

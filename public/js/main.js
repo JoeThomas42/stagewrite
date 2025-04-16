@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '/js/users.js',
     '/js/venues.js', 
     '/js/ui.js',
+    '/js/share.js',
     '/js/notifications.js',
     '/js/theme.js',
     '/js/stage-plot.js',

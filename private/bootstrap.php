@@ -13,6 +13,7 @@ error_reporting(E_ALL);
 define('BASE_PATH', dirname(__DIR__));
 define('PRIVATE_PATH', BASE_PATH . '/private');
 define('PUBLIC_PATH', BASE_PATH . '/public');
+define('VENDOR_PATH', BASE_PATH . '/vendor');
 define('HANDLERS_PATH', PRIVATE_PATH . '/handlers');
 define('INCLUDES_PATH', PRIVATE_PATH . '/includes');
 define('TEMPLATES_PATH', PRIVATE_PATH . '/templates');

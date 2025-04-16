@@ -51,12 +51,12 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     }
 
     // --- Calculate Snapshot Canvas Dimensions ---
-    $snapshotBaseWidth = 600; // Desired width for the snapshot image
+    $snapshotBaseWidth = 1200; // Desired width for the snapshot image
     $aspectRatio = ($venueWidthFeet > 0) ? $venueDepthFeet / $venueWidthFeet : 3/4; // Calculate aspect ratio based on feet
     $snapshotCanvasHeight = round($snapshotBaseWidth * $aspectRatio);
     $snapshotCanvasHeight = max($snapshotCanvasHeight, 180); // Ensure minimum height
 
-    // --- Reference UI Dimensions (Assuming elements were placed relative to this) ---
+    // --- Reference UI Dimensions ---
     // This assumes the JS calculates stage height based on a 900px width
     $referenceUIWidth = 900; 
     $referenceUIHeight = round($referenceUIWidth * $aspectRatio); 

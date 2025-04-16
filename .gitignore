@@ -1,1 +1,5 @@
+# Ignore all image files
 *.png
+
+# Ignore all vendor files
+vendor/*

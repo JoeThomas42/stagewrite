@@ -914,3 +914,124 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-top: 8px;
   margin-bottom: 10px;
 }
+
+/* ---------------- Share/Print Modal Styles ----------------- */
+.share-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.share-option {
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast);
+}
+
+.share-option:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.share-action-button {
+  align-items: center;
+  background-color: var(--color-primary-light);
+  border: none;
+  border-radius: var(--border-radius-md);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  font-size: var(--font-size-lg);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  transition: background-color var(--transition-fast);
+  width: 100%;
+}
+
+.share-action-button:hover {
+  background-color: var(--color-primary);
+}
+
+.share-action-button i {
+  font-size: var(--font-size-xl);
+}
+
+.option-description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* Add highlight effect for save button */
+@keyframes highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+}
+
+.highlight-button {
+  animation: highlight-pulse 1s 2;
+  background-color: var(--color-success) !important;
+}
+
+/* Print-specific styles that will only apply when printing */
+@media print {
+  @page {
+    size: portrait;
+    margin: 1cm;
+  }
+  
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-section {
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  
+  .print-section * {
+    visibility: visible;
+  }
+  
+  .print-page {
+    page-break-after: always;
+    padding: 20px;
+  }
+  
+  .print-stage {
+    page-break-after: always;
+    height: 80vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .print-heading {
+    font-size: 24pt;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .print-stage #stage {
+    border: 1px solid black;
+    background-color: transparent !important;
+    max-height: 70vh;
+    max-width: 90%;
+    margin: 0 auto;
+  }
+  
+  .print-element-list,
+  .print-input-list {
+    page-break-inside: avoid;
+  }
+}
