@@ -249,8 +249,8 @@ function generatePDF(plotState, printMode = false) {
   // Create and submit form
   const form = document.createElement('form');
   form.method = 'POST';
-  form.action = '/handlers/generate_pdf.php'; // Use public handler URL
-  form.target = '_blank'; // Open PDF in new tab/window
+  form.action = '/handlers/generate_pdf.php';
+  form.target = '_blank';
   form.style.display = 'none';
 
   // Add data as a hidden input
