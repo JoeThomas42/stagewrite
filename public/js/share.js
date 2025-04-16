@@ -8,97 +8,78 @@
  */
 function initPrintAndShare(plotState) {
   console.log('Initializing print/share with plotState:', plotState);
-
+  
+  // Add this guard to prevent multiple initializations
   if (window.printShareInitialized) {
     console.log('Print/share already initialized, skipping');
     return;
   }
-
-  const shareButton = document.getElementById('share-plot');
-  const shareModal = document.getElementById('share-plot-modal');
+  
+  window.printShareInitialized = true;
+  
   const printButton = document.getElementById('print-plot-btn');
   const pdfButton = document.getElementById('pdf-download-btn');
   const emailButton = document.getElementById('email-share-btn');
   const emailForm = document.getElementById('email-share-form');
-  const backButton = document.getElementById('back-to-options-btn');
   const sendEmailButton = document.getElementById('send-email-btn');
-  const shareOptions = document.querySelector('.share-options-container');
-  const closeButtons = shareModal ? shareModal.querySelectorAll('.close-button, .cancel-button') : [];
-
-  window.printShareInitialized = true;
-
-  // Open share modal
-  if (shareButton) {
-    shareButton.addEventListener('click', () => {
-      console.log('Share button clicked, current plotState:', window.plotState);
-      openModal(shareModal);
-    });
-  }
-
-  // Close buttons for modal
-  if (closeButtons.length > 0) {
-    closeButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        closeModal(shareModal);
-      });
-    });
-  }
-
-  // Handle print button click
+  const backButton = document.getElementById('back-to-options-btn');
+  
+  // Store plotState for use in confirmation callback
+  window.plotState = plotState;
+  
+  // Print button
   if (printButton) {
     printButton.addEventListener('click', () => {
-      if (window.plotState) {
-        // Use the PDF generator with print mode
-        generatePDF(window.plotState, true);
-      } else {
-        console.error('Cannot print: window.plotState is undefined');
-        showNotification('Error: Plot state not available. Please try again.', 'error');
-      }
+      generatePDF(plotState, true);
     });
   }
-
-  // Handle PDF download
+  
+  // PDF button
   if (pdfButton) {
     pdfButton.addEventListener('click', () => {
-      if (window.plotState) {
-        // Use the PDF generator with download mode
-        generatePDF(window.plotState, false);
-      } else {
-        console.error('Cannot generate PDF: window.plotState is undefined');
-        showNotification('Error: Plot state not available. Please try again.', 'error');
-      }
+      generatePDF(plotState, false);
     });
   }
-
-  // Handle email share button click
+  
+  // Email button - show email form
   if (emailButton) {
     emailButton.addEventListener('click', () => {
-      // Show email form, hide share options
+      document.querySelector('.share-options-container').classList.add('hidden');
       emailForm.classList.remove('hidden');
-      shareOptions.classList.add('hidden');
     });
   }
-
-  // Back button in email form
+  
+  // Back button - back to share options
   if (backButton) {
     backButton.addEventListener('click', () => {
-      // Show share options, hide email form
       emailForm.classList.add('hidden');
-      shareOptions.classList.remove('hidden');
+      document.querySelector('.share-options-container').classList.remove('hidden');
     });
   }
-
-  // Send email button
+  
+  // Send email button - with confirmation
   if (sendEmailButton) {
-    sendEmailButton.addEventListener('click', () => {
+    sendEmailButton.addEventListener('click', function(e) {
       const email = document.getElementById('share_email').value;
       const message = document.getElementById('share_message').value;
       
-      if (email) {
-        sendPlotViaEmail(email, message, window.plotState);
-      } else {
+      // Check for valid email
+      if (!email) {
         showNotification('Please enter a valid email address', 'warning');
+        return;
       }
+      
+      setupConfirmButton(
+        sendEmailButton,
+        function() {
+          sendPlotViaEmail(email, message, window.plotState);
+        },
+        {
+          confirmText: 'Confirm',
+          confirmTitle: 'Click again to send the email',
+          timeout: 3000
+        }
+      );
     });
   }
 }

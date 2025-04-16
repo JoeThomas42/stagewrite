@@ -944,10 +944,13 @@ input[type="number"]::-webkit-outer-spin-button {
   box-shadow: var(--shadow-md);
 }
 
-.form_actions {
+.form-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: var(--spacing-lg);
+
+  button {
+    width: 100px;
+  }
 }
 
 #send-email-btn {
