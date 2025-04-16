@@ -68,6 +68,12 @@ try {
     // Set auto page breaks
     $pdf->SetAutoPageBreak(TRUE, 15);
     
+    // If in display mode, add JavaScript to auto-print
+    if (isset($_POST['display_mode']) && $_POST['display_mode'] === 'true') {
+        // Add auto-print JavaScript action to the PDF
+        $pdf->IncludeJS("print();");
+    }
+    
     // ---------------------------------------------------------
     
     // Add a page for the stage plot
@@ -238,9 +244,18 @@ try {
     $filepath = $tempDir . '/' . $filename;
     $pdf->Output($filepath, 'F');
 
+    // Check if we should display or download
+    $displayMode = isset($_POST['display_mode']) && $_POST['display_mode'] === 'true';
+
     // Send the file to the browser
     header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    if ($displayMode) {
+        // For display - open in browser window
+        header('Content-Disposition: inline; filename="' . $filename . '"');
+    } else {
+        // For download - force download
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+    }
     header('Cache-Control: max-age=0');
     readfile($filepath);
 
