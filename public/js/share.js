@@ -8,6 +8,12 @@
  */
 function initPrintAndShare(plotState) {
   console.log('Initializing print/share with plotState:', plotState);
+
+  if (window.printShareInitialized) {
+    console.log('Print/share already initialized, skipping');
+    return;
+  }
+
   const shareButton = document.getElementById('share-plot');
   const shareModal = document.getElementById('share-plot-modal');
   const printButton = document.getElementById('print-plot-btn');
@@ -18,6 +24,8 @@ function initPrintAndShare(plotState) {
   const sendEmailButton = document.getElementById('send-email-btn');
   const shareOptions = document.querySelector('.share-options-container');
   const closeButtons = shareModal ? shareModal.querySelectorAll('.close-button, .cancel-button') : [];
+
+  window.printShareInitialized = true;
 
   // Open share modal
   if (shareButton) {
