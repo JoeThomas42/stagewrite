@@ -2,6 +2,12 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 require_once INCLUDES_PATH . '/plot_snapshot.php';
 require_once INCLUDES_PATH . '/functions.php';
+require PRIVATE_PATH . '/vendor/autoload.php';
+    
+// Import PHPMailer classes into the global namespace
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 // Ensure user is logged in
 $userObj = new User();
@@ -36,7 +42,7 @@ try {
     // Get sender information
     $sender = $db->fetchOne(
         "SELECT email, CONCAT(first_name, ' ', last_name) as full_name 
-         FROM users WHERE user_id = ?", 
+          FROM users WHERE user_id = ?", 
         [$_SESSION['user_id']]
     );
     
@@ -261,9 +267,48 @@ try {
     // Send the email
     $recipient = $data['recipient'];
     
-    // IMPORTANT: In production, you would use a proper email library like PHPMailer
-    // This basic mail() function may not work in all environments
-    $mailSent = mail($recipient, $subject, $body, $headers);
+    try {
+        // Create a new PHPMailer instance
+        $mail = new PHPMailer(true); // true enables exceptions
+
+        $mail->isSMTP();                        // Send using SMTP
+        $mail->Host       = 'smtp.example.com'; // Set the SMTP server
+        $mail->SMTPAuth   = true;               // Enable SMTP authentication
+        $mail->Username   = 'user@example.com'; // SMTP username
+        $mail->Password   = 'password';         // SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS
+        $mail->Port       = 587;                // TCP port to connect to
+        
+        // For local testing only - uses PHP's mail() function but with better handling
+        $mail->isMail();
+        
+        // Recipients
+        $mail->setFrom($senderEmail, 'StageWrite');
+        $mail->addReplyTo($senderEmail, $senderName);
+        $mail->addAddress($recipient);
+        
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $htmlContent;
+        $mail->AltBody = $textContent;
+        
+        // Attachments
+        if (isset($snapshotPath) && file_exists($snapshotPath)) {
+            $mail->addAttachment($snapshotPath, 'stage_plot.png');
+        }
+        
+        if (file_exists($pdfAttachmentPath)) {
+            $mail->addAttachment($pdfAttachmentPath, $pdfResult['filename']);
+        }
+        
+        // Send the email
+        $mail->send();
+        $mailSent = true;
+    } catch (Exception $e) {
+        $mailSent = false;
+        throw new Exception('Mail sending failed: ' . $mail->ErrorInfo);
+    }
     
     // Clean up temporary files
     if (file_exists($pdfAttachmentPath)) {
@@ -274,7 +319,7 @@ try {
         // Log the email
         $db->query(
             "INSERT INTO email_log (user_id, recipient_email, subject, plot_id, sent_at)
-             VALUES (?, ?, ?, ?, NOW())",
+              VALUES (?, ?, ?, ?, NOW())",
             [$_SESSION['user_id'], $recipient, $subject, $plotId]
         );
         
