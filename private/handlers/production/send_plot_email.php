@@ -2,7 +2,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 require_once INCLUDES_PATH . '/plot_snapshot.php';
 require_once INCLUDES_PATH . '/functions.php';
-require PRIVATE_PATH . '/vendor/autoload.php';
+require VENDOR_PATH . '/autoload.php';
     
 // Import PHPMailer classes into the global namespace
 use PHPMailer\PHPMailer\PHPMailer;
@@ -116,6 +116,7 @@ try {
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
             h1 { color: #4a6da7; }
+            .sender { font-weight: bold; color: #4a6da7; }
             .message { margin: 20px 0; padding: 15px; background-color: #f5f5f5; border-radius: 5px; }
             .footer { margin-top: 30px; font-size: 12px; color: #999; }
         </style>
@@ -123,7 +124,7 @@ try {
     <body>
         <div class='container'>
             <h1>Stage Plot: $plotTitle</h1>
-            <p>$senderName has shared a stage plot with you from StageWrite.</p>";
+            <p><span class='sender'>$senderName</span> has shared a stage plot with you from StageWrite.</p>";
     
     // Add custom message if provided
     if (!empty($data['message'])) {
@@ -209,61 +210,6 @@ try {
         }
     }
     
-    // Email headers
-    $headers = "From: StageWrite <$senderEmail>\r\n";
-    $headers .= "Reply-To: $senderEmail\r\n";
-    $headers .= "MIME-Version: 1.0\r\n";
-    
-    // Create multipart message with attachments
-    $boundary = md5(time());
-    $headers .= "Content-Type: multipart/mixed; boundary=\"$boundary\"\r\n";
-    
-    // Email body for multipart messages
-    $body = "--$boundary\r\n";
-    $body .= "Content-Type: multipart/alternative; boundary=\"alt-$boundary\"\r\n\r\n";
-    
-    // Plain text part
-    $body .= "--alt-$boundary\r\n";
-    $body .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-    $body .= $textContent . "\r\n\r\n";
-    
-    // HTML part
-    $body .= "--alt-$boundary\r\n";
-    $body .= "Content-Type: text/html; charset=UTF-8\r\n";
-    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-    $body .= $htmlContent . "\r\n\r\n";
-    
-    // End of alternative part
-    $body .= "--alt-$boundary--\r\n\r\n";
-    
-    // Attach snapshot image if available
-    if (isset($snapshotPath) && file_exists($snapshotPath)) {
-        $imgData = file_get_contents($snapshotPath);
-        $imgData = chunk_split(base64_encode($imgData));
-        
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: image/png; name=\"stage_plot.png\"\r\n";
-        $body .= "Content-Disposition: attachment; filename=\"stage_plot.png\"\r\n";
-        $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
-        $body .= $imgData . "\r\n\r\n";
-    }
-    
-    // Attach PDF
-    if (file_exists($pdfAttachmentPath)) {
-        $pdfData = file_get_contents($pdfAttachmentPath);
-        $pdfData = chunk_split(base64_encode($pdfData));
-        
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: application/pdf; name=\"" . $pdfResult['filename'] . "\"\r\n";
-        $body .= "Content-Disposition: attachment; filename=\"" . $pdfResult['filename'] . "\"\r\n";
-        $body .= "Content-Transfer-Encoding: base64\r\n\r\n";
-        $body .= $pdfData . "\r\n\r\n";
-    }
-    
-    // End of the message
-    $body .= "--$boundary--";
-    
     // Send the email
     $recipient = $data['recipient'];
     
@@ -271,25 +217,27 @@ try {
         // Create a new PHPMailer instance
         $mail = new PHPMailer(true); // true enables exceptions
 
-        $mail->isSMTP();                        // Send using SMTP
-        $mail->Host       = 'smtp.example.com'; // Set the SMTP server
-        $mail->SMTPAuth   = true;               // Enable SMTP authentication
-        $mail->Username   = 'user@example.com'; // SMTP username
-        $mail->Password   = 'password';         // SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Enable TLS
-        $mail->Port       = 587;                // TCP port to connect to
+        // Server settings - configure with your actual SMTP details
+        $mail->isSMTP();
+        $mail->Host       = 'mail.stagewrite.app ';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'noreply@stagewrite.app'; // System email address
+        $mail->Password   = 'fP2QF4b_p[R2';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 465;
         
-        // For local testing only - uses PHP's mail() function but with better handling
-        // $mail->isMail();
+        // Set "from" as your system address, but include the user's name
+        $mail->setFrom('noreply@stagewrite.com', $senderName . ' via StageWrite');
         
-        // Recipients
-        $mail->setFrom($senderEmail, 'StageWrite');
+        // Set reply-to as the user's actual email address
         $mail->addReplyTo($senderEmail, $senderName);
+        
+        // Add recipient
         $mail->addAddress($recipient);
         
         // Content
         $mail->isHTML(true);
-        $mail->Subject = $subject;
+        $mail->Subject = "Stage Plot from $senderName: $plotTitle";
         $mail->Body    = $htmlContent;
         $mail->AltBody = $textContent;
         
