@@ -199,21 +199,6 @@ function generatePDF(plotState, printMode = false) {
   // Show appropriate notification
   if (printMode) {
     showNotification('Print dialog opening soon...', 'success');
-    
-    // If in print mode, trigger print dialog after a delay to allow PDF to load
-    if (printMode) {
-      setTimeout(() => {
-        try {
-          // Try to trigger print on the newly opened window
-          const newWindow = window.open('', '_blank');
-          if (newWindow) {
-            newWindow.print();
-          }
-        } catch (e) {
-          console.error('Unable to automatically open print dialog:', e);
-        }
-      }, 2500); // Allow time for the PDF to load
-    }
   } else {
     showNotification('PDF download initiated!', 'success');
   }
