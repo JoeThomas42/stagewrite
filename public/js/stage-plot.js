@@ -1138,19 +1138,38 @@ function deleteElement(elementId, plotState) {
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
   
   if (domElement) {
-    // Add deleting class to trigger animation
-    domElement.classList.add('deleting');
-    
-    // Remove the element after animation completes
-    domElement.addEventListener('animationend', () => {
-      domElement.remove();
-    });
-  }
+    // Remove from state immediately (don't wait for animation)
+    const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+    if (elementIndex !== -1) {
+      plotState.elements.splice(elementIndex, 1);
+    }
 
-  // Remove from state immediately (don't wait for animation)
-  const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-  if (elementIndex !== -1) {
-    plotState.elements.splice(elementIndex, 1);
+    // Add deleting class to trigger animation
+    requestAnimationFrame(() => {
+      domElement.classList.add('deleting');
+      
+      // Set up animation end listener
+      const handleAnimationEnd = () => {
+        domElement.removeEventListener('animationend', handleAnimationEnd);
+        domElement.remove();
+      };
+      
+      // Add event listener for animation end
+      domElement.addEventListener('animationend', handleAnimationEnd);
+      
+      // Fallback: If animation doesn't complete after 400ms, force remove
+      setTimeout(() => {
+        if (document.body.contains(domElement)) {
+          domElement.remove();
+        }
+      }, 400); // Slightly longer than animation duration (300ms)
+    });
+  } else {
+    // Handle case where DOM element isn't found but might be in state
+    const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+    if (elementIndex !== -1) {
+      plotState.elements.splice(elementIndex, 1);
+    }
   }
 
   renderElementInfoList(plotState);
