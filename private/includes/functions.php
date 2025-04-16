@@ -476,7 +476,7 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false) {
   // Add a page for input list
   $pdf->AddPage();
   $pdf->SetFont('helvetica', 'B', 14);
-  $pdf->Cell(0, 10, 'Input List', 0, 1, 'L');
+  $pdf->Cell(0, 10, 'Aux Input List', 0, 1, 'L');
   $pdf->Ln(5);
   
   // Input list table

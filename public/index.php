@@ -188,8 +188,8 @@ if ($isLoggedIn) {
 
 <div id="stage-info-container">
   <div class="input-list-section">
-      <h2>Input List
-        <br><span>Keep track of your audio inputs</span>
+      <h2>Aux Input List
+        <br><span>Keep track of additional a/v inputs</span>
       </h2>
       <div id="input-list" class="input-grid"></div>
       <datalist id="input-suggestions"></datalist>
