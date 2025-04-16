@@ -99,7 +99,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     // Add stage dimensions text at the top
     $dimensionsColor = imagecolorallocate($image, 120, 120, 120); // Darker than grid lines
     $dimensionsFont = 2; // Use a small built-in font
-    $dimensionsText = sprintf("Stage: %d' × %d'", $venueWidthFeet, $venueDepthFeet);
+    $dimensionsText = "Stage: {$venueWidthFeet}' x {$venueDepthFeet}'";
     $dimensionsWidth = imagefontwidth($dimensionsFont) * strlen($dimensionsText);
     $dimensionsX = 10; // Position in top-left with padding
     $dimensionsY = 10;
