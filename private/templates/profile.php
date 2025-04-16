@@ -118,9 +118,15 @@ $userVenues = $db->fetchAll("
                             <?php endif; ?>
                         </div>
                         <div class="plot-card-actions">
-                            <button class="open-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>">Open Plot</button>
-                            <button class="share-plot-btn action-button" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
-                            <button class="delete-plot-btn" data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Delete plot"><i class="fa-solid fa-delete-left"></i></button>
+                            <button class="open-plot-btn"
+                              data-plot-id="<?= $plot['plot_id'] ?>">
+                              Open Plot</button>
+                            <button class="share-plot-btn action-button"
+                              data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Print / Share">
+                              <i class="fa-solid fa-share-from-square"></i></button>
+                            <button class="delete-plot-btn"
+                              data-plot-id="<?= $plot['plot_id'] ?>" data-plot-name="<?= htmlspecialchars($plot['plot_name']) ?>" title="Delete plot">
+                              <i class="fa-solid fa-delete-left"></i></button>
                         </div>
                     </div>
                 <?php endforeach; ?>
