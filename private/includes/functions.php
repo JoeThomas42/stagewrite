@@ -307,6 +307,58 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false) {
   if (!empty($data['venue'])) {
       $pdf->SetFont('helvetica', 'B', 12);
       $pdf->Cell(0, 10, 'Venue: ' . $data['venue'], 0, 1, 'C');
+      
+      // If address is not provided but we have a venue ID, try to fetch it
+      if (empty($data['address']) || $data['address'] === 'N/A') {
+        $venueId = null;
+        $userVenueId = null;
+        
+        if (!empty($data['venueId'])) {
+          if (strpos($data['venueId'], 'user_') === 0) {
+            $userVenueId = (int)str_replace('user_', '', $data['venueId']);
+            
+            // Fetch user venue address
+            $venueInfo = $db->fetchOne("
+              SELECT 
+                CONCAT_WS(', ', 
+                  venue_street,
+                  venue_city,
+                  (SELECT state_abbr FROM states WHERE state_id = venue_state_id),
+                  venue_zip
+                ) as address
+              FROM user_venues 
+              WHERE user_venue_id = ?", 
+              [$userVenueId]
+            );
+          } else {
+            $venueId = (int)$data['venueId'];
+            
+            // Fetch venue address
+            $venueInfo = $db->fetchOne("
+              SELECT 
+                CONCAT_WS(', ', 
+                  venue_street,
+                  venue_city,
+                  (SELECT state_abbr FROM states WHERE state_id = venue_state_id),
+                  venue_zip
+                ) as address
+              FROM venues 
+              WHERE venue_id = ?", 
+              [$venueId]
+            );
+          }
+          
+          if ($venueInfo && !empty($venueInfo['address'])) {
+            $data['address'] = $venueInfo['address'];
+          }
+        }
+      }
+      
+      if (!empty($data['address']) && $data['address'] !== 'N/A') {
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 5, $data['address'], 0, 1, 'C');
+        $pdf->SetTextColor(0, 0, 0);
+      }
       $pdf->Ln(2);
   }
   

@@ -135,6 +135,57 @@ try {
     // Add venue and date information if available
     if (!empty($data['venue'])) {
         $htmlContent .= "<p><strong>Venue:</strong> " . htmlspecialchars($data['venue']) . "</p>";
+        
+        // If address is not provided but we have a venue ID, try to fetch it
+        if (empty($data['address']) || $data['address'] === 'N/A') {
+            $venueId = null;
+            $userVenueId = null;
+            
+            if (!empty($data['venueId'])) {
+                if (strpos($data['venueId'], 'user_') === 0) {
+                    $userVenueId = (int)str_replace('user_', '', $data['venueId']);
+                    
+                    // Fetch user venue address
+                    $venueInfo = $db->fetchOne("
+                        SELECT 
+                            CONCAT_WS(', ', 
+                                venue_street,
+                                venue_city,
+                                (SELECT state_abbr FROM states WHERE state_id = venue_state_id),
+                                venue_zip
+                            ) as address
+                        FROM user_venues 
+                        WHERE user_venue_id = ?", 
+                        [$userVenueId]
+                    );
+                } else {
+                    $venueId = (int)$data['venueId'];
+                    
+                    // Fetch venue address
+                    $venueInfo = $db->fetchOne("
+                        SELECT 
+                            CONCAT_WS(', ', 
+                                venue_street,
+                                venue_city,
+                                (SELECT state_abbr FROM states WHERE state_id = venue_state_id),
+                                venue_zip
+                            ) as address
+                        FROM venues 
+                        WHERE venue_id = ?", 
+                        [$venueId]
+                    );
+                }
+                
+                if ($venueInfo && !empty($venueInfo['address'])) {
+                    $data['address'] = $venueInfo['address'];
+                }
+            }
+        }
+        
+        // Add the address to the email if it exists
+        if (!empty($data['address']) && $data['address'] !== 'N/A') {
+            $htmlContent .= "<p><strong>Address:</strong> " . htmlspecialchars($data['address']) . "</p>";
+        }
     }
     
     if (!empty($data['eventStart'])) {
@@ -165,6 +216,11 @@ try {
     
     if (!empty($data['venue'])) {
         $textContent .= "Venue: " . $data['venue'] . "\n";
+        
+        // Add the address to the plain text email
+        if (!empty($data['address']) && $data['address'] !== 'N/A') {
+            $textContent .= "Address: " . $data['address'] . "\n";
+        }
     }
     
     if (!empty($data['eventStart'])) {

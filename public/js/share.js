@@ -55,7 +55,8 @@ function initPrintAndShare(initialPlotState) {
     const stageElement = document.getElementById('stage');
     const plotTitleElement = document.getElementById('plot-title');
     const venueSelectElement = document.getElementById('venue_select');
-    const venueInfoNameElement = document.getElementById('venue-info-name'); // Get current venue name display
+    const venueInfoNameElement = document.getElementById('venue-info-name');
+    const venueInfoAddressElement = document.getElementById('venue-info-address');
     const eventStartElement = document.getElementById('event_start');
     const eventEndElement = document.getElementById('event_end');
 
@@ -70,6 +71,7 @@ function initPrintAndShare(initialPlotState) {
       venueId: venueSelectElement ? venueSelectElement.value : null,
       // Get venue name from the info panel if possible, fallback to selected option text
       venueName: venueInfoNameElement && venueInfoNameElement.textContent !== 'N/A' ? venueInfoNameElement.textContent : venueSelectElement && venueSelectElement.selectedIndex >= 0 ? venueSelectElement.options[venueSelectElement.selectedIndex].text : '',
+      venueAddress: venueInfoAddressElement && venueInfoAddressElement.textContent !== 'N/A' ? venueInfoAddressElement.textContent : 'N/A',
       eventStart: eventStartElement ? eventStartElement.value : null,
       eventEnd: eventEndElement ? eventEndElement.value : null,
       stageWidth: stageElement ? stageElement.dataset.stageWidth : 40,
@@ -233,6 +235,7 @@ function generatePDF(plotState, printMode = false) {
   const plotData = {
     title: plotState.currentPlotName || 'Stage Plot',
     venue: plotState.venueName || 'N/A',
+    address: plotState.venueAddress || 'N/A',
     plotId: plotState.currentPlotId,
     venueId: plotState.venueId || null,
     elements: plotState.elements || [],
@@ -320,10 +323,11 @@ function sendPlotViaEmail(email, message, plotState) {
     recipient: email,
     message: message,
     title: plotState.currentPlotName || 'Stage Plot',
-    plotId: plotState.currentPlotId, // Essential for backend
-    venue: plotState.venueName || '', // Use state data
-    eventStart: plotState.eventStart || null, // Use state data
-    eventEnd: plotState.eventEnd || null, // Use state data
+    plotId: plotState.currentPlotId,
+    address: plotState.venueAddress || 'N/A',
+    venue: plotState.venueName || '',
+    eventStart: plotState.eventStart || null,
+    eventEnd: plotState.eventEnd || null,
     venueId: plotState.venueId || null,
   };
 
