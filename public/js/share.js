@@ -8,78 +8,111 @@
  */
 function initPrintAndShare(plotState) {
   console.log('Initializing print/share with plotState:', plotState);
-  
-  // Add this guard to prevent multiple initializations
+
   if (window.printShareInitialized) {
     console.log('Print/share already initialized, skipping');
     return;
   }
-  
-  window.printShareInitialized = true;
-  
+
+  const shareButton = document.getElementById('share-plot');
+  const shareModal = document.getElementById('share-plot-modal');
   const printButton = document.getElementById('print-plot-btn');
   const pdfButton = document.getElementById('pdf-download-btn');
   const emailButton = document.getElementById('email-share-btn');
   const emailForm = document.getElementById('email-share-form');
-  const sendEmailButton = document.getElementById('send-email-btn');
   const backButton = document.getElementById('back-to-options-btn');
-  
-  // Store plotState for use in confirmation callback
-  window.plotState = plotState;
-  
-  // Print button
+  const sendEmailButton = document.getElementById('send-email-btn');
+  const shareOptions = document.querySelector('.share-options-container');
+  const closeButtons = shareModal ? shareModal.querySelectorAll('.close-button, .cancel-button') : [];
+
+  window.printShareInitialized = true;
+
+  // Open share modal
+  if (shareButton) {
+    shareButton.addEventListener('click', () => {
+      console.log('Share button clicked, current plotState:', window.plotState);
+      openModal(shareModal);
+    });
+  }
+
+  // Close buttons for modal
+  if (closeButtons.length > 0) {
+    closeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        closeModal(shareModal);
+      });
+    });
+  }
+
+  // Handle print button click
   if (printButton) {
     printButton.addEventListener('click', () => {
-      generatePDF(plotState, true);
+      if (window.plotState) {
+        // Use the PDF generator with print mode
+        generatePDF(window.plotState, true);
+      } else {
+        console.error('Cannot print: window.plotState is undefined');
+        showNotification('Error: Plot state not available. Please try again.', 'error');
+      }
     });
   }
-  
-  // PDF button
+
+  // Handle PDF download
   if (pdfButton) {
     pdfButton.addEventListener('click', () => {
-      generatePDF(plotState, false);
+      if (window.plotState) {
+        // Use the PDF generator with download mode
+        generatePDF(window.plotState, false);
+      } else {
+        console.error('Cannot generate PDF: window.plotState is undefined');
+        showNotification('Error: Plot state not available. Please try again.', 'error');
+      }
     });
   }
-  
-  // Email button - show email form
+
+  // Handle email share button click
   if (emailButton) {
     emailButton.addEventListener('click', () => {
-      document.querySelector('.share-options-container').classList.add('hidden');
+      // Show email form, hide share options
       emailForm.classList.remove('hidden');
+      shareOptions.classList.add('hidden');
     });
   }
-  
-  // Back button - back to share options
+
+  // Back button in email form
   if (backButton) {
     backButton.addEventListener('click', () => {
+      // Show share options, hide email form
       emailForm.classList.add('hidden');
-      document.querySelector('.share-options-container').classList.remove('hidden');
+      shareOptions.classList.remove('hidden');
     });
   }
-  
-  // Send email button - with confirmation
+
+  // Send email button
   if (sendEmailButton) {
-    sendEmailButton.addEventListener('click', function(e) {
+    sendEmailButton.addEventListener('click', (e) => {
       const email = document.getElementById('share_email').value;
       const message = document.getElementById('share_message').value;
       
-      // Check for valid email
-      if (!email) {
+      if (email) {
+        setupConfirmButton(
+          sendEmailButton,
+          () => {
+            sendPlotViaEmail(email, message, window.plotState);
+          },
+          {
+            confirmText: 'Confirm',
+            confirmTitle: 'Click again to send this email',
+            originalText: 'Send',
+            originalTitle: 'Send stage plot via email',
+            timeout: 3000,
+            stopPropagation: true,
+            event: e
+          }
+        );
+      } else {
         showNotification('Please enter a valid email address', 'warning');
-        return;
       }
-      
-      setupConfirmButton(
-        sendEmailButton,
-        function() {
-          sendPlotViaEmail(email, message, window.plotState);
-        },
-        {
-          confirmText: 'Confirm',
-          confirmTitle: 'Click again to send the email',
-          timeout: 3000
-        }
-      );
     });
   }
 }
@@ -90,7 +123,32 @@ function initPrintAndShare(plotState) {
  * @param {boolean} printMode - Whether to open in print mode (true) or download (false)
  */
 function generatePDF(plotState, printMode = false) {
-  // Safety checks remain the same...
+  // Safety check - if plotState is undefined, get it from the window
+  if (!plotState && window.plotState) {
+    console.log('Using global plotState instead of undefined parameter');
+    plotState = window.plotState;
+  }
+  
+  // Another safety check - if still undefined, show error and return
+  if (!plotState) {
+    console.error('Cannot generate PDF: plotState is undefined');
+    showNotification('Error: Plot state not available. Please try again.', 'error');
+    return;
+  }
+
+  // Check if plot has been saved
+  if (!plotState.currentPlotId) {
+    showNotification('Please save your plot first to create a snapshot for printing/PDF', 'warning');
+    const saveButton = document.getElementById('save-plot');
+    if (saveButton) {
+      // Highlight the save button
+      saveButton.classList.add('highlight-button');
+      setTimeout(() => {
+        saveButton.classList.remove('highlight-button');
+      }, 2000);
+    }
+    return;
+  }
   
   showNotification(printMode ? 'Preparing print preview...' : 'Generating PDF...', 'info');
   
@@ -109,14 +167,10 @@ function generatePDF(plotState, printMode = false) {
     display_mode: printMode.toString()
   };
   
-  // Generate a unique window name for the PDF
-  const windowName = 'pdfFrame_' + Date.now();
-  
-  // Use a direct form post approach to trigger browser response
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = '/handlers/generate_pdf.php';
-  form.target = windowName; // Use our unique name instead of _blank
+  form.target = '_blank';
   form.style.display = 'none';
   
   // Create hidden inputs for the data
@@ -133,9 +187,6 @@ function generatePDF(plotState, printMode = false) {
   displayModeInput.value = printMode.toString();
   form.appendChild(displayModeInput);
   
-  // Open the window first (important for Firefox)
-  const newWindow = window.open('', windowName, 'width=800,height=600');
-  
   // Add form to document and submit it
   document.body.appendChild(form);
   form.submit();
@@ -149,9 +200,20 @@ function generatePDF(plotState, printMode = false) {
   if (printMode) {
     showNotification('Print dialog opening soon...', 'success');
     
-    // For Firefox, we rely on the PDF's JavaScript to trigger printing
-    // This is done in the generatePlotPDF function on the server side
-    // with $pdf->IncludeJS("print();");
+    // If in print mode, trigger print dialog after a delay to allow PDF to load
+    if (printMode) {
+      setTimeout(() => {
+        try {
+          // Try to trigger print on the newly opened window
+          const newWindow = window.open('', '_blank');
+          if (newWindow) {
+            newWindow.print();
+          }
+        } catch (e) {
+          console.error('Unable to automatically open print dialog:', e);
+        }
+      }, 2500); // Allow time for the PDF to load
+    }
   } else {
     showNotification('PDF download initiated!', 'success');
   }
@@ -207,7 +269,7 @@ function sendPlotViaEmail(email, message, plotState) {
     if (!response.ok) {
       throw new Error(`Server returned ${response.status} ${response.statusText}`);
     }
-    return response.text(); // Get text first to check
+    return response.text();
   })
   .then(text => {
     // Debug what's being returned
@@ -246,7 +308,6 @@ function sendPlotViaEmail(email, message, plotState) {
   });
 }
 
-// Improved initialization that's more robust
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, checking for plotState');
   
