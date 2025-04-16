@@ -165,12 +165,13 @@ if ($isLoggedIn) {
             </div>
         </div>
 
+        <!-- Plot Control Buttons -->
         <div id="control-buttons">
           <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
           <?php if ($isLoggedIn): ?>
             <button id="my-plots" class="action-button" title="My Plots"><i class="fa-solid fa-folder-open"></i></button>
             <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
-            <button id="share-plot" class="action-button" title="Print/Share"><i class="fa-solid fa-share-from-square"></i></button>
+            <button id="share-plot" class="action-button" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
             <button id="save-changes" class="action-button hidden">Save Changes</button>
           <?php endif; ?>
           <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
@@ -190,9 +191,7 @@ if ($isLoggedIn) {
       <h2>Input List
         <br><span>Keep track of your audio inputs</span>
       </h2>
-      <div id="input-list" class="input-grid">
-      </div>
-      <!-- Add the datalist for input suggestions -->
+      <div id="input-list" class="input-grid"></div>
       <datalist id="input-suggestions"></datalist>
       <button id="add-input-line" class="primary-button add-line-button">
           <i class="fa-solid fa-plus"></i> Add Line

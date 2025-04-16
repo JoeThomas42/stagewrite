@@ -354,6 +354,10 @@
   width: 38px;
 }
 
+#my-plots {
+  margin-right: 16px;
+}
+
 #clear-plot {
   background-color: var(--color-danger);
   margin-left: auto;

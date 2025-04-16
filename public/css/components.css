@@ -923,6 +923,15 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-bottom: var(--spacing-lg);
 }
 
+#send-email-btn {
+  margin-right: auto;
+  width: 75px;
+  
+  &.confirming {
+    width: 100px;
+  }
+}
+
 #email-share-form {
   display: flex;
   flex-direction: column;
@@ -938,23 +947,6 @@ input[type="number"]::-webkit-outer-spin-button {
   gap: var(--spacing-sm);
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--transition-fast);
-}
-
-.share-option:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: space-between;
-
-  button {
-    width: 100px;
-  }
-}
-
-#send-email-btn {
-  margin-right: auto;
 }
 
 .share-action-button {
