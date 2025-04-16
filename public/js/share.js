@@ -4,17 +4,41 @@
 
 /**
  * Initialize print and share functionality
- * @param {Object} plotState - The current plot state
+ * @param {Object} [initialPlotState] - Optional initial plot state, primarily for profile page usage.
  */
-function initPrintAndShare(plotState) {
-  console.log('Initializing print/share with plotState:', plotState);
-
+function initPrintAndShare(initialPlotState) {
+  // Use a flag to prevent multiple initializations if called repeatedly
   if (window.printShareInitialized) {
-    console.log('Print/share already initialized, skipping');
+    // Update the plot state if provided, especially useful on profile page
+    if (initialPlotState) {
+      // Merge new state with potentially existing state, prioritizing new values
+      window.plotState = { ...(window.plotState || {}), ...initialPlotState };
+      console.log('Print/share plotState updated:', window.plotState);
+    }
     return;
   }
+  window.printShareInitialized = true; // Set flag after first run
 
-  const shareButton = document.getElementById('share-plot');
+  // Initialize or update the global plotState
+  if (initialPlotState) {
+    // If state is passed (likely from profile.js), use it
+    window.plotState = { ...(window.plotState || {}), ...initialPlotState };
+    console.log('Initializing print/share with provided state:', window.plotState);
+  } else if (!window.plotState) {
+    // If no state exists yet, try building from UI (for index.php)
+    if (document.getElementById('stage')) {
+      window.plotState = buildCurrentPlotState();
+      console.log('Initializing print/share by building state from UI:', window.plotState);
+    } else {
+      window.plotState = {}; // Initialize empty if not on editor and no state passed
+      console.warn('Initializing print/share without initial plot state.');
+    }
+  } else {
+    // If window.plotState already exists (e.g., from previous actions on index.php), use it
+    console.log('Initializing print/share using existing window.plotState:', window.plotState);
+  }
+
+  const shareButton = document.getElementById('share-plot'); // Button on index.php
   const shareModal = document.getElementById('share-plot-modal');
   const printButton = document.getElementById('print-plot-btn');
   const pdfButton = document.getElementById('pdf-download-btn');
@@ -22,24 +46,66 @@ function initPrintAndShare(plotState) {
   const emailForm = document.getElementById('email-share-form');
   const backButton = document.getElementById('back-to-options-btn');
   const sendEmailButton = document.getElementById('send-email-btn');
-  const shareOptions = document.querySelector('.share-options-container');
+  const shareOptions = shareModal ? shareModal.querySelector('.share-options-container') : null;
   const closeButtons = shareModal ? shareModal.querySelectorAll('.close-button, .cancel-button') : [];
 
-  window.printShareInitialized = true;
+  // Function to build state from the current UI (for index.php)
+  function buildCurrentPlotState() {
+    // Gathers current data from UI elements on index.php
+    const stageElement = document.getElementById('stage');
+    const plotTitleElement = document.getElementById('plot-title');
+    const venueSelectElement = document.getElementById('venue_select');
+    const venueInfoNameElement = document.getElementById('venue-info-name'); // Get current venue name display
+    const eventStartElement = document.getElementById('event_start');
+    const eventEndElement = document.getElementById('event_end');
 
-  // Open share modal
-  if (shareButton) {
+    // Make sure global plotState exists for elements/inputs
+    if (!window.plotState) window.plotState = { elements: [], inputs: [] };
+
+    const state = {
+      elements: window.plotState.elements || [], // Assume elements/inputs are managed globally
+      inputs: window.plotState.inputs || [],
+      currentPlotId: window.plotState.currentPlotId || null,
+      currentPlotName: plotTitleElement ? plotTitleElement.textContent : 'Stage Plot',
+      venueId: venueSelectElement ? venueSelectElement.value : null,
+      // Get venue name from the info panel if possible, fallback to selected option text
+      venueName: venueInfoNameElement && venueInfoNameElement.textContent !== 'N/A' ? venueInfoNameElement.textContent : venueSelectElement && venueSelectElement.selectedIndex >= 0 ? venueSelectElement.options[venueSelectElement.selectedIndex].text : '',
+      eventStart: eventStartElement ? eventStartElement.value : null,
+      eventEnd: eventEndElement ? eventEndElement.value : null,
+      stageWidth: stageElement ? stageElement.dataset.stageWidth : 40,
+      stageDepth: stageElement ? stageElement.dataset.stageDepth : 30,
+    };
+    return state;
+  }
+
+  // Open share modal (for index.php button)
+  if (shareButton && shareModal) {
     shareButton.addEventListener('click', () => {
-      console.log('Share button clicked, current plotState:', window.plotState);
+      // Ensure the state is current when opening from index.php
+      if (document.getElementById('stage')) {
+        window.plotState = buildCurrentPlotState(); // Rebuild state from UI
+        console.log('Share modal opened from index.php, state updated:', window.plotState);
+      } else {
+        console.warn('Share button clicked, but not on stage editor page.');
+        if (!window.plotState || Object.keys(window.plotState).length === 0) {
+          showNotification('Plot data is not available.', 'error');
+          return; // Don't open modal if state is missing
+        }
+      }
       openModal(shareModal);
     });
+  } else if (!shareButton && document.getElementById('stage')) {
+    console.warn("Share button ('share-plot') not found on index.php.");
   }
 
   // Close buttons for modal
-  if (closeButtons.length > 0) {
-    closeButtons.forEach(button => {
+  if (closeButtons.length > 0 && shareModal) {
+    closeButtons.forEach((button) => {
       button.addEventListener('click', () => {
         closeModal(shareModal);
+        // Reset email form visibility when closing modal
+        if (emailForm) emailForm.classList.add('hidden');
+        if (shareOptions) shareOptions.classList.remove('hidden');
       });
     });
   }
@@ -47,12 +113,13 @@ function initPrintAndShare(plotState) {
   // Handle print button click
   if (printButton) {
     printButton.addEventListener('click', () => {
-      if (window.plotState) {
-        // Use the PDF generator with print mode
-        generatePDF(window.plotState, true);
+      // Use the most current state, rebuild from UI if on index.php
+      const currentState = document.getElementById('stage') ? buildCurrentPlotState() : window.plotState;
+      if (currentState && currentState.elements) {
+        generatePDF(currentState, true); // Pass the current state
       } else {
-        console.error('Cannot print: window.plotState is undefined');
-        showNotification('Error: Plot state not available. Please try again.', 'error');
+        console.error('Cannot print: Plot state is unavailable');
+        showNotification('Error: Plot state not available.', 'error');
       }
     });
   }
@@ -60,18 +127,19 @@ function initPrintAndShare(plotState) {
   // Handle PDF download
   if (pdfButton) {
     pdfButton.addEventListener('click', () => {
-      if (window.plotState) {
-        // Use the PDF generator with download mode
-        generatePDF(window.plotState, false);
+      // Use the most current state, rebuild from UI if on index.php
+      const currentState = document.getElementById('stage') ? buildCurrentPlotState() : window.plotState;
+      if (currentState && currentState.elements) {
+        generatePDF(currentState, false); // Pass the current state
       } else {
-        console.error('Cannot generate PDF: window.plotState is undefined');
-        showNotification('Error: Plot state not available. Please try again.', 'error');
+        console.error('Cannot generate PDF: Plot state is unavailable');
+        showNotification('Error: Plot state not available.', 'error');
       }
     });
   }
 
   // Handle email share button click
-  if (emailButton) {
+  if (emailButton && emailForm && shareOptions) {
     emailButton.addEventListener('click', () => {
       // Show email form, hide share options
       emailForm.classList.remove('hidden');
@@ -80,7 +148,7 @@ function initPrintAndShare(plotState) {
   }
 
   // Back button in email form
-  if (backButton) {
+  if (backButton && emailForm && shareOptions) {
     backButton.addEventListener('click', () => {
       // Show share options, hide email form
       emailForm.classList.add('hidden');
@@ -89,16 +157,24 @@ function initPrintAndShare(plotState) {
   }
 
   // Send email button
-  if (sendEmailButton) {
-    sendEmailButton.addEventListener('click', (e) => {
-      const email = document.getElementById('share_email').value;
-      const message = document.getElementById('share_message').value;
-      
-      if (email) {
+  if (sendEmailButton && emailForm && shareOptions) {
+    // Remove previous listener if any to prevent duplicates
+    const newSendEmailButton = sendEmailButton.cloneNode(true);
+    sendEmailButton.parentNode.replaceChild(newSendEmailButton, sendEmailButton);
+
+    newSendEmailButton.addEventListener('click', (e) => {
+      const emailInput = document.getElementById('share_email');
+      const messageInput = document.getElementById('share_message');
+      const email = emailInput ? emailInput.value : null;
+      const message = messageInput ? messageInput.value : null;
+      // Use the most current state, rebuild from UI if on index.php
+      const currentState = document.getElementById('stage') ? buildCurrentPlotState() : window.plotState;
+
+      if (email && currentState && currentState.elements) {
         setupConfirmButton(
-          sendEmailButton,
+          newSendEmailButton, // Use the new button instance
           () => {
-            sendPlotViaEmail(email, message, window.plotState);
+            sendPlotViaEmail(email, message, currentState); // Pass the current state
           },
           {
             confirmText: 'Confirm',
@@ -107,11 +183,14 @@ function initPrintAndShare(plotState) {
             originalTitle: 'Send stage plot via email',
             timeout: 3000,
             stopPropagation: true,
-            event: e
+            event: e,
           }
         );
-      } else {
+      } else if (!email) {
         showNotification('Please enter a valid email address', 'warning');
+      } else {
+        console.error('Cannot send email: Plot state is unavailable');
+        showNotification('Error: Plot state not available.', 'error');
       }
     });
   }
@@ -123,80 +202,80 @@ function initPrintAndShare(plotState) {
  * @param {boolean} printMode - Whether to open in print mode (true) or download (false)
  */
 function generatePDF(plotState, printMode = false) {
-  // Safety check - if plotState is undefined, get it from the window
-  if (!plotState && window.plotState) {
-    console.log('Using global plotState instead of undefined parameter');
-    plotState = window.plotState;
-  }
-  
-  // Another safety check - if still undefined, show error and return
+  // Safety check - if plotState is undefined, show error and return
   if (!plotState) {
     console.error('Cannot generate PDF: plotState is undefined');
-    showNotification('Error: Plot state not available. Please try again.', 'error');
+    showNotification('Error: Plot data is not available.', 'error');
     return;
   }
 
-  // Check if plot has been saved
+  // Check if plot has been saved (needed for snapshot)
   if (!plotState.currentPlotId) {
-    showNotification('Please save your plot first to create a snapshot for printing/PDF', 'warning');
+    showNotification('Please save the plot first to include the stage snapshot.', 'warning');
+    // Highlight save button only if it exists (on index.php)
     const saveButton = document.getElementById('save-plot');
     if (saveButton) {
-      // Highlight the save button
       saveButton.classList.add('highlight-button');
-      setTimeout(() => {
-        saveButton.classList.remove('highlight-button');
-      }, 2000);
+      setTimeout(() => saveButton.classList.remove('highlight-button'), 2000);
+    }
+    // Also try highlighting save changes button if it's visible
+    const saveChangesButton = document.getElementById('save-changes');
+    if (saveChangesButton && saveChangesButton.classList.contains('visible')) {
+      saveChangesButton.classList.add('highlight-button');
+      setTimeout(() => saveChangesButton.classList.remove('highlight-button'), 2000);
     }
     return;
   }
-  
+
   showNotification(printMode ? 'Preparing print preview...' : 'Generating PDF...', 'info');
-  
-  // Create data for server-side PDF generation
+
+  // Create data object using plotState
   const plotData = {
-    title: document.getElementById('plot-title').textContent,
-    venue: document.getElementById('venue-info-name').textContent,
+    title: plotState.currentPlotName || 'Stage Plot',
+    venue: plotState.venueName || 'N/A',
     plotId: plotState.currentPlotId,
-    venueId: document.getElementById('stage').dataset.venueId,
+    venueId: plotState.venueId || null,
     elements: plotState.elements || [],
     inputs: plotState.inputs || [],
-    stageWidth: document.getElementById('stage').dataset.stageWidth,
-    stageDepth: document.getElementById('stage').dataset.stageDepth,
-    eventStart: document.getElementById('event_start').value,
-    eventEnd: document.getElementById('event_end').value,
-    display_mode: printMode.toString()
+    stageWidth: plotState.stageWidth || 40,
+    stageDepth: plotState.stageDepth || 30,
+    eventStart: plotState.eventStart || null,
+    eventEnd: plotState.eventEnd || null,
+    display_mode: printMode.toString(),
   };
-  
+
+  console.log('Data sent to generatePDF handler:', plotData); // Debug log
+
+  // Create and submit form
   const form = document.createElement('form');
   form.method = 'POST';
-  form.action = '/handlers/generate_pdf.php';
-  form.target = '_blank';
+  form.action = '/handlers/generate_pdf.php'; // Use public handler URL
+  form.target = '_blank'; // Open PDF in new tab/window
   form.style.display = 'none';
-  
-  // Create hidden inputs for the data
+
+  // Add data as a hidden input
   const input = document.createElement('input');
   input.type = 'hidden';
   input.name = 'data';
   input.value = JSON.stringify(plotData);
   form.appendChild(input);
-  
-  // Add display mode parameter
+
+  // Add display_mode parameter
   const displayModeInput = document.createElement('input');
   displayModeInput.type = 'hidden';
   displayModeInput.name = 'display_mode';
   displayModeInput.value = printMode.toString();
   form.appendChild(displayModeInput);
-  
-  // Add form to document and submit it
+
   document.body.appendChild(form);
   form.submit();
-  
-  // Clean up the form
+
+  // Clean up form after submission
   setTimeout(() => {
     document.body.removeChild(form);
   }, 1000);
-  
-  // Show appropriate notification
+
+  // Show appropriate notification based on mode
   if (printMode) {
     showNotification('Print dialog opening soon...', 'success');
   } else {
@@ -211,184 +290,118 @@ function generatePDF(plotState, printMode = false) {
  * @param {Object} plotState - The current plot state
  */
 function sendPlotViaEmail(email, message, plotState) {
-  // Validate plotState first
+  // Validate plotState
   if (!plotState || typeof plotState !== 'object') {
-    showNotification('Error: Plot data not available. Please try again.', 'error');
+    // Removed check for plotState.elements as it might not be needed if backend uses plotId
+    showNotification('Error: Plot data not available.', 'error');
     console.error('Invalid plotState:', plotState);
     return;
   }
 
-  // Create a copy of the data we need (to avoid reference issues)
+  // Check if plot has been saved (needed for snapshot/PDF generation on backend)
+  if (!plotState.currentPlotId) {
+    showNotification('Please save the plot first to share it via email.', 'warning');
+    // Highlight save button logic (similar to generatePDF)
+    const saveButton = document.getElementById('save-plot');
+    if (saveButton) {
+      saveButton.classList.add('highlight-button');
+      setTimeout(() => saveButton.classList.remove('highlight-button'), 2000);
+    }
+    const saveChangesButton = document.getElementById('save-changes');
+    if (saveChangesButton && saveChangesButton.classList.contains('visible')) {
+      saveChangesButton.classList.add('highlight-button');
+      setTimeout(() => saveChangesButton.classList.remove('highlight-button'), 2000);
+    }
+    return;
+  }
+
+  // Create data object using plotState
   const plotData = {
     recipient: email,
     message: message,
     title: plotState.currentPlotName || 'Stage Plot',
-    plotId: plotState.currentPlotId || null,
-    venue: document.getElementById('venue_select') ? 
-      document.querySelector('#venue_select option:checked').textContent : '',
-    eventStart: document.getElementById('event_start') ? 
-      document.getElementById('event_start').value : null,
-    eventEnd: document.getElementById('event_end') ? 
-      document.getElementById('event_end').value : null,
-    elements: plotState.elements || [],
-    inputs: plotState.inputs || []
+    plotId: plotState.currentPlotId, // Essential for backend
+    venue: plotState.venueName || '', // Use state data
+    eventStart: plotState.eventStart || null, // Use state data
+    eventEnd: plotState.eventEnd || null, // Use state data
+    venueId: plotState.venueId || null,
   };
 
-  // Show loading indicator
+  console.log('Data sent to sendPlotViaEmail handler:', plotData); // Debug log
+
   showNotification('Sending email...', 'info');
-  
-  // Add timeout to the fetch request
+
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
   fetch('/handlers/send_plot_email.php', {
+    // Use public handler URL
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
     body: JSON.stringify(plotData),
-    signal: controller.signal
+    signal: controller.signal,
   })
-  .then(response => {
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      throw new Error(`Server returned ${response.status} ${response.statusText}`);
-    }
-    return response.text();
-  })
-  .then(text => {
-    // Debug what's being returned
-    console.log('Server response:', text);
-    
-    // Try to parse as JSON, but handle non-JSON responses
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      console.error('JSON parse error:', e);
-      throw new Error('Server returned an invalid response format');
-    }
-  })
-  .then(data => {
-    if (data.success) {
-      showNotification(data.message || 'Email sent successfully!', 'success');
-      
-      // Reset form
-      document.getElementById('share_email').value = '';
-      document.getElementById('share_message').value = '';
-      document.getElementById('email-share-form').classList.add('hidden');
-      document.querySelector('.share-options-container').classList.remove('hidden');
-    } else {
-      throw new Error(data.error || 'Failed to send email');
-    }
-  })
-  .catch(error => {
-    clearTimeout(timeoutId);
-    // Handle AbortController timeout specifically
-    if (error.name === 'AbortError') {
-      showNotification('Request timeout. The server took too long to respond.', 'error');
-    } else {
-      console.error('Email sending error:', error);
-      showNotification('Error: ' + error.message, 'error');
-    }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, checking for plotState');
-  
-  // Try to initialize right away if plotState exists
-  if (typeof window.plotState !== 'undefined') {
-    console.log('plotState already exists, initializing print/share');
-    initPrintAndShare(window.plotState);
-  } else {
-    console.log('Waiting for plotState to be defined...');
-    // If plotState isn't available yet, wait for it
-    const checkInterval = setInterval(() => {
-      if (typeof window.plotState !== 'undefined') {
-        console.log('plotState found, initializing share functionality');
-        initPrintAndShare(window.plotState);
-        clearInterval(checkInterval);
+    .then((response) => {
+      clearTimeout(timeoutId);
+      const contentType = response.headers.get('content-type');
+      if (response.ok && contentType && contentType.indexOf('application/json') !== -1) {
+        return response.json(); // Only parse if it's JSON
+      } else {
+        // Get text for error context if not OK or not JSON
+        return response.text().then((text) => {
+          console.error('Non-JSON or error response:', response.status, text);
+          // Construct a more specific error message
+          let errorMsg = `Server error ${response.status}. `;
+          if (text) {
+            // Try to extract a meaningful message from the text (e.g., from an HTML error page)
+            const match = text.match(/<title>(.*?)<\/title>/i) || text.match(/<b>(.*?)<\/b>/i);
+            errorMsg += match ? match[1] : text.substring(0, 100) + '...';
+          } else {
+            errorMsg += response.statusText;
+          }
+          throw new Error(errorMsg);
+        });
       }
-    }, 100);
-    
-    // Stop checking after 5 seconds to prevent infinite loop
-    setTimeout(() => {
-      clearInterval(checkInterval);
-      console.log('Timed out waiting for plotState');
-    }, 5000);
-  }
-  
-  // As a fallback, check if there's a share button and attach a direct handler
-  const shareButton = document.getElementById('share-plot');
-  if (shareButton && !shareButton.hasAttribute('data-handler-attached')) {
-    console.log('Attaching fallback handler to share button');
-    shareButton.setAttribute('data-handler-attached', 'true');
-    shareButton.addEventListener('click', () => {
-      const shareModal = document.getElementById('share-plot-modal');
-      if (shareModal) {
-        openModal(shareModal);
+    })
+    .then((data) => {
+      // Now data is guaranteed to be parsed JSON if we reach here
+      if (data.success) {
+        showNotification(data.message || 'Email sent successfully!', 'success');
+
+        // Reset form
+        const emailInput = document.getElementById('share_email');
+        const messageInput = document.getElementById('share_message');
+        const emailForm = document.getElementById('email-share-form');
+        const shareOptions = document.querySelector('.share-options-container');
+
+        if (emailInput) emailInput.value = '';
+        if (messageInput) messageInput.value = '';
+        if (emailForm) emailForm.classList.add('hidden');
+        if (shareOptions) shareOptions.classList.remove('hidden');
+
+        // Close the main share modal
+        const shareModal = document.getElementById('share-plot-modal');
+        if (shareModal) closeModal(shareModal);
+      } else {
+        // Backend indicated failure in the JSON response
+        throw new Error(data.error || 'Failed to send email (server error)');
+      }
+    })
+    .catch((error) => {
+      clearTimeout(timeoutId); // Ensure timeout is cleared on error too
+      if (error.name === 'AbortError') {
+        showNotification('Request timeout. The server took too long to respond.', 'error');
+      } else {
+        console.error('Email sending error:', error);
+        showNotification(`Error sending email: ${error.message}`, 'error');
       }
     });
-  }
-});
-
-/**
- * Generate HTML for the elements list table
- * @param {Array} elements - Array of stage elements
- * @returns {string} HTML content
- */
-function generateElementsListHTML(elements) {
-  if (!elements || elements.length === 0) {
-    return '<p>No elements placed.</p>';
-  }
-  
-  let html = '<table class="element-list">';
-  html += '<tr><th>#</th><th>Element</th><th>Label</th><th>Notes</th></tr>';
-  
-  elements.forEach((element, index) => {
-    html += '<tr>';
-    html += '<td>' + (index + 1) + '</td>';
-    html += '<td>' + (element.elementName || '') + '</td>';
-    html += '<td>' + (element.label || '') + '</td>';
-    html += '<td>' + (element.notes || '') + '</td>';
-    html += '</tr>';
-  });
-  
-  html += '</table>';
-  return html;
 }
 
-/**
- * Generate HTML for the input list table
- * @param {Array} inputs - Array of input list items
- * @returns {string} HTML content
- */
-function generateInputListHTML(inputs) {
-  if (!inputs || inputs.length === 0) {
-    return '<p>No inputs defined.</p>';
-  }
-  
-  let html = '<table class="input-list">';
-  html += '<tr><th>Input #</th><th>Description</th></tr>';
-  
-  inputs.forEach(input => {
-    if (input.label || input.input_name) {
-      const number = input.number || input.input_number || '';
-      const label = input.label || input.input_name || '';
-      
-      html += '<tr>';
-      html += '<td>' + number + '</td>';
-      html += '<td>' + label + '</td>';
-      html += '</tr>';
-    }
-  });
-  
-  html += '</table>';
-  return html;
-}
-
+// Re-export functions for global access
 window.initPrintAndShare = initPrintAndShare;
 window.generatePDF = generatePDF;
 window.sendPlotViaEmail = sendPlotViaEmail;
-window.generateElementsListHTML = generateElementsListHTML;
-window.generateInputListHTML = generateInputListHTML;
