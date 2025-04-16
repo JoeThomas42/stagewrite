@@ -19,6 +19,7 @@ if (!$userObj->isLoggedIn()) {
 
 // Get JSON data
 $jsonData = file_get_contents('php://input');
+error_log('Email request received: ' . $jsonData);
 if (!$jsonData) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => 'No data received']);
@@ -144,30 +145,6 @@ try {
         $htmlContent .= "<p><strong>Date:</strong> $dateText</p>";
     }
     
-    // Add input list if available
-    if (!empty($data['inputs'])) {
-        $htmlContent .= "
-        <h2>Input List</h2>
-        <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%;'>
-            <tr>
-                <th style='background-color: #f0f0f0;'>Input #</th>
-                <th style='background-color: #f0f0f0;'>Description</th>
-            </tr>";
-        
-        foreach ($data['inputs'] as $input) {
-            $inputNumber = $input['number'] ?? ($input['input_number'] ?? '');
-            $inputLabel = $input['label'] ?? ($input['input_name'] ?? '');
-            
-            $htmlContent .= "
-            <tr>
-                <td style='text-align: center;'>$inputNumber</td>
-                <td>$inputLabel</td>
-            </tr>";
-        }
-        
-        $htmlContent .= "</table>";
-    }
-    
     // Close the HTML
     $htmlContent .= "
             <div class='footer'>
@@ -198,36 +175,33 @@ try {
         $textContent .= "Date: $dateText\n\n";
     }
     
-    if (!empty($data['inputs'])) {
-        $textContent .= "INPUT LIST:\n";
-        $textContent .= "----------\n";
-        
-        foreach ($data['inputs'] as $input) {
-            $inputNumber = $input['number'] ?? ($input['input_number'] ?? '');
-            $inputLabel = $input['label'] ?? ($input['input_name'] ?? '');
-            
-            $textContent .= "Input #$inputNumber: $inputLabel\n";
-        }
-    }
-    
     // Send the email
     $recipient = $data['recipient'];
+    error_log('About to send email to: ' . $recipient);
     
     try {
         // Create a new PHPMailer instance
-        $mail = new PHPMailer(true); // true enables exceptions
+        $mail = new PHPMailer(true);
 
-        // Server settings - configure with your actual SMTP details
+        // Debug settings
+        // $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+        
+        // Server settings
         $mail->isSMTP();
-        $mail->Host       = 'mail.stagewrite.app ';
+        $mail->Host       = 'mail.stagewrite.app';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'noreply@stagewrite.app'; // System email address
+        $mail->Username   = 'noreply@stagewrite.app';
         $mail->Password   = 'fP2QF4b_p[R2';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        
+        // $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // For port 587
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;     // For port 465
         $mail->Port       = 465;
         
+        // Increase timeout for slow SMTP servers
+        $mail->Timeout = 60;
+        
         // Set "from" as your system address, but include the user's name
-        $mail->setFrom('noreply@stagewrite.com', $senderName . ' via StageWrite');
+        $mail->setFrom('noreply@stagewrite.app', $senderName . ' via StageWrite');
         
         // Set reply-to as the user's actual email address
         $mail->addReplyTo($senderEmail, $senderName);
@@ -253,6 +227,7 @@ try {
         // Send the email
         $mail->send();
         $mailSent = true;
+        error_log('Email sent successfully to: ' . $recipient);
     } catch (Exception $e) {
         $mailSent = false;
         throw new Exception('Mail sending failed: ' . $mail->ErrorInfo);

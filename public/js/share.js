@@ -205,49 +205,68 @@ function generatePDF(plotState, printMode = false) {
  * @param {Object} plotState - The current plot state
  */
 function sendPlotViaEmail(email, message, plotState) {
-  // Safety check - if plotState is undefined, get it from the window
-  if (!plotState && window.plotState) {
-    console.log('Using global plotState instead of undefined parameter');
-    plotState = window.plotState;
-  }
-  
-  // Another safety check - if still undefined, show error and return
-  if (!plotState) {
-    console.error('Cannot send email: plotState is undefined');
-    showNotification('Error: Plot state not available. Please try again.', 'error');
+  // Validate plotState first
+  if (!plotState || typeof plotState !== 'object') {
+    showNotification('Error: Plot data not available. Please try again.', 'error');
+    console.error('Invalid plotState:', plotState);
     return;
   }
-  
-  showNotification('Preparing to send email...', 'info');
-  
-  // Generate snapshot or get plot data
+
+  // Create a copy of the data we need (to avoid reference issues)
   const plotData = {
-    title: document.getElementById('plot-title').textContent,
     recipient: email,
     message: message,
-    plotId: plotState.currentPlotId,
-    elements: plotState.elements,
-    inputs: plotState.inputs || [],
-    stageWidth: document.getElementById('stage').dataset.stageWidth,
-    stageDepth: document.getElementById('stage').dataset.stageDepth,
-    eventStart: document.getElementById('event_start').value,
-    eventEnd: document.getElementById('event_end').value
+    title: plotState.currentPlotName || 'Stage Plot',
+    plotId: plotState.currentPlotId || null,
+    venue: document.getElementById('venue_select') ? 
+      document.querySelector('#venue_select option:checked').textContent : '',
+    eventStart: document.getElementById('event_start') ? 
+      document.getElementById('event_start').value : null,
+    eventEnd: document.getElementById('event_end') ? 
+      document.getElementById('event_end').value : null,
+    elements: plotState.elements || [],
+    inputs: plotState.inputs || []
   };
+
+  // Show loading indicator
+  showNotification('Sending email...', 'info');
   
-  // Send data to an email handler endpoint
+  // Add timeout to the fetch request
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
   fetch('/handlers/send_plot_email.php', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(plotData)
+    body: JSON.stringify(plotData),
+    signal: controller.signal
   })
-  .then(response => response.json())
+  .then(response => {
+    clearTimeout(timeoutId);
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status} ${response.statusText}`);
+    }
+    return response.text(); // Get text first to check
+  })
+  .then(text => {
+    // Debug what's being returned
+    console.log('Server response:', text);
+    
+    // Try to parse as JSON, but handle non-JSON responses
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      throw new Error('Server returned an invalid response format');
+    }
+  })
   .then(data => {
     if (data.success) {
-      showNotification('Stage plot sent successfully!', 'success');
+      showNotification(data.message || 'Email sent successfully!', 'success');
       
-      // Reset form and go back to share options
+      // Reset form
       document.getElementById('share_email').value = '';
       document.getElementById('share_message').value = '';
       document.getElementById('email-share-form').classList.add('hidden');
@@ -257,8 +276,14 @@ function sendPlotViaEmail(email, message, plotState) {
     }
   })
   .catch(error => {
-    console.error('Error sending email:', error);
-    showNotification('Error sending email: ' + error.message, 'error');
+    clearTimeout(timeoutId);
+    // Handle AbortController timeout specifically
+    if (error.name === 'AbortError') {
+      showNotification('Request timeout. The server took too long to respond.', 'error');
+    } else {
+      console.error('Email sending error:', error);
+      showNotification('Error: ' + error.message, 'error');
+    }
   });
 }
 
