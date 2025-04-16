@@ -69,7 +69,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     imagesavealpha($image, true);
     
     // Fill the background
-    $bgColor = imagecolorallocate($image, 248, 249, 250); // Light gray background
+    $bgColor = imagecolorallocate($image, 255, 255, 255);
     imagefill($image, 0, 0, $bgColor);
     
     // Draw a border
@@ -77,7 +77,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
     imagerectangle($image, 0, 0, $snapshotBaseWidth - 1, $snapshotCanvasHeight - 1, $borderColor);
     
     // Add grid lines (5 foot intervals)
-    $gridColor = imagecolorallocate($image, 230, 230, 230); // Very light gray for grid lines
+    $gridColor = imagecolorallocate($image, 230, 230, 230);
     $gridLineThickness = 1;
 
     // Calculate grid size in pixels (how many pixels per 5 feet)
@@ -98,7 +98,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId) {
 
     // Add stage dimensions text at the top
     $dimensionsColor = imagecolorallocate($image, 120, 120, 120); // Darker than grid lines
-    $dimensionsFont = 2; // Use a small built-in font
+    $dimensionsFont = 4; // Use built-in font
     $dimensionsText = "Stage: {$venueWidthFeet}' x {$venueDepthFeet}'";
     $dimensionsWidth = imagefontwidth($dimensionsFont) * strlen($dimensionsText);
     $dimensionsX = 10; // Position in top-left with padding
