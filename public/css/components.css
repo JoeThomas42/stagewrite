@@ -465,13 +465,14 @@ th.sortable {
   height: 38px;
   left: 50%;
   margin: .5rem auto;
-  max-width: 300px;
+  /* max-width: 300px; */
   min-width: 0;
   pointer-events: none;
   position: absolute;
   top: 10px;
   transform: translateX(-50%);
-  width: 100%;
+  width: fit-content;
+  /* width: 100%; */
   z-index: 10000;
 }
 
@@ -482,6 +483,7 @@ th.sortable {
   position: fixed;
   top: 120px;
   transform: none;
+  width: fit-content;
 }
 
 /* Modal notification area */
@@ -492,7 +494,7 @@ th.sortable {
   right: var(--spacing-xxxl);
   top: var(--spacing-md);
   width: 50%;
-  z-index: 1101; /* Above the modal heading */
+  z-index: 1101;
 }
 
 .notification {
@@ -508,19 +510,19 @@ th.sortable {
   box-shadow: var(--shadow-lg);
   color: var(--color-white);
   font-size: var(--font-size-sm);
-  left: 0;
+  left: 0; 
   opacity: 0;
   overflow: hidden;
-  padding: var(--spacing-sm) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-sm) var(--spacing-xxl);
   pointer-events: none;
   position: absolute;
-  right: 0;
   text-align: center;
   text-overflow: ellipsis;
   top: 0;
   transform: translateX(-100%);
   transition: opacity 0.3s, transform 0.3s;
   white-space: nowrap;
+  width: max-content;
   
   &.visible {
     opacity: 1;
@@ -575,6 +577,11 @@ th.sortable {
       var(--color-primary-dark) 100%
     );
   }
+}
+
+.modal-notification-area .notification {
+  left: auto;
+  right: 0;
 }
 
 /* Hide main notification area when modal is open */
