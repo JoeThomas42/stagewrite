@@ -155,15 +155,44 @@ try {
         $pdf->Cell(30, 7, 'Label', 1, 0, 'C');
         $pdf->Cell(90, 7, 'Notes', 1, 1, 'C');
         
+        // Group elements by name to handle duplicates
+        $elementGroups = [];
+        $elementCounts = [];
+        
+        // First pass: count occurrences of each element name
+        foreach ($data['elements'] as $element) {
+            $name = isset($element['elementName']) ? $element['elementName'] : (isset($element['element_name']) ? $element['element_name'] : null);
+            if (!$name) continue;
+            
+            if (!isset($elementCounts[$name])) {
+                $elementCounts[$name] = 0;
+            }
+            $elementCounts[$name]++;
+        }
+        
         // Table data
         $pdf->SetFont('helvetica', '', 10);
         $i = 1;
+        $nameCounts = []; // Track how many times we've seen each name
+        
         foreach ($data['elements'] as $element) {
-            // Get element name from database if needed
-            $elementName = isset($element['element_name']) ? $element['element_name'] : 'Element ' . $i;
+            // Get proper element name
+            $name = isset($element['elementName']) ? $element['elementName'] : (isset($element['element_name']) ? $element['element_name'] : 'Element ' . $i);
+            
+            // Add counter to name if there are multiple elements with this name
+            if (isset($elementCounts[$name]) && $elementCounts[$name] > 1) {
+                if (!isset($nameCounts[$name])) {
+                    $nameCounts[$name] = 1;
+                } else {
+                    $nameCounts[$name]++;
+                }
+                $displayName = $name . ' ' . $nameCounts[$name];
+            } else {
+                $displayName = $name;
+            }
             
             $pdf->Cell(10, 7, $i, 1, 0, 'C');
-            $pdf->Cell(50, 7, $elementName, 1, 0, 'L');
+            $pdf->Cell(50, 7, $displayName, 1, 0, 'L');
             $pdf->Cell(30, 7, isset($element['label']) ? $element['label'] : '', 1, 0, 'L');
             
             // Handle multi-line notes
