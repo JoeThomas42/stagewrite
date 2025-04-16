@@ -216,11 +216,15 @@ if ($isLoggedIn) {
         <form id="element-props-form">
             <input type="hidden" id="element_index" name="element_index">
             
-            <label for="element_label">Label:</label>
-            <input type="text" id="element_label" name="element_label" maxlength="10">
+            <div>
+              <label for="element_label">Label:</label>
+              <input type="text" id="element_label" name="element_label" maxlength="10">
+            </div>
             
-            <label for="element_notes">Notes:</label>
-            <textarea id="element_notes" name="element_notes" rows="3"></textarea>
+            <div>
+              <label for="element_notes">Notes:</label>
+              <textarea id="element_notes" name="element_notes" rows="3"></textarea>
+            </div>
             
             <div class="form-actions">
                 <button type="submit" class="save-button">Apply</button>

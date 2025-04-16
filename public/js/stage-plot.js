@@ -653,6 +653,19 @@ function handleDrop(e, plotState) {
   plotState.elements.push(newElement);
   
   createPlacedElement(newElement, plotState).then(() => {
+    // Apply drop animation to the newly created element
+    const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
+    if (domElement) {
+      requestAnimationFrame(() => {
+        domElement.classList.add('dropping');
+        
+        // Remove animation class after animation completes
+        domElement.addEventListener('animationend', () => {
+          domElement.classList.remove('dropping');
+        }, { once: true });
+      });
+    }
+    
     renderElementInfoList(plotState); // Update the info list
   });
 

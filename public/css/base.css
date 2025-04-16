@@ -131,7 +131,6 @@ textarea {
   min-height: 120px;
   overflow: auto;
   resize: none;
-  width: auto;
 }
 
 label {
