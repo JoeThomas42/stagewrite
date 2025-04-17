@@ -491,16 +491,13 @@
 
 /* Element Drop Animation */
 .placed-element.dropping {
-  animation: element-drop 0.8s ease-out forwards;
+  animation: element-drop 0.3s ease-out forwards;
   transform-origin: center center;
 }
 
 @keyframes element-drop {
-  0% { transform: scale(0.8); }
-  20% { transform: scale(1.15); }
-  40% { transform: scale(0.9); }
-  60% { transform: scale(1.05); }
-  80% { transform: scale(0.95); }
+  0% { transform: scale(1.15); }
+  50% { transform: scale(0.95); }
   100% { transform: scale(1); }
 }
 
