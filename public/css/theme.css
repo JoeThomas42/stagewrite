@@ -253,10 +253,6 @@
   .element-info-item {
     background-color: var(--color-background-light);
     border-color: var(--color-border);
-  
-    &::before {
-      /* color: var(--color-primary-light); */
-    }
   }
 
   .element-info-name {
