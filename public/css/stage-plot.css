@@ -86,6 +86,9 @@
 
 .draggable-element {
   align-items: center;
+  background-color: var(--color-background-trans);
+  border: 2px solid var(--color-grey-1);
+  border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
   cursor: grab;
   display: flex;
@@ -96,10 +99,6 @@
   position: relative;
   transition: all var(--transition-fast);
   width: 90px;
-
-  background-color: var(--color-background-trans);
-  border: 2px solid var(--color-grey-1);
-  border-radius: var(--border-radius-md);
 
   --container-width: 90px;
   --font-scale: 0.12;
@@ -381,7 +380,11 @@
 /* Cursor Hiding Styles for Dragging */
 
 body.dragging-from-panel,
-body.dragging-from-panel * {
+body.dragging-from-panel #stage {
+  cursor: none !important;
+}
+
+.draggable-element[draggable="true"]:active {
   cursor: none !important;
 }
 
