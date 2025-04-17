@@ -887,6 +887,7 @@ function initTooltips() {
     if (element.classList.contains('tooltip-enhanced') || 
         (element.classList.contains('close-button')) ||
         (element.classList.contains('delete-plot-btn')) ||
+        (element.classList.contains('flip-btn')) ||
         (element.classList.contains('plot-card-snapshot')) ||
         (element.id.includes('delete-action-btn')) ||
         (element.classList.contains('modal-close-button'))) {

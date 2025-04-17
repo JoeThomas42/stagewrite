@@ -820,7 +820,7 @@ function createPlacedElement(elementData, plotState) {
     flipAction.id = 'flip-action';
 
     const flipBtn = document.createElement('button');
-    flipBtn.className = 'edit-element';
+    flipBtn.className = 'edit-element flip-btn';
     flipBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
     flipBtn.title = 'Flip Horizontally';
     if (elementData.flipped) {
@@ -831,24 +831,87 @@ function createPlacedElement(elementData, plotState) {
       e.stopPropagation();
       const elementId = parseInt(element.getAttribute('data-id'));
       const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-
-      if (elementIndex !== -1) {
-        // Toggle state
-        plotState.elements[elementIndex].flipped = !plotState.elements[elementIndex].flipped;
-        const isFlipped = plotState.elements[elementIndex].flipped;
-
-        // Update image transform
+    
+      if (elementIndex === -1) return;
+      
+      // Prevent multiple flips by checking if element is already flipping
+      if (element.classList.contains('flipping')) return;
+      
+      // Get current flip state
+      const currentlyFlipped = plotState.elements[elementIndex].flipped;
+      
+      // IMMEDIATELY hide controls before adding any animation classes
+      const controls = element.querySelectorAll('.element-actions, .element-label');
+      controls.forEach(control => {
+        control.style.opacity = '0';
+        control.style.pointerEvents = 'none';
+        control.style.transition = 'none'; // Disable transitions to prevent flicker
+      });
+      
+      // Add an overlay to prevent interactions during flip
+      const flipOverlay = document.createElement('div');
+      flipOverlay.className = 'flip-overlay';
+      element.appendChild(flipOverlay);
+      
+      // Small delay to ensure controls are hidden before animation starts
+      requestAnimationFrame(() => {
+        // Apply the flipping class and direction class
+        element.classList.add('flipping');
+        element.classList.add(currentlyFlipped ? 'to-left' : 'to-right');
+        
+        // Set up animation end handler for the image
         const imageElement = element.querySelector('img');
-        if (imageElement) {
-          imageElement.style.transform = isFlipped ? 'scaleX(-1)' : '';
+        if (!imageElement) {
+          // Clean up if no image is found
+          finishFlip();
+          return;
         }
-
-        // Update button appearance
-        flipBtn.classList.toggle('flipped', isFlipped);
-        flipBtn.title = isFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
-
-        markPlotAsModified(plotState);
-      }
+        
+        const handleAnimationEnd = () => {
+          // Toggle state in data
+          plotState.elements[elementIndex].flipped = !currentlyFlipped;
+          
+          // Apply the final transform state
+          imageElement.style.transform = !currentlyFlipped ? 'scaleX(-1)' : '';
+          
+          // Update button appearance
+          flipBtn.classList.toggle('flipped', !currentlyFlipped);
+          flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
+          
+          // Clean up animation classes
+          element.classList.remove('flipping', 'to-right', 'to-left');
+          
+          // Clean up event listener
+          imageElement.removeEventListener('animationend', handleAnimationEnd);
+          
+          // Remove the overlay
+          if (flipOverlay && flipOverlay.parentNode) {
+            flipOverlay.remove();
+          }
+          
+          // Fade the controls back in properly with a slight delay
+          // to ensure the cleanup is complete
+          setTimeout(() => {
+            controls.forEach(control => {
+              control.removeAttribute('style');
+            });
+          }, 50);
+          
+          // Mark plot as modified
+          markPlotAsModified(plotState);
+        };
+        
+        // Add animation end listener
+        imageElement.addEventListener('animationend', handleAnimationEnd);
+        
+        // Fallback in case animation end doesn't fire
+        const fallbackTimeout = setTimeout(() => {
+          if (element.classList.contains('flipping')) {
+            imageElement.removeEventListener('animationend', handleAnimationEnd);
+            handleAnimationEnd();
+          }
+        }, 500); // Slightly longer than animation duration
+      });
     });
 
     // Add button event handlers (mousedown/up/leave for visual feedback)
