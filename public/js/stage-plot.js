@@ -559,9 +559,18 @@ function initDragAndDrop(plotState) {
   const draggableElements = document.querySelectorAll('.draggable-element');
 
   draggableElements.forEach((element) => {
-    element.addEventListener('dragstart', (e) => handleDragStart(e, plotState));
+    // Modify the dragstart listener
+    element.addEventListener('dragstart', (e) => {
+      document.body.classList.add('dragging-from-panel'); // Add class
+      handleDragStart(e, plotState); // Call your existing handler
+    });
     element.setAttribute('draggable', true);
   });
+  
+  // Add a global dragend listener to remove the class
+  document.addEventListener('dragend', () => {
+    document.body.classList.remove('dragging-from-panel');
+  }, { capture: true }); // Use capture for reliability
 
   // Set up the stage as drop target
   stage.addEventListener('dragover', handleDragOver);
@@ -1021,6 +1030,9 @@ function makeDraggableOnStage(element, plotState) {
     startLeft = parseInt(window.getComputedStyle(element).left);
     startTop = parseInt(window.getComputedStyle(element).top);
 
+    document.body.classList.add('dragging-on-stage');
+    element.style.cursor = 'none';
+
     // Add move and end events
     document.addEventListener('mousemove', dragMove);
     document.addEventListener('touchmove', dragMove, { passive: false });
@@ -1085,6 +1097,9 @@ function makeDraggableOnStage(element, plotState) {
   }
 
   function dragEnd() {
+    document.body.classList.remove('dragging-on-stage');
+    element.style.cursor = 'move';
+    
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);
     document.removeEventListener('mouseup', dragEnd);

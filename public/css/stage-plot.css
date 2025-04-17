@@ -377,6 +377,19 @@
 }
 
 /* -------------------- Placed Elements --------------------- */
+
+/* Cursor Hiding Styles for Dragging */
+
+body.dragging-from-panel,
+body.dragging-from-panel * {
+  cursor: none !important;
+}
+
+body.dragging-on-stage,
+body.dragging-on-stage * {
+  cursor: none !important;
+}
+
 .element-actions {
   opacity: 0;
   padding: 3px;
@@ -487,6 +500,10 @@
   &:active {
     cursor: grabbing;
   }
+}
+
+.placed-element .element-actions button {
+  cursor: pointer !important;
 }
 
 /* Element Drop Animation */
