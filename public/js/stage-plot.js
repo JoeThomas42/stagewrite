@@ -19,11 +19,11 @@ function initStageEditor() {
     currentPlotName: null,
     currentPlotId: null,
     isModified: false,
-    isLoading: false, // <<< ADDED: Flag to track loading state
+    isLoading: false,
     favorites: [],
     favoritesData: [],
-    renderInputList: null, // Placeholder for render function
-    clearInputList: null, // Placeholder for clear function
+    renderInputList: null,
+    clearInputList: null,
   };
 
   window.plotState = plotState;
