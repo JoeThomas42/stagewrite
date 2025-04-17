@@ -577,8 +577,22 @@ function handleDragStart(e, plotState) {
   // Store element ID in the dataTransfer object
   e.dataTransfer.setData('text/plain', e.target.getAttribute('data-element-id'));
 
-  // Set dragged element information in state
-  plotState.currentDragId = e.target.getAttribute('data-element-id');
+  // Get the source element dimensions
+  const sourceElement = e.target;
+  const sourceRect = sourceElement.getBoundingClientRect();
+  
+  // Calculate where the user clicked relative to the element's center
+  const clickOffsetX = e.clientX - (sourceRect.left + sourceRect.width / 3);
+  const clickOffsetY = e.clientY - (sourceRect.top + sourceRect.height / 3);
+  
+  // Store in plotState
+  plotState.currentDragId = sourceElement.getAttribute('data-element-id');
+  plotState.dragSourceRect = {
+    width: sourceRect.width,
+    height: sourceRect.height,
+    offsetX: clickOffsetX,
+    offsetY: clickOffsetY
+  };
 
   // Set drag image and effect
   e.dataTransfer.effectAllowed = 'copy';
@@ -628,9 +642,26 @@ function handleDrop(e, plotState) {
   const elementWidth = 75;
   const elementHeight = 75;
   
-  // Get the position relative to the stage, centered on cursor
-  let x = Math.max(0, Math.min(e.clientX - stageRect.left - (elementWidth / 1.5), stageRect.width - elementWidth));
-  let y = Math.max(0, Math.min(e.clientY - stageRect.top - (elementHeight / 1.5), stageRect.height - elementHeight));
+  // Calculate position that centers the element where the drag source was
+  // rather than where the cursor is
+  let x, y;
+  
+  if (plotState.dragSourceRect) {
+    // Use the drag offsets to center the element properly
+    x = Math.max(0, Math.min(
+      e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - (elementWidth / 2),
+      stageRect.width - elementWidth
+    ));
+    
+    y = Math.max(0, Math.min(
+      e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - (elementHeight / 2),
+      stageRect.height - elementHeight
+    ));
+  } else {
+    // Fallback to the original cursor-based positioning if no drag data
+    x = Math.max(0, Math.min(e.clientX - stageRect.left - (elementWidth / 1.5), stageRect.width - elementWidth));
+    y = Math.max(0, Math.min(e.clientY - stageRect.top - (elementHeight / 1.5), stageRect.height - elementHeight));
+  }
 
   // Create a new element object
   const newElement = {
@@ -651,6 +682,9 @@ function handleDrop(e, plotState) {
 
   // Add to state and create DOM element
   plotState.elements.push(newElement);
+  
+  // Clear drag source data after use
+  plotState.dragSourceRect = null;
   
   createPlacedElement(newElement, plotState).then(() => {
     // Apply drop animation to the newly created element
