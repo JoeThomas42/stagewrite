@@ -561,16 +561,10 @@ function initDragAndDrop(plotState) {
   draggableElements.forEach((element) => {
     // Modify the dragstart listener
     element.addEventListener('dragstart', (e) => {
-      document.body.classList.add('dragging-from-panel'); // Add class
       handleDragStart(e, plotState); // Call your existing handler
     });
     element.setAttribute('draggable', true);
   });
-  
-  // Add a global dragend listener to remove the class
-  document.addEventListener('dragend', () => {
-    document.body.classList.remove('dragging-from-panel');
-  }, { capture: true }); // Use capture for reliability
 
   // Set up the stage as drop target
   stage.addEventListener('dragover', handleDragOver);
@@ -932,8 +926,7 @@ function createPlacedElement(elementData, plotState) {
             flipOverlay.remove();
           }
           
-          // Fade the controls back in properly with a slight delay
-          // to ensure the cleanup is complete
+          // Fade the controls back in
           setTimeout(() => {
             controls.forEach(control => {
               control.removeAttribute('style');
@@ -957,7 +950,7 @@ function createPlacedElement(elementData, plotState) {
       });
     });
 
-    // Add button event handlers (mousedown/up/leave for visual feedback)
+    // Add button event handlers
     flipBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });
@@ -970,7 +963,6 @@ function createPlacedElement(elementData, plotState) {
 
     flipAction.appendChild(flipBtn);
     element.appendChild(flipAction);
-    // End of flip button <<<
 
     // Make draggable within stage
     makeDraggableOnStage(element, plotState);
@@ -978,7 +970,6 @@ function createPlacedElement(elementData, plotState) {
     // Add to stage
     stage.appendChild(element);
 
-    // If the image doesn't have a src or is already cached, onload might not fire
     if (!img.src || img.complete) {
       // Manually trigger the logic if needed, or just resolve
       if (img.complete && img.naturalWidth > 0) {
@@ -986,7 +977,6 @@ function createPlacedElement(elementData, plotState) {
       } else if (!img.src) {
         resolve(); // Resolve if there's no image src
       }
-      // If img.complete but naturalWidth is 0, onerror should handle it
     }
 
     if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
@@ -1031,7 +1021,6 @@ function makeDraggableOnStage(element, plotState) {
     startTop = parseInt(window.getComputedStyle(element).top);
 
     document.body.classList.add('dragging-on-stage');
-    element.style.cursor = 'none';
 
     // Add move and end events
     document.addEventListener('mousemove', dragMove);
@@ -1098,7 +1087,6 @@ function makeDraggableOnStage(element, plotState) {
 
   function dragEnd() {
     document.body.classList.remove('dragging-on-stage');
-    element.style.cursor = 'move';
     
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);

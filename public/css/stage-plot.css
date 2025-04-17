@@ -378,26 +378,20 @@
 /* -------------------- Placed Elements --------------------- */
 
 /* Cursor Hiding Styles for Dragging */
-
-body.dragging-from-panel,
-body.dragging-from-panel #stage {
-  cursor: none !important;
-}
-
-.draggable-element[draggable="true"]:active {
-  cursor: none !important;
-}
-
 body.dragging-on-stage,
 body.dragging-on-stage * {
-  cursor: none !important;
+  cursor: grabbing !important;
+
+  .element-actions {
+    opacity: 0 !important;
+  }
 }
 
 .element-actions {
   opacity: 0;
   padding: 3px;
   position: absolute;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
   z-index: 1001;
   
   button {
@@ -475,7 +469,7 @@ body.dragging-on-stage * {
   border: 2px solid var(--color-grey-1);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
-  cursor: move;
+  cursor: grab;
   display: flex;
   justify-content: center;
   margin: 14px;
@@ -493,6 +487,7 @@ body.dragging-on-stage * {
   &:hover {
     border-color: var(--color-primary-light);
     box-shadow: var(--shadow-lg);
+    cursor: grab;
     z-index: 1000 !important;
     
     .element-actions {
