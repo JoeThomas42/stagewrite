@@ -350,60 +350,119 @@ function addFavoriteButtons(plotState) {
  * @param {Object} plotState - The current plot state
  */
 function toggleFavorite(elementId, plotState) {
+  // Prevent toggling if another toggle operation is already in progress
+  if (plotState.favoriteToggleInProgress) {
+    return;
+  }
+
   // Create form data for the request
   const formData = new FormData();
   formData.append('element_id', elementId);
+  
+  // Set the flag to indicate a toggle is in progress
+  plotState.favoriteToggleInProgress = true;
+  
+  // Check if we're removing a favorite
+  const isRemoving = plotState.favorites.includes(elementId);
+  
+  // If removing, find the element in the favorites section to animate
+  if (isRemoving) {
+    const favoriteElement = document.querySelector(`.favorite-element[data-element-id="${elementId}"]`);
+    if (favoriteElement) {
+      // Use requestAnimationFrame to ensure DOM is updated before animation starts
+      requestAnimationFrame(() => {
+        // Add removing class to trigger animation
+        favoriteElement.classList.add('removing');
+        
+        // Create a flag variable to track if request has been sent
+        let requestSent = false;
+        
+        // Set up animation end listener
+        const handleAnimationEnd = () => {
+          if (requestSent) return; // Prevent duplicate calls
+          requestSent = true;
+          favoriteElement.removeEventListener('animationend', handleAnimationEnd);
+          // Now send the server request
+          sendToggleRequest();
+        };
+        
+        // Add event listener for animation end
+        favoriteElement.addEventListener('animationend', handleAnimationEnd);
+        
+        // Fallback: If animation doesn't complete after 500ms, proceed anyway
+        setTimeout(() => {
+          if (requestSent) return; // Don't send if already sent
+          requestSent = true;
+          favoriteElement.classList.remove('removing'); // Ensure class is removed
+          sendToggleRequest();
+        }, 500);
+      });
+      
+      return; // Exit early, the sendToggleRequest will be called after animation
+    }
+  }
+  
+  // If not removing or element not found, proceed normally
+  sendToggleRequest();
+  
+  function sendToggleRequest() {
+    // Rest of your existing code (unchanged)
+    fetch('/handlers/toggle_favorite.php', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Update favorites in state
+          const isFavorite = data.action === 'added';
 
-  // Send toggle request
-  fetch('/handlers/toggle_favorite.php', {
-    method: 'POST',
-    body: formData,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        // Update favorites in state
-        const isFavorite = data.action === 'added';
+          if (isFavorite) {
+            // Add to favorites if not already there
+            if (!plotState.favorites.includes(elementId)) {
+              plotState.favorites.push(elementId);
 
-        if (isFavorite) {
-          // Add to favorites if not already there
-          if (!plotState.favorites.includes(elementId)) {
-            plotState.favorites.push(elementId);
-
-            // Get element data for the favorites category
-            const elementData = getElementData(elementId);
-            if (elementData) {
-              plotState.favoritesData.push(elementData);
+              // Get element data for the favorites category
+              const elementData = getElementData(elementId);
+              if (elementData) {
+                plotState.favoritesData.push(elementData);
+              }
             }
+          } else {
+            // Remove from favorites
+            plotState.favorites = plotState.favorites.filter((id) => id !== elementId);
+            plotState.favoritesData = plotState.favoritesData.filter((fav) => fav.element_id !== elementId);
+          }
+
+          // Update all instances of this element's favorite button
+          updateElementFavoriteButtons(elementId, isFavorite);
+
+          // Update favorites category
+          updateFavoritesCategory(plotState);
+
+          // Show notification
+          if (typeof showNotification === 'function') {
+            showNotification(data.message, 'success');
           }
         } else {
-          // Remove from favorites
-          plotState.favorites = plotState.favorites.filter((id) => id !== elementId);
-          plotState.favoritesData = plotState.favoritesData.filter((fav) => fav.element_id !== elementId);
+          if (typeof showNotification === 'function') {
+            showNotification(data.error || 'Error toggling favorite', 'error');
+          }
         }
-
-        // Update all instances of this element's favorite button
-        updateElementFavoriteButtons(elementId, isFavorite);
-
-        // Update favorites category
-        updateFavoritesCategory(plotState);
-
-        // Show notification
+        
+        // IMPORTANT: Clear the toggle in progress flag
+        plotState.favoriteToggleInProgress = false;
+      })
+      .catch((error) => {
+        console.error('Error toggling favorite:', error);
         if (typeof showNotification === 'function') {
-          showNotification(data.message, 'success');
+          showNotification('Error toggling favorite', 'error');
         }
-      } else {
-        if (typeof showNotification === 'function') {
-          showNotification(data.error || 'Error toggling favorite', 'error');
-        }
-      }
-    })
-    .catch((error) => {
-      console.error('Error toggling favorite:', error);
-      if (typeof showNotification === 'function') {
-        showNotification('Error toggling favorite', 'error');
-      }
-    });
+        
+        // IMPORTANT: Clear the toggle in progress flag even on error
+        plotState.favoriteToggleInProgress = false;
+      });
+  }
 }
 
 /**
@@ -448,8 +507,18 @@ function updateFavoritesCategory(plotState) {
   const elementsPanel = document.getElementById('elements-list');
   if (!elementsPanel) return;
 
+  // Find existing favorites section if it exists
   let favoritesSection = elementsPanel.querySelector('.category-section.favorites-section');
-  // (Logic to potentially create the section if missing - same as before)
+  
+  // Initialize previousFavorites array if it doesn't exist
+  if (!plotState.previousFavorites) {
+    plotState.previousFavorites = [];
+  }
+
+  // Track which elements are new
+  const newFavorites = plotState.favorites.filter(id => !plotState.previousFavorites.includes(id));
+  
+  // Create favorites section if it doesn't exist yet
   if (!favoritesSection) {
     favoritesSection = document.createElement('div');
     favoritesSection.className = 'category-section favorites-section';
@@ -478,12 +547,9 @@ function updateFavoritesCategory(plotState) {
     noFavorites.className = 'no-favorites-message';
     noFavorites.textContent = 'No favorites yet. Click the ☆ icon on any element.';
     favoritesGrid.appendChild(noFavorites);
-    // --- Removed separator handling ---
   } else {
-    // --- Removed separator handling ---
-    // Populate grid with favorite elements (same logic as before)
+    // Populate grid with favorite elements
     plotState.favorites.forEach((elementId) => {
-      // ... (element creation logic remains the same)
       const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
       if (elementData) {
         const favoriteElement = document.createElement('div');
@@ -493,6 +559,15 @@ function updateFavoritesCategory(plotState) {
         favoriteElement.setAttribute('data-element-name', elementData.element_name);
         favoriteElement.setAttribute('data-category-id', elementData.category_id);
         favoriteElement.setAttribute('data-image', elementData.element_image);
+
+        // Add animation class if it's a new favorite
+        if (newFavorites.includes(elementId)) {
+          favoriteElement.classList.add('adding');
+          // Remove the class after animation completes
+          favoriteElement.addEventListener('animationend', () => {
+            favoriteElement.classList.remove('adding');
+          });
+        }
 
         const img = document.createElement('img');
         img.src = `/images/elements/${elementData.element_image}`;
@@ -521,6 +596,9 @@ function updateFavoritesCategory(plotState) {
       }
     });
   }
+
+  // Update previous favorites for next time
+  plotState.previousFavorites = [...plotState.favorites];
 
   // Ensure Favorites section is still at the top
   moveFavoritesToTop();

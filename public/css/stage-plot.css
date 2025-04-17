@@ -194,6 +194,40 @@
   opacity: 0.8;
 }
 
+/* Favorite add/remove animations */
+.favorite-element.adding {
+  animation: favorite-add 0.2s ease-in-out forwards;
+  transform-origin: center center;
+}
+
+.favorite-element.removing {
+  animation: favorite-remove 0.2s ease-in-out forwards;
+  pointer-events: none;
+  transform-origin: center center;
+  z-index: 9999 !important;
+}
+@keyframes favorite-add {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes favorite-remove {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
 /* -------------------- Stage Area --------------------- */
 #control-buttons {
   border-radius: var(--border-radius-sm);
