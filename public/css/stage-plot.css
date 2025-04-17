@@ -540,7 +540,7 @@ body.dragging-on-stage * {
 
 /* Element Drop Animation */
 .placed-element.dropping {
-  animation: element-drop .3s ease-in forwards;
+  animation: element-drop .2s ease-in forwards;
   transform-origin: center center;
 }
 
@@ -552,7 +552,7 @@ body.dragging-on-stage * {
 
 /* Element Delete Animation */
 .placed-element.deleting {
-  animation: element-delete 0.3s ease-in forwards;
+  animation: element-delete 0.2s ease-in forwards;
   pointer-events: none;
   transform-origin: center center;
   z-index: 9999 !important;
