@@ -173,9 +173,11 @@ if ($isLoggedIn) {
             <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
             <button id="share-plot" class="action-button" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
             <button id="save-changes" class="action-button hidden">Save Changes</button>
-            <button id="delete-selected" class="action-button hidden">Delete Selected</button>
           <?php endif; ?>
-          <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
+          <div id="delete-buttons">
+            <button id="delete-selected" class="action-button hidden">Delete Selected</button>
+            <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
+          </div>
         </div>
 
         <div id="stage"

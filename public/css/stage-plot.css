@@ -393,7 +393,6 @@
 
 #clear-plot {
   background-color: var(--color-danger);
-  margin-left: auto;
 }
 
 #save-changes {
@@ -414,13 +413,17 @@
   opacity: 0;
   padding-left: 0;
   padding-right: 0;
-  width: 0;
-  transition: opacity 0.3s ease, width 0.3s ease;
+  /* width: 0; */
+  /* transition: opacity 0.3s ease, width 0.3s ease; */
   
   &.visible {
     opacity: 1;
     width: 150px;
   }
+}
+
+#delete-buttons {
+  margin-left: auto;
 }
 
 /* -------------------- Placed Elements --------------------- */

@@ -1455,7 +1455,7 @@ function initLassoSelection(plotState) {
         clickedElement.classList.add('selected');
       }
 
-      updateDeleteSelectedButton(plotState);
+      updateStageSelectionState(plotState);
       
       // Important: we set a flag on the event to tell the drag handler to ignore this event
       e._handledBySelection = true;
@@ -1552,7 +1552,7 @@ function initLassoSelection(plotState) {
       }
     });
 
-    updateDeleteSelectedButton(plotState);
+    updateStageSelectionState(plotState);
 
     // Remove lasso visual element
     lassoElement.remove();
@@ -1561,6 +1561,24 @@ function initLassoSelection(plotState) {
     document.removeEventListener('mousemove', handleLassoMove);
   }
 
+  updateStageSelectionState(plotState);
+}
+
+/**
+ * Update the stage's selection status class
+ * @param {Object} plotState - The current plot state
+ */
+function updateStageSelectionState(plotState) {
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+  
+  if (plotState.selectedElements.length > 0) {
+    stage.classList.add('has-selection');
+  } else {
+    stage.classList.remove('has-selection');
+  }
+  
+  // Also update delete button visibility
   updateDeleteSelectedButton(plotState);
 }
 
@@ -1821,8 +1839,8 @@ function clearElementSelection(plotState) {
   });
   plotState.selectedElements = [];
   
-  // Update delete button visibility
-  updateDeleteSelectedButton(plotState);
+  // Update stage selection class
+  updateStageSelectionState(plotState);
 }
 
 /**
@@ -1918,8 +1936,8 @@ function deleteSelectedElements(plotState) {
       updateDeleteSelectedButton(plotState);
     },
     {
-      confirmText: 'Delete All',
-      confirmTitle: `Delete ${selectedElementIds.length} elements?`,
+      confirmText: `Confirm ${selectedElementIds.length} deletions?`,
+      confirmTitle: 'This is Permanent!',
       originalText: 'Delete Selected',
     }
   );
@@ -2621,8 +2639,11 @@ function loadPlot(plotId, plotState) {
       if (data.success) {
         plotState.isLoading = true;
 
-        // Clear current stage FIRST
+        // Clear current stage
         clearElements(plotState);
+        plotState.selectedElements = [];
+        updateStageSelectionState(plotState);
+
         if (plotState.clearInputList) plotState.clearInputList(); // Clear input list state & DOM
 
         // ... (update plot title, venue, dates, buttons, favorites) ...
@@ -3449,6 +3470,9 @@ function clearElements(plotState) {
   plotState.elements = [];
   plotState.nextZIndex = 1;
   plotState.selectedElement = null;
+  plotState.selectedElements = [];
+
+  updateStageSelectionState(plotState);
 
   if (plotState.clearInputList) {
     plotState.clearInputList();
@@ -3475,6 +3499,10 @@ function newPlot(plotState) {
 
   // Clear all elements
   clearElements(plotState);
+
+  plotState.selectedElements = [];
+
+  updateStageSelectionState(plotState);
 
   renderElementInfoList(plotState);
 
@@ -3926,3 +3954,4 @@ window.renderElementInfoList = renderElementInfoList;
 window.updateDeleteSelectedButton = updateDeleteSelectedButton;
 window.deleteSelectedElements = deleteSelectedElements;
 window.initDeleteSelectedButton = initDeleteSelectedButton;
+window.updateStageSelectionState = updateStageSelectionState;
