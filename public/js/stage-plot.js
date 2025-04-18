@@ -1411,6 +1411,14 @@ function makeDraggableOnStage(element, plotState) {
  * @param {Object} plotState - The current plot state
  */
 function initLassoSelection(plotState) {
+  // If the element is inside the stage, always prevent selection
+  document.addEventListener('selectstart', function(e) {
+    if (e.target.closest('#stage')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
   const stage = document.getElementById('stage');
   let lassoActive = false;
   let lassoStartX, lassoStartY;
