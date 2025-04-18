@@ -16,6 +16,7 @@ function initStageEditor() {
     nextZIndex: 1,
     currentDragId: null,
     selectedElement: null,
+    selectedElements: [],
     currentPlotName: null,
     currentPlotId: null,
     isModified: false,
@@ -39,6 +40,7 @@ function initStageEditor() {
   initPageNavigation(plotState);
   initStageGrid();
   checkUrlParameters(plotState);
+  initLassoSelection(plotState);
   initInputList(plotState);
   initElementInfoListEvents(plotState);
 
@@ -1069,6 +1071,8 @@ function createPlacedElement(elementData, plotState) {
  */
 function makeDraggableOnStage(element, plotState) {
   let startX, startY, startLeft, startTop;
+  let isDraggingGroup = false;
+  let groupOffsets = []; // Store offsets for group dragging
 
   element.addEventListener('mousedown', startDrag);
   element.addEventListener('touchstart', startDrag, { passive: false });
@@ -1082,11 +1086,42 @@ function makeDraggableOnStage(element, plotState) {
     e.preventDefault();
     e.stopPropagation();
 
-    // Bring to front
     const elementId = parseInt(element.getAttribute('data-id'));
-    bringToFront(elementId, plotState);
 
-    // Track initial positions
+    // Check if the dragged element is part of the selection
+    isDraggingGroup = plotState.selectedElements.includes(elementId);
+
+    if (!isDraggingGroup) {
+        // If not dragging a group, clear selection unless Shift is held
+        if (!e.shiftKey) {
+            clearElementSelection(plotState);
+        }
+        // Select just this element (optional: add shift-click multi-select later)
+        // plotState.selectedElements = [elementId];
+        // element.classList.add('selected');
+        bringToFront(elementId, plotState); // Bring single element to front
+    } else {
+         bringToFront(elementId, plotState);
+
+        // Calculate offsets for all elements in the group relative to the dragged element
+        groupOffsets = [];
+        const draggedElementState = plotState.elements.find(el => el.id === elementId);
+        if (!draggedElementState) return; // Should not happen
+
+        plotState.selectedElements.forEach(id => {
+            const elState = plotState.elements.find(el => el.id === id);
+            if (elState) {
+                groupOffsets.push({
+                    id: id,
+                    offsetX: elState.x - draggedElementState.x,
+                    offsetY: elState.y - draggedElementState.y
+                });
+            }
+        });
+    }
+
+
+    // Track initial positions of the primary dragged element
     if (e.type === 'touchstart') {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
@@ -1111,7 +1146,6 @@ function makeDraggableOnStage(element, plotState) {
     e.preventDefault();
 
     let clientX, clientY;
-
     if (e.type === 'touchmove') {
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
@@ -1120,57 +1154,241 @@ function makeDraggableOnStage(element, plotState) {
       clientY = e.clientY;
     }
 
-    // Calculate new position
     const dx = clientX - startX;
     const dy = clientY - startY;
 
-    // Calculate the new position in pixels
-    let newLeft = startLeft + dx;
-    let newTop = startTop + dy;
+    // Calculate the new primary position
+    const newPrimaryLeft = startLeft + dx;
+    const newPrimaryTop = startTop + dy;
 
-    // Apply constraints to keep within stage
+    // Apply constraints (simplified: check primary element only, needs refinement for group bounds)
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
     const elementRect = element.getBoundingClientRect();
-
-    // Get computed margin
     const computedStyle = window.getComputedStyle(element);
     const marginRight = parseInt(computedStyle.marginRight) || 0;
     const marginBottom = parseInt(computedStyle.marginBottom) || 0;
     const marginLeft = parseInt(computedStyle.marginLeft) || 0;
     const marginTop = parseInt(computedStyle.marginTop) || 0;
-
-    // Calculate max position accounting for margins
     const maxLeft = stageRect.width - elementRect.width - marginRight - marginLeft;
     const maxTop = stageRect.height - elementRect.height - marginBottom - marginTop;
+    const constrainedPrimaryLeft = Math.max(0, Math.min(maxLeft, newPrimaryLeft));
+    const constrainedPrimaryTop = Math.max(0, Math.min(maxTop, newPrimaryTop));
 
-    // Apply constraints
-    const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
-    const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
+    // Calculate the actual delta applied after constraints
+    const actualDx = constrainedPrimaryLeft - startLeft;
+    const actualDy = constrainedPrimaryTop - startTop;
 
-    // Update position
-    element.style.left = `${constrainedLeft}px`;
-    element.style.top = `${constrainedTop}px`;
 
-    // Update state
-    const elementId = parseInt(element.getAttribute('data-id'));
-    const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+    if (isDraggingGroup) {
+        // Move all elements in the group
+        groupOffsets.forEach(offsetData => {
+            const groupElement = document.querySelector(`.placed-element[data-id="${offsetData.id}"]`);
+            const elementStateIndex = plotState.elements.findIndex(el => el.id === offsetData.id);
 
-    if (elementIndex !== -1) {
-      plotState.elements[elementIndex].x = constrainedLeft;
-      plotState.elements[elementIndex].y = constrainedTop;
-      markPlotAsModified(plotState);
+            if (groupElement && elementStateIndex !== -1) {
+                // Calculate new position based on the primary element's constrained movement
+                const targetLeft = plotState.elements[elementStateIndex].x + actualDx;
+                const targetTop = plotState.elements[elementStateIndex].y + actualDy;
+
+                // Apply position
+                groupElement.style.left = `${targetLeft}px`;
+                groupElement.style.top = `${targetTop}px`;
+
+            }
+        });
+    } else {
+        // Move just the single element
+        element.style.left = `${constrainedPrimaryLeft}px`;
+        element.style.top = `${constrainedPrimaryTop}px`;
     }
   }
 
-  function dragEnd() {
+  function dragEnd(e) {
     document.body.classList.remove('dragging-on-stage');
-    
+
+    // Final position update in state
+    const finalRect = element.getBoundingClientRect();
+    const stageRect = document.getElementById('stage').getBoundingClientRect();
+    const finalLeft = finalRect.left - stageRect.left;
+    const finalTop = finalRect.top - stageRect.top;
+
+    if (isDraggingGroup) {
+        const draggedElementId = parseInt(element.getAttribute('data-id'));
+        const primaryOffset = groupOffsets.find(o => o.id === draggedElementId);
+
+        if (primaryOffset) {
+             // Calculate the final base position using the primary dragged element
+             const finalBaseX = finalLeft - primaryOffset.offsetX;
+             const finalBaseY = finalTop - primaryOffset.offsetY;
+
+            groupOffsets.forEach(offsetData => {
+                const elementStateIndex = plotState.elements.findIndex(el => el.id === offsetData.id);
+                if (elementStateIndex !== -1) {
+                    // Calculate final position based on offset from the primary element's final position
+                    plotState.elements[elementStateIndex].x = finalBaseX + offsetData.offsetX;
+                    plotState.elements[elementStateIndex].y = finalBaseY + offsetData.offsetY;
+                }
+            });
+        }
+    } else {
+        // Update single element state
+        const elementId = parseInt(element.getAttribute('data-id'));
+        const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+        if (elementIndex !== -1) {
+          plotState.elements[elementIndex].x = finalLeft;
+          plotState.elements[elementIndex].y = finalTop;
+        }
+    }
+
+    markPlotAsModified(plotState); // Mark modified after drag ends
+
+    // Clean up listeners
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
     document.removeEventListener('touchend', dragEnd);
+
+    // Reset group drag state
+    isDraggingGroup = false;
+    groupOffsets = [];
   }
+}
+
+/**
+ * Initializes lasso selection functionality
+ * @param {Object} plotState - The current plot state
+ */
+function initLassoSelection(plotState) {
+  const stage = document.getElementById('stage');
+  let lassoActive = false;
+  let lassoStartX, lassoStartY;
+  let lassoElement = null;
+
+  stage.addEventListener('mousedown', (e) => {
+    // Only start lasso if clicking directly on the stage, not an element or control
+    if (e.target === stage || e.target.classList.contains('grid-overlay')) {
+      // Clear previous selection if not holding Shift (optional multi-select refinement)
+      if (!e.shiftKey) {
+        clearElementSelection(plotState);
+      }
+
+      lassoActive = true;
+      lassoStartX = e.clientX - stage.getBoundingClientRect().left;
+      lassoStartY = e.clientY - stage.getBoundingClientRect().top;
+
+      // Create visual lasso element
+      lassoElement = document.createElement('div');
+      lassoElement.className = 'lasso-box';
+      lassoElement.style.left = `${lassoStartX}px`;
+      lassoElement.style.top = `${lassoStartY}px`;
+      stage.appendChild(lassoElement);
+
+      document.addEventListener('mousemove', handleLassoMove);
+      document.addEventListener('mouseup', handleLassoEnd, { once: true });
+    } else {
+      // If clicking an element, check if it's part of a selection
+      const clickedElement = e.target.closest('.placed-element');
+      if (clickedElement) {
+        const elementId = parseInt(clickedElement.getAttribute('data-id'));
+        if (!plotState.selectedElements.includes(elementId) && !e.shiftKey) {
+          // Clear selection if clicking a non-selected element without Shift
+          clearElementSelection(plotState);
+        }
+        // Let the element's own drag handler take over
+      } else {
+        // Clicked outside elements and not starting lasso, clear selection
+         clearElementSelection(plotState);
+      }
+    }
+  });
+
+  function handleLassoMove(e) {
+    if (!lassoActive || !lassoElement) return;
+    e.preventDefault();
+
+    const stageRect = stage.getBoundingClientRect();
+    const currentX = e.clientX - stageRect.left;
+    const currentY = e.clientY - stageRect.top;
+
+    const width = Math.abs(currentX - lassoStartX);
+    const height = Math.abs(currentY - lassoStartY);
+    const left = Math.min(currentX, lassoStartX);
+    const top = Math.min(currentY, lassoStartY);
+
+    lassoElement.style.width = `${width}px`;
+    lassoElement.style.height = `${height}px`;
+    lassoElement.style.left = `${left}px`;
+    lassoElement.style.top = `${top}px`;
+  }
+
+  function handleLassoEnd(e) {
+    if (!lassoActive || !lassoElement) return;
+    lassoActive = false;
+
+    const lassoRect = lassoElement.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect(); // Get stage rect for offset calculation
+
+    // Adjust lassoRect to be relative to the stage
+    const relativeLassoRect = {
+        left: lassoRect.left - stageRect.left,
+        top: lassoRect.top - stageRect.top,
+        right: lassoRect.right - stageRect.left,
+        bottom: lassoRect.bottom - stageRect.top,
+        width: lassoRect.width,
+        height: lassoRect.height
+    };
+
+    stage.querySelectorAll('.placed-element').forEach(el => {
+      const elRect = el.getBoundingClientRect();
+       // Adjust elRect to be relative to the stage
+       const relativeElRect = {
+            left: elRect.left - stageRect.left,
+            top: elRect.top - stageRect.top,
+            right: elRect.right - stageRect.left,
+            bottom: elRect.bottom - stageRect.top,
+            width: elRect.width,
+            height: elRect.height
+        };
+
+      // Simple intersection check (can be refined)
+      const intersects = !(
+        relativeElRect.right < relativeLassoRect.left ||
+        relativeElRect.left > relativeLassoRect.right ||
+        relativeElRect.bottom < relativeLassoRect.top ||
+        relativeElRect.top > relativeLassoRect.bottom
+      );
+
+      if (intersects) {
+        const elementId = parseInt(el.getAttribute('data-id'));
+        if (!plotState.selectedElements.includes(elementId)) {
+          plotState.selectedElements.push(elementId);
+          el.classList.add('selected');
+        }
+      }
+    });
+
+    // Remove lasso visual element
+    lassoElement.remove();
+    lassoElement = null;
+
+    document.removeEventListener('mousemove', handleLassoMove);
+    // mouseup listener is already removed with { once: true }
+  }
+}
+
+/**
+ * Clears the current element selection
+ * @param {Object} plotState - The current plot state
+ */
+function clearElementSelection(plotState) {
+    plotState.selectedElements.forEach(id => {
+        const el = document.querySelector(`.placed-element[data-id="${id}"]`);
+        if (el) {
+            el.classList.remove('selected');
+        }
+    });
+    plotState.selectedElements = [];
 }
 
 /**
