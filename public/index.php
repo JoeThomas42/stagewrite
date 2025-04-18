@@ -170,7 +170,7 @@ if ($isLoggedIn) {
           <div id="edit-buttons">
             <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
             <?php if ($isLoggedIn): ?>
-              <button id="my-plots" class="action-button" title="My Plots"><i class="fa-solid fa-folder-open"></i></button>
+              <button id="my-plots" class="action-button" title="Load Plot"><i class="fa-solid fa-folder-open"></i></button>
               <button id="share-plot" class="action-button" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
               <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
               <button id="save-changes" class="action-button hidden">Save Changes</button>
