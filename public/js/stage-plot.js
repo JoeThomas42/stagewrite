@@ -1169,12 +1169,27 @@ function initLassoSelection(plotState) {
     lassoElement.style.top = `${top}px`;
   }
 
+  /**
+   * Improved handler for when lasso selection ends
+   * @param {MouseEvent} e - The mouse event
+   */
   function handleLassoEnd(e) {
     if (!lassoActive || !lassoElement) return;
     lassoActive = false;
 
     const lassoRect = lassoElement.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
+
+    // Minimum size threshold to consider the lasso valid
+    // This prevents accidental micro-selections from quick clicks
+    const MIN_LASSO_SIZE = 5; // 5 pixels
+    if (lassoRect.width < MIN_LASSO_SIZE || lassoRect.height < MIN_LASSO_SIZE) {
+      // Lasso is too small, treat as invalid and clean up
+      lassoElement.remove();
+      lassoElement = null;
+      document.removeEventListener('mousemove', handleLassoMove);
+      return;
+    }
 
     // Adjust lassoRect to be relative to the stage
     const relativeLassoRect = {
@@ -1185,6 +1200,9 @@ function initLassoSelection(plotState) {
       width: lassoRect.width,
       height: lassoRect.height,
     };
+
+    // Keep track of how many elements were selected
+    let selectedCount = 0;
 
     stage.querySelectorAll('.placed-element').forEach((el) => {
       const elRect = el.getBoundingClientRect();
@@ -1198,22 +1216,28 @@ function initLassoSelection(plotState) {
         height: elRect.height,
       };
 
-      // Simple intersection check
-      const intersects = !(relativeElRect.right < relativeLassoRect.left || 
-                          relativeElRect.left > relativeLassoRect.right || 
-                          relativeElRect.bottom < relativeLassoRect.top || 
-                          relativeElRect.top > relativeLassoRect.bottom);
+      // Improved intersection check with more reliable logic
+      const intersects = !(
+        relativeElRect.right < relativeLassoRect.left || 
+        relativeElRect.left > relativeLassoRect.right || 
+        relativeElRect.bottom < relativeLassoRect.top || 
+        relativeElRect.top > relativeLassoRect.bottom
+      );
 
       if (intersects) {
         const elementId = parseInt(el.getAttribute('data-id'));
         if (!plotState.selectedElements.includes(elementId)) {
           plotState.selectedElements.push(elementId);
           el.classList.add('selected');
+          selectedCount++;
         }
       }
     });
 
-    updateStageSelectionState(plotState);
+    // Only update if we actually selected something
+    if (selectedCount > 0) {
+      updateStageSelectionState(plotState);
+    }
 
     // Remove lasso visual element
     lassoElement.remove();
@@ -1256,6 +1280,10 @@ function makeDraggableOnStage(element, plotState) {
   element.addEventListener('mousedown', startDrag);
   element.addEventListener('touchstart', startDrag, { passive: false });
 
+  /**
+   * Start dragging an element, with improved handling for selections
+   * @param {MouseEvent|TouchEvent} e - The event that triggered the drag
+   */
   function startDrag(e) {
     // Skip if this event was already handled by our selection logic
     if (e._handledBySelection === true) {
@@ -1276,8 +1304,8 @@ function makeDraggableOnStage(element, plotState) {
     isDraggingGroup = plotState.selectedElements.includes(elementId);
 
     if (!isDraggingGroup) {
-      // If not dragging a group, clear selection unless Shift is held
-      if (!e.shiftKey) {
+      // Only clear selection if shift is not held and we're not clicking on an already selected element
+      if (!e.shiftKey && !element.classList.contains('selected')) {
         clearElementSelection(plotState);
       }
       bringToFront(elementId, plotState); // Bring single element to front
@@ -1556,14 +1584,28 @@ function updateDeleteSelectedButton(plotState) {
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
   
+  // Check if we have elements selected
   if (plotState.selectedElements.length > 0) {
+    // First, ensure the button exists in the DOM by removing hidden class
     deleteSelectedButton.classList.remove('hidden');
-    // Use small timeout to ensure CSS transition works
-    setTimeout(() => deleteSelectedButton.classList.add('visible'), 10);
+    
+    // Force a browser reflow before adding the visible class
+    void deleteSelectedButton.offsetWidth;
+    
+    // Now add the visible class which will trigger the transition
+    deleteSelectedButton.classList.add('visible');
   } else {
+    // Hide the button if no selections
     deleteSelectedButton.classList.remove('visible');
-    // Match the transition duration of .3s (300ms)
-    setTimeout(() => deleteSelectedButton.classList.add('hidden'), 300);
+    
+    // Wait for the transition to complete before hiding completely
+    const transitionDuration = 300; // Match the CSS transition duration
+    setTimeout(() => {
+      // Only add hidden class if we still have no selections
+      if (plotState.selectedElements.length === 0) {
+        deleteSelectedButton.classList.add('hidden');
+      }
+    }, transitionDuration);
   }
 }
 
@@ -1598,7 +1640,7 @@ function deleteSelectedElements(plotState) {
     },
     {
       confirmText: 'Confirm',
-      confirmTitle: 'This is Permanent!',
+      confirmTitle: 'Cannot undo!',
       originalText: 'Delete Selected',
     }
   );

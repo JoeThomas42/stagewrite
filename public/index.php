@@ -177,7 +177,7 @@ if ($isLoggedIn) {
             <?php endif; ?>
           </div>
           <div id="delete-buttons">
-            <button id="delete-selected" class="action-button hidden">Delete Selected</button>
+            <button id="delete-selected" class="action-button hidden" title="">Delete Selected</button>
             <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>

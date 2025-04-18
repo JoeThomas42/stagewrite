@@ -387,10 +387,6 @@
   width: 38px;
 }
 
-#my-plots {
-  /* margin-right: 16px; */
-}
-
 #clear-plot {
   background-color: var(--color-danger);
 }
@@ -413,11 +409,39 @@
   opacity: 0;
   padding-left: 0;
   padding-right: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity var(--transition-medium), 
+              width var(--transition-medium),
+              padding var(--transition-medium);
+  white-space: nowrap;
   
   &.visible {
     opacity: 1;
     width: 150px;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+
+    &.confirming {
+      width: 120px;
+    }
   }
+  
+  &.hidden {
+    display: none;
+  }
+}
+
+#stage.has-selection .placed-element:not(.selected) .element-actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.placed-element.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light), var(--shadow-lg);
+  z-index: 999 !important; /* Keep selected elements visually on top */
+  pointer-events: auto !important;
 }
 
 #edit-buttons,
