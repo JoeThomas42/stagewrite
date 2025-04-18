@@ -64,31 +64,6 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.profile-section .action-button {
-  align-items: center;
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: var(--border-radius-sm);
-  color: white;
-  cursor: pointer;
-  display: flex;
-  font-size: var(--font-size-sm);
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-md);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  
-  &:hover {
-    background-color: var(--color-primary-dark);
-    color: white;
-    text-decoration: none;
-  }
-
-  &:has(.dropdown-menu.active) {
-    overflow: auto;
-  }
-}
-
 .empty-section {
   align-items: center;
   background-color: var(--color-background-alt);
