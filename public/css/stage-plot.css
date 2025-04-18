@@ -409,6 +409,20 @@
   }
 }
 
+#delete-selected {
+  background-color: var(--color-danger);
+  opacity: 0;
+  padding-left: 0;
+  padding-right: 0;
+  width: 0;
+  transition: opacity 0.3s ease, width 0.3s ease;
+  
+  &.visible {
+    opacity: 1;
+    width: 150px;
+  }
+}
+
 /* -------------------- Placed Elements --------------------- */
 /* Prevent browser highlight of elements */
 #stage, 
@@ -601,7 +615,6 @@ body.dragging-on-stage * {
   transition: none !important;
 }
 
-/* Add a preventing overlay when flipping */
 .flip-overlay {
   position: absolute;
   top: 0;
@@ -628,7 +641,7 @@ body.dragging-on-stage * {
   to { opacity: 1; pointer-events: auto; }
 }
 
-/* Lasso Selection */
+/* Multi Selection */
 .lasso-box {
   position: absolute;
   border: 1px dashed var(--color-primary);
@@ -640,6 +653,10 @@ body.dragging-on-stage * {
 .placed-element.selected {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-light), var(--shadow-lg);
+}
+
+#stage.has-selection .element-actions {
+  opacity: 0;
 }
 
 /* -------------------- Stage Grid --------------------- */

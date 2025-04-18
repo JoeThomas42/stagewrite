@@ -43,6 +43,7 @@ function initStageEditor() {
   initLassoSelection(plotState);
   initInputList(plotState);
   initElementInfoListEvents(plotState);
+  initDeleteSelectedButton(plotState);
 
   // Expose render function to plotState
   plotState.renderElementInfoList = () => renderElementInfoList(plotState);
@@ -1453,6 +1454,8 @@ function initLassoSelection(plotState) {
         plotState.selectedElements.push(elementId);
         clickedElement.classList.add('selected');
       }
+
+      updateDeleteSelectedButton(plotState);
       
       // Important: we set a flag on the event to tell the drag handler to ignore this event
       e._handledBySelection = true;
@@ -1549,12 +1552,16 @@ function initLassoSelection(plotState) {
       }
     });
 
+    updateDeleteSelectedButton(plotState);
+
     // Remove lasso visual element
     lassoElement.remove();
     lassoElement = null;
 
     document.removeEventListener('mousemove', handleLassoMove);
   }
+
+  updateDeleteSelectedButton(plotState);
 }
 
 /**
@@ -1813,6 +1820,9 @@ function clearElementSelection(plotState) {
     }
   });
   plotState.selectedElements = [];
+  
+  // Update delete button visibility
+  updateDeleteSelectedButton(plotState);
 }
 
 /**
@@ -1857,6 +1867,79 @@ function bringToFront(elementId, plotState) {
       domElement.style.zIndex = plotState.elements[elementIndex].zIndex;
     }
   }
+}
+
+/**
+ * Updates the visibility of the delete selected button based on selection state
+ * @param {Object} plotState - The current plot state
+ */
+function updateDeleteSelectedButton(plotState) {
+  const deleteSelectedButton = document.getElementById('delete-selected');
+  if (!deleteSelectedButton) return;
+  
+  if (plotState.selectedElements.length > 0) {
+    deleteSelectedButton.classList.remove('hidden');
+    // Use small timeout to ensure CSS transition works
+    setTimeout(() => deleteSelectedButton.classList.add('visible'), 10);
+  } else {
+    deleteSelectedButton.classList.remove('visible');
+    // Match the transition duration of .3s (300ms)
+    setTimeout(() => deleteSelectedButton.classList.add('hidden'), 300);
+  }
+}
+
+/**
+ * Delete all currently selected elements
+ * @param {Object} plotState - The current plot state
+ */
+function deleteSelectedElements(plotState) {
+  if (!plotState.selectedElements.length) return;
+  
+  // Get the button
+  const deleteSelectedButton = document.getElementById('delete-selected');
+  if (!deleteSelectedButton) return;
+  
+  // Create a copy of the array to avoid modification issues during iteration
+  const selectedElementIds = [...plotState.selectedElements];
+  
+  // Use the setupConfirmButton function for confirmation
+  setupConfirmButton(
+    deleteSelectedButton,
+    () => {
+      // Delete each element
+      selectedElementIds.forEach(elementId => {
+        deleteElement(elementId, plotState);
+      });
+      
+      // Clear selection array
+      plotState.selectedElements = [];
+      
+      // Update button visibility
+      updateDeleteSelectedButton(plotState);
+    },
+    {
+      confirmText: 'Delete All',
+      confirmTitle: `Delete ${selectedElementIds.length} elements?`,
+      originalText: 'Delete Selected',
+    }
+  );
+}
+
+/**
+ * Initialize the delete selected button
+ * @param {Object} plotState - The current plot state
+ */
+function initDeleteSelectedButton(plotState) {
+  const deleteSelectedButton = document.getElementById('delete-selected');
+  if (!deleteSelectedButton) return;
+  
+  // Add click handler
+  deleteSelectedButton.addEventListener('click', () => {
+    deleteSelectedElements(plotState);
+  });
+  
+  // Initialize button state based on current selection
+  updateDeleteSelectedButton(plotState);
 }
 
 /**
@@ -3840,3 +3923,6 @@ window.initCategoryFilter = initCategoryFilter;
 window.checkUrlParameters = checkUrlParameters;
 window.initInputList = initInputList;
 window.renderElementInfoList = renderElementInfoList;
+window.updateDeleteSelectedButton = updateDeleteSelectedButton;
+window.deleteSelectedElements = deleteSelectedElements;
+window.initDeleteSelectedButton = initDeleteSelectedButton;
