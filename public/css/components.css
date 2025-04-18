@@ -644,10 +644,12 @@ th.sortable {
 
 /* -------------------- Heading Spans --------------------- */
 h2 span,
-h3 span {
+h3 span,
+#stage-area span {
   color: var(--color-text-light);
   font-size: var(--font-size-sm);
   font-weight: 300;
+  text-align: center;
 }
 
 /* -------------------- Custom Dropdowns --------------------- */

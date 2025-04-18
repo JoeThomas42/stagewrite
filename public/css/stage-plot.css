@@ -782,12 +782,6 @@ body.dragging-on-stage * {
   text-align: center;
   top: 0;
   z-index: 10;
-
-  /* span {
-    color: var(--color-text-light);
-    font-size: var(--font-size-sm);
-    font-weight: 300;
-  } */
 }
 
 .input-grid {

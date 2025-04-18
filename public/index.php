@@ -188,6 +188,7 @@ if ($isLoggedIn) {
             data-stage-depth="<?= $venue['stage_depth'] ?>">
           <div id="front-label">FRONT OF STAGE</div>
         </div>
+        <span>Lasso or shift + click elements for bulk move and delete.</span>
     </div>
 </div>
 
