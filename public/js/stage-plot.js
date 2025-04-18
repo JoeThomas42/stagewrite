@@ -360,13 +360,13 @@ function toggleFavorite(elementId, plotState) {
   // Create form data for the request
   const formData = new FormData();
   formData.append('element_id', elementId);
-  
+
   // Set the flag to indicate a toggle is in progress
   plotState.favoriteToggleInProgress = true;
-  
+
   // Check if we're removing a favorite
   const isRemoving = plotState.favorites.includes(elementId);
-  
+
   // If removing, find the element in the favorites section to animate
   if (isRemoving) {
     const favoriteElement = document.querySelector(`.favorite-element[data-element-id="${elementId}"]`);
@@ -375,10 +375,10 @@ function toggleFavorite(elementId, plotState) {
       requestAnimationFrame(() => {
         // Add removing class to trigger animation
         favoriteElement.classList.add('removing');
-        
+
         // Create a flag variable to track if request has been sent
         let requestSent = false;
-        
+
         // Set up animation end listener
         const handleAnimationEnd = () => {
           if (requestSent) return; // Prevent duplicate calls
@@ -387,10 +387,10 @@ function toggleFavorite(elementId, plotState) {
           // Now send the server request
           sendToggleRequest();
         };
-        
+
         // Add event listener for animation end
         favoriteElement.addEventListener('animationend', handleAnimationEnd);
-        
+
         // Fallback: If animation doesn't complete after 500ms, proceed anyway
         setTimeout(() => {
           if (requestSent) return; // Don't send if already sent
@@ -399,14 +399,14 @@ function toggleFavorite(elementId, plotState) {
           sendToggleRequest();
         }, 500);
       });
-      
+
       return; // Exit early, the sendToggleRequest will be called after animation
     }
   }
-  
+
   // If not removing or element not found, proceed normally
   sendToggleRequest();
-  
+
   function sendToggleRequest() {
     // Rest of your existing code (unchanged)
     fetch('/handlers/toggle_favorite.php', {
@@ -451,7 +451,7 @@ function toggleFavorite(elementId, plotState) {
             showNotification(data.error || 'Error toggling favorite', 'error');
           }
         }
-        
+
         // IMPORTANT: Clear the toggle in progress flag
         plotState.favoriteToggleInProgress = false;
       })
@@ -460,7 +460,7 @@ function toggleFavorite(elementId, plotState) {
         if (typeof showNotification === 'function') {
           showNotification('Error toggling favorite', 'error');
         }
-        
+
         // IMPORTANT: Clear the toggle in progress flag even on error
         plotState.favoriteToggleInProgress = false;
       });
@@ -511,15 +511,15 @@ function updateFavoritesCategory(plotState) {
 
   // Find existing favorites section if it exists
   let favoritesSection = elementsPanel.querySelector('.category-section.favorites-section');
-  
+
   // Initialize previousFavorites array if it doesn't exist
   if (!plotState.previousFavorites) {
     plotState.previousFavorites = [];
   }
 
   // Track which elements are new
-  const newFavorites = plotState.favorites.filter(id => !plotState.previousFavorites.includes(id));
-  
+  const newFavorites = plotState.favorites.filter((id) => !plotState.previousFavorites.includes(id));
+
   // Create favorites section if it doesn't exist yet
   if (!favoritesSection) {
     favoritesSection = document.createElement('div');
@@ -663,18 +663,18 @@ function handleDragStart(e, plotState) {
   // Get the source element dimensions
   const sourceElement = e.target;
   const sourceRect = sourceElement.getBoundingClientRect();
-  
+
   // Calculate where the user clicked relative to the element's center
   const clickOffsetX = e.clientX - (sourceRect.left + sourceRect.width / 3);
   const clickOffsetY = e.clientY - (sourceRect.top + sourceRect.height / 3);
-  
+
   // Store in plotState
   plotState.currentDragId = sourceElement.getAttribute('data-element-id');
   plotState.dragSourceRect = {
     width: sourceRect.width,
     height: sourceRect.height,
     offsetX: clickOffsetX,
-    offsetY: clickOffsetY
+    offsetY: clickOffsetY,
   };
 
   // Set drag image and effect
@@ -724,26 +724,20 @@ function handleDrop(e, plotState) {
   // Default element dimensions
   const elementWidth = 75;
   const elementHeight = 75;
-  
+
   // Calculate position that centers the element where the drag source was
   // rather than where the cursor is
   let x, y;
-  
+
   if (plotState.dragSourceRect) {
     // Use the drag offsets to center the element properly
-    x = Math.max(0, Math.min(
-      e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - (elementWidth / 2),
-      stageRect.width - elementWidth
-    ));
-    
-    y = Math.max(0, Math.min(
-      e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - (elementHeight / 2),
-      stageRect.height - elementHeight
-    ));
+    x = Math.max(0, Math.min(e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 2, stageRect.width - elementWidth));
+
+    y = Math.max(0, Math.min(e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 2, stageRect.height - elementHeight));
   } else {
     // Fallback to the original cursor-based positioning if no drag data
-    x = Math.max(0, Math.min(e.clientX - stageRect.left - (elementWidth / 1.5), stageRect.width - elementWidth));
-    y = Math.max(0, Math.min(e.clientY - stageRect.top - (elementHeight / 1.5), stageRect.height - elementHeight));
+    x = Math.max(0, Math.min(e.clientX - stageRect.left - elementWidth / 1.5, stageRect.width - elementWidth));
+    y = Math.max(0, Math.min(e.clientY - stageRect.top - elementHeight / 1.5, stageRect.height - elementHeight));
   }
 
   // Create a new element object
@@ -765,24 +759,28 @@ function handleDrop(e, plotState) {
 
   // Add to state and create DOM element
   plotState.elements.push(newElement);
-  
+
   // Clear drag source data after use
   plotState.dragSourceRect = null;
-  
+
   createPlacedElement(newElement, plotState).then(() => {
     // Apply drop animation to the newly created element
     const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
     if (domElement) {
       requestAnimationFrame(() => {
         domElement.classList.add('dropping');
-        
+
         // Remove animation class after animation completes
-        domElement.addEventListener('animationend', () => {
-          domElement.classList.remove('dropping');
-        }, { once: true });
+        domElement.addEventListener(
+          'animationend',
+          () => {
+            domElement.classList.remove('dropping');
+          },
+          { once: true }
+        );
       });
     }
-    
+
     renderElementInfoList(plotState); // Update the info list
   });
 
@@ -948,34 +946,34 @@ function createPlacedElement(elementData, plotState) {
       e.stopPropagation();
       const elementId = parseInt(element.getAttribute('data-id'));
       const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-    
+
       if (elementIndex === -1) return;
-      
+
       // Prevent multiple flips by checking if element is already flipping
       if (element.classList.contains('flipping')) return;
-      
+
       // Get current flip state
       const currentlyFlipped = plotState.elements[elementIndex].flipped;
-      
+
       // IMMEDIATELY hide controls before adding any animation classes
       const controls = element.querySelectorAll('.element-actions, .element-label');
-      controls.forEach(control => {
+      controls.forEach((control) => {
         control.style.opacity = '0';
         control.style.pointerEvents = 'none';
         control.style.transition = 'none'; // Disable transitions to prevent flicker
       });
-      
+
       // Add an overlay to prevent interactions during flip
       const flipOverlay = document.createElement('div');
       flipOverlay.className = 'flip-overlay';
       element.appendChild(flipOverlay);
-      
+
       // Small delay to ensure controls are hidden before animation starts
       requestAnimationFrame(() => {
         // Apply the flipping class and direction class
         element.classList.add('flipping');
         element.classList.add(currentlyFlipped ? 'to-left' : 'to-right');
-        
+
         // Set up animation end handler for the image
         const imageElement = element.querySelector('img');
         if (!imageElement) {
@@ -983,43 +981,43 @@ function createPlacedElement(elementData, plotState) {
           finishFlip();
           return;
         }
-        
+
         const handleAnimationEnd = () => {
           // Toggle state in data
           plotState.elements[elementIndex].flipped = !currentlyFlipped;
-          
+
           // Apply the final transform state
           imageElement.style.transform = !currentlyFlipped ? 'scaleX(-1)' : '';
-          
+
           // Update button appearance
           flipBtn.classList.toggle('flipped', !currentlyFlipped);
           flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
-          
+
           // Clean up animation classes
           element.classList.remove('flipping', 'to-right', 'to-left');
-          
+
           // Clean up event listener
           imageElement.removeEventListener('animationend', handleAnimationEnd);
-          
+
           // Remove the overlay
           if (flipOverlay && flipOverlay.parentNode) {
             flipOverlay.remove();
           }
-          
+
           // Fade the controls back in
           setTimeout(() => {
-            controls.forEach(control => {
+            controls.forEach((control) => {
               control.removeAttribute('style');
             });
           }, 50);
-          
+
           // Mark plot as modified
           markPlotAsModified(plotState);
         };
-        
+
         // Add animation end listener
         imageElement.addEventListener('animationend', handleAnimationEnd);
-        
+
         // Fallback in case animation end doesn't fire
         const fallbackTimeout = setTimeout(() => {
           if (element.classList.contains('flipping')) {
@@ -1060,7 +1058,6 @@ function createPlacedElement(elementData, plotState) {
     }
 
     if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
-
   }); // End of Promise constructor
 }
 
@@ -1072,7 +1069,7 @@ function createPlacedElement(elementData, plotState) {
 function makeDraggableOnStage(element, plotState) {
   let startX, startY, startLeft, startTop;
   let isDraggingGroup = false;
-  let groupOffsets = []; // Store offsets for group dragging
+  let groupOffsets = []; // Store offsets AND dimensions for group dragging
 
   element.addEventListener('mousedown', startDrag);
   element.addEventListener('touchstart', startDrag, { passive: false });
@@ -1092,34 +1089,42 @@ function makeDraggableOnStage(element, plotState) {
     isDraggingGroup = plotState.selectedElements.includes(elementId);
 
     if (!isDraggingGroup) {
-        // If not dragging a group, clear selection unless Shift is held
-        if (!e.shiftKey) {
-            clearElementSelection(plotState);
-        }
-        // Select just this element (optional: add shift-click multi-select later)
-        // plotState.selectedElements = [elementId];
-        // element.classList.add('selected');
-        bringToFront(elementId, plotState); // Bring single element to front
+      // If not dragging a group, clear selection unless Shift is held
+      if (!e.shiftKey) {
+        clearElementSelection(plotState);
+      }
+      bringToFront(elementId, plotState); // Bring single element to front
     } else {
-         bringToFront(elementId, plotState);
+      bringToFront(elementId, plotState);
 
-        // Calculate offsets for all elements in the group relative to the dragged element
-        groupOffsets = [];
-        const draggedElementState = plotState.elements.find(el => el.id === elementId);
-        if (!draggedElementState) return; // Should not happen
-
-        plotState.selectedElements.forEach(id => {
-            const elState = plotState.elements.find(el => el.id === id);
-            if (elState) {
-                groupOffsets.push({
-                    id: id,
-                    offsetX: elState.x - draggedElementState.x,
-                    offsetY: elState.y - draggedElementState.y
-                });
-            }
-        });
+      // Calculate offsets AND cache dimensions for all elements in the group
+      // FIX: Use DOM positions instead of state positions
+      groupOffsets = [];
+      plotState.selectedElements.forEach((id) => {
+        const domEl = document.querySelector(`.placed-element[data-id="${id}"]`);
+        if (domEl) {
+          const rect = domEl.getBoundingClientRect();
+          
+          // Get positions directly from DOM
+          const elLeft = parseInt(window.getComputedStyle(domEl).left);
+          const elTop = parseInt(window.getComputedStyle(domEl).top);
+          const primaryLeft = parseInt(window.getComputedStyle(element).left);
+          const primaryTop = parseInt(window.getComputedStyle(element).top);
+          
+          // Calculate offset using DOM positions
+          const offsetX = id === elementId ? 0 : elLeft - primaryLeft;
+          const offsetY = id === elementId ? 0 : elTop - primaryTop;
+          
+          groupOffsets.push({
+            id: id,
+            offsetX: offsetX,
+            offsetY: offsetY,
+            width: rect.width,
+            height: rect.height,
+          });
+        }
+      });
     }
-
 
     // Track initial positions of the primary dragged element
     if (e.type === 'touchstart') {
@@ -1157,88 +1162,129 @@ function makeDraggableOnStage(element, plotState) {
     const dx = clientX - startX;
     const dy = clientY - startY;
 
-    // Calculate the new primary position
-    const newPrimaryLeft = startLeft + dx;
-    const newPrimaryTop = startTop + dy;
+    // Calculate the potential new primary position
+    const nextPrimaryLeft = startLeft + dx;
+    const nextPrimaryTop = startTop + dy;
 
-    // Apply constraints (simplified: check primary element only, needs refinement for group bounds)
+    let constrainedPrimaryLeft = nextPrimaryLeft;
+    let constrainedPrimaryTop = nextPrimaryTop;
+
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
-    const elementRect = element.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(element);
-    const marginRight = parseInt(computedStyle.marginRight) || 0;
-    const marginBottom = parseInt(computedStyle.marginBottom) || 0;
-    const marginLeft = parseInt(computedStyle.marginLeft) || 0;
-    const marginTop = parseInt(computedStyle.marginTop) || 0;
-    const maxLeft = stageRect.width - elementRect.width - marginRight - marginLeft;
-    const maxTop = stageRect.height - elementRect.height - marginBottom - marginTop;
-    const constrainedPrimaryLeft = Math.max(0, Math.min(maxLeft, newPrimaryLeft));
-    const constrainedPrimaryTop = Math.max(0, Math.min(maxTop, newPrimaryTop));
+    const stageWidth = stageRect.width;
+    const stageHeight = stageRect.height;
+    const boundaryBuffer = 30;
+
+    if (isDraggingGroup && groupOffsets.length > 0) {
+      // Calculate the bounding box of the entire group based on potential new positions
+      let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
+
+      groupOffsets.forEach((offsetData) => {
+        const memberNextX = nextPrimaryLeft + offsetData.offsetX;
+        const memberNextY = nextPrimaryTop + offsetData.offsetY;
+        const memberWidth = offsetData.width;
+        const memberHeight = offsetData.height;
+
+        minX = Math.min(minX, memberNextX);
+        minY = Math.min(minY, memberNextY);
+        maxX = Math.max(maxX, memberNextX + memberWidth);
+        maxY = Math.max(maxY, memberNextY + memberHeight);
+      });
+
+      // Calculate necessary adjustments to keep the group within stage bounds
+      let deltaX = 0;
+      if (minX < 0) {
+        deltaX = -minX; // Adjust right
+      } else if (maxX > stageWidth - boundaryBuffer) {
+        // Check against width minus buffer
+        deltaX = stageWidth - boundaryBuffer - maxX; // Adjust left (negative value)
+      }
+
+      let deltaY = 0;
+      if (minY < 0) {
+        deltaY = -minY; // Adjust down
+      } else if (maxY > stageHeight - boundaryBuffer) {
+        // Check against height minus buffer
+        deltaY = stageHeight - boundaryBuffer - maxY; // Adjust up (negative value)
+      }
+
+      // Apply adjustments to the primary element's potential position
+      constrainedPrimaryLeft = nextPrimaryLeft + deltaX;
+      constrainedPrimaryTop = nextPrimaryTop + deltaY;
+    } else {
+      // Apply constraints for a single element (keeping the original logic for single elements)
+      const elementRect = element.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(element);
+      const marginRight = parseInt(computedStyle.marginRight) || 0;
+      const marginBottom = parseInt(computedStyle.marginBottom) || 0;
+      const marginLeft = parseInt(computedStyle.marginLeft) || 0;
+      const marginTop = parseInt(computedStyle.marginTop) || 0;
+
+      // Calculate max allowed positions considering margins for single element
+      const maxLeft = stageWidth - elementRect.width - marginRight - marginLeft;
+      const maxTop = stageHeight - elementRect.height - marginBottom - marginTop;
+
+      // Apply constraints for single element (0 to max)
+      constrainedPrimaryLeft = Math.max(0, Math.min(maxLeft, nextPrimaryLeft));
+      constrainedPrimaryTop = Math.max(0, Math.min(maxTop, nextPrimaryTop));
+    }
 
     // Calculate the actual delta applied after constraints
     const actualDx = constrainedPrimaryLeft - startLeft;
     const actualDy = constrainedPrimaryTop - startTop;
 
-
     if (isDraggingGroup) {
-        // Move all elements in the group
-        groupOffsets.forEach(offsetData => {
-            const groupElement = document.querySelector(`.placed-element[data-id="${offsetData.id}"]`);
-            const elementStateIndex = plotState.elements.findIndex(el => el.id === offsetData.id);
+      // Move all elements in the group using the constrained delta
+      groupOffsets.forEach((offsetData) => {
+        const groupElement = document.querySelector(`.placed-element[data-id="${offsetData.id}"]`);
+        const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id); // Find original state
 
-            if (groupElement && elementStateIndex !== -1) {
-                // Calculate new position based on the primary element's constrained movement
-                const targetLeft = plotState.elements[elementStateIndex].x + actualDx;
-                const targetTop = plotState.elements[elementStateIndex].y + actualDy;
+        if (groupElement && elementStateIndex !== -1) {
+          // Calculate new position based on the DOM positions + actual constrained delta
+          const targetLeft = startLeft + offsetData.offsetX + actualDx;
+          const targetTop = startTop + offsetData.offsetY + actualDy;
 
-                // Apply position
-                groupElement.style.left = `${targetLeft}px`;
-                groupElement.style.top = `${targetTop}px`;
-
-            }
-        });
+          // Apply position visually during drag
+          groupElement.style.left = `${targetLeft}px`;
+          groupElement.style.top = `${targetTop}px`;
+        }
+      });
     } else {
-        // Move just the single element
-        element.style.left = `${constrainedPrimaryLeft}px`;
-        element.style.top = `${constrainedPrimaryTop}px`;
+      // Move just the single element
+      element.style.left = `${constrainedPrimaryLeft}px`;
+      element.style.top = `${constrainedPrimaryTop}px`;
     }
   }
 
   function dragEnd(e) {
     document.body.classList.remove('dragging-on-stage');
 
-    // Final position update in state
-    const finalRect = element.getBoundingClientRect();
+    // Final position update in state - Calculate based on the *actual* final position of the primary element
+    const finalPrimaryRect = element.getBoundingClientRect();
     const stageRect = document.getElementById('stage').getBoundingClientRect();
-    const finalLeft = finalRect.left - stageRect.left;
-    const finalTop = finalRect.top - stageRect.top;
+    const finalPrimaryLeft = finalPrimaryRect.left - stageRect.left;
+    const finalPrimaryTop = finalPrimaryRect.top - stageRect.top;
 
     if (isDraggingGroup) {
-        const draggedElementId = parseInt(element.getAttribute('data-id'));
-        const primaryOffset = groupOffsets.find(o => o.id === draggedElementId);
-
-        if (primaryOffset) {
-             // Calculate the final base position using the primary dragged element
-             const finalBaseX = finalLeft - primaryOffset.offsetX;
-             const finalBaseY = finalTop - primaryOffset.offsetY;
-
-            groupOffsets.forEach(offsetData => {
-                const elementStateIndex = plotState.elements.findIndex(el => el.id === offsetData.id);
-                if (elementStateIndex !== -1) {
-                    // Calculate final position based on offset from the primary element's final position
-                    plotState.elements[elementStateIndex].x = finalBaseX + offsetData.offsetX;
-                    plotState.elements[elementStateIndex].y = finalBaseY + offsetData.offsetY;
-                }
-            });
+      // Update all elements based on the final position
+      groupOffsets.forEach((offsetData) => {
+        const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
+        if (elementStateIndex !== -1) {
+          plotState.elements[elementStateIndex].x = finalPrimaryLeft + offsetData.offsetX;
+          plotState.elements[elementStateIndex].y = finalPrimaryTop + offsetData.offsetY;
         }
+      });
     } else {
-        // Update single element state
-        const elementId = parseInt(element.getAttribute('data-id'));
-        const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-        if (elementIndex !== -1) {
-          plotState.elements[elementIndex].x = finalLeft;
-          plotState.elements[elementIndex].y = finalTop;
-        }
+      // Update single element state
+      const elementId = parseInt(element.getAttribute('data-id'));
+      const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+      if (elementIndex !== -1) {
+        plotState.elements[elementIndex].x = finalPrimaryLeft;
+        plotState.elements[elementIndex].y = finalPrimaryTop;
+      }
     }
 
     markPlotAsModified(plotState); // Mark modified after drag ends
@@ -1254,7 +1300,6 @@ function makeDraggableOnStage(element, plotState) {
     groupOffsets = [];
   }
 }
-
 /**
  * Initializes lasso selection functionality
  * @param {Object} plotState - The current plot state
@@ -1298,7 +1343,7 @@ function initLassoSelection(plotState) {
         // Let the element's own drag handler take over
       } else {
         // Clicked outside elements and not starting lasso, clear selection
-         clearElementSelection(plotState);
+        clearElementSelection(plotState);
       }
     }
   });
@@ -1331,33 +1376,28 @@ function initLassoSelection(plotState) {
 
     // Adjust lassoRect to be relative to the stage
     const relativeLassoRect = {
-        left: lassoRect.left - stageRect.left,
-        top: lassoRect.top - stageRect.top,
-        right: lassoRect.right - stageRect.left,
-        bottom: lassoRect.bottom - stageRect.top,
-        width: lassoRect.width,
-        height: lassoRect.height
+      left: lassoRect.left - stageRect.left,
+      top: lassoRect.top - stageRect.top,
+      right: lassoRect.right - stageRect.left,
+      bottom: lassoRect.bottom - stageRect.top,
+      width: lassoRect.width,
+      height: lassoRect.height,
     };
 
-    stage.querySelectorAll('.placed-element').forEach(el => {
+    stage.querySelectorAll('.placed-element').forEach((el) => {
       const elRect = el.getBoundingClientRect();
-       // Adjust elRect to be relative to the stage
-       const relativeElRect = {
-            left: elRect.left - stageRect.left,
-            top: elRect.top - stageRect.top,
-            right: elRect.right - stageRect.left,
-            bottom: elRect.bottom - stageRect.top,
-            width: elRect.width,
-            height: elRect.height
-        };
+      // Adjust elRect to be relative to the stage
+      const relativeElRect = {
+        left: elRect.left - stageRect.left,
+        top: elRect.top - stageRect.top,
+        right: elRect.right - stageRect.left,
+        bottom: elRect.bottom - stageRect.top,
+        width: elRect.width,
+        height: elRect.height,
+      };
 
       // Simple intersection check (can be refined)
-      const intersects = !(
-        relativeElRect.right < relativeLassoRect.left ||
-        relativeElRect.left > relativeLassoRect.right ||
-        relativeElRect.bottom < relativeLassoRect.top ||
-        relativeElRect.top > relativeLassoRect.bottom
-      );
+      const intersects = !(relativeElRect.right < relativeLassoRect.left || relativeElRect.left > relativeLassoRect.right || relativeElRect.bottom < relativeLassoRect.top || relativeElRect.top > relativeLassoRect.bottom);
 
       if (intersects) {
         const elementId = parseInt(el.getAttribute('data-id'));
@@ -1382,13 +1422,13 @@ function initLassoSelection(plotState) {
  * @param {Object} plotState - The current plot state
  */
 function clearElementSelection(plotState) {
-    plotState.selectedElements.forEach(id => {
-        const el = document.querySelector(`.placed-element[data-id="${id}"]`);
-        if (el) {
-            el.classList.remove('selected');
-        }
-    });
-    plotState.selectedElements = [];
+  plotState.selectedElements.forEach((id) => {
+    const el = document.querySelector(`.placed-element[data-id="${id}"]`);
+    if (el) {
+      el.classList.remove('selected');
+    }
+  });
+  plotState.selectedElements = [];
 }
 
 /**
@@ -1545,7 +1585,7 @@ function applyElementProperties(plotState) {
  */
 function deleteElement(elementId, plotState) {
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
-  
+
   if (domElement) {
     // Remove from state immediately (don't wait for animation)
     const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
@@ -1556,16 +1596,16 @@ function deleteElement(elementId, plotState) {
     // Add deleting class to trigger animation
     requestAnimationFrame(() => {
       domElement.classList.add('deleting');
-      
+
       // Set up animation end listener
       const handleAnimationEnd = () => {
         domElement.removeEventListener('animationend', handleAnimationEnd);
         domElement.remove();
       };
-      
+
       // Add event listener for animation end
       domElement.addEventListener('animationend', handleAnimationEnd);
-      
+
       // Fallback: If animation doesn't complete after 400ms, force remove
       setTimeout(() => {
         if (document.body.contains(domElement)) {
@@ -3186,33 +3226,33 @@ function initInputList(plotState) {
   // Create a function to update the datalist options based on placed elements
   function updateInputSuggestions() {
     if (!inputSuggestions) return;
-    
+
     // Clear existing options
     inputSuggestions.innerHTML = '';
-    
+
     // Create a Set to track unique suggestions and avoid duplicates
     const suggestions = new Set();
-    
+
     // Add element names and labels from placed elements
-    plotState.elements.forEach(element => {
+    plotState.elements.forEach((element) => {
       // Add element name
       if (element.elementName) {
         suggestions.add(element.elementName);
       }
-      
+
       // Add element label if it exists
       if (element.label && element.label.trim() !== '') {
         suggestions.add(element.label);
       }
-      
+
       // Add combined name+label if both exist
       if (element.elementName && element.label && element.label.trim() !== '') {
         suggestions.add(`${element.elementName} - ${element.label}`);
       }
     });
-    
+
     // Create option elements for each suggestion
-    suggestions.forEach(suggestion => {
+    suggestions.forEach((suggestion) => {
       const option = document.createElement('option');
       option.value = suggestion;
       inputSuggestions.appendChild(option);
@@ -3264,7 +3304,7 @@ function initInputList(plotState) {
       const inputData = inputs.find((inp) => inp.number === i);
       addInputLineDOM(i, inputData ? inputData.label : '');
     }
-    
+
     // Update suggestions after rendering the list
     updateInputSuggestions();
   }
@@ -3292,10 +3332,10 @@ function initInputList(plotState) {
     plotState.inputs = []; // Clear state
     renderInputList([]); // Re-render empty list (with defaults)
   };
-  
+
   // Store the update function in plotState so we can call it from other functions
   plotState.updateInputSuggestions = updateInputSuggestions;
-  
+
   // Initial update of suggestions
   updateInputSuggestions();
 }
