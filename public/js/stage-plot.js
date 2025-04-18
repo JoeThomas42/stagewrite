@@ -1300,6 +1300,112 @@ function makeDraggableOnStage(element, plotState) {
     groupOffsets = [];
   }
 }
+
+/**
+ * Make an element draggable within the stage
+ * @param {HTMLElement} element - The element to make draggable
+ * @param {Object} plotState - The current plot state
+ */
+function makeDraggableOnStage(element, plotState) {
+  let startX, startY, startLeft, startTop;
+  let isDraggingGroup = false;
+  let groupOffsets = []; // Store offsets AND dimensions for group dragging
+
+  element.addEventListener('mousedown', startDrag);
+  element.addEventListener('touchstart', startDrag, { passive: false });
+
+  function startDrag(e) {
+    // If shift key is pressed, don't start dragging - let the selection logic handle it
+    if (e.shiftKey) {
+      return;
+    }
+
+    // If clicked on a button or action element, don't start dragging
+    if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const elementId = parseInt(element.getAttribute('data-id'));
+
+    // Check if the dragged element is part of the selection
+    isDraggingGroup = plotState.selectedElements.includes(elementId);
+
+    if (!isDraggingGroup) {
+      // If not dragging a group, clear selection unless Shift is held
+      if (!e.shiftKey) {
+        clearElementSelection(plotState);
+      }
+      bringToFront(elementId, plotState); // Bring single element to front
+    } else {
+      bringToFront(elementId, plotState);
+
+      // Calculate offsets AND cache dimensions for all elements in the group
+      // FIX: Use DOM positions instead of state positions
+      groupOffsets = [];
+      plotState.selectedElements.forEach((id) => {
+        const domEl = document.querySelector(`.placed-element[data-id="${id}"]`);
+        if (domEl) {
+          const rect = domEl.getBoundingClientRect();
+          
+          // Get positions directly from DOM
+          const elLeft = parseInt(window.getComputedStyle(domEl).left);
+          const elTop = parseInt(window.getComputedStyle(domEl).top);
+          const primaryLeft = parseInt(window.getComputedStyle(element).left);
+          const primaryTop = parseInt(window.getComputedStyle(element).top);
+          
+          // Calculate offset using DOM positions
+          const offsetX = id === elementId ? 0 : elLeft - primaryLeft;
+          const offsetY = id === elementId ? 0 : elTop - primaryTop;
+          
+          groupOffsets.push({
+            id: id,
+            offsetX: offsetX,
+            offsetY: offsetY,
+            width: rect.width,
+            height: rect.height,
+          });
+        }
+      });
+    }
+
+    // Track initial positions of the primary dragged element
+    if (e.type === 'touchstart') {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    } else {
+      startX = e.clientX;
+      startY = e.clientY;
+    }
+
+    startLeft = parseInt(window.getComputedStyle(element).left);
+    startTop = parseInt(window.getComputedStyle(element).top);
+
+    document.body.classList.add('dragging-on-stage');
+
+    // Add move and end events
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('touchmove', dragMove, { passive: false });
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+  }
+
+  // Rest of the function remains the same
+  function dragMove(e) {
+    e.preventDefault();
+    
+    // Rest of dragMove implementation
+    // ...
+  }
+
+  function dragEnd(e) {
+    // Rest of dragEnd implementation
+    // ...
+  }
+}
+
 /**
  * Initializes lasso selection functionality
  * @param {Object} plotState - The current plot state
@@ -1310,10 +1416,44 @@ function initLassoSelection(plotState) {
   let lassoStartX, lassoStartY;
   let lassoElement = null;
 
+  // Handler for element selection via shift+click
+  // This gets called BEFORE the element's own drag handler
   stage.addEventListener('mousedown', (e) => {
-    // Only start lasso if clicking directly on the stage, not an element or control
-    if (e.target === stage || e.target.classList.contains('grid-overlay')) {
-      // Clear previous selection if not holding Shift (optional multi-select refinement)
+    const clickedElement = e.target.closest('.placed-element');
+    
+    // Case 1: Shift+Click on an element (for selection)
+    if (e.shiftKey && clickedElement) {
+      // Skip if clicking on a button
+      if (e.target.closest('.element-actions') || 
+          e.target.classList.contains('edit-element') || 
+          e.target.classList.contains('favorite-button')) {
+        return; // Let the button's handler take over
+      }
+      
+      e.stopPropagation();
+      
+      // Toggle selection for this element
+      const elementId = parseInt(clickedElement.getAttribute('data-id'));
+      const selectionIndex = plotState.selectedElements.indexOf(elementId);
+      
+      if (selectionIndex !== -1) {
+        // Remove from selection
+        plotState.selectedElements.splice(selectionIndex, 1);
+        clickedElement.classList.remove('selected');
+      } else {
+        // Add to selection
+        plotState.selectedElements.push(elementId);
+        clickedElement.classList.add('selected');
+      }
+      
+      // Important: we set a flag on the event to tell the drag handler to ignore this event
+      e._handledBySelection = true;
+      return;
+    }
+    
+    // Case 2: Click directly on the stage (for lasso selection)
+    if ((e.target === stage || e.target.classList.contains('grid-overlay')) && !clickedElement) {
+      // Clear previous selection if not holding Shift
       if (!e.shiftKey) {
         clearElementSelection(plotState);
       }
@@ -1331,22 +1471,12 @@ function initLassoSelection(plotState) {
 
       document.addEventListener('mousemove', handleLassoMove);
       document.addEventListener('mouseup', handleLassoEnd, { once: true });
-    } else {
-      // If clicking an element, check if it's part of a selection
-      const clickedElement = e.target.closest('.placed-element');
-      if (clickedElement) {
-        const elementId = parseInt(clickedElement.getAttribute('data-id'));
-        if (!plotState.selectedElements.includes(elementId) && !e.shiftKey) {
-          // Clear selection if clicking a non-selected element without Shift
-          clearElementSelection(plotState);
-        }
-        // Let the element's own drag handler take over
-      } else {
-        // Clicked outside elements and not starting lasso, clear selection
-        clearElementSelection(plotState);
-      }
+    } 
+    // Case 3: Click on empty space but not on stage (outside any element)
+    else if (!clickedElement && !e.shiftKey) {
+      clearElementSelection(plotState);
     }
-  });
+  }, true); // Use capturing phase to handle before element's own listeners
 
   function handleLassoMove(e) {
     if (!lassoActive || !lassoElement) return;
@@ -1372,7 +1502,7 @@ function initLassoSelection(plotState) {
     lassoActive = false;
 
     const lassoRect = lassoElement.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect(); // Get stage rect for offset calculation
+    const stageRect = stage.getBoundingClientRect();
 
     // Adjust lassoRect to be relative to the stage
     const relativeLassoRect = {
@@ -1396,8 +1526,11 @@ function initLassoSelection(plotState) {
         height: elRect.height,
       };
 
-      // Simple intersection check (can be refined)
-      const intersects = !(relativeElRect.right < relativeLassoRect.left || relativeElRect.left > relativeLassoRect.right || relativeElRect.bottom < relativeLassoRect.top || relativeElRect.top > relativeLassoRect.bottom);
+      // Simple intersection check
+      const intersects = !(relativeElRect.right < relativeLassoRect.left || 
+                          relativeElRect.left > relativeLassoRect.right || 
+                          relativeElRect.bottom < relativeLassoRect.top || 
+                          relativeElRect.top > relativeLassoRect.bottom);
 
       if (intersects) {
         const elementId = parseInt(el.getAttribute('data-id'));
@@ -1413,7 +1546,250 @@ function initLassoSelection(plotState) {
     lassoElement = null;
 
     document.removeEventListener('mousemove', handleLassoMove);
-    // mouseup listener is already removed with { once: true }
+  }
+}
+
+/**
+ * Make an element draggable within the stage
+ * @param {HTMLElement} element - The element to make draggable
+ * @param {Object} plotState - The current plot state
+ */
+function makeDraggableOnStage(element, plotState) {
+  let startX, startY, startLeft, startTop;
+  let isDraggingGroup = false;
+  let groupOffsets = []; // Store offsets AND dimensions for group dragging
+
+  element.addEventListener('mousedown', startDrag);
+  element.addEventListener('touchstart', startDrag, { passive: false });
+
+  function startDrag(e) {
+    // Skip if this event was already handled by our selection logic
+    if (e._handledBySelection === true) {
+      return;
+    }
+    
+    // If clicked on a button or action element, don't start dragging
+    if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const elementId = parseInt(element.getAttribute('data-id'));
+
+    // Check if the dragged element is part of the selection
+    isDraggingGroup = plotState.selectedElements.includes(elementId);
+
+    if (!isDraggingGroup) {
+      // If not dragging a group, clear selection unless Shift is held
+      if (!e.shiftKey) {
+        clearElementSelection(plotState);
+      }
+      bringToFront(elementId, plotState); // Bring single element to front
+    } else {
+      bringToFront(elementId, plotState);
+
+      // Calculate offsets AND cache dimensions for all elements in the group
+      groupOffsets = [];
+      plotState.selectedElements.forEach((id) => {
+        const domEl = document.querySelector(`.placed-element[data-id="${id}"]`);
+        if (domEl) {
+          const rect = domEl.getBoundingClientRect();
+          
+          // Get positions directly from DOM
+          const elLeft = parseInt(window.getComputedStyle(domEl).left);
+          const elTop = parseInt(window.getComputedStyle(domEl).top);
+          const primaryLeft = parseInt(window.getComputedStyle(element).left);
+          const primaryTop = parseInt(window.getComputedStyle(element).top);
+          
+          // Calculate offset using DOM positions
+          const offsetX = id === elementId ? 0 : elLeft - primaryLeft;
+          const offsetY = id === elementId ? 0 : elTop - primaryTop;
+          
+          groupOffsets.push({
+            id: id,
+            offsetX: offsetX,
+            offsetY: offsetY,
+            width: rect.width,
+            height: rect.height,
+          });
+        }
+      });
+    }
+
+    // Track initial positions of the primary dragged element
+    if (e.type === 'touchstart') {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    } else {
+      startX = e.clientX;
+      startY = e.clientY;
+    }
+
+    startLeft = parseInt(window.getComputedStyle(element).left);
+    startTop = parseInt(window.getComputedStyle(element).top);
+
+    document.body.classList.add('dragging-on-stage');
+
+    // Add move and end events
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('touchmove', dragMove, { passive: false });
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+  }
+
+  function dragMove(e) {
+    e.preventDefault();
+
+    let clientX, clientY;
+    if (e.type === 'touchmove') {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+
+    // Calculate the potential new primary position
+    const nextPrimaryLeft = startLeft + dx;
+    const nextPrimaryTop = startTop + dy;
+
+    let constrainedPrimaryLeft = nextPrimaryLeft;
+    let constrainedPrimaryTop = nextPrimaryTop;
+
+    const stage = document.getElementById('stage');
+    const stageRect = stage.getBoundingClientRect();
+    const stageWidth = stageRect.width;
+    const stageHeight = stageRect.height;
+    const boundaryBuffer = 30;
+
+    if (isDraggingGroup && groupOffsets.length > 0) {
+      // Calculate the bounding box of the entire group based on potential new positions
+      let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
+
+      groupOffsets.forEach((offsetData) => {
+        const memberNextX = nextPrimaryLeft + offsetData.offsetX;
+        const memberNextY = nextPrimaryTop + offsetData.offsetY;
+        const memberWidth = offsetData.width;
+        const memberHeight = offsetData.height;
+
+        minX = Math.min(minX, memberNextX);
+        minY = Math.min(minY, memberNextY);
+        maxX = Math.max(maxX, memberNextX + memberWidth);
+        maxY = Math.max(maxY, memberNextY + memberHeight);
+      });
+
+      // Calculate necessary adjustments to keep the group within stage bounds
+      let deltaX = 0;
+      if (minX < 0) {
+        deltaX = -minX; // Adjust right
+      } else if (maxX > stageWidth - boundaryBuffer) {
+        // Check against width minus buffer
+        deltaX = stageWidth - boundaryBuffer - maxX; // Adjust left (negative value)
+      }
+
+      let deltaY = 0;
+      if (minY < 0) {
+        deltaY = -minY; // Adjust down
+      } else if (maxY > stageHeight - boundaryBuffer) {
+        // Check against height minus buffer
+        deltaY = stageHeight - boundaryBuffer - maxY; // Adjust up (negative value)
+      }
+
+      // Apply adjustments to the primary element's potential position
+      constrainedPrimaryLeft = nextPrimaryLeft + deltaX;
+      constrainedPrimaryTop = nextPrimaryTop + deltaY;
+    } else {
+      // Apply constraints for a single element (keeping the original logic for single elements)
+      const elementRect = element.getBoundingClientRect();
+      const computedStyle = window.getComputedStyle(element);
+      const marginRight = parseInt(computedStyle.marginRight) || 0;
+      const marginBottom = parseInt(computedStyle.marginBottom) || 0;
+      const marginLeft = parseInt(computedStyle.marginLeft) || 0;
+      const marginTop = parseInt(computedStyle.marginTop) || 0;
+
+      // Calculate max allowed positions considering margins for single element
+      const maxLeft = stageWidth - elementRect.width - marginRight - marginLeft;
+      const maxTop = stageHeight - elementRect.height - marginBottom - marginTop;
+
+      // Apply constraints for single element (0 to max)
+      constrainedPrimaryLeft = Math.max(0, Math.min(maxLeft, nextPrimaryLeft));
+      constrainedPrimaryTop = Math.max(0, Math.min(maxTop, nextPrimaryTop));
+    }
+
+    // Calculate the actual delta applied after constraints
+    const actualDx = constrainedPrimaryLeft - startLeft;
+    const actualDy = constrainedPrimaryTop - startTop;
+
+    if (isDraggingGroup) {
+      // Move all elements in the group using the constrained delta
+      groupOffsets.forEach((offsetData) => {
+        const groupElement = document.querySelector(`.placed-element[data-id="${offsetData.id}"]`);
+        const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id); // Find original state
+
+        if (groupElement && elementStateIndex !== -1) {
+          // Calculate new position based on the DOM positions + actual constrained delta
+          const targetLeft = startLeft + offsetData.offsetX + actualDx;
+          const targetTop = startTop + offsetData.offsetY + actualDy;
+
+          // Apply position visually during drag
+          groupElement.style.left = `${targetLeft}px`;
+          groupElement.style.top = `${targetTop}px`;
+        }
+      });
+    } else {
+      // Move just the single element
+      element.style.left = `${constrainedPrimaryLeft}px`;
+      element.style.top = `${constrainedPrimaryTop}px`;
+    }
+  }
+
+  function dragEnd(e) {
+    document.body.classList.remove('dragging-on-stage');
+
+    // Final position update in state - Calculate based on the *actual* final position of the primary element
+    const finalPrimaryRect = element.getBoundingClientRect();
+    const stageRect = document.getElementById('stage').getBoundingClientRect();
+    const finalPrimaryLeft = finalPrimaryRect.left - stageRect.left;
+    const finalPrimaryTop = finalPrimaryRect.top - stageRect.top;
+
+    if (isDraggingGroup) {
+      // Update all elements based on the final position
+      groupOffsets.forEach((offsetData) => {
+        const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
+        if (elementStateIndex !== -1) {
+          plotState.elements[elementStateIndex].x = finalPrimaryLeft + offsetData.offsetX;
+          plotState.elements[elementStateIndex].y = finalPrimaryTop + offsetData.offsetY;
+        }
+      });
+    } else {
+      // Update single element state
+      const elementId = parseInt(element.getAttribute('data-id'));
+      const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+      if (elementIndex !== -1) {
+        plotState.elements[elementIndex].x = finalPrimaryLeft;
+        plotState.elements[elementIndex].y = finalPrimaryTop;
+      }
+    }
+
+    markPlotAsModified(plotState); // Mark modified after drag ends
+
+    // Clean up listeners
+    document.removeEventListener('mousemove', dragMove);
+    document.removeEventListener('touchmove', dragMove);
+    document.removeEventListener('mouseup', dragEnd);
+    document.removeEventListener('touchend', dragEnd);
+
+    // Reset group drag state
+    isDraggingGroup = false;
+    groupOffsets = [];
   }
 }
 
