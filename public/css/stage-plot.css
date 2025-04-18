@@ -229,14 +229,6 @@
 }
 
 /* -------------------- Stage Area --------------------- */
-#control-buttons {
-  border-radius: var(--border-radius-sm);
-  display: flex;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
-  max-width: 900px;
-}
-
 #front-label {
   background-color: rgba(0, 0, 0, 0.05);
   border-radius: var(--border-radius-xs);
@@ -382,13 +374,21 @@
 }
 
 /* -------------------- Stage Control Buttons --------------------- */
+#control-buttons {
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  max-width: 900px;
+}
+
 .action-button {
   height: 38px;
   width: 38px;
 }
 
 #my-plots {
-  margin-right: 16px;
+  /* margin-right: 16px; */
 }
 
 #clear-plot {
@@ -413,13 +413,17 @@
   opacity: 0;
   padding-left: 0;
   padding-right: 0;
-  /* width: 0; */
-  /* transition: opacity 0.3s ease, width 0.3s ease; */
   
   &.visible {
     opacity: 1;
     width: 150px;
   }
+}
+
+#edit-buttons,
+#delete-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
 }
 
 #delete-buttons {

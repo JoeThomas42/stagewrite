@@ -1936,7 +1936,7 @@ function deleteSelectedElements(plotState) {
       updateDeleteSelectedButton(plotState);
     },
     {
-      confirmText: `Confirm ${selectedElementIds.length} deletions?`,
+      confirmText: 'Confirm',
       confirmTitle: 'This is Permanent!',
       originalText: 'Delete Selected',
     }
