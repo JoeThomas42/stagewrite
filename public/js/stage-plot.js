@@ -741,6 +741,11 @@ function handleDrop(e, plotState) {
     y = Math.max(0, Math.min(e.clientY - stageRect.top - elementHeight / 1.5, stageRect.height - elementHeight));
   }
 
+  // Account for the 14px margin that will be applied in createPlacedElement
+  const margin = 14;
+  x += margin;
+  y += margin;
+
   // Create a new element object
   const newElement = {
     id: plotState.elements.length + 1, // Unique ID for this instance
@@ -796,7 +801,6 @@ function handleDrop(e, plotState) {
  */
 function createPlacedElement(elementData, plotState) {
   return new Promise((resolve) => {
-    // <<< MODIFIED: Return a Promise
     const stage = document.getElementById('stage');
     if (!stage) {
       resolve(); // Resolve immediately if stage not found
@@ -809,9 +813,11 @@ function createPlacedElement(elementData, plotState) {
     element.setAttribute('data-id', elementData.id);
     element.setAttribute('data-element-id', elementData.elementId);
 
-    // Position element
-    element.style.left = `${elementData.x}px`;
-    element.style.top = `${elementData.y}px`;
+    // Account for the 14px margin in CSS when positioning
+    // Subtract margin from position values to compensate
+    const margin = 14; // This should match the margin in CSS
+    element.style.left = `${elementData.x - margin}px`;
+    element.style.top = `${elementData.y - margin}px`;
     element.style.height = `${elementData.height}px`;
     element.style.zIndex = elementData.zIndex;
 
@@ -860,7 +866,7 @@ function createPlacedElement(elementData, plotState) {
       element.appendChild(label);
     }
 
-    // ------------- Add actions to the element ----------------
+    // Add actions to the element
     // Add edit button
     const editAction = document.createElement('div');
     editAction.className = 'element-actions';
@@ -1061,7 +1067,6 @@ function createPlacedElement(elementData, plotState) {
     if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
   }); // End of Promise constructor
 }
-
 /**
  * Make an element draggable within the stage
  * @param {HTMLElement} element - The element to make draggable
@@ -1269,13 +1274,17 @@ function makeDraggableOnStage(element, plotState) {
     const finalPrimaryLeft = finalPrimaryRect.left - stageRect.left;
     const finalPrimaryTop = finalPrimaryRect.top - stageRect.top;
 
+    // Account for the same 14px margin we're subtracting in createPlacedElement
+    const margin = 14;
+
     if (isDraggingGroup) {
       // Update all elements based on the final position
       groupOffsets.forEach((offsetData) => {
         const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
         if (elementStateIndex !== -1) {
-          plotState.elements[elementStateIndex].x = finalPrimaryLeft + offsetData.offsetX;
-          plotState.elements[elementStateIndex].y = finalPrimaryTop + offsetData.offsetY;
+          // Include the margin in our stored position
+          plotState.elements[elementStateIndex].x = finalPrimaryLeft + offsetData.offsetX + margin;
+          plotState.elements[elementStateIndex].y = finalPrimaryTop + offsetData.offsetY + margin;
         }
       });
     } else {
@@ -1283,8 +1292,9 @@ function makeDraggableOnStage(element, plotState) {
       const elementId = parseInt(element.getAttribute('data-id'));
       const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
       if (elementIndex !== -1) {
-        plotState.elements[elementIndex].x = finalPrimaryLeft;
-        plotState.elements[elementIndex].y = finalPrimaryTop;
+        // Include the margin in our stored position
+        plotState.elements[elementIndex].x = finalPrimaryLeft + margin;
+        plotState.elements[elementIndex].y = finalPrimaryTop + margin;
       }
     }
 
