@@ -726,23 +726,35 @@ function handleDrop(e, plotState) {
   const elementWidth = 75;
   const elementHeight = 75;
 
+  const margin = 14;
+
   // Calculate position that centers the element where the drag source was
-  // rather than where the cursor is
   let x, y;
 
   if (plotState.dragSourceRect) {
     // Use the drag offsets to center the element properly
-    x = Math.max(0, Math.min(e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 2, stageRect.width - elementWidth));
+    x = Math.max(0, Math.min(
+      e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 2, 
+      stageRect.width - elementWidth - margin // Subtract margin from the max bound
+    ));
 
-    y = Math.max(0, Math.min(e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 2, stageRect.height - elementHeight));
+    y = Math.max(0, Math.min(
+      e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 2, 
+      stageRect.height - elementHeight - margin // Subtract margin from the max bound
+    ));
   } else {
     // Fallback to the original cursor-based positioning if no drag data
-    x = Math.max(0, Math.min(e.clientX - stageRect.left - elementWidth / 1.5, stageRect.width - elementWidth));
-    y = Math.max(0, Math.min(e.clientY - stageRect.top - elementHeight / 1.5, stageRect.height - elementHeight));
+    x = Math.max(0, Math.min(
+      e.clientX - stageRect.left - elementWidth / 1.5, 
+      stageRect.width - elementWidth - margin // Subtract margin from the max bound
+    ));
+    y = Math.max(0, Math.min(
+      e.clientY - stageRect.top - elementHeight / 1.5, 
+      stageRect.height - elementHeight - margin // Subtract margin from the max bound
+    ));
   }
 
   // Account for the 14px margin that will be applied in createPlacedElement
-  const margin = 14;
   x += margin;
   y += margin;
 
