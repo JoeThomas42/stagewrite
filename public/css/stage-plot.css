@@ -704,11 +704,13 @@ body.duplicating-element * {
   z-index: 9999 !important;
 }
 
-body.duplicating-element .placed-element:not(.ghost-element) {
-  /* border-color: var(--color-info); */
+.placed-element.is-being-duplicated {
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 2px var(--color-info-light), var(--shadow-md);
 }
 
-body.duplicating-element .placed-element.selected:not(.ghost-element) {
+.placed-element.is-being-duplicated.selected {
+  border-color: var(--color-info);
   box-shadow: 0 0 0 3px var(--color-info-light), var(--shadow-lg);
 }
 

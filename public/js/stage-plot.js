@@ -1290,6 +1290,7 @@ function makeDraggableOnStage(element, plotState) {
   let isDuplicating = false; // Flag for duplication mode
   let groupOffsets = []; // Store offsets AND dimensions for group dragging
   let ghostElements = []; // Store references to ghost elements during duplication
+  let sourceElements = []; // Store references to source elements being duplicated
 
   element.addEventListener('mousedown', startDrag);
   element.addEventListener('touchstart', startDrag, { passive: false });
@@ -1386,9 +1387,18 @@ function makeDraggableOnStage(element, plotState) {
       if (isDraggingGroup) {
         // Create ghost elements for each element in the group
         groupOffsets.forEach(offsetData => {
+          // Add class to the source element
+          offsetData.element.classList.add('is-being-duplicated');
+          sourceElements.push(offsetData.element);
+          
+          // Create ghost
           createGhostElement(offsetData.element, offsetData.offsetX, offsetData.offsetY);
         });
       } else {
+        // Add class to the source element
+        element.classList.add('is-being-duplicated');
+        sourceElements.push(element);
+        
         // Create ghost for single element
         createGhostElement(element, 0, 0);
       }
@@ -1601,6 +1611,12 @@ function makeDraggableOnStage(element, plotState) {
         ghostData.ghost.remove();
       });
       ghostElements = [];
+      
+      // Remove the duplication class from all source elements
+      sourceElements.forEach(el => {
+        el.classList.remove('is-being-duplicated');
+      });
+      sourceElements = [];
       
       // Wait for all duplicates to be created
       Promise.all(duplicatePromises)
