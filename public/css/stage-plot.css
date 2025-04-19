@@ -690,6 +690,70 @@ body.dragging-on-stage * {
   opacity: 0;
 }
 
+/* Element Duplication */
+body.duplicating-element,
+body.duplicating-element * {
+  cursor: copy !important;
+}
+
+.ghost-element {
+  border: 2px dashed var(--color-primary-light) !important;
+  box-shadow: var(--shadow-lg) !important;
+  opacity: 0.6 !important;
+  pointer-events: none !important;
+  z-index: 9999 !important;
+}
+
+body.duplicating-element .placed-element:not(.ghost-element) {
+  /* border-color: var(--color-info); */
+}
+
+body.duplicating-element .placed-element.selected:not(.ghost-element) {
+  box-shadow: 0 0 0 3px var(--color-info-light), var(--shadow-lg);
+}
+
+/* Interaction tips */
+#stage-tips {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: var(--border-radius-sm);
+  color: white;
+  display: flex;
+  font-size: var(--font-size-xs);
+  gap: var(--spacing-lg);
+  left: 50%;
+  opacity: 0.3;
+  padding: var(--spacing-xs) var(--spacing-md);
+  position: absolute;
+  top: var(--spacing-xs);
+  transform: translateX(-50%);
+  transition: opacity 0.3s ease;
+  z-index: 100;
+}
+
+#stage-tips:hover {
+  opacity: 0.9;
+}
+
+.tip-item {
+  align-items: center;
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.tip-item kbd {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xs);
+  font-family: monospace;
+  font-size: 0.8em;
+  padding: 2px 4px;
+}
+
+.action-icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
 /* -------------------- Stage Grid --------------------- */
 .grid-button {
   font-size: var(--font-size-xs);
@@ -844,9 +908,6 @@ body.dragging-on-stage * {
   padding: var(--spacing-lg);
   flex-grow: 1;
   overflow-y: auto;
-  /* display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md); */
 }
 
 .element-info-item {
