@@ -187,8 +187,9 @@ if ($isLoggedIn) {
             data-stage-width="<?= $venue['stage_width'] ?>"
             data-stage-depth="<?= $venue['stage_depth'] ?>">
             <div id="stage-tips">
+              <div class="tip-item">Lasso or <kbd>Shift</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> = Multi-select</div>
+              <div class="tip-item"> | </div>
               <div class="tip-item"><kbd>Ctrl</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> + <span class="action-icon"><i class="fa-solid fa-arrows-up-down-left-right"></i></span> = Duplicate</div>
-              <div class="tip-item"><kbd>Shift</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> or Lasso = Multi-select</div>
             </div>
           <div id="front-label">FRONT OF STAGE</div>
         </div>
