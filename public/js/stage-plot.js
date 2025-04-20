@@ -34,6 +34,7 @@ function initStageEditor() {
   initDragAndDrop(plotState);
   initModalControls(plotState);
   initCategoryFilter();
+  initElementsAccordion();
   initFavorites(plotState);
   moveFavoritesToTop();
   initLoadPlotModal(plotState);
@@ -275,6 +276,55 @@ function setupDateValidation(plotState) {
 }
 
 /**
+ * Initialize accordion behavior for the elements list
+ */
+function initElementsAccordion() {
+  const elementsPanel = document.getElementById('elements-list');
+  if (!elementsPanel) return;
+
+  // Get all accordion headers
+  const headers = elementsPanel.querySelectorAll('.accordion-header');
+  
+  // Add click event to each header
+  headers.forEach(header => {
+    header.addEventListener('click', function() {
+      // Get the parent accordion item
+      const item = this.closest('.accordion-item');
+      
+      // Check if this header is already active
+      const isActive = this.classList.contains('active');
+      
+      // Close all accordions first
+      headers.forEach(h => {
+        h.classList.remove('active');
+        // Find and collapse all content sections
+        const content = h.nextElementSibling;
+        if (content && content.classList.contains('accordion-content')) {
+          content.classList.remove('expanded');
+        }
+      });
+      
+      // If the clicked header wasn't active, open it
+      if (!isActive) {
+        this.classList.add('active');
+        
+        // Find and expand the content section
+        const content = this.nextElementSibling;
+        if (content && content.classList.contains('accordion-content')) {
+          content.classList.add('expanded');
+        }
+      }
+    });
+  });
+  
+  // Initialize: ensure at least Favorites is expanded by default
+  const favoritesHeader = elementsPanel.querySelector('.favorites-section .accordion-header');
+  if (favoritesHeader && !favoritesHeader.classList.contains('active')) {
+    favoritesHeader.click();
+  }
+}
+
+/**
  * Initialize favorites functionality
  * @param {Object} plotState - The current plot state
  */
@@ -504,7 +554,7 @@ function getElementData(elementId) {
 }
 
 /**
- * Update the Favorites category content.
+ * Update the favorites category in the elements list
  * @param {Object} plotState - The current plot state
  */
 function updateFavoritesCategory(plotState) {
@@ -525,21 +575,53 @@ function updateFavoritesCategory(plotState) {
   // Create favorites section if it doesn't exist yet
   if (!favoritesSection) {
     favoritesSection = document.createElement('div');
-    favoritesSection.className = 'category-section favorites-section';
+    favoritesSection.className = 'category-section favorites-section accordion-item';
     favoritesSection.setAttribute('data-category-id', '1');
+    
+    // Create header
     const heading = document.createElement('h3');
+    heading.className = 'accordion-header active'; // Start expanded
     heading.textContent = 'Favorites';
+    
+    // Add accordion icon
+    const icon = document.createElement('span');
+    icon.className = 'accordion-icon';
+    heading.appendChild(icon);
+    
     favoritesSection.appendChild(heading);
+    
+    // Create content container
     const grid = document.createElement('div');
-    grid.className = 'elements-grid';
+    grid.className = 'accordion-content elements-grid expanded'; // Start expanded
     favoritesSection.appendChild(grid);
+    
+    // Add to DOM before first child
     elementsPanel.insertBefore(favoritesSection, elementsPanel.firstChild);
+    
+    // Add click handler to the new header
+    heading.addEventListener('click', function() {
+      const isActive = this.classList.contains('active');
+      
+      // Close all accordions
+      const allHeaders = elementsPanel.querySelectorAll('.accordion-header');
+      allHeaders.forEach(h => {
+        h.classList.remove('active');
+        const content = h.nextElementSibling;
+        if (content) content.classList.remove('expanded');
+      });
+      
+      // If it wasn't active, open it
+      if (!isActive) {
+        this.classList.add('active');
+        grid.classList.add('expanded');
+      }
+    });
   }
 
-  let favoritesGrid = favoritesSection.querySelector('.elements-grid');
+  let favoritesGrid = favoritesSection.querySelector('.accordion-content');
   if (!favoritesGrid) {
     favoritesGrid = document.createElement('div');
-    favoritesGrid.className = 'elements-grid';
+    favoritesGrid.className = 'accordion-content elements-grid expanded';
     favoritesSection.appendChild(favoritesGrid);
   }
 
@@ -621,11 +703,59 @@ function moveFavoritesToTop() {
 
   // Ensure it has the class for consistency
   favoritesSection.classList.add('favorites-section');
+  favoritesSection.classList.add('accordion-item');
 
   // Move Favorites section to the top if it's not already there
   const firstChild = elementsPanel.firstChild;
   if (favoritesSection !== firstChild) {
     elementsPanel.insertBefore(favoritesSection, firstChild);
+  }
+
+  // Ensure accordion structure is correct for favorites
+  let header = favoritesSection.querySelector('.accordion-header');
+  if (!header) {
+    // Create header if it doesn't exist
+    header = document.createElement('h3');
+    header.className = 'accordion-header active';
+    header.textContent = 'Favorites';
+    
+    // Add accordion icon
+    const icon = document.createElement('span');
+    icon.className = 'accordion-icon';
+    header.appendChild(icon);
+    
+    favoritesSection.insertBefore(header, favoritesSection.firstChild);
+    
+    // Add click handler
+    header.addEventListener('click', function() {
+      const isActive = this.classList.contains('active');
+      
+      // Close all accordions
+      const allHeaders = elementsPanel.querySelectorAll('.accordion-header');
+      allHeaders.forEach(h => {
+        h.classList.remove('active');
+        const content = h.nextElementSibling;
+        if (content) content.classList.remove('expanded');
+      });
+      
+      // If it wasn't active, open it
+      if (!isActive) {
+        this.classList.add('active');
+        const content = this.nextElementSibling;
+        if (content) content.classList.add('expanded');
+      }
+    });
+  }
+
+  // Make sure the content div has the right classes
+  let content = favoritesSection.querySelector('.elements-grid');
+  if (content) {
+    content.classList.add('accordion-content');
+    
+    // If the header is active, ensure content is expanded
+    if (header.classList.contains('active')) {
+      content.classList.add('expanded');
+    }
   }
 }
 
@@ -3338,20 +3468,34 @@ function initCategoryFilter() {
   const categoryFilter = document.getElementById('category-filter');
   if (!categoryFilter) return;
 
-  // PHP handles the initial rendering order of options in the <select>
-
   categoryFilter.addEventListener('change', () => {
     const categoryId = categoryFilter.value;
     const elementsPanel = document.getElementById('elements-list');
     if (!elementsPanel) return;
 
-    // Filter category sections visibility
-    document.querySelectorAll('.category-section').forEach((section) => {
-      const sectionVisible = categoryId === '0' || section.getAttribute('data-category-id') === categoryId;
-      section.style.display = sectionVisible ? '' : 'none';
-    });
-
-    // --- No separator logic needed here anymore ---
+    if (categoryId === '0') {
+      // Show all categories
+      document.querySelectorAll('.category-section').forEach((section) => {
+        section.style.display = '';
+      });
+    } else {
+      // Hide all categories first
+      document.querySelectorAll('.category-section').forEach((section) => {
+        section.style.display = 'none';
+      });
+      
+      // Show only the selected category
+      const selectedSection = elementsPanel.querySelector(`.category-section[data-category-id="${categoryId}"]`);
+      if (selectedSection) {
+        selectedSection.style.display = '';
+        
+        // Expand the selected category (if it's not already)
+        const header = selectedSection.querySelector('.accordion-header');
+        if (header && !header.classList.contains('active')) {
+          header.click();
+        }
+      }
+    }
   });
 
   // Ensure correct order of sections initially after page load
@@ -3884,3 +4028,4 @@ window.deleteSelectedElements = deleteSelectedElements;
 window.initDeleteSelectedButton = initDeleteSelectedButton;
 window.updateStageSelectionState = updateStageSelectionState;
 window.initShiftCursorStyle = initShiftCursorStyle;
+window.initElementsAccordion = initElementsAccordion;

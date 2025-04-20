@@ -79,18 +79,8 @@
     border-color: var(--color-input-border);
     color: var(--color-text);
   }
-
-  #elements-list {
-    background-color: var(--color-background-light);
-    border-color: var(--color-input-border);
-    color: var(--color-text);
-  }
   
   /* ----- Modals ----- */
-  #elements-list h3 {
-    background-color: var(--color-background);
-  }
-  
   .modal-content h3,
   .profile-container h3{
     color: var(--color-text);
@@ -233,6 +223,28 @@
   
   .category-section h3 {
     color: var(--color-grey-5);
+  }
+
+  #elements-list {
+    background-color: var(--color-background-light);
+    border-color: var(--color-input-border);
+    color: var(--color-text);
+  }
+
+  .accordion-header {
+    background-color: var(--color-primary-header);
+
+    &:hover {
+      background-color: var(--color-table-hover);
+    }
+    
+    &.active {
+      background-color: var(--color-background);
+
+      .accordion-icon {
+        color: var(--color-text-light);
+      }
+    }
   }
   
   .search-container {

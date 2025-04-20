@@ -74,7 +74,6 @@
   margin-bottom: var(--spacing-lg);
   
   h3 {
-    background-color: var(--color-background-light);
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-sm);
     box-shadow: var(--shadow-sm);
@@ -141,6 +140,119 @@
   gap: var(--spacing-sm);
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   margin-top: var(--spacing-sm);
+}
+
+/* Accordion container */
+.accordion-container {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: inset var(--shadow-inset-md);
+  max-height: 900px;
+  max-width: 330px;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+  scrollbar-width: thin;
+  width: 330px;
+}
+
+/* Accordion item */
+.accordion-item {
+  margin-bottom: var(--spacing-xs);
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-sm);
+  /* overflow: hidden; */
+}
+
+/* Accordion header */
+.accordion-header {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background-color: var(--color-table-hover);
+  }
+  
+  &.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-dark);
+    box-shadow: var(--shadow-lg);
+    color: var(--color-white);
+
+    .accordion-icon {
+      color: var(--color-white);
+    }
+  }
+}
+
+/* Accordion icon (+ / -) */
+.accordion-icon {
+  display: inline-block;
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.accordion-icon::before,
+.accordion-icon::after {
+  content: '';
+  position: absolute;
+  background-color: currentColor;
+  transition: transform var(--transition-fast);
+}
+
+.accordion-icon::before {
+  top: 6px;
+  left: 0;
+  width: 14px;
+  height: 2px;
+}
+
+.accordion-icon::after {
+  top: 0;
+  left: 6px;
+  width: 2px;
+  height: 14px;
+}
+
+.accordion-header.active .accordion-icon::after {
+  transform: rotate(90deg);
+}
+
+/* Accordion content */
+.accordion-content {
+  display: grid;
+  gap: var(--spacing-sm);
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  margin: 0;
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 var(--spacing-xs);
+  transition: max-height var(--transition-medium), padding var(--transition-medium);
+}
+
+.accordion-content.expanded {
+  max-height: 2000px;
+  padding: var(--spacing-sm) var(--spacing-xs);
+}
+
+.favorites-section .accordion-header {
+  /* background-color: var(--color-background-lighter); */
+  border-color: var(--color-gold);
+}
+
+#category-filter {
+  z-index: 1000;
 }
 
 /* Favorite button styling */

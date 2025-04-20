@@ -22,12 +22,12 @@ $favoritesCategory = null;
 $otherCategories = [];
 
 foreach ($allCategories as $category) {
-    // --- Assuming Favorites category has ID 1 ---
-    if ($category['category_id'] == 1) { 
-        $favoritesCategory = $category;
-    } else {
-        $otherCategories[] = $category;
-    }
+  // --- Assuming Favorites category has ID 1 ---
+  if ($category['category_id'] == 1) {
+    $favoritesCategory = $category;
+  } else {
+    $otherCategories[] = $category;
+  }
 }
 
 // Get all venues for the save dialog
@@ -36,177 +36,189 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
 // Get user's custom venues if logged in
 $userVenues = [];
 if ($isLoggedIn) {
-    $userVenues = $db->fetchAll("SELECT user_venue_id, venue_name, stage_width, stage_depth FROM user_venues 
-                                WHERE user_id = ? ORDER BY venue_name", 
-                                [$_SESSION['user_id']]);
+  $userVenues = $db->fetchAll(
+    "SELECT user_venue_id, venue_name, stage_width, stage_depth FROM user_venues 
+                                WHERE user_id = ? ORDER BY venue_name",
+    [$_SESSION['user_id']]
+  );
 }
 ?>
 
 <div id="stage-plot-container">
-    <div id="elements-panel">
-        <div id="elements-header">
-            <h2>Stage Elements</h2>
-            <select id="category-filter">
-                <option value="0">All Categories</option>
-                <?php if ($favoritesCategory): // Add Favorites second if it exists ?>
-                    <option value="<?= $favoritesCategory['category_id'] ?>"><?= htmlspecialchars($favoritesCategory['category_name']) ?></option>
-                    <option disabled class="select-separator">────────────</option> 
+  <div id="elements-panel">
+    <div id="elements-header">
+      <h2>Stage Elements</h2>
+      <select id="category-filter">
+        <option value="0">All Categories</option>
+        <?php if ($favoritesCategory): // Add Favorites second if it exists 
+        ?>
+          <option value="<?= $favoritesCategory['category_id'] ?>"><?= htmlspecialchars($favoritesCategory['category_name']) ?></option>
+          <option disabled class="select-separator">────────────</option>
+        <?php endif; ?>
+        <?php foreach ($otherCategories as $category): // Add remaining categories 
+        ?>
+          <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['category_name']) ?></option>
+        <?php endforeach; ?>
+      </select>
+      <p>Drag elements to the stage</p>
+    </div>
+
+    <div id="elements-list" class="accordion-container">
+      <?php
+      // Render Favorites category first if it exists and set it as initially expanded
+      if ($favoritesCategory):
+        $currentCategory = $favoritesCategory;
+        $isExpanded = true; // Favorites is expanded by default
+      ?>
+        <div class="category-section favorites-section accordion-item" data-category-id="<?= $currentCategory['category_id'] ?>">
+          <h3 class="accordion-header <?= $isExpanded ? 'active' : '' ?>">
+            <?= htmlspecialchars($currentCategory['category_name']) ?>
+            <span class="accordion-icon"></span>
+          </h3>
+          <div class="accordion-content elements-grid <?= $isExpanded ? 'expanded' : '' ?>">
+            <!-- Content populated by JS and PHP -->
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <?php
+      // Render other categories - all collapsed initially
+      foreach ($otherCategories as $currentCategory):
+        $isExpanded = false; // Other categories start collapsed
+      ?>
+        <div class="category-section accordion-item" data-category-id="<?= $currentCategory['category_id'] ?>">
+          <h3 class="accordion-header <?= $isExpanded ? 'active' : '' ?>">
+            <?= htmlspecialchars($currentCategory['category_name']) ?>
+            <span class="accordion-icon"></span>
+          </h3>
+          <div class="accordion-content elements-grid <?= $isExpanded ? 'expanded' : '' ?>">
+            <?php
+            // Loop through elements for this category
+            foreach ($elements as $element):
+              if ($element['category_id'] == $currentCategory['category_id']):
+            ?>
+                <div class="draggable-element"
+                  data-element-id="<?= $element['element_id'] ?>"
+                  data-element-name="<?= htmlspecialchars($element['element_name']) ?>"
+                  data-category-id="<?= $element['category_id'] ?>"
+                  data-image="<?= htmlspecialchars($element['element_image']) ?>">
+                  <img src="/images/elements/<?= htmlspecialchars($element['element_image']) ?>"
+                    alt="<?= htmlspecialchars($element['element_name']) ?>">
+                  <div class="element-name"><?= htmlspecialchars($element['element_name']) ?></div>
+                </div>
+            <?php
+              endif;
+            endforeach;
+            ?>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+
+  <div id="stage-area">
+    <div id="stage-controls">
+      <h2 id="plot-title">New Plot</h2>
+
+      <!-- Plot configuration panel -->
+      <div id="venue-info-container">
+        <div class="venue-config-panel">
+          <div class="config-field venue-select-container">
+            <label for="venue_select">Venue Select:</label>
+            <div class="select-with-button">
+              <select id="venue_select" name="venue_id">
+                <option value="" selected>No Venue</option>
+                <?php if (count($venues) > 0): ?>
+                  <optgroup label="Official Venues">
+                    <?php foreach ($venues as $venue): ?>
+                      <option value="<?= $venue['venue_id'] ?>">
+                        <?= htmlspecialchars($venue['venue_name']) ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </optgroup>
                 <?php endif; ?>
-                <?php foreach ($otherCategories as $category): // Add remaining categories ?>
-                    <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['category_name']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <p>Drag elements to the stage</p>
-        </div>
-        
-        <div id="elements-list">
-            <?php 
-            // Render Favorites category first if it exists
-            if ($favoritesCategory): 
-                $currentCategory = $favoritesCategory;
-            ?>
-                <div class="category-section favorites-section" data-category-id="<?= $currentCategory['category_id'] ?>">
-                    <h3><?= htmlspecialchars($currentCategory['category_name']) ?></h3>
-                    <div class="elements-grid">
-                        <!-- Content populated by JS and PHP -->
-                    </div>
-                </div>
-            <?php endif; ?>
 
-            <?php 
-            // Render other categories
-            foreach ($otherCategories as $currentCategory): 
-            ?>
-                <div class="category-section" data-category-id="<?= $currentCategory['category_id'] ?>">
-                    <h3><?= htmlspecialchars($currentCategory['category_name']) ?></h3>
-                    <div class="elements-grid">
-                        <?php 
-                        // Loop through elements for this category
-                        foreach ($elements as $element): 
-                            if ($element['category_id'] == $currentCategory['category_id']):
-                        ?>
-                            <div class="draggable-element" 
-                                  data-element-id="<?= $element['element_id'] ?>"
-                                  data-element-name="<?= htmlspecialchars($element['element_name']) ?>"
-                                  data-category-id="<?= $element['category_id'] ?>"
-                                  data-image="<?= htmlspecialchars($element['element_image']) ?>">
-                                <img src="/images/elements/<?= htmlspecialchars($element['element_image']) ?>" 
-                                      alt="<?= htmlspecialchars($element['element_name']) ?>">
-                                <div class="element-name"><?= htmlspecialchars($element['element_name']) ?></div>
-                            </div>
-                        <?php 
-                            endif; 
-                            endforeach; 
-                        ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-    
-    <div id="stage-area">
-        <div id="stage-controls">
-            <h2 id="plot-title">New Plot</h2>
-            
-            <!-- Plot configuration panel -->
-            <div id="venue-info-container">
-                <div class="venue-config-panel">
-                    <div class="config-field venue-select-container">
-                        <label for="venue_select">Venue Select:</label>
-                        <div class="select-with-button">
-                            <select id="venue_select" name="venue_id">
-                                <option value="" selected>No Venue</option>
-                                <?php if (count($venues) > 0): ?>
-                                <optgroup label="Official Venues">
-                                    <?php foreach ($venues as $venue): ?>
-                                        <option value="<?= $venue['venue_id'] ?>">
-                                            <?= htmlspecialchars($venue['venue_name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                                <?php endif; ?>
-                
-                                <?php if ($isLoggedIn && count($userVenues) > 0): ?>
-                                <optgroup label="My Venues">
-                                    <?php foreach ($userVenues as $venue): ?>
-                                        <option value="user_<?= $venue['user_venue_id'] ?>">
-                                            <?= htmlspecialchars($venue['venue_name']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                                <?php endif; ?>
-                            </select>
-                            <?php if ($isLoggedIn): ?>
-                            <button type="button" id="add-venue-button" class="small-button" title="Add Custom Venue"><i class="fa-solid fa-plus"></i></button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                
-                    <div id="date-container">
-                      <div class="config-field">
-                          <label for="event_start">Event Start:</label>
-                          <input type="date" id="event_start" name="event_date_start">
-                      </div>
-                      <div class="config-field">
-                          <label for="event_end">Event End:</label>
-                          <input type="date" id="event_end" name="event_date_end" min="">
-                      </div>
-                    </div>
-                </div>
-                <div id="venue-info-panel" class="venue-info-panel">
-                    <h3>Venue Information</h3>
-                    <div class="venue-details">
-                        <p><strong>Name:</strong> <span id="venue-info-name">N/A</span></p>
-                        <p><strong>Address:</strong> <span id="venue-info-address">N/A</span></p>
-                        <p><strong>Stage:</strong> <span id="venue-info-stage">N/A</span></p>
-                    </div>
-                    <p class="no-venue-selected">No venue selected.</p>
-                </div>
+                <?php if ($isLoggedIn && count($userVenues) > 0): ?>
+                  <optgroup label="My Venues">
+                    <?php foreach ($userVenues as $venue): ?>
+                      <option value="user_<?= $venue['user_venue_id'] ?>">
+                        <?= htmlspecialchars($venue['venue_name']) ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </optgroup>
+                <?php endif; ?>
+              </select>
+              <?php if ($isLoggedIn): ?>
+                <button type="button" id="add-venue-button" class="small-button" title="Add Custom Venue"><i class="fa-solid fa-plus"></i></button>
+              <?php endif; ?>
             </div>
-        </div>
-
-        <!-- Plot Control Buttons -->
-        <div id="control-buttons">
-          <div id="edit-buttons">
-            <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
-            <?php if ($isLoggedIn): ?>
-              <button id="my-plots" class="action-button" title="Load Plot"><i class="fa-solid fa-folder-open"></i></button>
-              <button id="share-plot" class="action-button" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
-              <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
-              <button id="save-changes" class="action-button hidden">Save Changes</button>
-            <?php endif; ?>
           </div>
-          <div id="delete-buttons">
-            <button id="delete-selected" class="action-button hidden" title="">Delete Selected</button>
-            <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
+
+          <div id="date-container">
+            <div class="config-field">
+              <label for="event_start">Event Start:</label>
+              <input type="date" id="event_start" name="event_date_start">
+            </div>
+            <div class="config-field">
+              <label for="event_end">Event End:</label>
+              <input type="date" id="event_end" name="event_date_end" min="">
+            </div>
           </div>
         </div>
-
-        <div id="stage"
-            data-venue-id="<?= $venue['venue_id'] ?>"
-            data-stage-width="<?= $venue['stage_width'] ?>"
-            data-stage-depth="<?= $venue['stage_depth'] ?>">
-            <div id="stage-tips">
-              <div class="tip-item">Lasso or <kbd>Shift</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> = Multi-select</div>
-              <div class="tip-item"> | </div>
-              <div class="tip-item"><kbd>Ctrl</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> + <span class="action-icon"><i class="fa-solid fa-arrows-up-down-left-right"></i></span> = Duplicate</div>
-            </div>
-          <div id="front-label">FRONT OF STAGE</div>
+        <div id="venue-info-panel" class="venue-info-panel">
+          <h3>Venue Information</h3>
+          <div class="venue-details">
+            <p><strong>Name:</strong> <span id="venue-info-name">N/A</span></p>
+            <p><strong>Address:</strong> <span id="venue-info-address">N/A</span></p>
+            <p><strong>Stage:</strong> <span id="venue-info-stage">N/A</span></p>
+          </div>
+          <p class="no-venue-selected">No venue selected.</p>
         </div>
+      </div>
     </div>
+
+    <!-- Plot Control Buttons -->
+    <div id="control-buttons">
+      <div id="edit-buttons">
+        <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
+        <?php if ($isLoggedIn): ?>
+          <button id="my-plots" class="action-button" title="Load Plot"><i class="fa-solid fa-folder-open"></i></button>
+          <button id="share-plot" class="action-button" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
+          <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
+          <button id="save-changes" class="action-button hidden">Save Changes</button>
+        <?php endif; ?>
+      </div>
+      <div id="delete-buttons">
+        <button id="delete-selected" class="action-button hidden" title="">Delete Selected</button>
+        <button id="clear-plot" class="action-button" title="Clear Stage"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+
+    <div id="stage"
+      data-venue-id="<?= $venue['venue_id'] ?>"
+      data-stage-width="<?= $venue['stage_width'] ?>"
+      data-stage-depth="<?= $venue['stage_depth'] ?>">
+      <div id="stage-tips">
+        <div class="tip-item">Lasso or <kbd>Shift</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> = Multi-select</div>
+        <div class="tip-item"> | </div>
+        <div class="tip-item"><kbd>Ctrl</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> + <span class="action-icon"><i class="fa-solid fa-arrows-up-down-left-right"></i></span> = Duplicate</div>
+      </div>
+      <div id="front-label">FRONT OF STAGE</div>
+    </div>
+  </div>
 </div>
 
 <div id="stage-info-container">
   <div class="input-list-section">
-      <h2>Aux Input List
-        <br><span>Keep track of additional a/v inputs</span>
-      </h2>
-      <div id="input-list" class="input-grid"></div>
-      <datalist id="input-suggestions"></datalist>
-      <button id="add-input-line" class="primary-button add-line-button">
-          <i class="fa-solid fa-plus"></i> Add Line
-      </button>
-  </div> 
+    <h2>Aux Input List
+      <br><span>Keep track of additional a/v inputs</span>
+    </h2>
+    <div id="input-list" class="input-grid"></div>
+    <datalist id="input-suggestions"></datalist>
+    <button id="add-input-line" class="primary-button add-line-button">
+      <i class="fa-solid fa-plus"></i> Add Line
+    </button>
+  </div>
 
   <div class="element-info">
     <h2>Stage Element List
@@ -220,202 +232,202 @@ if ($isLoggedIn) {
 
 <!-- Element Properties Modal -->
 <div id="element-props-modal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Element Properties</h2>
-        <form id="element-props-form">
-            <input type="hidden" id="element_index" name="element_index">
-            
-            <div>
-              <label for="element_label">Label:</label>
-              <input type="text" id="element_label" name="element_label" maxlength="10">
-            </div>
-            
-            <div>
-              <label for="element_notes">Notes:</label>
-              <textarea id="element_notes" name="element_notes" rows="3"></textarea>
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" class="save-button">Apply</button>
-                <button type="button" class="delete-button" title="Delete Element">Delete</button>
-                <button type="button" class="cancel-button">Cancel</button>
-            </div>
-        </form>
-        <div class="modal-notification-area"></div>
-    </div>
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <h2>Element Properties</h2>
+    <form id="element-props-form">
+      <input type="hidden" id="element_index" name="element_index">
+
+      <div>
+        <label for="element_label">Label:</label>
+        <input type="text" id="element_label" name="element_label" maxlength="10">
+      </div>
+
+      <div>
+        <label for="element_notes">Notes:</label>
+        <textarea id="element_notes" name="element_notes" rows="3"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="save-button">Apply</button>
+        <button type="button" class="delete-button" title="Delete Element">Delete</button>
+        <button type="button" class="cancel-button">Cancel</button>
+      </div>
+    </form>
+    <div class="modal-notification-area"></div>
+  </div>
 </div>
 
 <!-- Add Custom Venue Modal -->
 <?php if ($isLoggedIn): ?>
-<div id="add-venue-modal" class="modal hidden">
+  <div id="add-venue-modal" class="modal hidden">
     <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Add Custom Venue</h2>
-        <form id="add-venue-form">
-            <div class="form-group">
-                <label for="venue_name">Venue Name:</label>
-                <input type="text" id="venue_name" name="venue_name" maxlength="100" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="venue_street">Street Address:</label>
-                <input type="text" id="venue_street" name="venue_street" maxlength="100">
-            </div>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="venue_state_id">State:</label>
-                    <select id="venue_state_id" name="venue_state_id">
-                        <option value="" selected disabled>Select State</option>
-                        <?php
-                        $states = $db->fetchAll("SELECT state_id, state_name, state_abbr FROM states ORDER BY state_name");
-                        foreach ($states as $state) {
-                            echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
+      <span class="close-button">&times;</span>
+      <h2>Add Custom Venue</h2>
+      <form id="add-venue-form">
+        <div class="form-group">
+          <label for="venue_name">Venue Name:</label>
+          <input type="text" id="venue_name" name="venue_name" maxlength="100" required>
+        </div>
 
-                <div class="form-group">
-                    <label for="venue_city">City:</label>
-                    <input type="text" id="venue_city" name="venue_city" maxlength="100">
-                </div>
-                
-                <div class="form-group">
-                    <label for="venue_zip">ZIP:</label>
-                    <input type="text" id="venue_zip" name="venue_zip" maxlength="5">
-                </div>
-            </div>
-            
-            <div class="input-dimensions">
-              <div class="form-group">
-                  <label for="stage_width">Stage Width (feet):</label>
-                  <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1">
-              </div>
-              
-              <div class="form-group">
-                  <label for="stage_depth">Stage Depth (feet):</label>
-                  <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1">
-              </div>
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" class="save-button">Save Venue</button>
-                <button type="button" class="cancel-button">Cancel</button>
-            </div>
-        </form>
-        <div class="modal-notification-area"></div>
+        <div class="form-group">
+          <label for="venue_street">Street Address:</label>
+          <input type="text" id="venue_street" name="venue_street" maxlength="100">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="venue_state_id">State:</label>
+            <select id="venue_state_id" name="venue_state_id">
+              <option value="" selected disabled>Select State</option>
+              <?php
+              $states = $db->fetchAll("SELECT state_id, state_name, state_abbr FROM states ORDER BY state_name");
+              foreach ($states as $state) {
+                echo "<option value='{$state['state_id']}'>{$state['state_name']}</option>";
+              }
+              ?>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="venue_city">City:</label>
+            <input type="text" id="venue_city" name="venue_city" maxlength="100">
+          </div>
+
+          <div class="form-group">
+            <label for="venue_zip">ZIP:</label>
+            <input type="text" id="venue_zip" name="venue_zip" maxlength="5">
+          </div>
+        </div>
+
+        <div class="input-dimensions">
+          <div class="form-group">
+            <label for="stage_width">Stage Width (feet):</label>
+            <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1">
+          </div>
+
+          <div class="form-group">
+            <label for="stage_depth">Stage Depth (feet):</label>
+            <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-button">Save Venue</button>
+          <button type="button" class="cancel-button">Cancel</button>
+        </div>
+      </form>
+      <div class="modal-notification-area"></div>
     </div>
-</div>
+  </div>
 <?php endif; ?>
 
 <!-- Save Plot Modal -->
 <?php if ($isLoggedIn): ?>
-<div id="save-plot-modal" class="modal hidden">
+  <div id="save-plot-modal" class="modal hidden">
     <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Save Plot</h2>
-        
-        <!-- New plot name input -->
-        <div class="save-section new-plot-section">
-            <form id="save-new-plot-form">
-                <label for="plot_name">Plot Name:</label>
-                <input type="text" id="plot_name" name="plot_name" maxlength="20">
-                <div class="form-actions">
-                    <button type="submit" id="save-new-button">Save as New</button>
-                </div>
-            </form>
-        </div>
-        
-        <!-- Existing plots section -->
-        <div class="save-section existing-plots-section">
-            <h3>Overwrite Existing Plot
-                <br><span>Use new name entered above or leave empty to reuse existing name</span>
-            </h3>
-            <div class="existing-plots-list">
-                <!-- Will be populated via JavaScript -->
-                <p class="loading-message">Loading your saved plots...</p>
-            </div>
-        </div>
-        
-        <div class="form-actions modal-bottom-actions">
-            <button type="button" class="cancel-button">Cancel</button>
-        </div>
-        <div class="modal-notification-area"></div>
-    </div>
-</div>
+      <span class="close-button">&times;</span>
+      <h2>Save Plot</h2>
 
-<!-- Load Plot Modal -->
-<div id="my-plots-modal" class="modal hidden">
+      <!-- New plot name input -->
+      <div class="save-section new-plot-section">
+        <form id="save-new-plot-form">
+          <label for="plot_name">Plot Name:</label>
+          <input type="text" id="plot_name" name="plot_name" maxlength="20">
+          <div class="form-actions">
+            <button type="submit" id="save-new-button">Save as New</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Existing plots section -->
+      <div class="save-section existing-plots-section">
+        <h3>Overwrite Existing Plot
+          <br><span>Use new name entered above or leave empty to reuse existing name</span>
+        </h3>
+        <div class="existing-plots-list">
+          <!-- Will be populated via JavaScript -->
+          <p class="loading-message">Loading your saved plots...</p>
+        </div>
+      </div>
+
+      <div class="form-actions modal-bottom-actions">
+        <button type="button" class="cancel-button">Cancel</button>
+      </div>
+      <div class="modal-notification-area"></div>
+    </div>
+  </div>
+
+  <!-- Load Plot Modal -->
+  <div id="my-plots-modal" class="modal hidden">
     <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>My Plots</h2>
-        <div class="saved-plots-list">
-            <!-- Will be populated via Javascript -->
-            <p class="loading-message">Loading your saved plots...</p>
+      <span class="close-button">&times;</span>
+      <h2>My Plots</h2>
+      <div class="saved-plots-list">
+        <!-- Will be populated via Javascript -->
+        <p class="loading-message">Loading your saved plots...</p>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="cancel-button">Cancel</button>
+      </div>
+      <div class="modal-notification-area"></div>
+    </div>
+  </div>
+
+  <!-- Print/Share Modal -->
+  <div id="share-plot-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Print & Share Options</h2>
+
+      <div class="share-options-container">
+        <div class="share-option">
+          <button id="print-plot-btn" class="share-action-button">
+            <i class="fa-solid fa-print"></i>
+            <span>Print Stage Plot</span>
+          </button>
+          <p class="option-description">Print a detailed version of your stage plot with elements list and input list.</p>
+        </div>
+
+        <div class="share-option">
+          <button id="pdf-download-btn" class="share-action-button">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Download as PDF</span>
+          </button>
+          <p class="option-description">Download your stage plot as a PDF document.</p>
+        </div>
+
+        <div class="share-option">
+          <button id="email-share-btn" class="share-action-button">
+            <i class="fa-solid fa-envelope"></i>
+            <span>Share via Email</span>
+          </button>
+          <p class="option-description">Share your stage plot with others via email.</p>
+        </div>
+      </div>
+
+      <!-- Email sharing form, initially hidden -->
+      <div id="email-share-form" class="hidden">
+        <div class="form-group">
+          <label for="share_email">Recipient Email:</label>
+          <input type="email" id="share_email" name="share_email" required>
+        </div>
+        <div class="form-group">
+          <label for="share_message">Message (Optional):</label>
+          <textarea id="share_message" name="share_message" rows="3"></textarea>
         </div>
         <div class="form-actions">
-            <button type="button" class="cancel-button">Cancel</button>
+          <button type="button" id="send-email-btn" class="primary-button">Send</button>
+          <button type="button" id="back-to-options-btn" class="secondary-button">Back</button>
+          <button type="button" class="cancel-button">Cancel</button>
         </div>
-        <div class="modal-notification-area"></div>
-    </div>
-</div>
+      </div>
 
-<!-- Print/Share Modal -->
-<div id="share-plot-modal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Print & Share Options</h2>
-        
-        <div class="share-options-container">
-            <div class="share-option">
-                <button id="print-plot-btn" class="share-action-button">
-                    <i class="fa-solid fa-print"></i>
-                    <span>Print Stage Plot</span>
-                </button>
-                <p class="option-description">Print a detailed version of your stage plot with elements list and input list.</p>
-            </div>
-            
-            <div class="share-option">
-                <button id="pdf-download-btn" class="share-action-button">
-                    <i class="fa-solid fa-file-pdf"></i>
-                    <span>Download as PDF</span>
-                </button>
-                <p class="option-description">Download your stage plot as a PDF document.</p>
-            </div>
-            
-            <div class="share-option">
-                <button id="email-share-btn" class="share-action-button">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>Share via Email</span>
-                </button>
-                <p class="option-description">Share your stage plot with others via email.</p>
-            </div>
-        </div>
-        
-        <!-- Email sharing form, initially hidden -->
-        <div id="email-share-form" class="hidden">
-            <div class="form-group">
-                <label for="share_email">Recipient Email:</label>
-                <input type="email" id="share_email" name="share_email" required>
-            </div>
-            <div class="form-group">
-                <label for="share_message">Message (Optional):</label>
-                <textarea id="share_message" name="share_message" rows="3"></textarea>
-            </div>
-            <div class="form-actions">
-                <button type="button" id="send-email-btn" class="primary-button">Send</button>
-                <button type="button" id="back-to-options-btn" class="secondary-button">Back</button>
-                <button type="button" class="cancel-button">Cancel</button>
-            </div>
-        </div>
-        
-        <div class="modal-notification-area"></div>
+      <div class="modal-notification-area"></div>
     </div>
-</div>
+  </div>
 
-<?php 
+<?php
 endif;
 
 include PRIVATE_PATH . '/templates/footer.php';
