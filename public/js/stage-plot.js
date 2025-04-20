@@ -1230,7 +1230,7 @@ function createPlacedElement(elementData, plotState) {
 function initLassoSelection(plotState) {
   // If the element is inside the stage, always prevent selection
   document.addEventListener('selectstart', function (e) {
-    if (e.target.closest('#stage')) {
+    if (e.target && typeof e.target.closest === 'function' && e.target.closest('#stage')) {
       e.preventDefault();
       return false;
     }
