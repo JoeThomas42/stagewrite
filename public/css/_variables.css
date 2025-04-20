@@ -86,6 +86,8 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.3);
+  --shadow-sm-gold: 0 0 6px rgba(232, 154, 37, 0.5);
+  --shadow-md-gold: 0 2px 10px rgba(232, 154, 37, 0.5);
 
   /* ---------- Inset Box Shadows ---------- */
   --shadow-inset-sm: 0 0 4px rgba(0, 0, 0, 0.2);
@@ -148,7 +150,7 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 5px 18px rgba(0, 0, 0, 0.9);
-
+  
   /* Inset Shadows - Adjusted for dark theme */
   --shadow-inset-sm: 0 0 6px rgba(0, 0, 0, 0.6);
   --shadow-inset-md: 0 0 10px rgba(0, 0, 0, 0.7);

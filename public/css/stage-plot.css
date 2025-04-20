@@ -58,19 +58,6 @@
   flex-direction: column;
 }
 
-.category-section {
-  margin-bottom: var(--spacing-lg);
-  
-  h3 {
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-sm);
-    box-shadow: var(--shadow-sm);
-    color: var(--color-primary-dark);
-    margin-bottom: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-  }
-}
-
 .draggable-element {
   align-items: center;
   background-color: var(--color-background-trans);
@@ -123,24 +110,19 @@
   }
 }
 
-.elements-grid {
-  display: grid;
-  gap: var(--spacing-sm);
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  margin-top: var(--spacing-sm);
-}
-
 /* Accordion container */
 .accordion-container {
   background-color: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: inset var(--shadow-inset-md);
+  display: flex;
+  flex-direction: column;
   margin: 0 var(--spacing-md) var(--spacing-md);
   max-height: 900px;
   max-width: 330px;
-  overflow-y: auto;
-  padding: var(--spacing-md);
+  overflow-y: hidden;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
   scrollbar-width: thin;
   width: 330px;
 }
@@ -172,8 +154,8 @@
   align-items: center;
   margin: 0;
   padding: var(--spacing-xs) var(--spacing-sm);
-  transition: all var(--transition-fast);
-  
+  transition: all var(--transition-medium);
+
   &:hover {
     background-color: var(--color-table-hover);
   }
@@ -183,6 +165,7 @@
     border-color: var(--color-primary-dark);
     box-shadow: var(--shadow-lg);
     color: var(--color-white);
+    margin-bottom: 0;
 
     .accordion-icon {
       color: var(--color-white);
@@ -229,21 +212,25 @@
   display: grid;
   gap: var(--spacing-sm);
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  margin: 0;
+  margin: var(--spacing-sm) 0 0;
   max-height: 0;
   overflow: hidden;
-  padding: 0 var(--spacing-xs);
-  transition: max-height var(--transition-medium), padding var(--transition-medium);
-}
-
-.accordion-content.expanded {
-  max-height: 2000px;
-  padding: var(--spacing-sm) var(--spacing-xs);
+  padding: 0 var(--spacing-sm) 0 0;
+  transition: all var(--transition-medium);
+  
+  &.expanded {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-bottom: var(--spacing-sm);
+  }
 }
 
 .favorites-section .accordion-header {
-  /* background-color: var(--color-background-lighter); */
-  border-color: var(--color-gold);
+  box-shadow: var(--shadow-sm-gold);
+
+  &.active {
+    box-shadow: var(--shadow-md-gold);
+  }
 }
 
 #category-filter {
