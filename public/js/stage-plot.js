@@ -284,18 +284,18 @@ function initElementsAccordion() {
 
   // Get all accordion headers
   const headers = elementsPanel.querySelectorAll('.accordion-header');
-  
+
   // Add click event to each header
-  headers.forEach(header => {
-    header.addEventListener('click', function() {
+  headers.forEach((header) => {
+    header.addEventListener('click', function () {
       // Get the parent accordion item
       const item = this.closest('.accordion-item');
-      
+
       // Check if this header is already active
       const isActive = this.classList.contains('active');
-      
+
       // Close all accordions first
-      headers.forEach(h => {
+      headers.forEach((h) => {
         h.classList.remove('active');
         // Find and collapse all content sections
         const content = h.nextElementSibling;
@@ -303,11 +303,11 @@ function initElementsAccordion() {
           content.classList.remove('expanded');
         }
       });
-      
+
       // If the clicked header wasn't active, open it
       if (!isActive) {
         this.classList.add('active');
-        
+
         // Find and expand the content section
         const content = this.nextElementSibling;
         if (content && content.classList.contains('accordion-content')) {
@@ -316,7 +316,7 @@ function initElementsAccordion() {
       }
     });
   });
-  
+
   // Initialize: ensure at least Favorites is expanded by default
   const favoritesHeader = elementsPanel.querySelector('.favorites-section .accordion-header');
   if (favoritesHeader && !favoritesHeader.classList.contains('active')) {
@@ -577,39 +577,39 @@ function updateFavoritesCategory(plotState) {
     favoritesSection = document.createElement('div');
     favoritesSection.className = 'category-section favorites-section accordion-item';
     favoritesSection.setAttribute('data-category-id', '1');
-    
+
     // Create header
     const heading = document.createElement('h3');
     heading.className = 'accordion-header active'; // Start expanded
     heading.textContent = 'Favorites';
-    
+
     // Add accordion icon
     const icon = document.createElement('span');
     icon.className = 'accordion-icon';
     heading.appendChild(icon);
-    
+
     favoritesSection.appendChild(heading);
-    
+
     // Create content container
     const grid = document.createElement('div');
     grid.className = 'accordion-content elements-grid expanded'; // Start expanded
     favoritesSection.appendChild(grid);
-    
+
     // Add to DOM before first child
     elementsPanel.insertBefore(favoritesSection, elementsPanel.firstChild);
-    
+
     // Add click handler to the new header
-    heading.addEventListener('click', function() {
+    heading.addEventListener('click', function () {
       const isActive = this.classList.contains('active');
-      
+
       // Close all accordions
       const allHeaders = elementsPanel.querySelectorAll('.accordion-header');
-      allHeaders.forEach(h => {
+      allHeaders.forEach((h) => {
         h.classList.remove('active');
         const content = h.nextElementSibling;
         if (content) content.classList.remove('expanded');
       });
-      
+
       // If it wasn't active, open it
       if (!isActive) {
         this.classList.add('active');
@@ -718,26 +718,26 @@ function moveFavoritesToTop() {
     header = document.createElement('h3');
     header.className = 'accordion-header active';
     header.textContent = 'Favorites';
-    
+
     // Add accordion icon
     const icon = document.createElement('span');
     icon.className = 'accordion-icon';
     header.appendChild(icon);
-    
+
     favoritesSection.insertBefore(header, favoritesSection.firstChild);
-    
+
     // Add click handler
-    header.addEventListener('click', function() {
+    header.addEventListener('click', function () {
       const isActive = this.classList.contains('active');
-      
+
       // Close all accordions
       const allHeaders = elementsPanel.querySelectorAll('.accordion-header');
-      allHeaders.forEach(h => {
+      allHeaders.forEach((h) => {
         h.classList.remove('active');
         const content = h.nextElementSibling;
         if (content) content.classList.remove('expanded');
       });
-      
+
       // If it wasn't active, open it
       if (!isActive) {
         this.classList.add('active');
@@ -751,7 +751,7 @@ function moveFavoritesToTop() {
   let content = favoritesSection.querySelector('.elements-grid');
   if (content) {
     content.classList.add('accordion-content');
-    
+
     // If the header is active, ensure content is expanded
     if (header.classList.contains('active')) {
       content.classList.add('expanded');
@@ -864,25 +864,37 @@ function handleDrop(e, plotState) {
 
   if (plotState.dragSourceRect) {
     // Use the drag offsets to center the element properly
-    x = Math.max(0, Math.min(
-      e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 2, 
-      stageRect.width - elementWidth - margin // Subtract margin from the max bound
-    ));
+    x = Math.max(
+      0,
+      Math.min(
+        e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 2,
+        stageRect.width - elementWidth - margin // Subtract margin from the max bound
+      )
+    );
 
-    y = Math.max(0, Math.min(
-      e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 2, 
-      stageRect.height - elementHeight - margin // Subtract margin from the max bound
-    ));
+    y = Math.max(
+      0,
+      Math.min(
+        e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 2,
+        stageRect.height - elementHeight - margin // Subtract margin from the max bound
+      )
+    );
   } else {
     // Fallback to the original cursor-based positioning if no drag data
-    x = Math.max(0, Math.min(
-      e.clientX - stageRect.left - elementWidth / 1.5, 
-      stageRect.width - elementWidth - margin // Subtract margin from the max bound
-    ));
-    y = Math.max(0, Math.min(
-      e.clientY - stageRect.top - elementHeight / 1.5, 
-      stageRect.height - elementHeight - margin // Subtract margin from the max bound
-    ));
+    x = Math.max(
+      0,
+      Math.min(
+        e.clientX - stageRect.left - elementWidth / 1.5,
+        stageRect.width - elementWidth - margin // Subtract margin from the max bound
+      )
+    );
+    y = Math.max(
+      0,
+      Math.min(
+        e.clientY - stageRect.top - elementHeight / 1.5,
+        stageRect.height - elementHeight - margin // Subtract margin from the max bound
+      )
+    );
   }
 
   // Account for the 14px margin that will be applied in createPlacedElement
@@ -1217,7 +1229,7 @@ function createPlacedElement(elementData, plotState) {
  */
 function initLassoSelection(plotState) {
   // If the element is inside the stage, always prevent selection
-  document.addEventListener('selectstart', function(e) {
+  document.addEventListener('selectstart', function (e) {
     if (e.target.closest('#stage')) {
       e.preventDefault();
       return false;
@@ -1231,67 +1243,69 @@ function initLassoSelection(plotState) {
 
   // Handler for element selection via shift+click
   // This gets called BEFORE the element's own drag handler
-  stage.addEventListener('mousedown', (e) => {
-    const clickedElement = e.target.closest('.placed-element');
-    
-    // Case 1: Shift+Click on an element (for selection)
-    if (e.shiftKey && clickedElement) {
-      // Skip if clicking on a button
-      if (e.target.closest('.element-actions') || 
-          e.target.classList.contains('edit-element') || 
-          e.target.classList.contains('favorite-button')) {
-        return; // Let the button's handler take over
-      }
-      
-      e.stopPropagation();
-      
-      // Toggle selection for this element
-      const elementId = parseInt(clickedElement.getAttribute('data-id'));
-      const selectionIndex = plotState.selectedElements.indexOf(elementId);
-      
-      if (selectionIndex !== -1) {
-        // Remove from selection
-        plotState.selectedElements.splice(selectionIndex, 1);
-        clickedElement.classList.remove('selected');
-      } else {
-        // Add to selection
-        plotState.selectedElements.push(elementId);
-        clickedElement.classList.add('selected');
+  stage.addEventListener(
+    'mousedown',
+    (e) => {
+      const clickedElement = e.target.closest('.placed-element');
+
+      // Case 1: Shift+Click on an element (for selection)
+      if (e.shiftKey && clickedElement) {
+        // Skip if clicking on a button
+        if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element') || e.target.classList.contains('favorite-button')) {
+          return; // Let the button's handler take over
+        }
+
+        e.stopPropagation();
+
+        // Toggle selection for this element
+        const elementId = parseInt(clickedElement.getAttribute('data-id'));
+        const selectionIndex = plotState.selectedElements.indexOf(elementId);
+
+        if (selectionIndex !== -1) {
+          // Remove from selection
+          plotState.selectedElements.splice(selectionIndex, 1);
+          clickedElement.classList.remove('selected');
+        } else {
+          // Add to selection
+          plotState.selectedElements.push(elementId);
+          clickedElement.classList.add('selected');
+        }
+
+        updateStageSelectionState(plotState);
+
+        // Important: we set a flag on the event to tell the drag handler to ignore this event
+        e._handledBySelection = true;
+        return;
       }
 
-      updateStageSelectionState(plotState);
-      
-      // Important: we set a flag on the event to tell the drag handler to ignore this event
-      e._handledBySelection = true;
-      return;
-    }
-    
-    // Case 2: Click directly on the stage (for lasso selection)
-    if ((e.target === stage || e.target.classList.contains('grid-overlay')) && !clickedElement) {
-      // Clear previous selection if not holding Shift
-      if (!e.shiftKey) {
+      // Case 2: Click directly on the stage (for lasso selection)
+      if ((e.target === stage || e.target.classList.contains('grid-overlay')) && !clickedElement) {
+        // Clear previous selection if not holding Shift
+        if (!e.shiftKey) {
+          clearElementSelection(plotState);
+        }
+
+        lassoActive = true;
+        lassoStartX = e.clientX - stage.getBoundingClientRect().left;
+        lassoStartY = e.clientY - stage.getBoundingClientRect().top;
+
+        // Create visual lasso element
+        lassoElement = document.createElement('div');
+        lassoElement.className = 'lasso-box';
+        lassoElement.style.left = `${lassoStartX}px`;
+        lassoElement.style.top = `${lassoStartY}px`;
+        stage.appendChild(lassoElement);
+
+        document.addEventListener('mousemove', handleLassoMove);
+        document.addEventListener('mouseup', handleLassoEnd, { once: true });
+      }
+      // Case 3: Click on empty space but not on stage (outside any element)
+      else if (!clickedElement && !e.shiftKey) {
         clearElementSelection(plotState);
       }
-
-      lassoActive = true;
-      lassoStartX = e.clientX - stage.getBoundingClientRect().left;
-      lassoStartY = e.clientY - stage.getBoundingClientRect().top;
-
-      // Create visual lasso element
-      lassoElement = document.createElement('div');
-      lassoElement.className = 'lasso-box';
-      lassoElement.style.left = `${lassoStartX}px`;
-      lassoElement.style.top = `${lassoStartY}px`;
-      stage.appendChild(lassoElement);
-
-      document.addEventListener('mousemove', handleLassoMove);
-      document.addEventListener('mouseup', handleLassoEnd, { once: true });
-    } 
-    // Case 3: Click on empty space but not on stage (outside any element)
-    else if (!clickedElement && !e.shiftKey) {
-      clearElementSelection(plotState);
-    }
-  }, true); // Use capturing phase to handle before element's own listeners
+    },
+    true
+  ); // Use capturing phase to handle before element's own listeners
 
   function handleLassoMove(e) {
     if (!lassoActive || !lassoElement) return;
@@ -1360,12 +1374,7 @@ function initLassoSelection(plotState) {
       };
 
       // Improved intersection check with more reliable logic
-      const intersects = !(
-        relativeElRect.right < relativeLassoRect.left || 
-        relativeElRect.left > relativeLassoRect.right || 
-        relativeElRect.bottom < relativeLassoRect.top || 
-        relativeElRect.top > relativeLassoRect.bottom
-      );
+      const intersects = !(relativeElRect.right < relativeLassoRect.left || relativeElRect.left > relativeLassoRect.right || relativeElRect.bottom < relativeLassoRect.top || relativeElRect.top > relativeLassoRect.bottom);
 
       if (intersects) {
         const elementId = parseInt(el.getAttribute('data-id'));
@@ -1399,11 +1408,11 @@ function initLassoSelection(plotState) {
 function initShiftCursorStyle() {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   // Store original cursor style
   let originalCursorStyle = '';
   let isShiftDown = false;
-  
+
   // Function to handle shift key down
   function handleShiftDown(e) {
     if (e.key === 'Shift' && !isShiftDown) {
@@ -1418,7 +1427,7 @@ function initShiftCursorStyle() {
       stage.classList.add('shift-selection-mode');
     }
   }
-  
+
   // Function to handle shift key up
   function handleShiftUp(e) {
     if (e.key === 'Shift' && isShiftDown) {
@@ -1429,11 +1438,11 @@ function initShiftCursorStyle() {
       stage.classList.remove('shift-selection-mode');
     }
   }
-  
+
   // Add keydown/keyup listeners to document
   document.addEventListener('keydown', handleShiftDown);
   document.addEventListener('keyup', handleShiftUp);
-  
+
   // Handle cases where focus might be lost while shift is down
   window.addEventListener('blur', () => {
     if (isShiftDown) {
@@ -1451,13 +1460,13 @@ function initShiftCursorStyle() {
 function updateStageSelectionState(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
-  
+
   if (plotState.selectedElements.length > 0) {
     stage.classList.add('has-selection');
   } else {
     stage.classList.remove('has-selection');
   }
-  
+
   // Also update delete button visibility
   updateDeleteSelectedButton(plotState);
 }
@@ -1487,7 +1496,7 @@ function makeDraggableOnStage(element, plotState) {
     if (e._handledBySelection === true) {
       return;
     }
-    
+
     // If clicked on a button or action element, don't start dragging
     if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) {
       return;
@@ -1509,7 +1518,7 @@ function makeDraggableOnStage(element, plotState) {
       if (!e.shiftKey && !element.classList.contains('selected')) {
         clearElementSelection(plotState);
       }
-      
+
       if (!isDuplicating) {
         // Only bring to front if not duplicating (we'll handle z-index for duplicates separately)
         bringToFront(elementId, plotState);
@@ -1526,24 +1535,24 @@ function makeDraggableOnStage(element, plotState) {
         const domEl = document.querySelector(`.placed-element[data-id="${id}"]`);
         if (domEl) {
           const rect = domEl.getBoundingClientRect();
-          
+
           // Get positions directly from DOM
           const elLeft = parseInt(window.getComputedStyle(domEl).left);
           const elTop = parseInt(window.getComputedStyle(domEl).top);
           const primaryLeft = parseInt(window.getComputedStyle(element).left);
           const primaryTop = parseInt(window.getComputedStyle(element).top);
-          
+
           // Calculate offset using DOM positions
           const offsetX = id === elementId ? 0 : elLeft - primaryLeft;
           const offsetY = id === elementId ? 0 : elTop - primaryTop;
-          
+
           groupOffsets.push({
             id: id,
             offsetX: offsetX,
             offsetY: offsetY,
             width: rect.width,
             height: rect.height,
-            element: domEl
+            element: domEl,
           });
         }
       });
@@ -1562,18 +1571,18 @@ function makeDraggableOnStage(element, plotState) {
     startTop = parseInt(window.getComputedStyle(element).top);
 
     document.body.classList.add('dragging-on-stage');
-    
+
     // Create ghost elements for duplication mode
     if (isDuplicating) {
       document.body.classList.add('duplicating-element');
-      
+
       if (isDraggingGroup) {
         // Create ghost elements for each element in the group
-        groupOffsets.forEach(offsetData => {
+        groupOffsets.forEach((offsetData) => {
           // Add class to the source element
           offsetData.element.classList.add('is-being-duplicated');
           sourceElements.push(offsetData.element);
-          
+
           // Create ghost
           createGhostElement(offsetData.element, offsetData.offsetX, offsetData.offsetY);
         });
@@ -1581,7 +1590,7 @@ function makeDraggableOnStage(element, plotState) {
         // Add class to the source element
         element.classList.add('is-being-duplicated');
         sourceElements.push(element);
-        
+
         // Create ghost for single element
         createGhostElement(element, 0, 0);
       }
@@ -1593,7 +1602,7 @@ function makeDraggableOnStage(element, plotState) {
     document.addEventListener('mouseup', dragEnd);
     document.addEventListener('touchend', dragEnd);
   }
-  
+
   /**
    * Create a ghost element for duplication preview
    * @param {HTMLElement} sourceElement - The source element to duplicate
@@ -1608,19 +1617,19 @@ function makeDraggableOnStage(element, plotState) {
     ghost.style.opacity = '0.6';
     ghost.style.left = `${parseInt(sourceElement.style.left) + offsetX}px`;
     ghost.style.top = `${parseInt(sourceElement.style.top) + offsetY}px`;
-    
+
     // Remove any buttons or interactive elements from ghost
     const actionsToRemove = ghost.querySelectorAll('.element-actions');
-    actionsToRemove.forEach(action => action.remove());
-    
+    actionsToRemove.forEach((action) => action.remove());
+
     // Store reference to the ghost element and its source
     ghostElements.push({
       ghost: ghost,
       source: sourceElement,
-      offsetX: offsetX, 
-      offsetY: offsetY
+      offsetX: offsetX,
+      offsetY: offsetY,
     });
-    
+
     // Add ghost to the stage
     document.getElementById('stage').appendChild(ghost);
   }
@@ -1717,7 +1726,7 @@ function makeDraggableOnStage(element, plotState) {
 
     if (isDuplicating) {
       // Move ghost elements instead of real elements
-      ghostElements.forEach(ghostData => {
+      ghostElements.forEach((ghostData) => {
         ghostData.ghost.style.left = `${startLeft + ghostData.offsetX + actualDx}px`;
         ghostData.ghost.style.top = `${startTop + ghostData.offsetY + actualDy}px`;
       });
@@ -1747,33 +1756,32 @@ function makeDraggableOnStage(element, plotState) {
   function dragEnd(e) {
     document.body.classList.remove('dragging-on-stage');
     document.body.classList.remove('duplicating-element');
-  
+
     // Final position calculation
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
-    
+
     if (isDuplicating && ghostElements.length > 0) {
       // Create actual duplicates at ghost positions
       const newElementIds = []; // Array to track the new element IDs
-      const duplicatePromises = ghostElements.map(ghostData => {
+      const duplicatePromises = ghostElements.map((ghostData) => {
         const ghost = ghostData.ghost;
         const source = ghostData.source;
         const elementId = parseInt(source.getAttribute('data-id'));
-        const elementIndex = plotState.elements.findIndex(el => el.id === elementId);
-        
+        const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+
         if (elementIndex !== -1) {
           // Get final position of ghost
           const ghostRect = ghost.getBoundingClientRect();
           const finalLeft = ghostRect.left - stageRect.left;
           const finalTop = ghostRect.top - stageRect.top;
-          
+
           // Generate a new unique ID
-          const newElementId = plotState.elements.length > 0 ? 
-            Math.max(...plotState.elements.map(el => el.id)) + 1 : 1;
-          
+          const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
+
           // Store the new ID for later selection
           newElementIds.push(newElementId);
-          
+
           // Clone the element data
           const sourceElement = plotState.elements[elementIndex];
           const newElementData = {
@@ -1783,56 +1791,55 @@ function makeDraggableOnStage(element, plotState) {
             y: finalTop,
             zIndex: plotState.nextZIndex++, // Assign next Z-index
           };
-          
+
           // Add to state
           plotState.elements.push(newElementData);
-          
+
           // Create the DOM element
           return createPlacedElement(newElementData, plotState);
         }
         return Promise.resolve();
       });
-      
+
       // Clean up ghost elements
-      ghostElements.forEach(ghostData => {
+      ghostElements.forEach((ghostData) => {
         ghostData.ghost.remove();
       });
       ghostElements = [];
-      
+
       // Remove the duplication class from all source elements
-      sourceElements.forEach(el => {
+      sourceElements.forEach((el) => {
         el.classList.remove('is-being-duplicated');
         // Also remove selected class from original elements
         el.classList.remove('selected');
       });
       sourceElements = [];
-      
+
       // Wait for all duplicates to be created, then select them
-      Promise.all(duplicatePromises)
-        .then(() => {
-          // Clear previous selection
-          plotState.selectedElements = [];
-          
-          // Select all the new elements
-          newElementIds.forEach(id => {
-            const newElement = document.querySelector(`.placed-element[data-id="${id}"]`);
-            if (newElement) {
-              newElement.classList.add('selected');
-              plotState.selectedElements.push(id);
-            }
-          });
-          
-          // Update UI
-          updateStageSelectionState(plotState);
-          renderElementInfoList(plotState);
-          markPlotAsModified(plotState);
+      Promise.all(duplicatePromises).then(() => {
+        // Clear previous selection
+        plotState.selectedElements = [];
+
+        // Select all the new elements
+        newElementIds.forEach((id) => {
+          const newElement = document.querySelector(`.placed-element[data-id="${id}"]`);
+          if (newElement) {
+            newElement.classList.add('selected');
+            plotState.selectedElements.push(id);
+          }
         });
+
+        // Update UI
+        updateStageSelectionState(plotState);
+        renderElementInfoList(plotState);
+        markPlotAsModified(plotState);
+      });
     } else {
       // Standard drag operation without duplication
       const finalPrimaryRect = element.getBoundingClientRect();
       const finalPrimaryLeft = finalPrimaryRect.left - stageRect.left;
       const finalPrimaryTop = finalPrimaryRect.top - stageRect.top;
-      
+
       if (isDraggingGroup) {
         // Update all elements based on the final position
         groupOffsets.forEach((offsetData) => {
@@ -1851,16 +1858,16 @@ function makeDraggableOnStage(element, plotState) {
           plotState.elements[elementIndex].y = finalPrimaryTop;
         }
       }
-  
+
       markPlotAsModified(plotState); // Mark modified after drag ends
     }
-  
+
     // Clean up listeners
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
     document.removeEventListener('touchend', dragEnd);
-  
+
     // Reset state
     isDraggingGroup = false;
     isDuplicating = false;
@@ -1880,7 +1887,7 @@ function clearElementSelection(plotState) {
     }
   });
   plotState.selectedElements = [];
-  
+
   // Update stage selection class
   updateStageSelectionState(plotState);
 }
@@ -1936,21 +1943,21 @@ function bringToFront(elementId, plotState) {
 function updateDeleteSelectedButton(plotState) {
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
-  
+
   // Check if we have elements selected
   if (plotState.selectedElements.length > 0) {
     // First, ensure the button exists in the DOM by removing hidden class
     deleteSelectedButton.classList.remove('hidden');
-    
+
     // Force a browser reflow before adding the visible class
     void deleteSelectedButton.offsetWidth;
-    
+
     // Now add the visible class which will trigger the transition
     deleteSelectedButton.classList.add('visible');
   } else {
     // Hide the button if no selections
     deleteSelectedButton.classList.remove('visible');
-    
+
     // Wait for the transition to complete before hiding completely
     const transitionDuration = 300; // Match the CSS transition duration
     setTimeout(() => {
@@ -1968,29 +1975,29 @@ function updateDeleteSelectedButton(plotState) {
  */
 function deleteSelectedElements(plotState) {
   if (!plotState.selectedElements.length) return;
-  
+
   // Get the button
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
-  
+
   // Create a copy of the array to avoid modification issues during iteration
   const selectedElementIds = [...plotState.selectedElements];
-  
+
   // Use the setupConfirmButton function for confirmation
   setupConfirmButton(
     deleteSelectedButton,
     () => {
       // Delete each element
-      selectedElementIds.forEach(elementId => {
+      selectedElementIds.forEach((elementId) => {
         deleteElement(elementId, plotState);
       });
-      
+
       // Clear selection array
       plotState.selectedElements = [];
-      
+
       // Update stage selection state (this is the key fix)
       updateStageSelectionState(plotState);
-      
+
       // The button visibility is already updated by updateStageSelectionState
     },
     {
@@ -2008,12 +2015,12 @@ function deleteSelectedElements(plotState) {
 function initDeleteSelectedButton(plotState) {
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
-  
+
   // Add click handler
   deleteSelectedButton.addEventListener('click', () => {
     deleteSelectedElements(plotState);
   });
-  
+
   // Initialize button state based on current selection
   updateDeleteSelectedButton(plotState);
 }
@@ -3483,12 +3490,12 @@ function initCategoryFilter() {
       document.querySelectorAll('.category-section').forEach((section) => {
         section.style.display = 'none';
       });
-      
+
       // Show only the selected category
       const selectedSection = elementsPanel.querySelector(`.category-section[data-category-id="${categoryId}"]`);
       if (selectedSection) {
         selectedSection.style.display = '';
-        
+
         // Expand the selected category (if it's not already)
         const header = selectedSection.querySelector('.accordion-header');
         if (header && !header.classList.contains('active')) {
