@@ -1564,13 +1564,14 @@ function makeDraggableOnStage(element, plotState) {
   function dragEnd(e) {
     document.body.classList.remove('dragging-on-stage');
     document.body.classList.remove('duplicating-element');
-
+  
     // Final position calculation
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
     
     if (isDuplicating && ghostElements.length > 0) {
       // Create actual duplicates at ghost positions
+      const newElementIds = []; // Array to track the new element IDs
       const duplicatePromises = ghostElements.map(ghostData => {
         const ghost = ghostData.ghost;
         const source = ghostData.source;
@@ -1586,6 +1587,9 @@ function makeDraggableOnStage(element, plotState) {
           // Generate a new unique ID
           const newElementId = plotState.elements.length > 0 ? 
             Math.max(...plotState.elements.map(el => el.id)) + 1 : 1;
+          
+          // Store the new ID for later selection
+          newElementIds.push(newElementId);
           
           // Clone the element data
           const sourceElement = plotState.elements[elementIndex];
@@ -1615,13 +1619,28 @@ function makeDraggableOnStage(element, plotState) {
       // Remove the duplication class from all source elements
       sourceElements.forEach(el => {
         el.classList.remove('is-being-duplicated');
+        // Also remove selected class from original elements
+        el.classList.remove('selected');
       });
       sourceElements = [];
       
-      // Wait for all duplicates to be created
+      // Wait for all duplicates to be created, then select them
       Promise.all(duplicatePromises)
         .then(() => {
-          // Update UI - but don't select the new elements
+          // Clear previous selection
+          plotState.selectedElements = [];
+          
+          // Select all the new elements
+          newElementIds.forEach(id => {
+            const newElement = document.querySelector(`.placed-element[data-id="${id}"]`);
+            if (newElement) {
+              newElement.classList.add('selected');
+              plotState.selectedElements.push(id);
+            }
+          });
+          
+          // Update UI
+          updateStageSelectionState(plotState);
           renderElementInfoList(plotState);
           markPlotAsModified(plotState);
         });
@@ -1649,16 +1668,16 @@ function makeDraggableOnStage(element, plotState) {
           plotState.elements[elementIndex].y = finalPrimaryTop;
         }
       }
-
+  
       markPlotAsModified(plotState); // Mark modified after drag ends
     }
-
+  
     // Clean up listeners
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
     document.removeEventListener('touchend', dragEnd);
-
+  
     // Reset state
     isDraggingGroup = false;
     isDuplicating = false;

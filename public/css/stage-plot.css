@@ -433,7 +433,7 @@
 }
 
 #stage.has-selection .placed-element {
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 #stage.has-selection .placed-element:not(.selected) .element-actions {
