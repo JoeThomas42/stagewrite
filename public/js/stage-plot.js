@@ -1242,11 +1242,12 @@ function initLassoSelection(plotState) {
   let lassoElement = null;
 
   // Handler for element selection via shift+click
-  // This gets called BEFORE the element's own drag handler
   stage.addEventListener(
     'mousedown',
     (e) => {
-      const clickedElement = e.target.closest('.placed-element');
+      const clickedElement = e.target && typeof e.target.closest === 'function' 
+      ? e.target.closest('.placed-element') 
+      : null;
 
       // Case 1: Shift+Click on an element (for selection)
       if (e.shiftKey && clickedElement) {
