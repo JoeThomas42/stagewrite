@@ -432,10 +432,6 @@
   }
 }
 
-#stage.has-selection .placed-element {
-  /* cursor: pointer; */
-}
-
 #stage.has-selection .placed-element:not(.selected) .element-actions {
   opacity: 0;
   pointer-events: none;
@@ -693,6 +689,18 @@ body.dragging-on-stage * {
 #stage.has-selection .element-actions {
   display: none;
   opacity: 0;
+}
+
+.shift-selection-mode {
+  cursor: pointer !important;
+}
+
+.shift-selection-mode .placed-element {
+  cursor: pointer !important;
+}
+
+.shift-selection-mode .placed-element:hover {
+  box-shadow: 0 0 0 2px var(--color-primary-light), var(--shadow-lg) !important;
 }
 
 /* Element Duplication */

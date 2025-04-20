@@ -44,6 +44,7 @@ function initStageEditor() {
   initInputList(plotState);
   initElementInfoListEvents(plotState);
   initDeleteSelectedButton(plotState);
+  initShiftCursorStyle(plotState);
 
   // Expose render function to plotState
   plotState.renderElementInfoList = () => renderElementInfoList(plotState);
@@ -1259,6 +1260,58 @@ function initLassoSelection(plotState) {
   }
 
   updateStageSelectionState(plotState);
+}
+
+/**
+ * Initialize shift key cursor style
+ * @param {Object} plotState - The current plot state
+ */
+function initShiftCursorStyle(plotState) {
+  const stage = document.getElementById('stage');
+  if (!stage) return;
+  
+  // Store original cursor style
+  let originalCursorStyle = '';
+  let isShiftDown = false;
+  
+  // Function to handle shift key down
+  function handleShiftDown(e) {
+    if (e.key === 'Shift' && !isShiftDown) {
+      isShiftDown = true;
+      // Store original cursor style if not already stored
+      if (!originalCursorStyle) {
+        originalCursorStyle = stage.style.cursor || '';
+      }
+      // Set cursor to pointer when shift is pressed
+      stage.style.cursor = 'pointer';
+      // Add a class to stage to enable CSS targeting elements inside the stage when shift is held
+      stage.classList.add('shift-selection-mode');
+    }
+  }
+  
+  // Function to handle shift key up
+  function handleShiftUp(e) {
+    if (e.key === 'Shift' && isShiftDown) {
+      isShiftDown = false;
+      // Restore original cursor style
+      stage.style.cursor = originalCursorStyle;
+      // Remove the class
+      stage.classList.remove('shift-selection-mode');
+    }
+  }
+  
+  // Add keydown/keyup listeners to document
+  document.addEventListener('keydown', handleShiftDown);
+  document.addEventListener('keyup', handleShiftUp);
+  
+  // Handle cases where focus might be lost while shift is down
+  window.addEventListener('blur', () => {
+    if (isShiftDown) {
+      isShiftDown = false;
+      stage.style.cursor = originalCursorStyle;
+      stage.classList.remove('shift-selection-mode');
+    }
+  });
 }
 
 /**
@@ -3830,3 +3883,4 @@ window.updateDeleteSelectedButton = updateDeleteSelectedButton;
 window.deleteSelectedElements = deleteSelectedElements;
 window.initDeleteSelectedButton = initDeleteSelectedButton;
 window.updateStageSelectionState = updateStageSelectionState;
+window.initShiftCursorStyle = initShiftCursorStyle;
