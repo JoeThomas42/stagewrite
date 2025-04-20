@@ -226,13 +226,13 @@
   }
 
   #elements-list {
-    background-color: var(--color-background-light);
+    background-color: var(--color-background-dark);
     border-color: var(--color-input-border);
     color: var(--color-text);
   }
 
   .accordion-header {
-    background-color: var(--color-primary-header);
+    background-color: var(--color-background-light);
 
     &:hover {
       background-color: var(--color-table-hover);

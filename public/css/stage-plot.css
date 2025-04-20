@@ -5,7 +5,7 @@
 
 @import url('_variables.css');
 
-/* -------------------- Stage Plot Container --------------------- */
+/* -------------------- Stage Plot / Stage Info Containers Global --------------------- */
 #stage-plot-container {
   background-color: var(--color-background-light);
   border: 1px solid var(--color-border);
@@ -18,57 +18,58 @@
   overflow: hidden;
   padding: var(--spacing-lg);
   transition: all var(--transition-medium);
+  
+}
+
+#stage-plot-container,
+#stage-info-container {
+  h2 {
+    background-color: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+    border-top-left-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-inset-md);
+    flex-shrink: 0;
+    font-size: var(--font-size-xl);
+    padding: var(--spacing-md) var(--spacing-lg);
+    position: sticky;
+    text-align: center;
+    top: 0;
+    z-index: 10;
+
+    + p {
+      color: var(--color-text-light);
+      font-size: var(--font-size-sm);
+      font-weight: 300;
+      margin: var(--spacing-xs) 0;
+    }
+  }
 }
 
 /* -------------------- Elements Panel --------------------- */
-#elements-header {
-  align-items: center;
-  background-color: var(--color-background);
+
+#elements-panel {
+  background-color: var(--color-background-light);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
-  /* display: grid;
-  row-gap: var(--spacing-lg);
-  grid-template:
-    "header categories" 30px
-    "info info" 12px
-    / 1fr 1fr;
-  column-gap: var(--spacing-md);
-  justify-content: space-between; */
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-lg);
-  text-align: center;
-
-  h2 {
-    /* grid-area: header; */
-  }
-
-  .custom-dropdown {
-    /* grid-area: categories; */
-  }
-
-  p {
-    color: var(--color-text-light);
-    /* grid-area: info; */
-    margin: var(--spacing-xs) 0 0;
-  }
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 #elements-list {
-  background-color: var(--color-white);
+  background-color: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   box-shadow: inset var(--shadow-inset-md);
+  margin: 0 var(--spacing-md) var(--spacing-md);
   max-height: 900px;
   max-width: 330px;
   overflow-y: auto;
   padding: var(--spacing-md);
   scrollbar-width: thin;
   width: 330px;
-}
-
-#elements-panel {
-  flex: 1;
 }
 
 .category-section {
@@ -160,9 +161,7 @@
 /* Accordion item */
 .accordion-item {
   margin-bottom: var(--spacing-xs);
-  background-color: var(--color-background-light);
   border-radius: var(--border-radius-sm);
-  /* overflow: hidden; */
 }
 
 /* Accordion header */
@@ -384,6 +383,10 @@
   flex-direction: column;
   max-width: 900px;
   padding: var(--spacing-md);
+
+  h2 {
+    border-radius: var(--border-radius-lg);
+  }
 }
 
 #plot-title {
@@ -932,20 +935,11 @@ body.duplicating-element * {
   display: flex;
   gap: var(--spacing-lg);
   margin: 0 0 var(--spacing-lg);
-
-  p {
-    color: var(--color-text-light);
-    font-size: var(--font-size-sm);
-    font-weight: 300;
-    margin: var(--spacing-xs) 0;
-  }
 }
 
 #input-list,
 #element-info-list {
   border-radius: var(--border-radius-lg);
-  /* border-bottom-left-radius: var(--border-radius-lg);
-  border-bottom-right-radius: var(--border-radius-lg); */
   box-shadow: inset var(--shadow-inset-md);
   margin: 0 var(--spacing-md);
 }
@@ -962,22 +956,6 @@ body.duplicating-element * {
   max-height: 500px;
   min-width: 300px;
   position: relative;
-}
-
-.input-list-section h2,
-.element-info h2 {
-  background-color: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
-  border-top-left-radius: var(--border-radius-lg);
-  border-top-right-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-inset-md);
-  flex-shrink: 0;
-  font-size: var(--font-size-xl);
-  padding: var(--spacing-md) var(--spacing-lg);
-  position: sticky;
-  text-align: center;
-  top: 0;
-  z-index: 10;
 }
 
 .input-grid {
@@ -1002,7 +980,7 @@ body.duplicating-element * {
   gap: var(--spacing-sm);
   
   label {
-    display: none; /* Hide label, using placeholder */
+    display: none;
   }
   
   input[type="text"] {
