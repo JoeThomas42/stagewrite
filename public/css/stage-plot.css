@@ -432,6 +432,10 @@
   }
 }
 
+#stage.has-selection .placed-element {
+  cursor: pointer;
+}
+
 #stage.has-selection .placed-element:not(.selected) .element-actions {
   opacity: 0;
   pointer-events: none;
@@ -687,6 +691,7 @@ body.dragging-on-stage * {
 }
 
 #stage.has-selection .element-actions {
+  display: none;
   opacity: 0;
 }
 

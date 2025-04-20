@@ -1786,8 +1786,10 @@ function deleteSelectedElements(plotState) {
       // Clear selection array
       plotState.selectedElements = [];
       
-      // Update button visibility
-      updateDeleteSelectedButton(plotState);
+      // Update stage selection state (this is the key fix)
+      updateStageSelectionState(plotState);
+      
+      // The button visibility is already updated by updateStageSelectionState
     },
     {
       confirmText: 'Confirm',
