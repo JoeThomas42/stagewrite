@@ -646,10 +646,10 @@ th.sortable {
 h2 span,
 h3 span,
 #stage-area span:not(.action-icon) {
-  color: var(--color-text-light);
+  /* color: var(--color-text-light);
   font-size: var(--font-size-sm);
   font-weight: 300;
-  text-align: center;
+  text-align: center; */
 }
 
 /* -------------------- Custom Dropdowns --------------------- */

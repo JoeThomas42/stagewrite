@@ -48,7 +48,7 @@ if ($isLoggedIn) {
   <div id="elements-panel">
     <div id="elements-header">
       <h2>Stage Elements</h2>
-      <select id="category-filter">
+      <!-- <select id="category-filter">
         <option value="0">All Categories</option>
         <?php if ($favoritesCategory): // Add Favorites second if it exists 
         ?>
@@ -59,7 +59,7 @@ if ($isLoggedIn) {
         ?>
           <option value="<?= $category['category_id'] ?>"><?= htmlspecialchars($category['category_name']) ?></option>
         <?php endforeach; ?>
-      </select>
+      </select> -->
       <p>Drag elements to the stage</p>
     </div>
 
@@ -208,11 +208,12 @@ if ($isLoggedIn) {
   </div>
 </div>
 
+<!-- Input / Elements List Section -->
 <div id="stage-info-container">
   <div class="input-list-section">
-    <h2>Aux Input List
-      <br><span>Keep track of additional a/v inputs</span>
-    </h2>
+    <h2>Aux Input List</h2>
+    <p><span>Keep track of additional a/v inputs</span></p>
+
     <div id="input-list" class="input-grid"></div>
     <datalist id="input-suggestions"></datalist>
     <button id="add-input-line" class="primary-button add-line-button">
@@ -221,9 +222,9 @@ if ($isLoggedIn) {
   </div>
 
   <div class="element-info">
-    <h2>Stage Element List
-      <br><span>Click on an element to edit or remove</span>
-    </h2>
+    <h2>Stage Element List</h2>
+    <p><span>Click on an element to edit or remove</span></p>
+    
     <ol id="element-info-list">
       <li class="no-elements-message">No elements placed yet.</li>
     </ol>
