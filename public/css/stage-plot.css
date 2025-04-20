@@ -683,7 +683,7 @@ body.dragging-on-stage * {
 
 .placed-element.selected {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light), var(--shadow-lg);
+  box-shadow: 0 0 0 3px var(--color-primary), var(--shadow-lg);
 }
 
 #stage.has-selection .element-actions {
@@ -697,10 +697,6 @@ body.dragging-on-stage * {
 
 .shift-selection-mode .placed-element {
   cursor: pointer !important;
-}
-
-.shift-selection-mode .placed-element:hover {
-  box-shadow: 0 0 0 2px var(--color-primary-light), var(--shadow-lg) !important;
 }
 
 /* Element Duplication */

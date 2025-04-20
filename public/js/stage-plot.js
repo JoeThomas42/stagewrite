@@ -44,7 +44,7 @@ function initStageEditor() {
   initInputList(plotState);
   initElementInfoListEvents(plotState);
   initDeleteSelectedButton(plotState);
-  initShiftCursorStyle(plotState);
+  initShiftCursorStyle();
 
   // Expose render function to plotState
   plotState.renderElementInfoList = () => renderElementInfoList(plotState);
@@ -1266,7 +1266,7 @@ function initLassoSelection(plotState) {
  * Initialize shift key cursor style
  * @param {Object} plotState - The current plot state
  */
-function initShiftCursorStyle(plotState) {
+function initShiftCursorStyle() {
   const stage = document.getElementById('stage');
   if (!stage) return;
   
