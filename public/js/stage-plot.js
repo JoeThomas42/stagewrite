@@ -3842,13 +3842,13 @@ function initInputList(plotState) {
 
     const numberSpan = document.createElement('span');
     numberSpan.className = 'input-number';
-    numberSpan.textContent = `${number}.`;
+    numberSpan.textContent = `A${number}.`;
 
     const labelInput = document.createElement('input');
     labelInput.type = 'text';
-    labelInput.name = `input_label_${number}`;
-    labelInput.id = `input_label_${number}`;
-    labelInput.placeholder = `Input ${number} Label`;
+    labelInput.name = `input_label_A${number}`;
+    labelInput.id = `input_label_A${number}`;
+    labelInput.placeholder = `Input A${number} Label`;
     labelInput.value = label;
     labelInput.maxLength = 50; // Match database schema
     labelInput.setAttribute('list', 'input-suggestions'); // Connect to datalist
