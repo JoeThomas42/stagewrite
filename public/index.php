@@ -317,7 +317,7 @@ if ($isLoggedIn) {
       <h2>Save Plot</h2>
 
       <!-- New plot name input -->
-      <div class="save-section new-plot-section">
+      <div class="new-plot-section">
         <form id="save-new-plot-form">
           <label for="plot_name">Plot Name:</label>
           <input type="text" id="plot_name" name="plot_name" maxlength="20">
@@ -328,10 +328,9 @@ if ($isLoggedIn) {
       </div>
 
       <!-- Existing plots section -->
-      <div class="save-section existing-plots-section">
-        <h3>Overwrite Existing Plot
-          <br><span>Use new name entered above or leave empty to reuse existing name</span>
-        </h3>
+      <div class="existing-plots-section">
+        <h2>Overwrite Existing Plot</h2>
+        <p>Use new name entered above or leave empty to reuse existing name</p>
         <div class="existing-plots-list">
           <!-- Will be populated via JavaScript -->
           <p class="loading-message">Loading your saved plots...</p>

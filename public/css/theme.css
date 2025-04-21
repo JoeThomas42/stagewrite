@@ -280,6 +280,10 @@
     color: var(--color-grey-3);
   }
 
+  .existing-plots-section {
+    background-color: var(--color-background-dark);
+  }
+
   /* ----- Plot Elements ----- */
   .draggable-element img,
   .placed-element img {

@@ -1161,17 +1161,6 @@ body.duplicating-element * {
   margin-bottom: var(--spacing-xs);
 }
 
-.plots-list,
-.existing-plots-list {
-  list-style: none;
-  margin: 0;
-  height: auto;
-  max-height: min(400px, 50vh);
-  overflow-y: auto;
-  padding: 0;
-}
-
-.plots-list,
 .saved-plots-list {
   padding-right: var(--spacing-md);
 }
@@ -1184,13 +1173,77 @@ body.duplicating-element * {
 }
 
 /* -------------------- Save & Load Specific Sections --------------------- */
-.existing-plots-section,
-.saved-plots-list,
-.save-section {
+.new-plot-section{
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  
+  label {
+    font-size: var(--font-size-md);
+    margin: 0;
+  }
+}
+
+.existing-plots-section {
+  flex: 1;
+  min-width: 300px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin: 0;
+  max-height: 500px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  
+  h2 {
+    text-align: center;
+
+    background-color: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+    border-top-left-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+    font-size: var(--font-size-xl);
+    margin: 0;
+    padding: var(--spacing-md) var(--spacing-lg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+  }
+  
+  p {
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+    font-weight: 300;
+    margin: var(--spacing-xs) 0;
+  }
+  
+  .existing-plots-list {
+    border-radius: var(--border-radius-lg);
+    box-shadow: inset var(--shadow-inset-md);
+    list-style: none;
+    margin: 0 var(--spacing-sm);
+    padding: var(--spacing-lg);
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .plots-list {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.saved-plots-list {
   box-shadow: inset var(--shadow-md);
 }
 
-.save-section,
 .saved-plots-list {
   background-color: var(--color-background);
   border-radius: var(--border-radius-lg);
@@ -1198,8 +1251,7 @@ body.duplicating-element * {
   max-height: min(80vh, 500px);
   padding: var(--spacing-md);
   
-  h3,
-  label {
+  h3 {
     color: var(--color-primary);
     font-size: var(--font-size-lg);
     margin: 0 0 var(--spacing-sm);
