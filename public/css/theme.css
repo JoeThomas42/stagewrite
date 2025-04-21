@@ -225,6 +225,11 @@
     }
   }
 
+  .new-plot-section,
+  .existing-plots-section h2 {
+    background-color: var(--color-background);
+  }
+
   #plot-title {
     color: var(--color-text);
   }

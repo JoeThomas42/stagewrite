@@ -1173,7 +1173,7 @@ body.duplicating-element * {
 
 /* -------------------- Save & Load Specific Sections --------------------- */
 .new-plot-section{
-  background-color: var(--color-background);
+  background-color: var(--color-card-hover);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
@@ -1201,7 +1201,7 @@ body.duplicating-element * {
   h2 {
     text-align: center;
 
-    background-color: var(--color-background);
+    background-color: var(--color-card-hover);
     border-bottom: 1px solid var(--color-border);
     border-top-left-radius: var(--border-radius-lg);
     border-top-right-radius: var(--border-radius-lg);
