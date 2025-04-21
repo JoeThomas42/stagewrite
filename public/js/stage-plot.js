@@ -1764,85 +1764,80 @@ function makeDraggableOnStage(element, plotState) {
 
     if (isDuplicating && ghostElements.length > 0) {
       // Create actual duplicates at ghost positions
-      const newElementIds = []; // Array to track the new element IDs
+      const newElementIds = [];
+      const hadPriorSelection = isDraggingGroup;
       const duplicatePromises = ghostElements.map((ghostData) => {
         const ghost = ghostData.ghost;
         const source = ghostData.source;
         const elementId = parseInt(source.getAttribute('data-id'));
         const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-
+    
         if (elementIndex !== -1) {
           // Get final position of ghost
           const ghostRect = ghost.getBoundingClientRect();
           const finalLeft = ghostRect.left - stageRect.left;
           const finalTop = ghostRect.top - stageRect.top;
-
+    
           // Generate a new unique ID
           const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
-
-          // Store the new ID for later selection
           newElementIds.push(newElementId);
-
+    
           // Clone the element data
           const sourceElement = plotState.elements[elementIndex];
           const newElementData = {
-            ...JSON.parse(JSON.stringify(sourceElement)), // Deep clone
-            id: newElementId, // Assign new ID
-            x: finalLeft, // Use ghost position
+            ...JSON.parse(JSON.stringify(sourceElement)),
+            id: newElementId,
+            x: finalLeft,
             y: finalTop,
-            zIndex: plotState.nextZIndex++, // Assign next Z-index
+            zIndex: plotState.nextZIndex++,
           };
-
-          // Add to state
+    
           plotState.elements.push(newElementData);
-
-          // Create the DOM element
           return createPlacedElement(newElementData, plotState);
         }
         return Promise.resolve();
       });
-
+    
       // Clean up ghost elements
       ghostElements.forEach((ghostData) => {
         ghostData.ghost.remove();
       });
       ghostElements = [];
-
+    
       // Remove the duplication class from all source elements
       sourceElements.forEach((el) => {
         el.classList.remove('is-being-duplicated');
-        // Also remove selected class from original elements
         el.classList.remove('selected');
       });
       sourceElements = [];
-
-      // Wait for all duplicates to be created, then select them
+    
+      // Wait for all duplicates to be created, then select them only if there was a prior selection
       Promise.all(duplicatePromises).then(() => {
-        // Clear previous selection
-        plotState.selectedElements = [];
-
-        // Select all the new elements
-        newElementIds.forEach((id) => {
-          const newElement = document.querySelector(`.placed-element[data-id="${id}"]`);
-          if (newElement) {
-            newElement.classList.add('selected');
-            plotState.selectedElements.push(id);
-          }
-        });
-
-        // Update UI
-        updateStageSelectionState(plotState);
+        if (hadPriorSelection) {
+          plotState.selectedElements = [];
+    
+          newElementIds.forEach((id) => {
+            const newElement = document.querySelector(`.placed-element[data-id="${id}"]`);
+            if (newElement) {
+              newElement.classList.add('selected');
+              plotState.selectedElements.push(id);
+            }
+          });
+    
+          updateStageSelectionState(plotState);
+        } else {
+          updateStageSelectionState(plotState);
+        }
+        
         renderElementInfoList(plotState);
         markPlotAsModified(plotState);
       });
     } else {
-      // Standard drag operation without duplication
       const finalPrimaryRect = element.getBoundingClientRect();
       const finalPrimaryLeft = finalPrimaryRect.left - stageRect.left;
       const finalPrimaryTop = finalPrimaryRect.top - stageRect.top;
 
       if (isDraggingGroup) {
-        // Update all elements based on the final position
         groupOffsets.forEach((offsetData) => {
           const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
           if (elementStateIndex !== -1) {
@@ -1860,7 +1855,7 @@ function makeDraggableOnStage(element, plotState) {
         }
       }
 
-      markPlotAsModified(plotState); // Mark modified after drag ends
+      markPlotAsModified(plotState);
     }
 
     // Clean up listeners
