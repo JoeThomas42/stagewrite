@@ -216,7 +216,7 @@
   margin: var(--spacing-sm) 0 0;
   max-height: 0;
   overflow: hidden;
-  padding: 0 var(--spacing-sm) 0 0;
+  padding: 0 var(--spacing-md) 0 0;
   transition: all var(--transition-medium);
   
   &.expanded {
