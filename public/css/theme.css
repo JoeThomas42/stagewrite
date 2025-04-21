@@ -217,12 +217,25 @@
   }
 
   /* ----- Containers / Sections ----- */
+  #stage-plot-container,
+  #stage-info-container {
+    h2 {
+      background-color: var(--color-background);
+      color: var(--color-text);
+    }
+  }
+
   #plot-title {
     color: var(--color-text);
   }
   
   .category-section h3 {
     color: var(--color-grey-5);
+  }
+
+  .input-list-section,
+  .element-info {
+    border: 1px solid var(--color-border);
   }
 
   #elements-list {

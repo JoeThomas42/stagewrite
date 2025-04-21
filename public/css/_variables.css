@@ -46,6 +46,7 @@
   /* Text */
   --color-text: #333;
   --color-text-light: #666;
+  --color-text-lightest: #e1e1e1;
   --color-text-secondary: #555;
 
   /* Alerts */

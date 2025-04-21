@@ -24,7 +24,8 @@
 #stage-plot-container,
 #stage-info-container {
   h2 {
-    background-color: var(--color-background);
+    background-color: var(--color-primary);
+    color: var(--color-white);
     border-bottom: 1px solid var(--color-border);
     border-top-left-radius: var(--border-radius-lg);
     border-top-right-radius: var(--border-radius-lg);
@@ -929,7 +930,6 @@ body.duplicating-element * {
 /* ----- Input List Section ----- */
 .input-list-section {
   background-color: var(--color-background-light);
-  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -982,7 +982,6 @@ body.duplicating-element * {
   flex: 1;
   min-width: 300px;
   background-color: var(--color-background-light);
-  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   max-height: 500px;
