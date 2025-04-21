@@ -83,6 +83,24 @@ function initPrintAndShare(initialPlotState) {
   // Open share modal (for index.php button)
   if (shareButton && shareModal) {
     shareButton.addEventListener('click', () => {
+      // Check for the "Save Changes" button visibility instead of just isModified flag
+      const saveChangesButton = document.getElementById('save-changes');
+      const hasUnsavedChanges = saveChangesButton && (
+        saveChangesButton.classList.contains('visible') || 
+        window.getComputedStyle(saveChangesButton).opacity !== '0'
+      );
+      
+      if (hasUnsavedChanges) {
+        // Highlight the save changes button to draw attention to it
+        if (saveChangesButton) {
+          saveChangesButton.classList.add('highlight-button');
+          setTimeout(() => saveChangesButton.classList.remove('highlight-button'), 2000);
+        }
+        
+        showNotification('Save changes before sharing!', 'warning');
+        return; // Don't open modal if there are unsaved changes
+      }
+      
       // Ensure the state is current when opening from index.php
       if (document.getElementById('stage')) {
         window.plotState = buildCurrentPlotState(); // Rebuild state from UI
