@@ -264,6 +264,11 @@ if ($isLoggedIn) {
 
         <div class="form-row">
           <div class="form-group">
+            <label for="venue_city">City:</label>
+            <input type="text" id="venue_city" name="venue_city" maxlength="100">
+          </div>
+          
+          <div class="form-group">
             <label for="venue_state_id">State:</label>
             <select id="venue_state_id" name="venue_state_id">
               <option value="" selected disabled>Select State</option>
@@ -274,11 +279,6 @@ if ($isLoggedIn) {
               }
               ?>
             </select>
-          </div>
-
-          <div class="form-group">
-            <label for="venue_city">City:</label>
-            <input type="text" id="venue_city" name="venue_city" maxlength="100">
           </div>
 
           <div class="form-group">

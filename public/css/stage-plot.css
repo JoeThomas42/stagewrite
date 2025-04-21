@@ -554,6 +554,7 @@
 }
 
 /* -------------------- Placed Elements --------------------- */
+
 /* Prevent browser highlight of elements */
 #stage, 
 .placed-element, 
@@ -899,7 +900,8 @@ body.duplicating-element * {
 }
 
 .grid-overlay {
-  background-image: linear-gradient(to right, rgba(82, 108, 129, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(82, 108, 129, 0.1) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(82, 108, 129, 0.1) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(82, 108, 129, 0.1) 1px, transparent 1px);
   background-size: 50px 50px;
   height: 100%;
   left: 0;
