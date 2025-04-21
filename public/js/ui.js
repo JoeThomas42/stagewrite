@@ -21,19 +21,19 @@ function setupConfirmButton(button, confirmAction, options = {}) {
   const timeout = options.timeout || 3000;
   const originalText = options.originalText || button.innerHTML;
   const originalTitle = options.originalTitle || button.getAttribute('title') || '';
-  
+
   // Handle event propagation if specified
   if (options.stopPropagation && options.event) {
     options.event.stopPropagation();
   }
-  
+
   if (button.classList.contains('confirming')) {
     // This is the second click (confirmation)
     confirmAction();
-    
+
     // Reset button appearance after action
     button.classList.remove('confirming');
-    
+
     // Restore the original content after a small delay
     setTimeout(() => {
       button.innerHTML = originalText;
@@ -42,10 +42,10 @@ function setupConfirmButton(button, confirmAction, options = {}) {
   } else {
     // This is the first click - first add the class then change content
     const originalContent = button.innerHTML;
-    
+
     // Add class first to trigger width transition
     button.classList.add('confirming');
-    
+
     // Change content after a small delay to let width transition start
     setTimeout(() => {
       if (options.confirmText) {
@@ -55,13 +55,13 @@ function setupConfirmButton(button, confirmAction, options = {}) {
         button.setAttribute('title', options.confirmTitle);
       }
     }, 50);
-    
+
     // Reset after a timeout if not clicked
     setTimeout(() => {
       if (button.classList.contains('confirming')) {
         // First remove the class to trigger width transition
         button.classList.remove('confirming');
-        
+
         // After transition starts, restore original content
         setTimeout(() => {
           button.innerHTML = originalContent;
@@ -77,45 +77,43 @@ function setupConfirmButton(button, confirmAction, options = {}) {
  */
 function initDropdownMenus() {
   // Toggle dropdown when clicking dropdown toggle button
-  document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('dropdown-toggle') || 
-        e.target.parentNode.classList.contains('dropdown-toggle')) {
-      
+  document.addEventListener('click', function (e) {
+    if (e.target.classList.contains('dropdown-toggle') || e.target.parentNode.classList.contains('dropdown-toggle')) {
       // Close all other dropdowns first
-      document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+      document.querySelectorAll('.dropdown-menu.active').forEach((menu) => {
         if (!menu.closest('.dropdown').contains(e.target)) {
           menu.classList.remove('active');
         }
       });
-      
+
       // Toggle clicked dropdown
       const dropdown = e.target.closest('.dropdown');
       const menu = dropdown.querySelector('.dropdown-menu');
       menu.classList.toggle('active');
-      
+
       e.preventDefault();
       e.stopPropagation();
-    } 
+    }
     // Close all dropdowns when clicking outside
     else if (!e.target.closest('.dropdown')) {
-      document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+      document.querySelectorAll('.dropdown-menu.active').forEach((menu) => {
         menu.classList.remove('active');
       });
     }
   });
 
   // Make dropdowns work with keyboard navigation
-  document.querySelectorAll('.dropdown-toggle').forEach(button => {
-    button.addEventListener('keydown', function(e) {
+  document.querySelectorAll('.dropdown-toggle').forEach((button) => {
+    button.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
         const menu = this.nextElementSibling;
         menu.classList.toggle('active');
-        
+
         if (menu.classList.contains('active')) {
           const firstLink = menu.querySelector('a');
           if (firstLink) firstLink.focus();
         }
-        
+
         e.preventDefault();
       }
     });
@@ -128,24 +126,24 @@ function initDropdownMenus() {
 function initMobileMenu() {
   const mobileToggle = document.querySelector('.mobile-menu-toggle');
   const navContainer = document.getElementById('nav-container');
-  
+
   if (mobileToggle && navContainer) {
-    mobileToggle.addEventListener('click', function() {
+    mobileToggle.addEventListener('click', function () {
       this.classList.toggle('active');
       navContainer.classList.toggle('active');
-      
+
       // Toggle body scroll when menu is open
       document.body.classList.toggle('menu-open');
-      
+
       // Set aria-expanded attribute for accessibility
       const isExpanded = navContainer.classList.contains('active');
       this.setAttribute('aria-expanded', isExpanded);
     });
-    
+
     // Close mobile menu when clicking links
     const navLinks = navContainer.querySelectorAll('a');
-    navLinks.forEach(link => {
-      link.addEventListener('click', function() {
+    navLinks.forEach((link) => {
+      link.addEventListener('click', function () {
         mobileToggle.classList.remove('active');
         navContainer.classList.remove('active');
         document.body.classList.remove('menu-open');
@@ -159,24 +157,24 @@ function initMobileMenu() {
  */
 function initSortableTables() {
   const sortableHeaders = document.querySelectorAll('th.sortable');
-  
-  sortableHeaders.forEach(header => {
-    header.addEventListener('click', function(e) {
+
+  sortableHeaders.forEach((header) => {
+    header.addEventListener('click', function (e) {
       // Store current scroll position before navigating
       sessionStorage.setItem('scrollPosition', window.pageYOffset);
-      
+
       // Show loading overlay
       const overlay = document.createElement('div');
       overlay.className = 'sort-loading-overlay';
       document.body.appendChild(overlay);
-      
+
       const column = this.getAttribute('data-column');
-      
+
       // Get current URL and params
       const url = new URL(window.location);
       const currentSort = url.searchParams.get('sort');
       const currentOrder = url.searchParams.get('order');
-      
+
       // Determine new sort state (3-state toggle)
       if (currentSort === column && currentOrder === 'asc') {
         // First click on this column -> sort descending
@@ -191,9 +189,9 @@ function initSortableTables() {
         url.searchParams.set('sort', column);
         url.searchParams.set('order', 'asc');
       }
-      
+
       // Add a small delay to ensure the overlay is visible
-      setTimeout(function() {
+      setTimeout(function () {
         // Navigate to the new URL
         window.location = url.toString();
       }, 50);
@@ -220,45 +218,45 @@ function initTableFilters() {
 function setupTableFilter(searchId, tableId, tableType) {
   const searchInput = document.getElementById(searchId);
   if (!searchInput) return; // Skip if element doesn't exist on current page
-  
+
   const table = document.getElementById(tableId);
   if (!table) return;
-  
+
   let searchTimer;
-  
+
   // Add event listener for real-time filtering
-  searchInput.addEventListener('input', function() {
-      const searchTerm = this.value.trim();
-      
-      // Clear previous timer
-      clearTimeout(searchTimer);
-      
-      // Set a slight delay to prevent too many requests
-      searchTimer = setTimeout(function() {
-          // Fetch filtered data from server
-          fetch(`/handlers/filter_tables.php?table=${tableType}&query=${encodeURIComponent(searchTerm)}`)
-              .then(response => response.json())
-              .then(data => {
-                  if (data.success) {
-                      updateTableWithFilteredData(table, data.data, tableType);
-                  } else {
-                      console.error('Error filtering table:', data.error);
-                  }
-              })
-              .catch(error => {
-                  console.error('Error fetching filtered data:', error);
-              });
-      }, 300);
+  searchInput.addEventListener('input', function () {
+    const searchTerm = this.value.trim();
+
+    // Clear previous timer
+    clearTimeout(searchTimer);
+
+    // Set a slight delay to prevent too many requests
+    searchTimer = setTimeout(function () {
+      // Fetch filtered data from server
+      fetch(`/handlers/filter_tables.php?table=${tableType}&query=${encodeURIComponent(searchTerm)}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            updateTableWithFilteredData(table, data.data, tableType);
+          } else {
+            console.error('Error filtering table:', data.error);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching filtered data:', error);
+        });
+    }, 300);
   });
-  
+
   // Add clear button functionality
   const clearIcon = searchInput.parentNode.querySelector('.clear-icon');
   if (clearIcon) {
-      clearIcon.addEventListener('click', function() {
-          searchInput.value = '';
-          searchInput.dispatchEvent(new Event('input')); // Trigger filtering
-          searchInput.focus();
-      });
+    clearIcon.addEventListener('click', function () {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input')); // Trigger filtering
+      searchInput.focus();
+    });
   }
 }
 
@@ -267,58 +265,58 @@ function updateTableWithFilteredData(table, data, tableType) {
   // Get the header row (first row)
   const headerRow = table.rows[0];
   const headerCells = headerRow ? headerRow.cells.length : 0;
-  
+
   // Clear all rows except header
   while (table.rows.length > 1) {
-      table.deleteRow(1);
+    table.deleteRow(1);
   }
-  
+
   // If no results, show message
   if (data.length === 0) {
-      const row = table.insertRow();
-      const cell = row.insertCell(0);
-      cell.colSpan = headerCells;
-      cell.className = 'no-results-message';
-      cell.textContent = 'No matching results found';
-      return;
+    const row = table.insertRow();
+    const cell = row.insertCell(0);
+    cell.colSpan = headerCells;
+    cell.className = 'no-results-message';
+    cell.textContent = 'No matching results found';
+    return;
   }
-  
+
   // Add rows for each data item
-  data.forEach(item => {
-      const row = table.insertRow();
-      
-      if (tableType === 'members' || tableType === 'admins') {
-          // User row
-          addCell(row, item.user_id, 'ID');
-          addCell(row, `${item.first_name} ${item.last_name}`, 'Name');
-          addCell(row, item.email, 'Email');
-          addCell(row, item.is_active ? 'Active' : 'Inactive', 'Status');
-          
-          // Add actions cell
-          const actionsCell = row.insertCell();
-          actionsCell.className = 'action-cell';
-          actionsCell.setAttribute('data-label', 'Actions');
-          
-          if (tableType === 'members') {
-              actionsCell.innerHTML = createMemberActionsDropdown(item);
-          } else {
-              actionsCell.innerHTML = createAdminActionsDropdown(item);
-          }
-      } else if (tableType === 'venues') {
-          // Venue row
-          addCell(row, item.venue_id, 'ID');
-          addCell(row, item.venue_name, 'Name');
-          addCell(row, item.venue_city || '—', 'City');
-          addCell(row, item.state_abbr || '—', 'State');
-          
-          // Add actions cell
-          const actionsCell = row.insertCell();
-          actionsCell.className = 'action-cell';
-          actionsCell.setAttribute('data-label', 'Actions');
-          actionsCell.innerHTML = createVenueActionsDropdown(item);
+  data.forEach((item) => {
+    const row = table.insertRow();
+
+    if (tableType === 'members' || tableType === 'admins') {
+      // User row
+      addCell(row, item.user_id, 'ID');
+      addCell(row, `${item.first_name} ${item.last_name}`, 'Name');
+      addCell(row, item.email, 'Email');
+      addCell(row, item.is_active ? 'Active' : 'Inactive', 'Status');
+
+      // Add actions cell
+      const actionsCell = row.insertCell();
+      actionsCell.className = 'action-cell';
+      actionsCell.setAttribute('data-label', 'Actions');
+
+      if (tableType === 'members') {
+        actionsCell.innerHTML = createMemberActionsDropdown(item);
+      } else {
+        actionsCell.innerHTML = createAdminActionsDropdown(item);
       }
+    } else if (tableType === 'venues') {
+      // Venue row
+      addCell(row, item.venue_id, 'ID');
+      addCell(row, item.venue_name, 'Name');
+      addCell(row, item.venue_city || '—', 'City');
+      addCell(row, item.state_abbr || '—', 'State');
+
+      // Add actions cell
+      const actionsCell = row.insertCell();
+      actionsCell.className = 'action-cell';
+      actionsCell.setAttribute('data-label', 'Actions');
+      actionsCell.innerHTML = createVenueActionsDropdown(item);
+    }
   });
-  
+
   // Re-initialize dropdown menus and action buttons
   initDropdownMenus();
   initUserRemoval();
@@ -365,7 +363,7 @@ function createAdminActionsDropdown(user) {
 
 function createVenueActionsDropdown(venue) {
   if (venue.venue_id == 1) {
-      return `
+    return `
           <div class="dropdown">
               <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
               <div class="dropdown-menu">
@@ -374,7 +372,7 @@ function createVenueActionsDropdown(venue) {
           </div>
       `;
   } else {
-      return `
+    return `
           <div class="dropdown">
               <button class="dropdown-toggle">Actions <span class="dropdown-arrow">▼</span></button>
               <div class="dropdown-menu">
@@ -395,11 +393,11 @@ function createVenueActionsDropdown(venue) {
  */
 function filterTable(searchQuery, rows, columnIndexes, table) {
   searchQuery = searchQuery.toLowerCase().trim();
-  
+
   // Show all rows if search is empty
   if (searchQuery === '') {
-    rows.forEach(row => row.style.display = '');
-    
+    rows.forEach((row) => (row.style.display = ''));
+
     // Remove any "no results" message
     const noResultsMsg = table.querySelector('.no-results-message');
     if (noResultsMsg) {
@@ -407,14 +405,14 @@ function filterTable(searchQuery, rows, columnIndexes, table) {
     }
     return;
   }
-  
+
   // Filter rows
   let visibleCount = 0;
-  rows.forEach(row => {
+  rows.forEach((row) => {
     let match = false;
-    
+
     // Check each relevant column
-    columnIndexes.forEach(index => {
+    columnIndexes.forEach((index) => {
       const cell = row.cells[index];
       if (cell) {
         const text = cell.textContent.toLowerCase();
@@ -423,15 +421,15 @@ function filterTable(searchQuery, rows, columnIndexes, table) {
         }
       }
     });
-    
+
     // Show/hide row based on match
     row.style.display = match ? '' : 'none';
     if (match) visibleCount++;
   });
-  
+
   // Display message if no results found
   let noResultsMsg = table.querySelector('.no-results-message');
-  
+
   if (visibleCount === 0) {
     if (!noResultsMsg) {
       noResultsMsg = document.createElement('tr');
@@ -454,23 +452,23 @@ function filterTable(searchQuery, rows, columnIndexes, table) {
  */
 function initTableInteractions() {
   // Set up pagination links to preserve scroll position
-  document.querySelectorAll('.pagination-link:not(.disabled)').forEach(link => {
-    link.addEventListener('click', function(e) {
+  document.querySelectorAll('.pagination-link:not(.disabled)').forEach((link) => {
+    link.addEventListener('click', function (e) {
       e.preventDefault();
-      
+
       // Store current scroll position before navigating
       sessionStorage.setItem('scrollPosition', window.pageYOffset);
-      
+
       // Show loading overlay
       const overlay = document.createElement('div');
       overlay.className = 'sort-loading-overlay';
       document.body.appendChild(overlay);
-      
+
       // Get the destination URL
       const destinationUrl = this.getAttribute('href');
-      
+
       // Add a small delay to ensure the overlay is visible
-      setTimeout(function() {
+      setTimeout(function () {
         // Continue with navigation to the pagination URL
         window.location.href = destinationUrl;
       }, 50);
@@ -486,18 +484,18 @@ function initTableInteractions() {
 function initCustomDropdowns() {
   // Find all select elements to convert
   const selects = document.querySelectorAll('select:not(.no-custom)');
-  
-  selects.forEach(select => {
+
+  selects.forEach((select) => {
     createCustomDropdown(select);
   });
-  
+
   // Close all dropdowns when clicking outside
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.custom-dropdown')) {
       closeAllDropdowns();
     }
   });
-  
+
   // Handle keyboard navigation
   document.addEventListener('keydown', handleDropdownKeyboard);
 }
@@ -512,45 +510,45 @@ function createCustomDropdown(select) {
   dropdown.className = 'custom-dropdown';
   dropdown.setAttribute('tabindex', '0');
   dropdown.setAttribute('data-id', select.id || generateUniqueId());
-  
+
   // Create dropdown header
   const header = document.createElement('div');
   header.className = 'custom-dropdown-header';
-  
+
   // Create selected option display
   const selectedOption = document.createElement('div');
   selectedOption.className = 'selected-option';
-  
+
   // Create dropdown arrow
   const arrow = document.createElement('span');
   arrow.className = 'custom-dropdown-arrow';
   arrow.innerHTML = '▼';
-  
+
   header.appendChild(selectedOption);
   header.appendChild(arrow);
   dropdown.appendChild(header);
-  
+
   // Create dropdown menu
   const menu = document.createElement('div');
   menu.className = 'custom-dropdown-menu';
   dropdown.appendChild(menu);
-  
+
   // Hide original select
   select.style.display = 'none';
   select.setAttribute('aria-hidden', 'true');
-  
+
   // Insert custom dropdown next to the original select
   select.parentNode.insertBefore(dropdown, select);
-  
+
   // Move the original select inside our custom dropdown (hidden)
   dropdown.appendChild(select);
-  
+
   // Populate the dropdown menu
   populateDropdownMenu(dropdown, select);
-  
+
   // Set initial selected option
   updateSelectedOption(dropdown, select);
-  
+
   // Add event listeners
   addDropdownEventListeners(dropdown, select);
 }
@@ -563,22 +561,22 @@ function createCustomDropdown(select) {
 function populateDropdownMenu(dropdown, select) {
   const menu = dropdown.querySelector('.custom-dropdown-menu');
   menu.innerHTML = '';
-  
+
   const options = select.querySelectorAll('option');
   const optgroups = select.querySelectorAll('optgroup');
-  
+
   // If there are optgroups, we need special handling
   if (optgroups.length > 0) {
-    Array.from(select.children).forEach(child => {
+    Array.from(select.children).forEach((child) => {
       if (child.tagName === 'OPTGROUP') {
         // Create optgroup header
         const optgroupElement = document.createElement('div');
         optgroupElement.className = 'custom-dropdown-optgroup';
         optgroupElement.textContent = child.label;
         menu.appendChild(optgroupElement);
-        
+
         // Add options in this group
-        Array.from(child.children).forEach(option => {
+        Array.from(child.children).forEach((option) => {
           const optionElement = createOptionElement(option, true);
           menu.appendChild(optionElement);
         });
@@ -590,7 +588,7 @@ function populateDropdownMenu(dropdown, select) {
     });
   } else {
     // No optgroups, just add all options
-    options.forEach(option => {
+    options.forEach((option) => {
       const optionElement = createOptionElement(option, false);
       menu.appendChild(optionElement);
     });
@@ -607,15 +605,15 @@ function createOptionElement(option, isInGroup) {
   const optionElement = document.createElement('div');
 
   // Start with base class
-  optionElement.className = 'custom-dropdown-option'; 
+  optionElement.className = 'custom-dropdown-option';
   // Copy all classes from the original option element
   if (option.classList.length > 0) {
-      option.classList.forEach(cls => {
-          // Avoid adding 'custom-dropdown-option' twice if it somehow exists on source
-          if (cls !== 'custom-dropdown-option') {
-              optionElement.classList.add(cls);
-          }
-      });
+    option.classList.forEach((cls) => {
+      // Avoid adding 'custom-dropdown-option' twice if it somehow exists on source
+      if (cls !== 'custom-dropdown-option') {
+        optionElement.classList.add(cls);
+      }
+    });
   }
 
   if (isInGroup) {
@@ -647,7 +645,7 @@ function createOptionElement(option, isInGroup) {
 function updateSelectedOption(dropdown, select) {
   const selectedOption = dropdown.querySelector('.selected-option');
   const selectedIndex = select.selectedIndex;
-  
+
   if (selectedIndex >= 0) {
     const optionText = select.options[selectedIndex].textContent;
     selectedOption.textContent = optionText;
@@ -656,10 +654,10 @@ function updateSelectedOption(dropdown, select) {
     selectedOption.textContent = select.getAttribute('placeholder') || 'Select an option';
     selectedOption.classList.add('placeholder');
   }
-  
+
   // Update selected class in menu
   const menuOptions = dropdown.querySelectorAll('.custom-dropdown-option');
-  menuOptions.forEach(option => {
+  menuOptions.forEach((option) => {
     option.classList.remove('selected');
     if (option.getAttribute('data-value') === select.value) {
       option.classList.add('selected');
@@ -677,34 +675,34 @@ function addDropdownEventListeners(dropdown, select) {
   dropdown.querySelector('.custom-dropdown-header').addEventListener('click', () => {
     toggleDropdown(dropdown);
   });
-  
+
   // Handle option selection
   const menuOptions = dropdown.querySelectorAll('.custom-dropdown-option');
-  menuOptions.forEach(option => {
+  menuOptions.forEach((option) => {
     option.addEventListener('click', (e) => {
       if (option.classList.contains('disabled')) {
         e.stopPropagation();
         return;
       }
-      
+
       selectOption(dropdown, select, option.getAttribute('data-value'));
       closeDropdown(dropdown);
-      
+
       // Trigger change event on the select
       const event = new Event('change', { bubbles: true });
       select.dispatchEvent(event);
     });
   });
-  
+
   // Focus/blur handling for visual feedback
   dropdown.addEventListener('focus', () => {
     dropdown.classList.add('focus');
   });
-  
+
   dropdown.addEventListener('blur', () => {
     dropdown.classList.remove('focus');
   });
-  
+
   // Handle keyboard navigation
   dropdown.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -723,13 +721,13 @@ function addDropdownEventListeners(dropdown, select) {
 function handleDropdownKeyboard(e) {
   const openDropdown = document.querySelector('.custom-dropdown.open');
   if (!openDropdown) return;
-  
+
   const select = openDropdown.querySelector('select');
   const options = openDropdown.querySelectorAll('.custom-dropdown-option:not(.disabled)');
   const currentSelected = openDropdown.querySelector('.custom-dropdown-option.selected');
-  
+
   let index = Array.from(options).indexOf(currentSelected);
-  
+
   switch (e.key) {
     case 'ArrowDown':
       e.preventDefault();
@@ -758,15 +756,15 @@ function handleDropdownKeyboard(e) {
     default:
       return; // Exit for other keys
   }
-  
+
   // Focus and scroll to the option
   if (options[index]) {
     options[index].focus();
     options[index].scrollIntoView({ block: 'nearest' });
-    
+
     // Update selection
     selectOption(openDropdown, select, options[index].getAttribute('data-value'));
-    
+
     // Trigger change event on the select
     const event = new Event('change', { bubbles: true });
     select.dispatchEvent(event);
@@ -779,10 +777,10 @@ function handleDropdownKeyboard(e) {
  */
 function toggleDropdown(dropdown) {
   const isOpen = dropdown.classList.contains('open');
-  
+
   // Close all other dropdowns first
   closeAllDropdowns();
-  
+
   // Toggle this dropdown
   if (isOpen) {
     closeDropdown(dropdown);
@@ -797,7 +795,7 @@ function toggleDropdown(dropdown) {
  */
 function openDropdown(dropdown) {
   dropdown.classList.add('open');
-  
+
   // Focus the selected option if any
   const selectedOption = dropdown.querySelector('.custom-dropdown-option.selected');
   if (selectedOption) {
@@ -819,7 +817,7 @@ function closeDropdown(dropdown) {
  * Close all open dropdowns
  */
 function closeAllDropdowns() {
-  document.querySelectorAll('.custom-dropdown.open').forEach(openDropdown => {
+  document.querySelectorAll('.custom-dropdown.open').forEach((openDropdown) => {
     closeDropdown(openDropdown);
   });
 }
@@ -833,7 +831,7 @@ function closeAllDropdowns() {
 function selectOption(dropdown, select, value) {
   // Update the original select
   select.value = value;
-  
+
   // Update the display
   updateSelectedOption(dropdown, select);
 }
@@ -848,16 +846,16 @@ function generateUniqueId() {
 
 // Add event listeners to custom number spinners
 function initCustomNumberInputs() {
-  document.querySelectorAll('.input-dimensions .form-group').forEach(group => {
+  document.querySelectorAll('.input-dimensions .form-group').forEach((group) => {
     const input = group.querySelector('input[type="number"]');
     if (!input) return;
-    
+
     // Up arrow click
-    group.addEventListener('click', function(e) {
+    group.addEventListener('click', function (e) {
       const rect = this.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       // Check if click is in the up arrow region
       if (x >= rect.width - 25 && y >= 30 && y <= 45) {
         const currentValue = Number(input.value) || 0;
@@ -882,27 +880,21 @@ function initCustomNumberInputs() {
  * Initialize tooltips
  */
 function initTooltips() {
-  document.querySelectorAll('[title]').forEach(element => {
+  document.querySelectorAll('[title]').forEach((element) => {
     // Skip elements that are already enhanced or don't need tooltips
-    if (element.classList.contains('tooltip-enhanced') || 
-        (element.classList.contains('close-button')) ||
-        (element.classList.contains('delete-plot-btn')) ||
-        (element.classList.contains('flip-btn')) ||
-        (element.classList.contains('plot-card-snapshot')) ||
-        (element.id.includes('delete-action-btn')) ||
-        (element.classList.contains('modal-close-button'))) {
+    if (element.classList.contains('tooltip-enhanced') || element.classList.contains('close-button') || element.classList.contains('delete-plot-btn') || element.classList.contains('flip-btn') || element.classList.contains('plot-card-snapshot') || element.id.includes('delete-action-btn') || element.classList.contains('modal-close-button')) {
       return;
     }
-    
+
     element.classList.add('tooltip-enhanced');
-    
+
     const title = element.getAttribute('title');
     if (!title) return;
-    
+
     // Store original title and remove to prevent default tooltip
     element.dataset.tooltip = title;
     element.removeAttribute('title');
-    
+
     // Create tooltip
     const tooltip = document.createElement('div');
     tooltip.className = 'custom-tooltip';
@@ -917,28 +909,28 @@ function initTooltips() {
     tooltip.style.pointerEvents = 'none';
     tooltip.style.opacity = '0';
     tooltip.style.transition = 'opacity 0.3s ease';
-    
+
     // Add tooltip to body
     document.body.appendChild(tooltip);
-    
+
     // Show tooltip on hover
     element.addEventListener('mouseenter', (e) => {
       tooltip.style.opacity = '1';
       positionTooltip(tooltip, element);
     });
-    
+
     // Hide tooltip on leave
     element.addEventListener('mouseleave', () => {
       tooltip.style.opacity = '0';
     });
-    
+
     // Update position on scroll and resize
     window.addEventListener('scroll', () => {
       if (tooltip.style.opacity === '1') {
         positionTooltip(tooltip, element);
       }
     });
-    
+
     window.addEventListener('resize', () => {
       if (tooltip.style.opacity === '1') {
         positionTooltip(tooltip, element);
@@ -955,23 +947,23 @@ function initTooltips() {
 function positionTooltip(tooltip, element) {
   const rect = element.getBoundingClientRect();
   const tooltipRect = tooltip.getBoundingClientRect();
-  
+
   // Position above element by default
   let top = rect.top - tooltipRect.height - 5;
-  let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-  
+  let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+
   // If tooltip would be off the top of the screen, position below element
   if (top < 5) {
     top = rect.bottom + 5;
   }
-  
+
   // Adjust horizontal position if needed
   if (left < 5) {
     left = 5;
   } else if (left + tooltipRect.width > window.innerWidth - 5) {
     left = window.innerWidth - tooltipRect.width - 5;
   }
-  
+
   tooltip.style.top = `${top}px`;
   tooltip.style.left = `${left}px`;
 }

@@ -1245,9 +1245,7 @@ function initLassoSelection(plotState) {
   stage.addEventListener(
     'mousedown',
     (e) => {
-      const clickedElement = e.target && typeof e.target.closest === 'function' 
-      ? e.target.closest('.placed-element') 
-      : null;
+      const clickedElement = e.target && typeof e.target.closest === 'function' ? e.target.closest('.placed-element') : null;
 
       // Case 1: Shift+Click on an element (for selection)
       if (e.shiftKey && clickedElement) {
@@ -1771,17 +1769,17 @@ function makeDraggableOnStage(element, plotState) {
         const source = ghostData.source;
         const elementId = parseInt(source.getAttribute('data-id'));
         const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-    
+
         if (elementIndex !== -1) {
           // Get final position of ghost
           const ghostRect = ghost.getBoundingClientRect();
           const finalLeft = ghostRect.left - stageRect.left;
           const finalTop = ghostRect.top - stageRect.top;
-    
+
           // Generate a new unique ID
           const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
           newElementIds.push(newElementId);
-    
+
           // Clone the element data
           const sourceElement = plotState.elements[elementIndex];
           const newElementData = {
@@ -1791,31 +1789,31 @@ function makeDraggableOnStage(element, plotState) {
             y: finalTop,
             zIndex: plotState.nextZIndex++,
           };
-    
+
           plotState.elements.push(newElementData);
           return createPlacedElement(newElementData, plotState);
         }
         return Promise.resolve();
       });
-    
+
       // Clean up ghost elements
       ghostElements.forEach((ghostData) => {
         ghostData.ghost.remove();
       });
       ghostElements = [];
-    
+
       // Remove the duplication class from all source elements
       sourceElements.forEach((el) => {
         el.classList.remove('is-being-duplicated');
         el.classList.remove('selected');
       });
       sourceElements = [];
-    
+
       // Wait for all duplicates to be created, then select them only if there was a prior selection
       Promise.all(duplicatePromises).then(() => {
         if (hadPriorSelection) {
           plotState.selectedElements = [];
-    
+
           newElementIds.forEach((id) => {
             const newElement = document.querySelector(`.placed-element[data-id="${id}"]`);
             if (newElement) {
@@ -1823,12 +1821,12 @@ function makeDraggableOnStage(element, plotState) {
               plotState.selectedElements.push(id);
             }
           });
-    
+
           updateStageSelectionState(plotState);
         } else {
           updateStageSelectionState(plotState);
         }
-        
+
         renderElementInfoList(plotState);
         markPlotAsModified(plotState);
       });
