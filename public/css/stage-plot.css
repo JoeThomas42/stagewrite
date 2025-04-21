@@ -121,11 +121,10 @@
   flex-direction: column;
   margin: 0 var(--spacing-md) var(--spacing-md);
   max-height: 900px;
-  max-width: 330px;
+  max-width: 340px;
   overflow-y: hidden;
   padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
-  scrollbar-width: thin;
-  width: 330px;
+  width: 340px;
 }
 
 /* Accordion item */
@@ -212,11 +211,12 @@
 .accordion-content {
   display: grid;
   gap: var(--spacing-sm);
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  margin: var(--spacing-sm) 0 0;
+  grid-template-columns: repeat(auto-fill, 90px);
+  justify-content: center;
+  margin: var(--spacing-md) 0 0;
   max-height: 0;
   overflow: hidden;
-  padding: 0 var(--spacing-md) 0 0;
+  scrollbar-gutter: stable;
   transition: all var(--transition-medium);
   
   &.expanded {
