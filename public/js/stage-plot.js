@@ -804,44 +804,19 @@ function handleDragStart(e, plotState) {
     offsetY: clickOffsetY,
   };
 
-  // Create a clone for the drag image (without name and favorite button)
-  const dragImage = document.createElement('div');
-  dragImage.style.width = sourceRect.width + 'px';
-  dragImage.style.height = sourceRect.width + 'px'; // Make it square
-  dragImage.style.position = 'absolute';
-  dragImage.style.top = '-1000px';
-  dragImage.style.display = 'flex';
-  dragImage.style.alignItems = 'center';
-  dragImage.style.justifyContent = 'center';
-  dragImage.style.overflow = 'hidden';
+  // Add the CSS class to hide name and favorite button during drag
+  sourceElement.classList.add('dragging');
   
-  // Clone just the image element
-  const imgElement = sourceElement.querySelector('img');
-  if (imgElement) {
-    const imgClone = imgElement.cloneNode(true);
-    imgClone.style.maxWidth = '100%';
-    imgClone.style.maxHeight = '100%';
-    imgClone.style.width = 'auto';
-    imgClone.style.height = 'auto';
-    imgClone.style.position = 'relative';
-    imgClone.style.margin = '0';
-    dragImage.appendChild(imgClone);
-  }
-  
-  // Add the clone to the document temporarily (off-screen)
-  document.body.appendChild(dragImage);
-  
-  // Set the custom drag image - use the original click offsets to maintain 
-  // the same drop position behavior
-  e.dataTransfer.setDragImage(dragImage, clickOffsetX + dragImage.offsetWidth/3, clickOffsetY + dragImage.offsetHeight/3);
-  
-  // Clean up the temporary drag image after the drag starts
-  setTimeout(() => {
-    document.body.removeChild(dragImage);
-  }, 0);
-
   // Set drag effect
   e.dataTransfer.effectAllowed = 'copy';
+  
+  // Clean up the drag preview after drag ends
+  function cleanupDragPreview() {
+    sourceElement.classList.remove('dragging');
+    document.removeEventListener('dragend', cleanupDragPreview);
+  }
+  
+  document.addEventListener('dragend', cleanupDragPreview);
 }
 
 /**
