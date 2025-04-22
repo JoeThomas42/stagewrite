@@ -58,6 +58,7 @@ button,
   overflow: hidden;
   padding: var(--spacing-sm);
   position: relative;
+  text-align: center;
   text-decoration: none;
   transition: all var(--transition-medium);
   white-space: nowrap;
@@ -75,6 +76,10 @@ button,
     background-color: var(--color-danger);
     width: 120px;
   }
+}
+
+.log-link {
+  width: 100px;
 }
 
 a {

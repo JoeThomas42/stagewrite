@@ -1240,7 +1240,7 @@ body.duplicating-element * {
     border-radius: var(--border-radius-lg);
     box-shadow: inset var(--shadow-inset-md);
     list-style: none;
-    margin: 0 var(--spacing-sm);
+    margin: 0 var(--spacing-sm) var(--spacing-sm);
     padding: var(--spacing-lg);
     flex-grow: 1;
     overflow-y: auto;
@@ -1261,6 +1261,7 @@ body.duplicating-element * {
   border-radius: var(--border-radius-lg);
   margin-bottom: var(--spacing-lg);
   max-height: min(80vh, 500px);
+  overflow: auto;
   padding: var(--spacing-md);
   
   h3 {
