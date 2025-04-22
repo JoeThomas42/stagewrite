@@ -95,10 +95,16 @@
   }
   
   /* ----- Login ----- */
-  #login-container {
-    background: linear-gradient(to bottom, var(--color-background-light), var(--color-background));
+  #login-modal {
+    h2 {
+      color: var(--color-text); 
+    }
+
+    a {
+      color: var(--color-primary-lightest);
+    }
   }
-  
+
   /* ----- Tables ----- */
   .custom-dropdown-optgroup {
     background-color: var(--color-background-dark);

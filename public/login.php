@@ -2,11 +2,12 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-// If already logged in, redirect to profile
+// If already logged in, redirect to index
 if (isset($_SESSION['user_id'])) {
-  header('Location: profile.php');
+  header('Location: /index.php');
   exit;
 }
 
-// Include the login template
-include PRIVATE_PATH . '/templates/login.php';
+// Redirect to index page (modal will be available there)
+header('Location: /index.php');
+exit;

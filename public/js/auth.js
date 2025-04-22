@@ -100,7 +100,7 @@ function initSignupForm() {
           // User was automatically logged in, redirect based on role
           if (data.role_id == 2 || data.role_id == 3) {
             // Admin or Super Admin - go directly to management page
-            window.location.href = '/profile.php';
+            window.location.href = '/data_management.php';
           } else {
             // Regular user - go to home page
             window.location.href = '/index.php';
@@ -156,7 +156,7 @@ function initLoginForm() {
         // Redirect based on user role
         if (data.role_id == 2 || data.role_id == 3) {
           // Admin or Super Admin - go directly to management page
-          window.location.href = '/profile.php';
+          window.location.href = '/data_management.php';
         } else {
           // Regular user - go to home page
           window.location.href = '/index.php';
