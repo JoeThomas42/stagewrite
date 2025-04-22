@@ -150,6 +150,7 @@
   color: var(--color-primary-dark);
   cursor: pointer;
   display: flex;
+  font-size: var(--font-size-md);
   justify-content: space-between;
   align-items: center;
   margin: 0;
