@@ -783,11 +783,6 @@ function initDragAndDrop(plotState) {
   stage.addEventListener('drop', (e) => handleDrop(e, plotState));
 }
 
-/**
- * Handle drag start event
- * @param {DragEvent} e - The drag event
- * @param {Object} plotState - The current plot state
- */
 function handleDragStart(e, plotState) {
   // Store element ID in the dataTransfer object
   e.dataTransfer.setData('text/plain', e.target.getAttribute('data-element-id'));
@@ -809,7 +804,43 @@ function handleDragStart(e, plotState) {
     offsetY: clickOffsetY,
   };
 
-  // Set drag image and effect
+  // Create a clone for the drag image (without name and favorite button)
+  const dragImage = document.createElement('div');
+  dragImage.style.width = sourceRect.width + 'px';
+  dragImage.style.height = sourceRect.width + 'px'; // Make it square
+  dragImage.style.position = 'absolute';
+  dragImage.style.top = '-1000px';
+  dragImage.style.display = 'flex';
+  dragImage.style.alignItems = 'center';
+  dragImage.style.justifyContent = 'center';
+  dragImage.style.overflow = 'hidden';
+  
+  // Clone just the image element
+  const imgElement = sourceElement.querySelector('img');
+  if (imgElement) {
+    const imgClone = imgElement.cloneNode(true);
+    imgClone.style.maxWidth = '100%';
+    imgClone.style.maxHeight = '100%';
+    imgClone.style.width = 'auto';
+    imgClone.style.height = 'auto';
+    imgClone.style.position = 'relative';
+    imgClone.style.margin = '0';
+    dragImage.appendChild(imgClone);
+  }
+  
+  // Add the clone to the document temporarily (off-screen)
+  document.body.appendChild(dragImage);
+  
+  // Set the custom drag image - use the original click offsets to maintain 
+  // the same drop position behavior
+  e.dataTransfer.setDragImage(dragImage, clickOffsetX + dragImage.offsetWidth/3, clickOffsetY + dragImage.offsetHeight/3);
+  
+  // Clean up the temporary drag image after the drag starts
+  setTimeout(() => {
+    document.body.removeChild(dragImage);
+  }, 0);
+
+  // Set drag effect
   e.dataTransfer.effectAllowed = 'copy';
 }
 
