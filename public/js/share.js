@@ -83,7 +83,25 @@ function initPrintAndShare(initialPlotState) {
   // Open share modal (for index.php button)
   if (shareButton && shareModal) {
     shareButton.addEventListener('click', () => {
-      // Check for the "Save Changes" button visibility instead of just isModified flag
+      
+      // Check if plot has been saved (only for new plots or those with "New Plot" title)
+      const plotTitleElement = document.getElementById('plot-title');
+      const plotTitle = plotTitleElement ? plotTitleElement.textContent.trim() : '';
+      const isNewPlot = !window.plotState.currentPlotId || plotTitle === 'New Plot';
+      
+      if (isNewPlot) {
+        showNotification('Please save your plot before sharing or printing.', 'warning');
+        
+        // Highlight save button to draw attention to it
+        const saveButton = document.getElementById('save-plot');
+        if (saveButton) {
+          saveButton.classList.add('highlight-button');
+          setTimeout(() => saveButton.classList.remove('highlight-button'), 2000);
+        }
+        return; // Don't open modal if plot hasn't been saved
+      }
+      
+      // Check if there are unsaved changes before opening the modal
       const saveChangesButton = document.getElementById('save-changes');
       const hasUnsavedChanges = saveChangesButton && (
         saveChangesButton.classList.contains('visible') || 
@@ -112,6 +130,7 @@ function initPrintAndShare(initialPlotState) {
           return; // Don't open modal if state is missing
         }
       }
+      
       openModal(shareModal);
     });
   } else if (!shareButton && document.getElementById('stage')) {
@@ -226,24 +245,6 @@ function generatePDF(plotState, printMode = false) {
   if (!plotState) {
     console.error('Cannot generate PDF: plotState is undefined');
     showNotification('Error: Plot data is not available.', 'error');
-    return;
-  }
-
-  // Check if plot has been saved (needed for snapshot)
-  if (!plotState.currentPlotId) {
-    showNotification('Please save the plot first to include the stage snapshot.', 'warning');
-    // Highlight save button only if it exists (on index.php)
-    const saveButton = document.getElementById('save-plot');
-    if (saveButton) {
-      saveButton.classList.add('highlight-button');
-      setTimeout(() => saveButton.classList.remove('highlight-button'), 2000);
-    }
-    // Also try highlighting save changes button if it's visible
-    const saveChangesButton = document.getElementById('save-changes');
-    if (saveChangesButton && saveChangesButton.classList.contains('visible')) {
-      saveChangesButton.classList.add('highlight-button');
-      setTimeout(() => saveChangesButton.classList.remove('highlight-button'), 2000);
-    }
     return;
   }
 
