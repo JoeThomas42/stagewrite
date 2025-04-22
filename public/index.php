@@ -172,6 +172,8 @@ if ($isLoggedIn) {
           <button id="share-plot" class="action-button" title="Print / Share"><i class="fa-solid fa-share-from-square"></i></button>
           <button id="save-plot" class="action-button" title="Save As"><i class="fa-solid fa-floppy-disk"></i></button>
           <button id="save-changes" class="action-button hidden">Save Changes</button>
+        <?php else: ?>
+          <span id="login-prompt">Log in or sign up to save and share your plot!</span>
         <?php endif; ?>
       </div>
       <div id="delete-buttons">
