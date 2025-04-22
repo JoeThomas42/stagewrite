@@ -2402,14 +2402,28 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
           showNotification('Changes Saved!', 'success');
         }
 
-        // Update plot state
-        if ((isNew && data.plot_id) || newName || existingPlotId) {
-          if (isNew && data.plot_id) {
-            plotState.currentPlotId = data.plot_id;
-          }
-          plotState.currentPlotName = plotData.plot_name;
-          const plotTitle = document.getElementById('plot-title');
-          if (plotTitle) plotTitle.textContent = plotData.plot_name;
+        // Update plot state with the correct plot ID
+        if (isNew && data.plot_id) {
+          // For new plots, use the ID returned from the server
+          plotState.currentPlotId = data.plot_id;
+        } else if (!isNew && existingPlotId) {
+          // For overwriting existing plots, use the existing ID
+          plotState.currentPlotId = existingPlotId;
+        }
+
+        // Always update the plot name
+        plotState.currentPlotName = plotData.plot_name;
+        const plotTitle = document.getElementById('plot-title');
+        if (plotTitle) plotTitle.textContent = plotData.plot_name;
+
+        // KEY FIX: Update window.plotState to sync with the current plotState
+        window.plotState = { ...plotState };
+        console.log('window.plotState updated after save:', window.plotState);
+
+        // If print/share module is initialized, update it
+        if (typeof initPrintAndShare === 'function') {
+          initPrintAndShare(plotState);
+          console.log('Print/share module updated after save');
         }
 
         // Reset UI
@@ -2705,7 +2719,7 @@ function loadPlot(plotId, plotState) {
 
         if (plotState.clearInputList) plotState.clearInputList(); // Clear input list state & DOM
 
-        // ... (update plot title, venue, dates, buttons, favorites) ...
+        // Update plot title, venue, dates, buttons
         const plotTitle = document.getElementById('plot-title');
         if (plotTitle) plotTitle.textContent = data.plot.plot_name;
         plotState.currentPlotName = data.plot.plot_name;
@@ -2762,6 +2776,17 @@ function loadPlot(plotId, plotState) {
             plotState.nextZIndex = Math.max(1, ...plotState.elements.map((el) => el.zIndex)) + 1; // Recalculate nextZIndex
             plotState.isLoading = false;
             console.log('Finished loading elements.');
+
+            // KEY FIX: Make sure window.plotState is updated with the current state
+            window.plotState = { ...plotState };
+            console.log('window.plotState synchronized after plot load:', window.plotState);
+
+            // If the print/share functionality is initialized, update it with the latest state
+            if (typeof initPrintAndShare === 'function') {
+              initPrintAndShare(plotState);
+              console.log('Print/share module updated with new plot state');
+            }
+
             const loadModal = document.getElementById('my-plots-modal');
             closeModal(loadModal);
             showNotification('Plot loaded!', 'success');

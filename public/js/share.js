@@ -9,33 +9,33 @@
 function initPrintAndShare(initialPlotState) {
   // Use a flag to prevent multiple initializations if called repeatedly
   if (window.printShareInitialized) {
-    // Update the plot state if provided, especially useful on profile page
-    if (initialPlotState) {
-      // Merge new state with potentially existing state, prioritizing new values
+    // Always update the state when this function is called, not just with initialPlotState
+    if (document.getElementById('stage')) {
+      // We're on the stage plot page, so rebuild state from UI completely
+      window.plotState = buildCurrentPlotState();
+      console.log('Print/share plotState updated from UI:', window.plotState);
+    } else if (initialPlotState) {
+      // We have an initialPlotState (likely from profile.js), so use it
       window.plotState = { ...(window.plotState || {}), ...initialPlotState };
-      console.log('Print/share plotState updated:', window.plotState);
+      console.log('Print/share plotState updated from initialPlotState:', window.plotState);
     }
     return;
   }
   window.printShareInitialized = true; // Set flag after first run
 
   // Initialize or update the global plotState
-  if (initialPlotState) {
+  if (document.getElementById('stage')) {
+    // If on stage editor page, build from UI
+    window.plotState = buildCurrentPlotState();
+    console.log('Initializing print/share by building state from UI:', window.plotState);
+  } else if (initialPlotState) {
     // If state is passed (likely from profile.js), use it
-    window.plotState = { ...(window.plotState || {}), ...initialPlotState };
+    window.plotState = initialPlotState;
     console.log('Initializing print/share with provided state:', window.plotState);
-  } else if (!window.plotState) {
-    // If no state exists yet, try building from UI (for index.php)
-    if (document.getElementById('stage')) {
-      window.plotState = buildCurrentPlotState();
-      console.log('Initializing print/share by building state from UI:', window.plotState);
-    } else {
-      window.plotState = {}; // Initialize empty if not on editor and no state passed
-      console.warn('Initializing print/share without initial plot state.');
-    }
   } else {
-    // If window.plotState already exists (e.g., from previous actions on index.php), use it
-    console.log('Initializing print/share using existing window.plotState:', window.plotState);
+    // No state exists and not on editor page
+    window.plotState = {}; // Initialize empty
+    console.warn('Initializing print/share without initial plot state.');
   }
 
   const shareButton = document.getElementById('share-plot'); // Button on index.php
@@ -60,13 +60,14 @@ function initPrintAndShare(initialPlotState) {
     const eventStartElement = document.getElementById('event_start');
     const eventEndElement = document.getElementById('event_end');
 
-    // Make sure global plotState exists for elements/inputs
-    if (!window.plotState) window.plotState = { elements: [], inputs: [] };
+    // Use the existing plot state for elements and inputs
+    const existingState = window.plotState || {};
 
+    // Build state object with current UI data
     const state = {
-      elements: window.plotState.elements || [], // Assume elements/inputs are managed globally
-      inputs: window.plotState.inputs || [],
-      currentPlotId: window.plotState.currentPlotId || null,
+      elements: existingState.elements || [],
+      inputs: existingState.inputs || [],
+      currentPlotId: existingState.currentPlotId || null,
       currentPlotName: plotTitleElement ? plotTitleElement.textContent : 'Stage Plot',
       venueId: venueSelectElement ? venueSelectElement.value : null,
       // Get venue name from the info panel if possible, fallback to selected option text
@@ -77,21 +78,35 @@ function initPrintAndShare(initialPlotState) {
       stageWidth: stageElement ? stageElement.dataset.stageWidth : 40,
       stageDepth: stageElement ? stageElement.dataset.stageDepth : 30,
     };
+
+    console.log('Built state from UI:', state);
     return state;
   }
 
   // Open share modal (for index.php button)
   if (shareButton && shareModal) {
     shareButton.addEventListener('click', () => {
-      
+      // First, make sure plotState is updated with current data
+      if (document.getElementById('stage')) {
+        window.plotState = buildCurrentPlotState();
+        console.log('Updated window.plotState before share modal check:', window.plotState);
+      }
+
       // Check if plot has been saved (only for new plots or those with "New Plot" title)
       const plotTitleElement = document.getElementById('plot-title');
       const plotTitle = plotTitleElement ? plotTitleElement.textContent.trim() : '';
-      const isNewPlot = !window.plotState.currentPlotId || plotTitle === 'New Plot';
-      
+
+      // Improved check for whether a plot has been saved
+      const isNewPlot =
+        !window.plotState.currentPlotId || // No plot ID means not saved
+        plotTitle === 'New Plot' || // Default title means not saved
+        plotTitle === ''; // Empty title means not saved
+
+      console.log('Share check - Plot ID:', window.plotState.currentPlotId, 'Title:', plotTitle, 'isNewPlot:', isNewPlot);
+
       if (isNewPlot) {
         showNotification('Please save your plot before sharing or printing.', 'warning');
-        
+
         // Highlight save button to draw attention to it
         const saveButton = document.getElementById('save-plot');
         if (saveButton) {
@@ -100,41 +115,24 @@ function initPrintAndShare(initialPlotState) {
         }
         return; // Don't open modal if plot hasn't been saved
       }
-      
+
       // Check if there are unsaved changes before opening the modal
       const saveChangesButton = document.getElementById('save-changes');
-      const hasUnsavedChanges = saveChangesButton && (
-        saveChangesButton.classList.contains('visible') || 
-        window.getComputedStyle(saveChangesButton).opacity !== '0'
-      );
-      
+      const hasUnsavedChanges = saveChangesButton && (saveChangesButton.classList.contains('visible') || window.getComputedStyle(saveChangesButton).opacity !== '0');
+
       if (hasUnsavedChanges) {
         // Highlight the save changes button to draw attention to it
         if (saveChangesButton) {
           saveChangesButton.classList.add('highlight-button');
           setTimeout(() => saveChangesButton.classList.remove('highlight-button'), 2000);
         }
-        
+
         showNotification('Save changes before sharing!', 'warning');
         return; // Don't open modal if there are unsaved changes
       }
-      
-      // Ensure the state is current when opening from index.php
-      if (document.getElementById('stage')) {
-        window.plotState = buildCurrentPlotState(); // Rebuild state from UI
-        console.log('Share modal opened from index.php, state updated:', window.plotState);
-      } else {
-        console.warn('Share button clicked, but not on stage editor page.');
-        if (!window.plotState || Object.keys(window.plotState).length === 0) {
-          showNotification('Plot data is not available.', 'error');
-          return; // Don't open modal if state is missing
-        }
-      }
-      
+
       openModal(shareModal);
     });
-  } else if (!shareButton && document.getElementById('stage')) {
-    console.warn("Share button ('share-plot') not found on index.php.");
   }
 
   // Close buttons for modal
@@ -152,13 +150,23 @@ function initPrintAndShare(initialPlotState) {
   // Handle print button click
   if (printButton) {
     printButton.addEventListener('click', () => {
-      // Use the most current state, rebuild from UI if on index.php
-      const currentState = document.getElementById('stage') ? buildCurrentPlotState() : window.plotState;
-      if (currentState && currentState.elements) {
+      // Always rebuild state from UI when on the stage page
+      let currentState;
+      if (document.getElementById('stage')) {
+        currentState = buildCurrentPlotState();
+
+        // Update window.plotState too to keep it in sync
+        window.plotState = currentState;
+        console.log('State updated before printing:', currentState);
+      } else {
+        currentState = window.plotState;
+      }
+
+      if (currentState && currentState.elements && currentState.elements.length > 0) {
         generatePDF(currentState, true); // Pass the current state
       } else {
-        console.error('Cannot print: Plot state is unavailable');
-        showNotification('Error: Plot state not available.', 'error');
+        console.error('Cannot print: Plot data is missing or empty', currentState);
+        showNotification('Error: Plot data is missing or empty.', 'error');
       }
     });
   }
@@ -166,13 +174,23 @@ function initPrintAndShare(initialPlotState) {
   // Handle PDF download
   if (pdfButton) {
     pdfButton.addEventListener('click', () => {
-      // Use the most current state, rebuild from UI if on index.php
-      const currentState = document.getElementById('stage') ? buildCurrentPlotState() : window.plotState;
-      if (currentState && currentState.elements) {
+      // Always rebuild state from UI when on the stage page
+      let currentState;
+      if (document.getElementById('stage')) {
+        currentState = buildCurrentPlotState();
+
+        // Update window.plotState too to keep it in sync
+        window.plotState = currentState;
+        console.log('State updated before PDF generation:', currentState);
+      } else {
+        currentState = window.plotState;
+      }
+
+      if (currentState && currentState.elements && currentState.elements.length > 0) {
         generatePDF(currentState, false); // Pass the current state
       } else {
-        console.error('Cannot generate PDF: Plot state is unavailable');
-        showNotification('Error: Plot state not available.', 'error');
+        console.error('Cannot generate PDF: Plot data is missing or empty', currentState);
+        showNotification('Error: Plot data is missing or empty.', 'error');
       }
     });
   }
@@ -206,8 +224,18 @@ function initPrintAndShare(initialPlotState) {
       const messageInput = document.getElementById('share_message');
       const email = emailInput ? emailInput.value : null;
       const message = messageInput ? messageInput.value : null;
-      // Use the most current state, rebuild from UI if on index.php
-      const currentState = document.getElementById('stage') ? buildCurrentPlotState() : window.plotState;
+
+      // Always rebuild state from UI when on the stage page
+      let currentState;
+      if (document.getElementById('stage')) {
+        currentState = buildCurrentPlotState();
+
+        // Update window.plotState too to keep it in sync
+        window.plotState = currentState;
+        console.log('State updated before email send:', currentState);
+      } else {
+        currentState = window.plotState;
+      }
 
       if (email && currentState && currentState.elements) {
         setupConfirmButton(
