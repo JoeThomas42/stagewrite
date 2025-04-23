@@ -863,7 +863,7 @@ function handleDragOver(e) {
 }
 
 /**
- * Handle drop event - Browser-Specific Logic (Attempt 6)
+ * Handle drop event
  * @param {DragEvent} e - The drop event
  * @param {Object} plotState - The current plot state
  */
@@ -874,9 +874,8 @@ function handleDrop(e, plotState) {
   e.preventDefault();
 
   const elementId = e.dataTransfer.getData('text/plain');
-  if (!elementId || !plotState.dragSourceRect) { // Ensure dragSourceRect exists
+  if (!elementId || !plotState.dragSourceRect) {
       console.warn("Drop canceled: Missing elementId or dragSourceRect");
-      // Clear potentially dangling state if dragSourceRect is missing but ID exists
       if (elementId) {
           plotState.currentDragId = null;
       }
@@ -887,7 +886,7 @@ function handleDrop(e, plotState) {
   const sourceElement = document.querySelector(
     `.draggable-element[data-element-id="${elementId}"]`
   );
-  if (!sourceElement) return; // Should not happen if dragSourceRect exists, but check anyway
+  if (!sourceElement) return;
 
   const elementName = sourceElement.getAttribute('data-element-name');
   const categoryId = sourceElement.getAttribute('data-category-id');
@@ -911,7 +910,7 @@ function handleDrop(e, plotState) {
   if (isFirefox) {
     // For Firefox
     console.log("Firefox detected: Using direct offset calculation.");
-    finalX = dropXRelativeToStage + elementMarginFox + 2;
+    finalX = dropXRelativeToStage + elementMarginFox + 3;
     finalY = dropYRelativeToStage + elementMarginFox - 2; 
   } else {
     // For Chrome
@@ -920,7 +919,7 @@ function handleDrop(e, plotState) {
     finalY = dropYRelativeToStage - elementMarginChrome;
   }
 
-  // Boundary Constraints (same as before)
+  // Boundary Constraints
   const maxLeft = stageRect.width - elementWidth;
   const maxTop = stageRect.height - elementHeight;
   const constrainedX = Math.max(0, Math.min(finalX, maxLeft));
