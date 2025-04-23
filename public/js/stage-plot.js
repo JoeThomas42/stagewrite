@@ -785,7 +785,7 @@ function initDragAndDrop(plotState) {
 
 /**
  * Handles the start of a drag operation from the elements list.
- * Creates a custom drag preview without modifying the source element.
+ * Creates a custom drag preview aligned to the cursor's top-left.
  * @param {DragEvent} e - The drag event.
  * @param {Object} plotState - The current plot state.
  */
@@ -797,47 +797,59 @@ function handleDragStart(e, plotState) {
   e.dataTransfer.setData('text/plain', elementId);
   e.dataTransfer.effectAllowed = 'copy';
 
+  // Create clone for preview
   const clone = sourceElement.cloneNode(true);
-
-  clone.classList.add('drag-preview-element');
-  clone.classList.remove('dragging');
+  clone.classList.add('drag-preview-element'); // Apply specific preview styles if needed
+  clone.classList.remove('dragging'); // Ensure no conflicting styles
   clone.style.position = 'absolute';
-  clone.style.top = '-9999px';
+  clone.style.top = '-9999px'; // Position off-screen initially
   clone.style.left = '-9999px';
-  clone.style.pointerEvents = 'none';
-  clone.style.margin = '0';
+  clone.style.pointerEvents = 'none'; // Preview shouldn't interfere
+  clone.style.margin = '0'; // Reset margin for preview consistency
   document.body.appendChild(clone);
 
-  const sourceRect = sourceElement.getBoundingClientRect();
-  const offsetX = e.clientX - sourceRect.left;
-  const offsetY = e.clientY - sourceRect.top;
-
+  // --- Change: Always align cursor to top-left of the preview image ---
   try {
-      e.dataTransfer.setDragImage(clone, offsetX, offsetY);
+    // Set the drag image with 0, 0 offset
+    e.dataTransfer.setDragImage(clone, 0, 0);
+    console.log("setDragImage called with offset (0, 0)"); // Debug log
   } catch (error) {
-      console.error("Error setting drag image:", error);
+    console.error("Error setting drag image:", error);
   }
+  // --- End Change ---
 
-  setTimeout(() => {
-    if (clone.parentNode === document.body) {
-        document.body.removeChild(clone);
-    }
-  }, 0);
+  // We still need to record the *actual* click offset relative to the source element,
+  // even though we aren't using it for setDragImage anymore.
+  // It might be useful for other potential interactions or debugging.
+  const sourceRect = sourceElement.getBoundingClientRect();
+  const clickOffsetX = e.clientX - sourceRect.left;
+  const clickOffsetY = e.clientY - sourceRect.top;
 
+  // Store original drag info (including the actual click offset)
   plotState.currentDragId = elementId;
   plotState.dragSourceRect = {
     width: sourceRect.width,
     height: sourceRect.height,
-    offsetX: e.clientX - sourceRect.left,
-    offsetY: e.clientY - sourceRect.top,
+    offsetX: clickOffsetX, // Store the actual click offset X
+    offsetY: clickOffsetY, // Store the actual click offset Y
   };
 
+  // Cleanup the appended clone shortly after drag starts
+  // Use timeout 0 to schedule it right after the current execution context
+  setTimeout(() => {
+    if (clone.parentNode === document.body) {
+      document.body.removeChild(clone);
+    }
+  }, 0);
+
+  // Add dragend listener for final cleanup
   function cleanupDragState() {
     document.removeEventListener('dragend', cleanupDragState);
+    // Clear state even if offsets weren't used in the final drop calculation
     plotState.currentDragId = null;
     plotState.dragSourceRect = null;
+    console.log("Drag state cleaned up on dragend."); // Debug log
   }
-
   document.addEventListener('dragend', cleanupDragState, { once: true });
 }
 
@@ -851,7 +863,7 @@ function handleDragOver(e) {
 }
 
 /**
- * Handle drop event
+ * Handle drop event - Browser-Specific Logic (Attempt 6)
  * @param {DragEvent} e - The drop event
  * @param {Object} plotState - The current plot state
  */
@@ -862,89 +874,88 @@ function handleDrop(e, plotState) {
   e.preventDefault();
 
   const elementId = e.dataTransfer.getData('text/plain');
+  if (!elementId || !plotState.dragSourceRect) { // Ensure dragSourceRect exists
+      console.warn("Drop canceled: Missing elementId or dragSourceRect");
+      // Clear potentially dangling state if dragSourceRect is missing but ID exists
+      if (elementId) {
+          plotState.currentDragId = null;
+      }
+      return;
+  }
 
-  if (!elementId) return;
 
-  const sourceElement = document.querySelector(`.draggable-element[data-element-id="${elementId}"]`);
-
-  if (!sourceElement) return;
+  const sourceElement = document.querySelector(
+    `.draggable-element[data-element-id="${elementId}"]`
+  );
+  if (!sourceElement) return; // Should not happen if dragSourceRect exists, but check anyway
 
   const elementName = sourceElement.getAttribute('data-element-name');
   const categoryId = sourceElement.getAttribute('data-category-id');
   const imageSrc = sourceElement.getAttribute('data-image');
 
   const stageRect = stage.getBoundingClientRect();
-
   const elementWidth = 75;
   const elementHeight = 75;
+  const elementMarginChrome = 14;
+  const elementMarginFox = 7;
 
-  const margin = 14;
+  // Calculate the cursor's drop position relative to the stage's top-left corner
+  let dropXRelativeToStage = e.clientX - stageRect.left;
+  let dropYRelativeToStage = e.clientY - stageRect.top;
 
-  let x, y;
+  let finalX, finalY;
 
-  if (plotState.dragSourceRect) {
-    x = Math.max(
-      0,
-      Math.min(
-        e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 7.5,
-        stageRect.width - elementWidth - margin
-      )
-    );
+  // Browser-specific logic for margin compensation
+  const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
-    y = Math.max(
-      0,
-      Math.min(
-        e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 7.5,
-        stageRect.height - elementHeight - margin
-      )
-    );
+  if (isFirefox) {
+    // For Firefox
+    console.log("Firefox detected: Using direct offset calculation.");
+    finalX = dropXRelativeToStage + elementMarginFox + 2;
+    finalY = dropYRelativeToStage + elementMarginFox - 2; 
   } else {
-    // Fallback to the original cursor-based positioning if no drag data
-    x = Math.max(
-      0,
-      Math.min(
-        e.clientX - stageRect.left - elementWidth / 1.5,
-        stageRect.width - elementWidth - margin
-      )
-    );
-    y = Math.max(
-      0,
-      Math.min(
-        e.clientY - stageRect.top - elementHeight / 1.5,
-        stageRect.height - elementHeight - margin
-      )
-    );
+    // For Chrome
+    console.log("Non-Firefox browser detected: Using margin-compensated calculation.");
+    finalX = dropXRelativeToStage - elementMarginChrome;
+    finalY = dropYRelativeToStage - elementMarginChrome;
   }
 
-  x += margin;
-  y += margin;
+  // Boundary Constraints (same as before)
+  const maxLeft = stageRect.width - elementWidth;
+  const maxTop = stageRect.height - elementHeight;
+  const constrainedX = Math.max(0, Math.min(finalX, maxLeft));
+  const constrainedY = Math.max(0, Math.min(finalY, maxTop));
 
-  // Create a new element object
+  const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
+
   const newElement = {
-    id: plotState.elements.length + 1,
+    id: newElementId,
     elementId: parseInt(elementId),
     elementName: elementName,
     categoryId: parseInt(categoryId),
     image: imageSrc,
-    x: x,
-    y: y,
-    width: 75,
-    height: 75,
+    x: constrainedX,
+    y: constrainedY,
+    width: elementWidth,
+    height: elementHeight,
     flipped: false,
     zIndex: plotState.nextZIndex++,
     label: '',
     notes: '',
   };
 
-  plotState.elements.push(newElement);
   plotState.dragSourceRect = null;
+  plotState.currentDragId = null;
+
+  plotState.elements.push(newElement);
 
   createPlacedElement(newElement, plotState).then(() => {
-    const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
+    const domElement = document.querySelector(
+      `.placed-element[data-id="${newElement.id}"]`
+    );
     if (domElement) {
       requestAnimationFrame(() => {
         domElement.classList.add('dropping');
-
         domElement.addEventListener(
           'animationend',
           () => {
@@ -954,7 +965,6 @@ function handleDrop(e, plotState) {
         );
       });
     }
-
     renderElementInfoList(plotState);
   });
 
@@ -981,9 +991,8 @@ function createPlacedElement(elementData, plotState) {
     element.setAttribute('data-id', elementData.id);
     element.setAttribute('data-element-id', elementData.elementId);
 
-    const margin = 14; // This should match the margin in CSS
-    element.style.left = `${elementData.x - margin}px`;
-    element.style.top = `${elementData.y - margin}px`;
+    element.style.left = `${elementData.x}px`;
+    element.style.top = `${elementData.y}px`;
     element.style.height = `${elementData.height}px`;
     element.style.zIndex = elementData.zIndex;
 
@@ -1110,98 +1119,112 @@ function createPlacedElement(elementData, plotState) {
     const flipBtn = document.createElement('button');
     flipBtn.className = 'edit-element flip-btn';
     flipBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
-    flipBtn.title = 'Flip Horizontally';
+    // Set initial title and class based on elementData
+    flipBtn.title = elementData.flipped ? 'Unflip Horizontally' : 'Flip Horizontally';
     if (elementData.flipped) {
-      flipBtn.classList.add('flipped'); // Add class if initially flipped
+      flipBtn.classList.add('flipped');
     }
 
     flipBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const elementId = parseInt(element.getAttribute('data-id'));
-      const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
+      e.stopPropagation(); // Prevent event bubbling
 
-      if (elementIndex === -1) return;
+      // *** Use elementData.id directly from the closure scope ***
+      const currentElementId = elementData.id;
+      const elementIndex = plotState.elements.findIndex((el) => el.id === currentElementId);
 
-      // Prevent multiple flips by checking if element is already flipping
+      if (elementIndex === -1) {
+        console.error('Flip error: Element not found in state with ID:', currentElementId);
+        return; // Element not found in state, bail out
+      }
+
+      // Prevent multiple flips if already flipping
       if (element.classList.contains('flipping')) return;
 
-      // Get current flip state
       const currentlyFlipped = plotState.elements[elementIndex].flipped;
 
-      // IMMEDIATELY hide controls before adding any animation classes
+      // Hide controls immediately
       const controls = element.querySelectorAll('.element-actions, .element-label');
       controls.forEach((control) => {
         control.style.opacity = '0';
         control.style.pointerEvents = 'none';
-        control.style.transition = 'none'; // Disable transitions to prevent flicker
+        control.style.transition = 'none';
       });
 
-      // Add an overlay to prevent interactions during flip
+      // Add overlay
       const flipOverlay = document.createElement('div');
       flipOverlay.className = 'flip-overlay';
       element.appendChild(flipOverlay);
 
-      // Small delay to ensure controls are hidden before animation starts
+      // Start animation
       requestAnimationFrame(() => {
-        // Apply the flipping class and direction class
         element.classList.add('flipping');
         element.classList.add(currentlyFlipped ? 'to-left' : 'to-right');
 
-        // Set up animation end handler for the image
         const imageElement = element.querySelector('img');
         if (!imageElement) {
-          // Clean up if no image is found
-          finishFlip();
-          return;
-        }
-
-        const handleAnimationEnd = () => {
-          // Toggle state in data
+          // Handle case where image is missing (e.g., failed to load)
+          console.warn('Flip warning: Image element not found for ID:', currentElementId);
+          // Still update state and UI appearance
           plotState.elements[elementIndex].flipped = !currentlyFlipped;
-
-          // Apply the final transform state
-          imageElement.style.transform = !currentlyFlipped ? 'scaleX(-1)' : '';
-
-          // Update button appearance
           flipBtn.classList.toggle('flipped', !currentlyFlipped);
           flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
-
-          // Clean up animation classes
+          // Clean up animation classes and overlay
           element.classList.remove('flipping', 'to-right', 'to-left');
-
-          // Clean up event listener
-          imageElement.removeEventListener('animationend', handleAnimationEnd);
-
-          // Remove the overlay
           if (flipOverlay && flipOverlay.parentNode) {
             flipOverlay.remove();
           }
-
-          // Fade the controls back in
+          // Restore controls visibility after a short delay
           setTimeout(() => {
             controls.forEach((control) => {
               control.removeAttribute('style');
             });
           }, 50);
+          markPlotAsModified(plotState);
+          return;
+        }
 
+        // Animation end handler
+        const handleAnimationEnd = () => {
+          // Update state
+          plotState.elements[elementIndex].flipped = !currentlyFlipped;
+          // Update image transform
+          imageElement.style.transform = !currentlyFlipped ? 'scaleX(-1)' : '';
+          // Update button appearance
+          flipBtn.classList.toggle('flipped', !currentlyFlipped);
+          flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
+          // Clean up animation classes
+          element.classList.remove('flipping', 'to-right', 'to-left');
+          // Clean up listener
+          imageElement.removeEventListener('animationend', handleAnimationEnd);
+          // Remove overlay
+          if (flipOverlay && flipOverlay.parentNode) {
+            flipOverlay.remove();
+          }
+          // Restore controls visibility
+          setTimeout(() => {
+            controls.forEach((control) => {
+              control.removeAttribute('style');
+            });
+          }, 50);
           // Mark plot as modified
           markPlotAsModified(plotState);
         };
 
-        // Add animation end listener
+        // Add listener
         imageElement.addEventListener('animationend', handleAnimationEnd);
 
-        // Fallback in case animation end doesn't fire
-        const fallbackTimeout = setTimeout(() => {
+        // Fallback timeout in case animationend doesn't fire
+        setTimeout(() => {
           if (element.classList.contains('flipping')) {
+            console.warn('Flip animation fallback triggered for ID:', currentElementId);
             imageElement.removeEventListener('animationend', handleAnimationEnd);
-            handleAnimationEnd();
+            handleAnimationEnd(); // Force cleanup
           }
         }, 500); // Slightly longer than animation duration
       });
     });
 
-    // Add button event handlers
+    // Add button visual feedback handlers (mousedown/up/leave)
     flipBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });

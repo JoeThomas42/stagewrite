@@ -572,11 +572,11 @@
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-lg);
   display: flex;
-  height: 85px;
+  height: 75px;
   justify-content: center;
   overflow: hidden;
   padding: var(--spacing-xs);
-  width: 85px;
+  width: 75px;
 }
 
 .drag-preview-element .element-name,
@@ -587,8 +587,8 @@
 .drag-preview-element img {
   height: auto;
   margin: 0;
-  max-width: 85%;
-  max-height: 85%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
   padding: 0;
   transform: none;
