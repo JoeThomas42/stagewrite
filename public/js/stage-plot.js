@@ -882,7 +882,6 @@ function handleDrop(e, plotState) {
       return;
   }
 
-
   const sourceElement = document.querySelector(
     `.draggable-element[data-element-id="${elementId}"]`
   );
@@ -891,7 +890,6 @@ function handleDrop(e, plotState) {
   const elementName = sourceElement.getAttribute('data-element-name');
   const categoryId = sourceElement.getAttribute('data-category-id');
   const imageSrc = sourceElement.getAttribute('data-image');
-
   const stageRect = stage.getBoundingClientRect();
   const elementWidth = 75;
   const elementHeight = 75;
@@ -901,7 +899,6 @@ function handleDrop(e, plotState) {
   // Calculate the cursor's drop position relative to the stage's top-left corner
   let dropXRelativeToStage = e.clientX - stageRect.left;
   let dropYRelativeToStage = e.clientY - stageRect.top;
-
   let finalX, finalY;
 
   // Browser-specific logic for margin compensation
@@ -913,7 +910,7 @@ function handleDrop(e, plotState) {
     finalX = dropXRelativeToStage + elementMarginFox + 3;
     finalY = dropYRelativeToStage + elementMarginFox - 2; 
   } else {
-    // For Chrome
+    // For Chrome and other browsers
     console.log("Non-Firefox browser detected: Using margin-compensated calculation.");
     finalX = dropXRelativeToStage - elementMarginChrome;
     finalY = dropYRelativeToStage - elementMarginChrome;
