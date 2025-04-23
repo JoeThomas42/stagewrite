@@ -566,14 +566,9 @@
 
 /* --------------- Dragged Elements --------------- */
 
-@keyframes dragPreviewSize {
-  to { transform: scale(.8); }
-}
-
 .dragging {
-  /* animation: dragPreviewSize 0.1s forwards; */
-  display: flex !important;
-  align-items: center !important;
+  border: 2px solid var(--color-primary-light) !important;
+  box-shadow: var(--shadow-lg) !important;
   justify-content: center !important;
 }
 
@@ -582,14 +577,14 @@
   display: none !important;
 }
 
-/* Center and size the image properly during drag */
 .dragging img {
-  position: relative !important;
-  max-width: 80% !important;
-  max-height: 80% !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
+  max-width: 85% !important;  /* Percentage of the smaller container */
+  max-height: 85% !important;
+  width: auto !important;
+  height: auto !important;
   object-fit: contain !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* -------------------- Placed Elements --------------------- */
