@@ -783,40 +783,62 @@ function initDragAndDrop(plotState) {
   stage.addEventListener('drop', (e) => handleDrop(e, plotState));
 }
 
+/**
+ * Handles the start of a drag operation from the elements list.
+ * Creates a custom drag preview without modifying the source element.
+ * @param {DragEvent} e - The drag event.
+ * @param {Object} plotState - The current plot state.
+ */
 function handleDragStart(e, plotState) {
-  // Store element ID in the dataTransfer object
-  e.dataTransfer.setData('text/plain', e.target.getAttribute('data-element-id'));
-
-  // Get the source element dimensions
   const sourceElement = e.target;
+  const elementId = sourceElement.getAttribute('data-element-id');
+
+  // Basic drag data setup
+  e.dataTransfer.setData('text/plain', elementId);
+  e.dataTransfer.effectAllowed = 'copy';
+
+  const clone = sourceElement.cloneNode(true);
+
+  clone.classList.add('drag-preview-element');
+  clone.classList.remove('dragging');
+  clone.style.position = 'absolute';
+  clone.style.top = '-9999px';
+  clone.style.left = '-9999px';
+  clone.style.pointerEvents = 'none';
+  clone.style.margin = '0';
+  document.body.appendChild(clone);
+
   const sourceRect = sourceElement.getBoundingClientRect();
+  const offsetX = e.clientX - sourceRect.left;
+  const offsetY = e.clientY - sourceRect.top;
 
-  // Calculate where the user clicked relative to the element's center
-  const clickOffsetX = e.clientX - (sourceRect.left + sourceRect.width / 3);
-  const clickOffsetY = e.clientY - (sourceRect.top + sourceRect.height / 3);
+  try {
+      e.dataTransfer.setDragImage(clone, offsetX, offsetY);
+  } catch (error) {
+      console.error("Error setting drag image:", error);
+  }
 
-  // Store in plotState
-  plotState.currentDragId = sourceElement.getAttribute('data-element-id');
+  setTimeout(() => {
+    if (clone.parentNode === document.body) {
+        document.body.removeChild(clone);
+    }
+  }, 0);
+
+  plotState.currentDragId = elementId;
   plotState.dragSourceRect = {
     width: sourceRect.width,
     height: sourceRect.height,
-    offsetX: clickOffsetX,
-    offsetY: clickOffsetY,
+    offsetX: e.clientX - sourceRect.left,
+    offsetY: e.clientY - sourceRect.top,
   };
 
-  // Add the CSS class to hide name and favorite button during drag
-  sourceElement.classList.add('dragging');
-  
-  // Set drag effect
-  e.dataTransfer.effectAllowed = 'copy';
-  
-  // Clean up the drag preview after drag ends
-  function cleanupDragPreview() {
-    sourceElement.classList.remove('dragging');
-    document.removeEventListener('dragend', cleanupDragPreview);
+  function cleanupDragState() {
+    document.removeEventListener('dragend', cleanupDragState);
+    plotState.currentDragId = null;
+    plotState.dragSourceRect = null;
   }
-  
-  document.addEventListener('dragend', cleanupDragPreview);
+
+  document.addEventListener('dragend', cleanupDragState, { once: true });
 }
 
 /**
@@ -824,7 +846,6 @@ function handleDragStart(e, plotState) {
  * @param {DragEvent} e - The drag event
  */
 function handleDragOver(e) {
-  // Prevent default to allow drop
   e.preventDefault();
   e.dataTransfer.dropEffect = 'copy';
 }
@@ -838,51 +859,43 @@ function handleDrop(e, plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Prevent default action
   e.preventDefault();
 
-  // Get the element ID from dataTransfer
   const elementId = e.dataTransfer.getData('text/plain');
 
   if (!elementId) return;
 
-  // Find the element in the list
   const sourceElement = document.querySelector(`.draggable-element[data-element-id="${elementId}"]`);
 
   if (!sourceElement) return;
 
-  // Get element data
   const elementName = sourceElement.getAttribute('data-element-name');
   const categoryId = sourceElement.getAttribute('data-category-id');
   const imageSrc = sourceElement.getAttribute('data-image');
 
-  // Calculate position relative to the stage
   const stageRect = stage.getBoundingClientRect();
 
-  // Default element dimensions
   const elementWidth = 75;
   const elementHeight = 75;
 
   const margin = 14;
 
-  // Calculate position that centers the element where the drag source was
   let x, y;
 
   if (plotState.dragSourceRect) {
-    // Use the drag offsets to center the element properly
     x = Math.max(
       0,
       Math.min(
-        e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 2,
-        stageRect.width - elementWidth - margin // Subtract margin from the max bound
+        e.clientX - stageRect.left - plotState.dragSourceRect.offsetX - elementWidth / 7.5,
+        stageRect.width - elementWidth - margin
       )
     );
 
     y = Math.max(
       0,
       Math.min(
-        e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 2,
-        stageRect.height - elementHeight - margin // Subtract margin from the max bound
+        e.clientY - stageRect.top - plotState.dragSourceRect.offsetY - elementHeight / 7.5,
+        stageRect.height - elementHeight - margin
       )
     );
   } else {
@@ -891,25 +904,24 @@ function handleDrop(e, plotState) {
       0,
       Math.min(
         e.clientX - stageRect.left - elementWidth / 1.5,
-        stageRect.width - elementWidth - margin // Subtract margin from the max bound
+        stageRect.width - elementWidth - margin
       )
     );
     y = Math.max(
       0,
       Math.min(
         e.clientY - stageRect.top - elementHeight / 1.5,
-        stageRect.height - elementHeight - margin // Subtract margin from the max bound
+        stageRect.height - elementHeight - margin
       )
     );
   }
 
-  // Account for the 14px margin that will be applied in createPlacedElement
   x += margin;
   y += margin;
 
   // Create a new element object
   const newElement = {
-    id: plotState.elements.length + 1, // Unique ID for this instance
+    id: plotState.elements.length + 1,
     elementId: parseInt(elementId),
     elementName: elementName,
     categoryId: parseInt(categoryId),
@@ -924,20 +936,15 @@ function handleDrop(e, plotState) {
     notes: '',
   };
 
-  // Add to state and create DOM element
   plotState.elements.push(newElement);
-
-  // Clear drag source data after use
   plotState.dragSourceRect = null;
 
   createPlacedElement(newElement, plotState).then(() => {
-    // Apply drop animation to the newly created element
     const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
     if (domElement) {
       requestAnimationFrame(() => {
         domElement.classList.add('dropping');
 
-        // Remove animation class after animation completes
         domElement.addEventListener(
           'animationend',
           () => {
@@ -948,7 +955,7 @@ function handleDrop(e, plotState) {
       });
     }
 
-    renderElementInfoList(plotState); // Update the info list
+    renderElementInfoList(plotState);
   });
 
   markPlotAsModified(plotState);
@@ -974,8 +981,6 @@ function createPlacedElement(elementData, plotState) {
     element.setAttribute('data-id', elementData.id);
     element.setAttribute('data-element-id', elementData.elementId);
 
-    // Account for the 14px margin in CSS when positioning
-    // Subtract margin from position values to compensate
     const margin = 14; // This should match the margin in CSS
     element.style.left = `${elementData.x - margin}px`;
     element.style.top = `${elementData.y - margin}px`;

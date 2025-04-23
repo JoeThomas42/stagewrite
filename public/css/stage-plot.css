@@ -566,25 +566,33 @@
 
 /* --------------- Dragged Elements --------------- */
 
-.dragging {
-  border: 2px solid var(--color-primary-light) !important;
-  box-shadow: var(--shadow-lg) !important;
-  justify-content: center !important;
+.drag-preview-element {
+  align-items: center;
+  background-color: var(--color-background-trans);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  height: 85px;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--spacing-xs);
+  width: 85px;
 }
 
-.dragging .element-name,
-.dragging .favorite-button {
-  display: none !important;
+.drag-preview-element .element-name,
+.drag-preview-element .favorite-button {
+  display: none;
 }
 
-.dragging img {
-  max-width: 85% !important;  /* Percentage of the smaller container */
-  max-height: 85% !important;
-  width: auto !important;
-  height: auto !important;
-  object-fit: contain !important;
-  margin: 0 !important;
-  padding: 0 !important;
+.drag-preview-element img {
+  height: auto;
+  margin: 0;
+  max-width: 85%;
+  max-height: 85%;
+  object-fit: contain;
+  padding: 0;
+  transform: none;
+  width: auto;
 }
 
 /* -------------------- Placed Elements --------------------- */
