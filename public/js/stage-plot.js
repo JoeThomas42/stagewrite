@@ -894,7 +894,8 @@ function handleDrop(e, plotState) {
   const elementWidth = 75;
   const elementHeight = 75;
   const elementMarginChrome = 14;
-  const elementMarginFox = 7;
+  const elementMarginFoxX = 10;
+  const elementMarginFoxY = 5;
 
   // Calculate the cursor's drop position relative to the stage's top-left corner
   let dropXRelativeToStage = e.clientX - stageRect.left;
@@ -907,8 +908,8 @@ function handleDrop(e, plotState) {
   if (isFirefox) {
     // For Firefox
     console.log("Firefox detected: Using direct offset calculation.");
-    finalX = dropXRelativeToStage + elementMarginFox + 3;
-    finalY = dropYRelativeToStage + elementMarginFox - 2; 
+    finalX = dropXRelativeToStage + elementMarginFoxX;
+    finalY = dropYRelativeToStage + elementMarginFoxY;
   } else {
     // For Chrome and other browsers
     console.log("Non-Firefox browser detected: Using margin-compensated calculation.");
