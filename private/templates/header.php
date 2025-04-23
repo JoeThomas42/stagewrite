@@ -71,17 +71,17 @@
 
           <div class="user-controls">
             <!-- <span class="welcome-message"> -->
-              <?php
-              // if ($_SESSION['role_id'] == 2) {
-              //   echo 'Hello, Admin ';
-              // } elseif ($_SESSION['role_id'] == 3) {
-              //   echo 'Hello, Super Admin ';
-              // } else {
-              //   echo 'Welcome, ';
-              // }
-              // echo htmlspecialchars($_SESSION['first_name']);
-              // echo ($_SESSION['role_id'] >= 2) ? '!' : '';
-              ?>
+            <?php
+            // if ($_SESSION['role_id'] == 2) {
+            //   echo 'Hello, Admin ';
+            // } elseif ($_SESSION['role_id'] == 3) {
+            //   echo 'Hello, Super Admin ';
+            // } else {
+            //   echo 'Welcome, ';
+            // }
+            // echo htmlspecialchars($_SESSION['first_name']);
+            // echo ($_SESSION['role_id'] >= 2) ? '!' : '';
+            ?>
             <!-- </span> -->
 
             <!-- Account dropdown replacing the logout link -->
@@ -132,6 +132,11 @@
             <div>
               <label for="password">Password:</label>
               <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="checkbox-group">
+              <input type="checkbox" id="stay_logged_in" name="stay_logged_in" value="1">
+              <label for="stay_logged_in" class="checkbox-label">Stay logged in</label>
             </div>
 
             <button type="submit">Login</button>

@@ -125,7 +125,6 @@ table {
   border-collapse: collapse;
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
-  /* display: flex; */
   margin-bottom: var(--spacing-xl);
   margin-top: var(--spacing-xl);
   overflow: hidden;
@@ -589,54 +588,6 @@ th.sortable {
 /* -------------------- Element Properties Modal --------------------- */
 #element-props-modal .modal-content {
   max-width: 400px;
-}
-
-#element-rotation {
-  background-color: var(--color-white);
-  border-radius: var(--border-radius-lg);
-  height: 8px;
-  margin: var(--spacing-md) 0;
-  outline: none;
-  width: 100%;
-  
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    background: var(--color-primary);
-    border-radius: 50%;
-    cursor: pointer;
-    height: 16px;
-    width: 16px;
-  }
-  
-  &::-moz-range-thumb {
-    background: var(--color-primary);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    height: 16px;
-    width: 16px;
-  }
-}
-
-#rotation_value {
-  background-color: var(--color-primary-light);
-  border-radius: var(--border-radius-xs);
-  color: white;
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  padding: 2px 6px;
-}
-
-.checkbox-group {
-  align-items: center;
-  display: flex;
-  margin: var(--spacing-xs) 0;
-  
-  input[type="checkbox"] {
-    margin-right: var(--spacing-xs);
-    width: auto;
-  }
 }
 
 /* -------------------- Custom Dropdowns --------------------- */
