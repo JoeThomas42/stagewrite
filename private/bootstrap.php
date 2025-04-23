@@ -28,6 +28,11 @@ define('HANDLERS_URL', WEB_ROOT . '/handlers');
 // Include configuration
 require_once PRIVATE_PATH . '/config/config.php';
 
+// Define development environment
+if (!defined('DEV_ENVIRONMENT')) {
+    define('DEV_ENVIRONMENT', false);
+}
+
 // Include utility functions
 require_once INCLUDES_PATH . '/functions.php';
 

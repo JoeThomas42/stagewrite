@@ -168,50 +168,50 @@ function initLoginForm() {
     }
   });
 
-  /**
-   * Initialize account dropdown functionality
-   * This should be added to public/js/auth.js or another appropriate file
-   */
-  function initAccountDropdown() {
-    // Change Password link
-    const changePasswordLink = document.getElementById('change-password-link');
-    if (changePasswordLink) {
-      changePasswordLink.addEventListener('click', function (e) {
-        e.preventDefault();
+}
 
-        // For now, just show a notification that this feature is coming soon
-        if (typeof showNotification === 'function') {
-          showNotification('Change password feature coming soon!', 'info');
-        } else {
-          alert('Change password feature coming soon!');
-        }
+/**
+ * Initialize account dropdown functionality
+ */
+function initAccountDropdown() {
+  // Change Password link
+  const changePasswordLink = document.getElementById('change-password-link');
+  if (changePasswordLink) {
+    changePasswordLink.addEventListener('click', function (e) {
+      e.preventDefault();
 
-        // Close dropdown after action
-        const dropdown = this.closest('.dropdown');
-        const menu = dropdown.querySelector('.dropdown-menu');
-        menu.classList.remove('active');
-      });
-    }
+      // For now, just show a notification that this feature is coming soon
+      if (typeof showNotification === 'function') {
+        showNotification('Change password feature coming soon!', 'info');
+      } else {
+        alert('Change password feature coming soon!');
+      }
 
-    // Delete Account link
-    const deleteAccountLink = document.getElementById('delete-account-link');
-    if (deleteAccountLink) {
-      deleteAccountLink.addEventListener('click', function (e) {
-        e.preventDefault();
+      // Close dropdown after action
+      const dropdown = this.closest('.dropdown');
+      const menu = dropdown.querySelector('.dropdown-menu');
+      menu.classList.remove('active');
+    });
+  }
 
-        // For now, just show a notification that this feature is coming soon
-        if (typeof showNotification === 'function') {
-          showNotification('Account deletion feature coming soon!', 'info');
-        } else {
-          alert('Account deletion feature coming soon!');
-        }
+  // Delete Account link
+  const deleteAccountLink = document.getElementById('delete-account-link');
+  if (deleteAccountLink) {
+    deleteAccountLink.addEventListener('click', function (e) {
+      e.preventDefault();
 
-        // Close dropdown after action
-        const dropdown = this.closest('.dropdown');
-        const menu = dropdown.querySelector('.dropdown-menu');
-        menu.classList.remove('active');
-      });
-    }
+      // For now, just show a notification that this feature is coming soon
+      if (typeof showNotification === 'function') {
+        showNotification('Account deletion feature coming soon!', 'info');
+      } else {
+        alert('Account deletion feature coming soon!');
+      }
+
+      // Close dropdown after action
+      const dropdown = this.closest('.dropdown');
+      const menu = dropdown.querySelector('.dropdown-menu');
+      menu.classList.remove('active');
+    });
   }
 }
 
