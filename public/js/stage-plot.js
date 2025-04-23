@@ -1793,6 +1793,7 @@ function makeDraggableOnStage(element, plotState) {
     // Final position calculation
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
+    const offset = 14;
 
     if (isDuplicating && ghostElements.length > 0) {
       // Create actual duplicates at ghost positions
@@ -1807,8 +1808,8 @@ function makeDraggableOnStage(element, plotState) {
         if (elementIndex !== -1) {
           // Get final position of ghost
           const ghostRect = ghost.getBoundingClientRect();
-          const finalLeft = ghostRect.left - stageRect.left;
-          const finalTop = ghostRect.top - stageRect.top;
+          const finalLeft = ghostRect.left - stageRect.left - offset;
+          const finalTop = ghostRect.top - stageRect.top - offset;
 
           // Generate a new unique ID
           const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
