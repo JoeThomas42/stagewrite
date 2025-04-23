@@ -48,13 +48,13 @@
           <nav id="main-nav">
             <ul>
               <li>
-                <a href="<?= WEB_ROOT ?>/index.php" class="<?= $current_page === 'Home' ? 'current-page' : '' ?>">
-                  Stage Plot
+                <a href="<?= WEB_ROOT ?>/index.php" class="<?= $current_page === 'Plotter' ? 'current-page' : '' ?>">
+                  Stage Plotter
                 </a>
               </li>
               <li>
-                <a href="<?= WEB_ROOT ?>/profile.php" class="<?= $current_page === 'Profile' ? 'current-page' : '' ?>">
-                  Profile
+                <a href="<?= WEB_ROOT ?>/profile.php" class="<?= $current_page === 'Portfolio' ? 'current-page' : '' ?>">
+                  Portfolio
                 </a>
               </li>
               <?php if ($_SESSION['role_id'] == 2 || $_SESSION['role_id'] == 3): ?>
@@ -68,21 +68,38 @@
           </nav>
 
           <div class="user-controls">
-            <span class="welcome-message">
+            <!-- <span class="welcome-message"> -->
               <?php
-              if ($_SESSION['role_id'] == 2) {
-                echo 'Hello, Admin ';
-              } elseif ($_SESSION['role_id'] == 3) {
-                echo 'Hello, Super Admin ';
-              } else {
-                echo 'Welcome, ';
-              }
-              echo htmlspecialchars($_SESSION['first_name']);
-              echo ($_SESSION['role_id'] >= 2) ? '!' : '';
+              // if ($_SESSION['role_id'] == 2) {
+              //   echo 'Hello, Admin ';
+              // } elseif ($_SESSION['role_id'] == 3) {
+              //   echo 'Hello, Super Admin ';
+              // } else {
+              //   echo 'Welcome, ';
+              // }
+              // echo htmlspecialchars($_SESSION['first_name']);
+              // echo ($_SESSION['role_id'] >= 2) ? '!' : '';
               ?>
-            </span>
-            <a class="log-link" href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
-            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+            <!-- </span> -->
+
+            <!-- Account dropdown replacing the logout link -->
+            <div class="dropdown account-dropdown">
+              <button class="dropdown-toggle account-toggle" aria-label="Account options">
+                <i class="fas fa-user-circle"></i>
+              </button>
+              <div class="dropdown-menu account-menu">
+                <div class="account-greeting">
+                  Hello, <?php echo htmlspecialchars($_SESSION['first_name']); ?>!
+                </div>
+                <a href="#" id="change-password-link">Change Password</a>
+                <a href="#" id="delete-account-link">Delete Account</a>
+                <a href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
+              </div>
+            </div>
+
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+              <i class="fas fa-moon"></i>
+            </button>
           </div>
         <?php else: ?>
           <!-- Navigation for non-logged-in users -->

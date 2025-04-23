@@ -250,7 +250,6 @@ header.header-container {
 }
 
 #main-nav {
-  margin-right: var(--spacing-xl);
 
   ul {
     display: flex;
@@ -346,15 +345,66 @@ header.header-container {
 .user-controls {
   align-items: center;
   display: flex;
+  gap: var(--spacing-md);
+  justify-content: space-between;
 }
 
-.welcome-message {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: var(--border-radius-sm);
+/* --------------- Header Actions --------------- */
+.account-toggle,
+.theme-toggle {
+  background-color: transparent !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
   color: var(--color-white);
-  font-size: var(--font-size-sm);
-  margin-right: var(--spacing-lg);
-  padding: var(--spacing-xs) var(--spacing-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  transition: all var(--transition-fast);
+  width: 32px;
+
+  &:hover {
+    box-shadow: var(--shadow-lg) !important;
+  }
+
+  &:active {
+    box-shadow: inset var(--shadow-inset-md) !important;
+  }
+
+  i {
+  font-size: var(--font-size-md);
+  transition: all var(--transition-medium);
+  }
+}
+
+.account-toggle {
+  height: 42px;
+  width: 42px;
+  
+  i {
+    font-size: var(--font-size-xxl);
+  }
+}
+
+.account-dropdown {
+  margin: 0;
+}
+
+.account-menu {
+  min-width: 200px;
+  padding: var(--spacing-xs) 0;
+  right: -10px;
+}
+
+.account-greeting {
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  padding: var(--spacing-md);
+  text-align: center;
 }
 
 /* Login Modal */

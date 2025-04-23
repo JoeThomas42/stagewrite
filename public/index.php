@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-$current_page = "Home";
+$current_page = "Plotter";
 include PRIVATE_PATH . '/templates/header.php';
 
 // Create database connection

@@ -21,7 +21,7 @@ $user = [
 $db = Database::getInstance();
 
 // Set page title for header
-$current_page = "Profile";
+$current_page = "Portfolio";
 include PRIVATE_PATH . '/templates/header.php';
 
 // Load user's saved plots - now including snapshot_filename
@@ -63,7 +63,7 @@ $userVenues = $db->fetchAll("
 
 <div class="profile-container">
     <div class="profile-header">
-        <h2>Your Profile</h2>
+        <h2>Your Portfolio</h2>
         <div class="user-info">
             <div class="user-name"><?= htmlspecialchars($user['first_name']) ?> <?= htmlspecialchars($user['last_name']) ?></div>
         </div>

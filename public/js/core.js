@@ -9,6 +9,7 @@ window.initializeApp = function() {
   
   // Initialize each feature independently with error handling
   safeInit(window.initCustomDropdowns, "Custom Dropdowns");
+  safeInit(window.initAccountDropdown, "Account Dropdown");
   safeInit(window.initAuthForms, "Auth Forms");
   safeInit(window.initUserManagement, "User Management");
   safeInit(window.initVenueManagement, "Venue Management");  
