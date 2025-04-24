@@ -191,6 +191,9 @@
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
+              <small class="password-requirements">
+                Minimum 8 characters, including at least one number
+              </small>
             </div>
 
             <div>
