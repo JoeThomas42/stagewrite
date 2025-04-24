@@ -1773,6 +1773,9 @@ function makeDraggableOnStage(element, plotState) {
 
     if (isDuplicating && ghostElements.length > 0) {
       const newElementIds = [];
+      const isMultiSelection = plotState.selectedElements.length > 1;
+      const elementId = parseInt(element.getAttribute('data-id'));
+      const wasSelectedBeforeDrag = plotState.selectedElements.includes(elementId);
 
       const duplicatePromises = ghostElements.map((ghostData) => {
         const ghost = ghostData.ghost;
@@ -1829,13 +1832,15 @@ function makeDraggableOnStage(element, plotState) {
 
         plotState.selectedElements = [];
 
-        newElementIds.forEach((id) => {
-          const newDomElement = document.querySelector(`.placed-element[data-id="${id}"]`);
-          if (newDomElement) {
-            newDomElement.classList.add('selected');
-            plotState.selectedElements.push(id);
-          }
-        });
+        if (isMultiSelection || (wasSelectedBeforeDrag && plotState.selectedElements.length > 0)) {
+          newElementIds.forEach((id) => {
+            const newDomElement = document.querySelector(`.placed-element[data-id="${id}"]`);
+            if (newDomElement) {
+              newDomElement.classList.add('selected');
+              plotState.selectedElements.push(id);
+            }
+          });
+        }
 
         updateStageSelectionState(plotState);
         renderElementInfoList(plotState);
