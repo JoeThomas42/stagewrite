@@ -78,10 +78,10 @@
                 <div class="account-greeting">
                   Hello, <?php echo htmlspecialchars($_SESSION['first_name']); ?>!
                 </div>
+                <a href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
                 <a href="#" id="change-password-link">Change Password</a>
                 <a href="#" id="change-email-link">Change Email</a>
                 <a href="#" id="delete-account-link">Delete Account</a>
-                <a href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
               </div>
             </div>
 
