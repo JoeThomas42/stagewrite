@@ -427,9 +427,13 @@ header.header-container {
 }
 
 /* ------------ Account Control Modals ------------ */
-#login-modal .modal-content,
-#password-change-modal .modal-content {
-  max-width: 400px;
+#login-modal,
+#password-change-modal,
+#email-change-modal {
+
+  .modal-content {
+    max-width: 400px;
+  }
 }
 
 #forgot-password-form {

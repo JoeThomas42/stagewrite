@@ -268,5 +268,46 @@
     </div>
   </div>
 
+  <!-- Email Change Modal -->
+  <div id="email-change-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Change Email</h2>
+      <form id="email-change-form">
+        <div>
+          <label for="current_password_email">Current Password:</label>
+          <div class="password-field-container">
+            <input type="password" id="current_password_email" name="current_password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label for="current_email">Current Email:</label>
+          <input type="email" id="current_email" name="current_email" readonly>
+        </div>
+
+        <div>
+          <label for="new_email">New Email:</label>
+          <input type="email" id="new_email" name="new_email" required>
+        </div>
+
+        <div id="email-change-error" class="error-message hidden"></div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-button">Change Email</button>
+          <button type="button" class="cancel-button">Cancel</button>
+        </div>
+      </form>
+      <div class="email-change-success hidden">
+        <p>Your email has been changed successfully!</p>
+        <button type="button" class="primary-button" id="close-email-success-btn">Close</button>
+      </div>
+      <div class="modal-notification-area"></div>
+    </div>
+  </div>
+
   <div id="page-wrapper">
     <div id="notification-area" class="notification-area pinned"></div>

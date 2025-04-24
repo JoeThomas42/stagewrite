@@ -289,28 +289,9 @@ function initLoginForm() {
  * Initialize account dropdown functionality
  */
 function initAccountDropdown() {
-  // Initialize password change modal
+  
   initPasswordChangeModal();
-
-  // Change Email link
-  const changeEmailLink = document.getElementById('change-email-link');
-  if (changeEmailLink) {
-    changeEmailLink.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      // For now, just show a notification that this feature is coming soon
-      if (typeof showNotification === 'function') {
-        showNotification('Change email feature coming soon!', 'info');
-      } else {
-        alert('Change email feature coming soon!');
-      }
-
-      // Close dropdown after action
-      const dropdown = this.closest('.dropdown');
-      const menu = dropdown.querySelector('.dropdown-menu');
-      menu.classList.remove('active');
-    });
-  }
+  initEmailChangeModal();
 
   // Delete Account link
   const deleteAccountLink = document.getElementById('delete-account-link');
@@ -513,6 +494,165 @@ function initPasswordToggles() {
   });
 }
 
+/**
+ * Initialize email change modal functionality
+ */
+function initEmailChangeModal() {
+  const changeEmailLink = document.getElementById('change-email-link');
+  const emailChangeModal = document.getElementById('email-change-modal');
+
+  if (!changeEmailLink || !emailChangeModal) return;
+
+  // Open the modal when the change email link is clicked
+  changeEmailLink.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    // Reset form
+    const form = document.getElementById('email-change-form');
+    if (form) form.reset();
+
+    // Fetch the current email from the server
+    fetch('/handlers/get_user_info.php')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success && data.email) {
+          const currentEmailField = document.getElementById('current_email');
+          if (currentEmailField) currentEmailField.value = data.email;
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching user info:', error);
+      });
+
+    // Hide success message, show form
+    const successMessage = emailChangeModal.querySelector('.email-change-success');
+    if (successMessage) successMessage.classList.add('hidden');
+    if (form) form.classList.remove('hidden');
+
+    // Clear any error messages
+    const errorMessage = document.getElementById('email-change-error');
+    if (errorMessage) errorMessage.classList.add('hidden');
+
+    // Open the modal
+    openModal(emailChangeModal);
+
+    // Initialize password toggles
+    initPasswordToggles();
+
+    // Close dropdown after action
+    const dropdown = this.closest('.dropdown');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    if (menu) menu.classList.remove('active');
+  });
+
+  // Close button functionality
+  const closeButton = emailChangeModal.querySelector('.close-button');
+  if (closeButton) {
+    closeButton.addEventListener('click', function () {
+      closeModal(emailChangeModal);
+    });
+  }
+
+  // Cancel button functionality
+  const cancelButton = emailChangeModal.querySelector('.cancel-button');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', function () {
+      closeModal(emailChangeModal);
+    });
+  }
+
+  // Close on outside click
+  emailChangeModal.addEventListener('click', function (e) {
+    if (e.target === emailChangeModal) {
+      closeModal(emailChangeModal);
+    }
+  });
+
+  // Close success button
+  const closeSuccessBtn = document.getElementById('close-email-success-btn');
+  if (closeSuccessBtn) {
+    closeSuccessBtn.addEventListener('click', function () {
+      closeModal(emailChangeModal);
+    });
+  }
+
+  // Form submission
+  const emailChangeForm = document.getElementById('email-change-form');
+  if (emailChangeForm) {
+    emailChangeForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const currentPassword = document.getElementById('current_password_email').value;
+      const newEmail = document.getElementById('new_email').value;
+      const errorMessageElement = document.getElementById('email-change-error');
+
+      // Clear any existing error messages
+      if (errorMessageElement) {
+        errorMessageElement.textContent = '';
+        errorMessageElement.classList.add('hidden');
+      }
+
+      // Validate email format
+      if (!isValidEmail(newEmail)) {
+        if (errorMessageElement) {
+          errorMessageElement.textContent = 'Please enter a valid email address';
+          errorMessageElement.classList.remove('hidden');
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch('/handlers/change_email.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            current_password: currentPassword,
+            new_email: newEmail,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Show success message
+          emailChangeForm.classList.add('hidden');
+          const successMessage = emailChangeModal.querySelector('.email-change-success');
+          if (successMessage) successMessage.classList.remove('hidden');
+
+          // Show notification
+          if (typeof showNotification === 'function') {
+            showNotification('Email changed successfully!', 'success');
+          }
+        } else {
+          // Show error message
+          if (errorMessageElement) {
+            errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
+            errorMessageElement.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (errorMessageElement) {
+          errorMessageElement.textContent = 'Network error. Please try again later.';
+          errorMessageElement.classList.remove('hidden');
+        }
+      }
+    });
+  }
+}
+
+/**
+ * Validate email format
+ * @param {string} email - Email address to validate
+ * @return {boolean} Whether the email is valid
+ */
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 // -------------------- Make authentication functions available globally ---------------------
 window.initAuthForms = initAuthForms;
 window.initSignupForm = initSignupForm;
@@ -520,3 +660,4 @@ window.initLoginForm = initLoginForm;
 window.initAccountDropdown = initAccountDropdown;
 window.initPasswordChangeModal = initPasswordChangeModal;
 window.initPasswordToggles = initPasswordToggles;
+window.initEmailChangeModal = initEmailChangeModal;
