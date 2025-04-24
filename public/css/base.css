@@ -426,9 +426,61 @@ header.header-container {
   text-align: center;
 }
 
-/* Login Modal */
+/* ----- Login Modal ----- */
 #login-modal .modal-content {
   max-width: 400px;
+}
+
+#forgot-password-form {
+  p {
+    text-align: left;
+  }
+  
+  #back-to-login {
+    background-color: var(--color-secondary);
+  }
+}
+
+/* ----- reset_password.php -----  */
+.reset-password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.reset-password-card {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: 500px;
+  padding: 2rem;
+  width: 100%;
+}
+
+.reset-password-card h2 {
+  color: var(--color-primary-dark);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.password-requirements {
+  color: var(--color-text-light);
+  display: block;
+  font-size: var(--font-size-xs);
+  margin-top: 0.25rem;
+}
+
+#reset-success {
+  text-align: center;
+}
+
+#reset-success .primary-button {
+  margin-top: 1rem;
+}
+
+[data-theme="dark"] .reset-password-card h2 {
+  color: var(--color-text);
 }
 
 /* -------------------- Footer --------------------- */

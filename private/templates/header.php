@@ -70,21 +70,6 @@
           </nav>
 
           <div class="user-controls">
-            <!-- <span class="welcome-message"> -->
-            <?php
-            // if ($_SESSION['role_id'] == 2) {
-            //   echo 'Hello, Admin ';
-            // } elseif ($_SESSION['role_id'] == 3) {
-            //   echo 'Hello, Super Admin ';
-            // } else {
-            //   echo 'Welcome, ';
-            // }
-            // echo htmlspecialchars($_SESSION['first_name']);
-            // echo ($_SESSION['role_id'] >= 2) ? '!' : '';
-            ?>
-            <!-- </span> -->
-
-            <!-- Account dropdown replacing the logout link -->
             <div class="dropdown account-dropdown">
               <button class="dropdown-toggle account-toggle" aria-label="Account options">
                 <i class="fas fa-user-circle"></i>
@@ -134,6 +119,10 @@
               <input type="password" id="password" name="password" required>
             </div>
 
+            <div class="forgot-password-link">
+              <a href="#" id="forgot-password-link">Forgot Password?</a>
+            </div>
+
             <div class="checkbox-group">
               <input type="checkbox" id="stay_logged_in" name="stay_logged_in" value="1">
               <label for="stay_logged_in" class="checkbox-label">Stay logged in</label>
@@ -144,7 +133,32 @@
           <p>Don't have an account? <a href="#" id="switch-to-signup">Create one</a></p>
         </div>
 
-        <!-- Signup Form -->
+        <!-- Forgot Password Form - initially hidden -->
+        <div id="forgot-password-form" class="form hidden">
+          <h2>Reset Password</h2>
+          <p>Enter your email address and we'll send you a link to reset your password if this account exists.</p>
+          <form id="reset-request-form">
+            <div>
+              <label for="reset_email">Email:</label>
+              <input type="email" id="reset_email" name="email" required>
+            </div>
+            <div class="form-actions">
+              <button type="submit">Send Reset Link</button>
+              <button type="button" id="back-to-login">Back to Login</button>
+            </div>
+          </form>
+          <div class="reset-message hidden">
+            <div class="success-message hidden">
+              <p>Password reset link sent! Please check your email.</p>
+            </div>
+            <div class="error-message hidden">
+              <p>Error: <span id="reset-error-text"></span></p>
+            </div>
+            <button type="button" id="reset-back-to-login" class="primary-button">Back to Login</button>
+          </div>
+        </div>
+
+        <!-- Signup Form - initially hidden -->
         <div id="signup-form" class="form hidden">
           <h2>Create Account</h2>
           <form action="/handlers/signup_handler.php" method="POST" novalidate>

@@ -767,18 +767,15 @@ function initDragAndDrop(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Make elements from the list draggable
   const draggableElements = document.querySelectorAll('.draggable-element');
 
   draggableElements.forEach((element) => {
-    // Modify the dragstart listener
     element.addEventListener('dragstart', (e) => {
-      handleDragStart(e, plotState); // Call your existing handler
+      handleDragStart(e, plotState);
     });
     element.setAttribute('draggable', true);
   });
 
-  // Set up the stage as drop target
   stage.addEventListener('dragover', handleDragOver);
   stage.addEventListener('drop', (e) => handleDrop(e, plotState));
 }
@@ -793,59 +790,47 @@ function handleDragStart(e, plotState) {
   const sourceElement = e.target;
   const elementId = sourceElement.getAttribute('data-element-id');
 
-  // Basic drag data setup
   e.dataTransfer.setData('text/plain', elementId);
   e.dataTransfer.effectAllowed = 'copy';
 
   // Create clone for preview
   const clone = sourceElement.cloneNode(true);
-  clone.classList.add('drag-preview-element'); // Apply specific preview styles if needed
-  clone.classList.remove('dragging'); // Ensure no conflicting styles
+  clone.classList.add('drag-preview-element');
+  clone.classList.remove('dragging');
   clone.style.position = 'absolute';
-  clone.style.top = '-9999px'; // Position off-screen initially
+  clone.style.top = '-9999px';
   clone.style.left = '-9999px';
-  clone.style.pointerEvents = 'none'; // Preview shouldn't interfere
-  clone.style.margin = '0'; // Reset margin for preview consistency
+  clone.style.pointerEvents = 'none';
+  clone.style.margin = '0';
   document.body.appendChild(clone);
 
-  // --- Change: Always align cursor to top-left of the preview image ---
   try {
-    // Set the drag image with 0, 0 offset
     e.dataTransfer.setDragImage(clone, 0, 0);
     console.log("setDragImage called with offset (0, 0)"); // Debug log
   } catch (error) {
     console.error("Error setting drag image:", error);
   }
-  // --- End Change ---
 
-  // We still need to record the *actual* click offset relative to the source element,
-  // even though we aren't using it for setDragImage anymore.
-  // It might be useful for other potential interactions or debugging.
   const sourceRect = sourceElement.getBoundingClientRect();
   const clickOffsetX = e.clientX - sourceRect.left;
   const clickOffsetY = e.clientY - sourceRect.top;
 
-  // Store original drag info (including the actual click offset)
   plotState.currentDragId = elementId;
   plotState.dragSourceRect = {
     width: sourceRect.width,
     height: sourceRect.height,
-    offsetX: clickOffsetX, // Store the actual click offset X
-    offsetY: clickOffsetY, // Store the actual click offset Y
+    offsetX: clickOffsetX,
+    offsetY: clickOffsetY,
   };
 
-  // Cleanup the appended clone shortly after drag starts
-  // Use timeout 0 to schedule it right after the current execution context
   setTimeout(() => {
     if (clone.parentNode === document.body) {
       document.body.removeChild(clone);
     }
   }, 0);
 
-  // Add dragend listener for final cleanup
   function cleanupDragState() {
     document.removeEventListener('dragend', cleanupDragState);
-    // Clear state even if offsets weren't used in the final drop calculation
     plotState.currentDragId = null;
     plotState.dragSourceRect = null;
     console.log("Drag state cleaned up on dragend."); // Debug log
@@ -978,7 +963,7 @@ function createPlacedElement(elementData, plotState) {
   return new Promise((resolve) => {
     const stage = document.getElementById('stage');
     if (!stage) {
-      resolve(); // Resolve immediately if stage not found
+      resolve();
       return;
     }
 
@@ -993,7 +978,6 @@ function createPlacedElement(elementData, plotState) {
     element.style.height = `${elementData.height}px`;
     element.style.zIndex = elementData.zIndex;
 
-    // Initially set width, will be adjusted when image loads
     element.style.width = `${elementData.width}px`;
 
     // Create image
@@ -1001,20 +985,16 @@ function createPlacedElement(elementData, plotState) {
     img.src = `/images/elements/${elementData.image}`;
     img.alt = elementData.elementName;
 
-    // Apply flip state to the image initially
     if (elementData.flipped) {
       img.style.transform = 'scaleX(-1)';
     }
 
     img.onload = function () {
-      // Calculate the appropriate width based on the image's aspect ratio
       const aspectRatio = this.naturalWidth / this.naturalHeight;
       const newWidth = Math.round(elementData.height * aspectRatio);
 
-      // Update the element width in the DOM
       element.style.width = `${newWidth}px`;
 
-      // Update the element width in state
       const elementIndex = plotState.elements.findIndex((el) => el.id === elementData.id);
       if (elementIndex !== -1) {
         plotState.elements[elementIndex].width = newWidth;
@@ -1022,7 +1002,6 @@ function createPlacedElement(elementData, plotState) {
 
       resolve();
     };
-    // Handle image loading errors
     img.onerror = function () {
       console.warn(`Failed to load image for element ${elementData.elementName}`);
       resolve();
@@ -1038,7 +1017,6 @@ function createPlacedElement(elementData, plotState) {
       element.appendChild(label);
     }
 
-    // Add actions to the element
     // Add edit button
     const editAction = document.createElement('div');
     editAction.className = 'element-actions';
@@ -1053,7 +1031,7 @@ function createPlacedElement(elementData, plotState) {
       openPropertiesModal(elementData.id, plotState);
     });
 
-    // Add button event handlers (mousedown/up/leave for visual feedback)
+    // Add button event handlers
     editBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });
@@ -1094,7 +1072,7 @@ function createPlacedElement(elementData, plotState) {
       );
     });
 
-    // Add button event handlers (mousedown/up/leave for visual feedback)
+    // Add button event handlers
     deleteBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });
@@ -1116,22 +1094,20 @@ function createPlacedElement(elementData, plotState) {
     const flipBtn = document.createElement('button');
     flipBtn.className = 'edit-element flip-btn';
     flipBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
-    // Set initial title and class based on elementData
     flipBtn.title = elementData.flipped ? 'Unflip Horizontally' : 'Flip Horizontally';
     if (elementData.flipped) {
       flipBtn.classList.add('flipped');
     }
 
     flipBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent event bubbling
+      e.stopPropagation();
 
-      // *** Use elementData.id directly from the closure scope ***
       const currentElementId = elementData.id;
       const elementIndex = plotState.elements.findIndex((el) => el.id === currentElementId);
 
       if (elementIndex === -1) {
         console.error('Flip error: Element not found in state with ID:', currentElementId);
-        return; // Element not found in state, bail out
+        return;
       }
 
       // Prevent multiple flips if already flipping
@@ -1139,7 +1115,7 @@ function createPlacedElement(elementData, plotState) {
 
       const currentlyFlipped = plotState.elements[elementIndex].flipped;
 
-      // Hide controls immediately
+      // Hide controls
       const controls = element.querySelectorAll('.element-actions, .element-label');
       controls.forEach((control) => {
         control.style.opacity = '0';
@@ -1159,18 +1135,14 @@ function createPlacedElement(elementData, plotState) {
 
         const imageElement = element.querySelector('img');
         if (!imageElement) {
-          // Handle case where image is missing (e.g., failed to load)
           console.warn('Flip warning: Image element not found for ID:', currentElementId);
-          // Still update state and UI appearance
           plotState.elements[elementIndex].flipped = !currentlyFlipped;
           flipBtn.classList.toggle('flipped', !currentlyFlipped);
           flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
-          // Clean up animation classes and overlay
           element.classList.remove('flipping', 'to-right', 'to-left');
           if (flipOverlay && flipOverlay.parentNode) {
             flipOverlay.remove();
           }
-          // Restore controls visibility after a short delay
           setTimeout(() => {
             controls.forEach((control) => {
               control.removeAttribute('style');
@@ -1182,46 +1154,37 @@ function createPlacedElement(elementData, plotState) {
 
         // Animation end handler
         const handleAnimationEnd = () => {
-          // Update state
           plotState.elements[elementIndex].flipped = !currentlyFlipped;
-          // Update image transform
           imageElement.style.transform = !currentlyFlipped ? 'scaleX(-1)' : '';
-          // Update button appearance
           flipBtn.classList.toggle('flipped', !currentlyFlipped);
           flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
-          // Clean up animation classes
           element.classList.remove('flipping', 'to-right', 'to-left');
-          // Clean up listener
           imageElement.removeEventListener('animationend', handleAnimationEnd);
-          // Remove overlay
           if (flipOverlay && flipOverlay.parentNode) {
             flipOverlay.remove();
           }
-          // Restore controls visibility
           setTimeout(() => {
             controls.forEach((control) => {
               control.removeAttribute('style');
             });
           }, 50);
-          // Mark plot as modified
+
           markPlotAsModified(plotState);
         };
 
-        // Add listener
         imageElement.addEventListener('animationend', handleAnimationEnd);
 
-        // Fallback timeout in case animationend doesn't fire
         setTimeout(() => {
           if (element.classList.contains('flipping')) {
             console.warn('Flip animation fallback triggered for ID:', currentElementId);
             imageElement.removeEventListener('animationend', handleAnimationEnd);
             handleAnimationEnd(); // Force cleanup
           }
-        }, 500); // Slightly longer than animation duration
+        }, 500);
       });
     });
 
-    // Add button visual feedback handlers (mousedown/up/leave)
+    // Add button visual feedback handlers
     flipBtn.addEventListener('mousedown', function (e) {
       this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
     });
@@ -1235,23 +1198,20 @@ function createPlacedElement(elementData, plotState) {
     flipAction.appendChild(flipBtn);
     element.appendChild(flipAction);
 
-    // Make draggable within stage
     makeDraggableOnStage(element, plotState);
 
-    // Add to stage
     stage.appendChild(element);
 
     if (!img.src || img.complete) {
-      // Manually trigger the logic if needed, or just resolve
       if (img.complete && img.naturalWidth > 0) {
-        img.onload(); // Call onload manually if image is already loaded
+        img.onload();
       } else if (!img.src) {
-        resolve(); // Resolve if there's no image src
+        resolve();
       }
     }
 
     if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
-  }); // End of Promise constructor
+  });
 }
 
 /**
@@ -1510,9 +1470,9 @@ function makeDraggableOnStage(element, plotState) {
   let startX, startY, startLeft, startTop;
   let isDraggingGroup = false;
   let isDuplicating = false; // Flag for duplication mode
-  let groupOffsets = []; // Store offsets AND dimensions for group dragging
-  let ghostElements = []; // Store references to ghost elements during duplication
-  let sourceElements = []; // Store references to source elements being duplicated
+  let groupOffsets = [];
+  let ghostElements = [];
+  let sourceElements = [];
 
   element.addEventListener('mousedown', startDrag);
   element.addEventListener('touchstart', startDrag, { passive: false });
@@ -1522,7 +1482,6 @@ function makeDraggableOnStage(element, plotState) {
    * @param {MouseEvent|TouchEvent} e - The event that triggered the drag
    */
   function startDrag(e) {
-    // Skip if this event was already handled by our selection logic
     if (e._handledBySelection === true) {
       return;
     }
@@ -1532,19 +1491,16 @@ function makeDraggableOnStage(element, plotState) {
       return;
     }
 
-    // Check if the event is a drag event (has dataTransfer) before preventing default
-    // Only prevent default for mouse events to allow touch scrolling initially
+    // Check if the event is a drag event before preventing default
     if (e.type === 'mousedown' && e.dataTransfer) {
         e.preventDefault();
     }
-    // For touch events, we'll prevent default inside dragMove if needed
     e.stopPropagation();
-
 
     const elementId = parseInt(element.getAttribute('data-id'));
 
-    // Check if CTRL key is pressed for duplication
-    isDuplicating = e.ctrlKey || e.metaKey; // Support both Ctrl and Cmd (Mac)
+    // Check if CTRL/CMD key is pressed for duplication
+    isDuplicating = e.ctrlKey || e.metaKey;
 
     // Explicitly set drag image during duplication to prevent browser default preview
     if (isDuplicating && e.type === 'mousedown' && e.dataTransfer) {
@@ -1558,7 +1514,7 @@ function makeDraggableOnStage(element, plotState) {
       document.body.appendChild(emptyPreview);
 
       try {
-        e.dataTransfer.effectAllowed = 'copy'; // Indicate copy operation
+        e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('text/plain', elementId.toString());
         e.dataTransfer.setDragImage(emptyPreview, 0, 0);
         console.log("Invisible drag image set for duplication.");
@@ -1577,22 +1533,19 @@ function makeDraggableOnStage(element, plotState) {
     isDraggingGroup = plotState.selectedElements.includes(elementId);
 
     if (!isDraggingGroup) {
-      // Only clear selection if shift is not held and we're not clicking on an already selected element
       if (!e.shiftKey && !element.classList.contains('selected')) {
         clearElementSelection(plotState);
       }
 
       if (!isDuplicating) {
-        // Only bring to front if not duplicating (we'll handle z-index for duplicates separately)
         bringToFront(elementId, plotState);
       }
     } else {
       if (!isDuplicating) {
-        // Only bring to front if not duplicating
         bringToFront(elementId, plotState);
       }
 
-      // Calculate offsets AND cache dimensions for all elements in the group
+      // Calculate offsets cache dimensions
       groupOffsets = [];
       plotState.selectedElements.forEach((id) => {
         const domEl = document.querySelector(`.placed-element[data-id="${id}"]`);
@@ -1656,7 +1609,7 @@ function makeDraggableOnStage(element, plotState) {
 
     // Add move and end events
     document.addEventListener('mousemove', dragMove);
-    document.addEventListener('touchmove', dragMove, { passive: false }); // passive:false needed for preventDefault
+    document.addEventListener('touchmove', dragMove, { passive: false });
     document.addEventListener('mouseup', dragEnd);
     document.addEventListener('touchend', dragEnd);
   }
@@ -1699,7 +1652,6 @@ function makeDraggableOnStage(element, plotState) {
 
     let clientX, clientY;
     if (e.type === 'touchmove') {
-      // Check if touches exist
       if (e.touches && e.touches.length > 0) {
         clientX = e.touches[0].clientX;
         clientY = e.touches[0].clientY;
@@ -1711,7 +1663,6 @@ function makeDraggableOnStage(element, plotState) {
       clientX = e.clientX;
       clientY = e.clientY;
     }
-
 
     const dx = clientX - startX;
     const dy = clientY - startY;
@@ -1752,38 +1703,33 @@ function makeDraggableOnStage(element, plotState) {
       if (minX < boundaryBuffer) {
         deltaX = boundaryBuffer - minX; // Adjust right
       } else if (maxX > stageWidth - boundaryBuffer) {
-        deltaX = stageWidth - boundaryBuffer - maxX; // Adjust left (negative value)
+        deltaX = stageWidth - boundaryBuffer - maxX; // Adjust left
       }
 
       let deltaY = 0;
       if (minY < boundaryBuffer) {
         deltaY = boundaryBuffer - minY; // Adjust down
       } else if (maxY > stageHeight - boundaryBuffer) {
-        deltaY = stageHeight - boundaryBuffer - maxY; // Adjust up (negative value)
+        deltaY = stageHeight - boundaryBuffer - maxY; // Adjust up
       }
 
       // Apply adjustments to the primary element's potential position
       constrainedPrimaryLeft = nextPrimaryLeft + deltaX;
       constrainedPrimaryTop = nextPrimaryTop + deltaY;
     } else {
-      // Apply constraints for a single element
       const elementRect = element.getBoundingClientRect();
-       // Ensure width/height are numbers
       const elementWidth = Number(elementRect.width) || 0;
       const elementHeight = Number(elementRect.height) || 0;
-
 
       // Calculate max allowed positions considering margins for single element
       const maxLeft = stageWidth - elementWidth - boundaryBuffer;
       const maxTop = stageHeight - elementHeight - boundaryBuffer;
 
-
-      // Apply constraints for single element (buffer to max - buffer)
+      // Apply constraints for single element
       constrainedPrimaryLeft = Math.max(boundaryBuffer, Math.min(maxLeft, nextPrimaryLeft));
       constrainedPrimaryTop = Math.max(boundaryBuffer, Math.min(maxTop, nextPrimaryTop));
     }
-
-    // Calculate the actual delta applied after constraints
+    // Calculate the delta applied after constraints
     const actualDx = constrainedPrimaryLeft - startLeft;
     const actualDy = constrainedPrimaryTop - startTop;
 
@@ -1798,7 +1744,7 @@ function makeDraggableOnStage(element, plotState) {
       });
     } else if (isDraggingGroup) {
       groupOffsets.forEach((offsetData) => {
-        const groupElement = offsetData.element; // Use cached element reference
+        const groupElement = offsetData.element;
         const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
 
         if (groupElement && elementStateIndex !== -1) {
@@ -1824,10 +1770,8 @@ function makeDraggableOnStage(element, plotState) {
     // Final position calculation
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
-    // Removed offset = 14; positioning should be based on style.left/top now
 
     if (isDuplicating && ghostElements.length > 0) {
-      // Create actual duplicates at ghost positions
       const newElementIds = [];
 
       const duplicatePromises = ghostElements.map((ghostData) => {
@@ -1837,7 +1781,7 @@ function makeDraggableOnStage(element, plotState) {
         // Ensure ghost and source are valid elements
         if (!ghost || !source || !source.getAttribute) {
           console.warn("Invalid ghost or source element in dragEnd.");
-          return Promise.resolve(); // Skip this one
+          return Promise.resolve();
         }
 
         const elementId = parseInt(source.getAttribute('data-id'));
@@ -1848,63 +1792,57 @@ function makeDraggableOnStage(element, plotState) {
           const finalLeft = parseInt(window.getComputedStyle(ghost).left);
           const finalTop = parseInt(window.getComputedStyle(ghost).top);
 
-          // Generate a new unique ID (robustly)
+          // Generate a new unique ID
           const maxId = plotState.elements.reduce((max, el) => Math.max(max, el.id), 0);
-          const newElementId = maxId + 1; // Simple increment
+          const newElementId = maxId + 1;
 
           newElementIds.push(newElementId);
 
           // Clone the element data
           const sourceElementData = plotState.elements[elementIndex];
-          // Deep clone needed if elements have nested objects/arrays
           const newElementData = JSON.parse(JSON.stringify(sourceElementData));
-          newElementData.id = newElementId; // Assign new ID
+          newElementData.id = newElementId;
           newElementData.x = finalLeft;
           newElementData.y = finalTop;
-          newElementData.zIndex = plotState.nextZIndex++; // Assign new z-index
+          newElementData.zIndex = plotState.nextZIndex++;
 
           plotState.elements.push(newElementData);
           return createPlacedElement(newElementData, plotState);
         }
-        return Promise.resolve(); // Skip if source element not found in state
+        return Promise.resolve();
       });
 
-      // Clean up ghost elements from DOM *immediately*
+      // Clean up ghost elements from DOM
       ghostElements.forEach((ghostData) => {
-         if (ghostData.ghost && ghostData.ghost.parentNode) {
+        if (ghostData.ghost && ghostData.ghost.parentNode) {
             ghostData.ghost.remove();
         }
       });
-      ghostElements = []; // Clear the array
+      ghostElements = [];
 
-      // Wait for all duplicate elements to be created in the DOM
       Promise.all(duplicatePromises).then(() => {
-        // *** START FIX for Deselection ***
-        // Now that ghosts are gone and duplicates exist, deselect originals
         sourceElements.forEach((el) => {
           el.classList.remove('is-being-duplicated');
-          el.classList.remove('selected'); // Explicitly remove selected class here
+          el.classList.remove('selected');
         });
-        sourceElements = []; // Clear the array
-        // *** END FIX for Deselection ***
+        sourceElements = [];
 
-        // Now select the *newly created* elements
-        plotState.selectedElements = []; // Clear previous selection state
+        plotState.selectedElements = [];
 
         newElementIds.forEach((id) => {
           const newDomElement = document.querySelector(`.placed-element[data-id="${id}"]`);
           if (newDomElement) {
             newDomElement.classList.add('selected');
-            plotState.selectedElements.push(id); // Add new ID to selection state
+            plotState.selectedElements.push(id);
           }
         });
 
-        updateStageSelectionState(plotState); // Update UI based on new selection
+        updateStageSelectionState(plotState);
         renderElementInfoList(plotState);
         markPlotAsModified(plotState);
       });
 
-    } else if (!isDuplicating) { // Only update position if NOT duplicating
+    } else if (!isDuplicating) {
       // Get final position of the primary dragged element
       const finalPrimaryLeft = parseInt(window.getComputedStyle(element).left);
       const finalPrimaryTop = parseInt(window.getComputedStyle(element).top);
@@ -1914,7 +1852,6 @@ function makeDraggableOnStage(element, plotState) {
         groupOffsets.forEach((offsetData) => {
           const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
           if (elementStateIndex !== -1) {
-            // Calculate final position based on primary element's final pos + offset
             plotState.elements[elementStateIndex].x = finalPrimaryLeft + offsetData.offsetX;
             plotState.elements[elementStateIndex].y = finalPrimaryTop + offsetData.offsetY;
           }
@@ -1929,7 +1866,7 @@ function makeDraggableOnStage(element, plotState) {
         }
       }
       markPlotAsModified(plotState);
-      renderElementInfoList(plotState); // Update list after position change
+      renderElementInfoList(plotState);
     }
 
     // Clean up listeners
@@ -1938,11 +1875,10 @@ function makeDraggableOnStage(element, plotState) {
     document.removeEventListener('mouseup', dragEnd);
     document.removeEventListener('touchend', dragEnd);
 
-    // Reset state variables after operation completes
+    // Reset state variables
     isDraggingGroup = false;
     isDuplicating = false;
     groupOffsets = [];
-    // ghostElements and sourceElements are already cleared
   }
 }
 

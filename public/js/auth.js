@@ -10,8 +10,12 @@
 function initAuthForms() {
   const loginForm = document.getElementById('login-form');
   const signupForm = document.getElementById('signup-form');
+  const forgotPasswordForm = document.getElementById('forgot-password-form');
   const switchToSignup = document.getElementById('switch-to-signup');
   const switchToLogin = document.getElementById('switch-to-login');
+  const forgotPasswordLink = document.getElementById('forgot-password-link');
+  const backToLoginBtn = document.getElementById('back-to-login');
+  const resetBackToLoginBtn = document.getElementById('reset-back-to-login');
 
   // Add form switching functionality
   if (switchToSignup) {
@@ -19,6 +23,7 @@ function initAuthForms() {
       e.preventDefault();
       loginForm.classList.add('hidden');
       signupForm.classList.remove('hidden');
+      if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
     });
   }
 
@@ -27,6 +32,104 @@ function initAuthForms() {
       e.preventDefault();
       signupForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
+      if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
+    });
+  }
+
+  // Password reset form switching
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (loginForm) loginForm.classList.add('hidden');
+      if (forgotPasswordForm) {
+        forgotPasswordForm.classList.remove('hidden');
+
+        // Reset form state
+        const resetMessage = forgotPasswordForm.querySelector('.reset-message');
+        const resetRequestForm = forgotPasswordForm.querySelector('#reset-request-form');
+        const successMessage = forgotPasswordForm.querySelector('.success-message');
+        const errorMessage = forgotPasswordForm.querySelector('.error-message');
+
+        if (resetMessage) resetMessage.classList.add('hidden');
+        if (resetRequestForm) resetRequestForm.classList.remove('hidden');
+        if (successMessage) successMessage.classList.add('hidden');
+        if (errorMessage) errorMessage.classList.add('hidden');
+      }
+    });
+  }
+
+  // Back to login from password reset
+  if (backToLoginBtn) {
+    backToLoginBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      // Important: Stop propagation to prevent modal from closing
+      e.stopPropagation();
+
+      console.log('Back to login clicked');
+
+      if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
+      if (loginForm) loginForm.classList.remove('hidden');
+    });
+  }
+
+  // After reset message, back to login
+  if (resetBackToLoginBtn) {
+    resetBackToLoginBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      // Important: Stop propagation to prevent modal from closing
+      e.stopPropagation();
+
+      if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
+      if (loginForm) loginForm.classList.remove('hidden');
+    });
+  }
+
+  // Handle password reset request form submission
+  const resetRequestForm = document.getElementById('reset-request-form');
+  if (resetRequestForm) {
+    resetRequestForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const resetMessage = document.querySelector('.reset-message');
+      const successMessage = document.querySelector('.success-message');
+      const errorMessage = document.querySelector('.error-message');
+      const resetErrorText = document.getElementById('reset-error-text');
+
+      const email = document.getElementById('reset_email').value.trim();
+
+      if (!email) {
+        if (resetErrorText) resetErrorText.textContent = 'Please enter a valid email address';
+        if (errorMessage) errorMessage.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch('/handlers/password_reset_request.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(email)}`,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Show success message
+          resetRequestForm.classList.add('hidden');
+          if (resetMessage) resetMessage.classList.remove('hidden');
+          if (successMessage) successMessage.classList.remove('hidden');
+          if (errorMessage) errorMessage.classList.add('hidden');
+        } else {
+          // Show error message
+          if (resetErrorText) resetErrorText.textContent = data.error || 'An error occurred. Please try again.';
+          if (errorMessage) errorMessage.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (resetErrorText) resetErrorText.textContent = 'Network error. Please try again later.';
+        if (errorMessage) errorMessage.classList.remove('hidden');
+      }
     });
   }
 
@@ -167,7 +270,6 @@ function initLoginForm() {
       alert('An unexpected error occurred');
     }
   });
-
 }
 
 /**
