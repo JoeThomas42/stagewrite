@@ -426,8 +426,9 @@ header.header-container {
   text-align: center;
 }
 
-/* ----- Login Modal ----- */
-#login-modal .modal-content {
+/* ----- Account Control Modals ----- */
+#login-modal .modal-content,
+#password-change-modal .modal-content {
   max-width: 400px;
 }
 
@@ -435,7 +436,7 @@ header.header-container {
   p {
     text-align: left;
   }
-  
+
   #back-to-login {
     background-color: var(--color-secondary);
   }

@@ -276,25 +276,8 @@ function initLoginForm() {
  * Initialize account dropdown functionality
  */
 function initAccountDropdown() {
-  // Change Password link
-  const changePasswordLink = document.getElementById('change-password-link');
-  if (changePasswordLink) {
-    changePasswordLink.addEventListener('click', function (e) {
-      e.preventDefault();
 
-      // For now, just show a notification that this feature is coming soon
-      if (typeof showNotification === 'function') {
-        showNotification('Change password feature coming soon!', 'info');
-      } else {
-        alert('Change password feature coming soon!');
-      }
-
-      // Close dropdown after action
-      const dropdown = this.closest('.dropdown');
-      const menu = dropdown.querySelector('.dropdown-menu');
-      menu.classList.remove('active');
-    });
-  }
+  initPasswordChangeModal();
 
   // Delete Account link
   const deleteAccountLink = document.getElementById('delete-account-link');
@@ -317,8 +300,154 @@ function initAccountDropdown() {
   }
 }
 
+/**
+ * Initialize password change modal functionality
+ */
+function initPasswordChangeModal() {
+  const changePasswordLink = document.getElementById('change-password-link');
+  const passwordChangeModal = document.getElementById('password-change-modal');
+
+  if (!changePasswordLink || !passwordChangeModal) return;
+
+  // Open the modal when the change password link is clicked
+  changePasswordLink.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    // Reset form
+    const form = document.getElementById('password-change-form');
+    if (form) form.reset();
+
+    // Hide success message, show form
+    const successMessage = passwordChangeModal.querySelector('.password-change-success');
+    if (successMessage) successMessage.classList.add('hidden');
+    if (form) form.classList.remove('hidden');
+
+    // Clear any error messages
+    const errorMessage = document.getElementById('password-change-error');
+    if (errorMessage) errorMessage.classList.add('hidden');
+
+    // Open the modal
+    openModal(passwordChangeModal);
+
+    // Close dropdown after action
+    const dropdown = this.closest('.dropdown');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    if (menu) menu.classList.remove('active');
+  });
+
+  // Close button functionality
+  const closeButton = passwordChangeModal.querySelector('.close-button');
+  if (closeButton) {
+    closeButton.addEventListener('click', function () {
+      closeModal(passwordChangeModal);
+    });
+  }
+
+  // Cancel button functionality
+  const cancelButton = passwordChangeModal.querySelector('.cancel-button');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', function () {
+      closeModal(passwordChangeModal);
+    });
+  }
+
+  // Close on outside click
+  passwordChangeModal.addEventListener('click', function (e) {
+    if (e.target === passwordChangeModal) {
+      closeModal(passwordChangeModal);
+    }
+  });
+
+  // Close success button
+  const closeSuccessBtn = document.getElementById('close-success-btn');
+  if (closeSuccessBtn) {
+    closeSuccessBtn.addEventListener('click', function () {
+      closeModal(passwordChangeModal);
+    });
+  }
+
+  // Form submission
+  const passwordChangeForm = document.getElementById('password-change-form');
+  if (passwordChangeForm) {
+    passwordChangeForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const currentPassword = document.getElementById('current_password').value;
+      const newPassword = document.getElementById('new_password').value;
+      const confirmNewPassword = document.getElementById('confirm_new_password').value;
+      const errorMessageElement = document.getElementById('password-change-error');
+
+      // Clear any existing error messages
+      if (errorMessageElement) {
+        errorMessageElement.textContent = '';
+        errorMessageElement.classList.add('hidden');
+      }
+
+      // Validate passwords
+      if (newPassword.length < 8) {
+        if (errorMessageElement) {
+          errorMessageElement.textContent = 'New password must be at least 8 characters';
+          errorMessageElement.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (!/[0-9]/.test(newPassword)) {
+        if (errorMessageElement) {
+          errorMessageElement.textContent = 'New password must include at least one number';
+          errorMessageElement.classList.remove('hidden');
+        }
+        return;
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        if (errorMessageElement) {
+          errorMessageElement.textContent = 'New passwords do not match';
+          errorMessageElement.classList.remove('hidden');
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch('/handlers/change_password.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Show success message
+          passwordChangeForm.classList.add('hidden');
+          const successMessage = passwordChangeModal.querySelector('.password-change-success');
+          if (successMessage) successMessage.classList.remove('hidden');
+        } else {
+          // Show error message
+          if (errorMessageElement) {
+            errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
+            errorMessageElement.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        if (errorMessageElement) {
+          errorMessageElement.textContent = 'Network error. Please try again later.';
+          errorMessageElement.classList.remove('hidden');
+        }
+      }
+    });
+  }
+}
+
 // -------------------- Make authentication functions available globally ---------------------
 window.initAuthForms = initAuthForms;
 window.initSignupForm = initSignupForm;
 window.initLoginForm = initLoginForm;
 window.initAccountDropdown = initAccountDropdown;
+window.initPasswordChangeModal = initPasswordChangeModal;

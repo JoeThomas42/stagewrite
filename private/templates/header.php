@@ -195,5 +195,43 @@
     </div>
   </div>
 
+  <div id="password-change-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Change Password</h2>
+      <form id="password-change-form">
+        <div>
+          <label for="current_password">Current Password:</label>
+          <input type="password" id="current_password" name="current_password" required>
+        </div>
+
+        <div>
+          <label for="new_password">New Password:</label>
+          <input type="password" id="new_password" name="new_password" required>
+          <small class="password-requirements">
+            Minimum 8 characters, including at least one number
+          </small>
+        </div>
+
+        <div>
+          <label for="confirm_new_password">Confirm New Password:</label>
+          <input type="password" id="confirm_new_password" name="confirm_new_password" required>
+        </div>
+
+        <div id="password-change-error" class="error-message hidden"></div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-button">Change Password</button>
+          <button type="button" class="cancel-button">Cancel</button>
+        </div>
+      </form>
+      <div class="password-change-success hidden">
+        <p>Your password has been changed successfully!</p>
+        <button type="button" class="primary-button" id="close-success-btn">Close</button>
+      </div>
+      <div class="modal-notification-area"></div>
+    </div>
+  </div>
+
   <div id="page-wrapper">
     <div id="notification-area" class="notification-area pinned"></div>
