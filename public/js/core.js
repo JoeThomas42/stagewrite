@@ -26,6 +26,7 @@ window.initializeApp = function() {
   safeInit(window.initTooltips, "Enhanced Tooltips");
   safeInit(window.initPrintAndShare, "Print and Share Functionality");
   safeInit(window.initLoginModal, "Login Modal");
+  safeInit(window.initPasswordToggles, "Password Toggle Buttons");
   
   console.log("Application initialization complete!");
 };

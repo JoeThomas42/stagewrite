@@ -24,6 +24,9 @@ function initAuthForms() {
       loginForm.classList.add('hidden');
       signupForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
+
+      // Initialize password toggles after switching forms
+      initPasswordToggles();
     });
   }
 
@@ -33,6 +36,9 @@ function initAuthForms() {
       signupForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
+
+      // Initialize password toggles after switching forms
+      initPasswordToggles();
     });
   }
 
@@ -65,10 +71,11 @@ function initAuthForms() {
       // Important: Stop propagation to prevent modal from closing
       e.stopPropagation();
 
-      console.log('Back to login clicked');
-
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
       if (loginForm) loginForm.classList.remove('hidden');
+
+      // Initialize password toggles after switching forms
+      initPasswordToggles();
     });
   }
 
@@ -81,6 +88,9 @@ function initAuthForms() {
 
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
       if (loginForm) loginForm.classList.remove('hidden');
+
+      // Initialize password toggles after switching forms
+      initPasswordToggles();
     });
   }
 
@@ -136,6 +146,9 @@ function initAuthForms() {
   // Set up form submissions
   initSignupForm();
   initLoginForm();
+
+  // Initialize password toggles for initial forms
+  initPasswordToggles();
 }
 
 /**
@@ -276,8 +289,28 @@ function initLoginForm() {
  * Initialize account dropdown functionality
  */
 function initAccountDropdown() {
-
+  // Initialize password change modal
   initPasswordChangeModal();
+
+  // Change Email link
+  const changeEmailLink = document.getElementById('change-email-link');
+  if (changeEmailLink) {
+    changeEmailLink.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // For now, just show a notification that this feature is coming soon
+      if (typeof showNotification === 'function') {
+        showNotification('Change email feature coming soon!', 'info');
+      } else {
+        alert('Change email feature coming soon!');
+      }
+
+      // Close dropdown after action
+      const dropdown = this.closest('.dropdown');
+      const menu = dropdown.querySelector('.dropdown-menu');
+      menu.classList.remove('active');
+    });
+  }
 
   // Delete Account link
   const deleteAccountLink = document.getElementById('delete-account-link');
@@ -328,6 +361,9 @@ function initPasswordChangeModal() {
 
     // Open the modal
     openModal(passwordChangeModal);
+
+    // Initialize password toggles
+    initPasswordToggles();
 
     // Close dropdown after action
     const dropdown = this.closest('.dropdown');
@@ -427,6 +463,11 @@ function initPasswordChangeModal() {
           passwordChangeForm.classList.add('hidden');
           const successMessage = passwordChangeModal.querySelector('.password-change-success');
           if (successMessage) successMessage.classList.remove('hidden');
+
+          // Show notification
+          if (typeof showNotification === 'function') {
+            showNotification('Password changed successfully!', 'success');
+          }
         } else {
           // Show error message
           if (errorMessageElement) {
@@ -445,9 +486,37 @@ function initPasswordChangeModal() {
   }
 }
 
+/**
+ * Initialize password toggle functionality for all password fields
+ * This allows users to show/hide their password input
+ */
+function initPasswordToggles() {
+  const toggleButtons = document.querySelectorAll('.password-toggle');
+
+  toggleButtons.forEach((button) => {
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+
+    newButton.addEventListener('click', function () {
+      const container = this.parentNode;
+      const passwordField = container.querySelector('input');
+      const fieldType = passwordField.getAttribute('type');
+
+      if (fieldType === 'password') {
+        passwordField.setAttribute('type', 'text');
+        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+      } else {
+        passwordField.setAttribute('type', 'password');
+        this.innerHTML = '<i class="fas fa-eye"></i>';
+      }
+    });
+  });
+}
+
 // -------------------- Make authentication functions available globally ---------------------
 window.initAuthForms = initAuthForms;
 window.initSignupForm = initSignupForm;
 window.initLoginForm = initLoginForm;
 window.initAccountDropdown = initAccountDropdown;
 window.initPasswordChangeModal = initPasswordChangeModal;
+window.initPasswordToggles = initPasswordToggles;

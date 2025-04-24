@@ -62,7 +62,12 @@ include PRIVATE_PATH . '/templates/header.php';
 
         <div class="form-group">
           <label for="new_password">New Password:</label>
-          <input type="password" id="new_password" name="new_password" required>
+          <div class="password-field-container">
+            <input type="password" id="new_password" name="new_password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
           <small class="password-requirements">
             Minimum 8 characters, including at least one number
           </small>
@@ -70,7 +75,12 @@ include PRIVATE_PATH . '/templates/header.php';
 
         <div class="form-group">
           <label for="confirm_new_password">Confirm New Password:</label>
-          <input type="password" id="confirm_new_password" name="confirm_new_password" required>
+          <div class="password-field-container">
+            <input type="password" id="confirm_new_password" name="confirm_new_password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
         </div>
 
         <div id="reset-error" class="error-message hidden"></div>
@@ -88,7 +98,69 @@ include PRIVATE_PATH . '/templates/header.php';
   </div>
 </div>
 
-<!-- Include the external JavaScript file -->
+<!-- Include password toggle CSS -->
+<style>
+  /* Password field container - for relative positioning */
+  .password-field-container {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Password toggle button */
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-grey-3);
+    font-size: var(--font-size-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    transition: color var(--transition-fast);
+  }
+
+  .password-toggle:hover {
+    color: var(--color-primary);
+  }
+
+  /* Add right padding to password inputs to prevent text from going under the icon */
+  .password-field-container input[type="password"],
+  .password-field-container input[type="text"] {
+    padding-right: 35px;
+  }
+</style>
+
+<!-- Include the external JavaScript files -->
 <script src="<?= JS_PATH ?>/password-reset.js"></script>
+<script>
+  // Password toggle functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.password-toggle');
+
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const container = this.parentNode;
+        const passwordField = container.querySelector('input');
+        const fieldType = passwordField.getAttribute('type');
+
+        // Toggle between password and text
+        if (fieldType === 'password') {
+          passwordField.setAttribute('type', 'text');
+          this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+          passwordField.setAttribute('type', 'password');
+          this.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+      });
+    });
+  });
+</script>
 
 <?php include PRIVATE_PATH . '/templates/footer.php'; ?>

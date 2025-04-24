@@ -426,7 +426,7 @@ header.header-container {
   text-align: center;
 }
 
-/* ----- Account Control Modals ----- */
+/* ------------ Account Control Modals ------------ */
 #login-modal .modal-content,
 #password-change-modal .modal-content {
   max-width: 400px;
@@ -439,6 +439,55 @@ header.header-container {
 
   #back-to-login {
     background-color: var(--color-secondary);
+  }
+}
+
+/* ----- Password Fields ----- */
+.password-field-container {
+  position: relative;
+  width: 100%;
+
+  input[type="password"],
+  input[type="text"] {
+    padding-right: 35px;
+  }
+}
+
+.password-toggle {
+  align-items: center;
+  background: none;
+  border: none;
+  box-shadow: none !important;
+  color: var(--color-grey-3);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--font-size-sm);
+  height: 20px;
+  justify-content: flex-end;
+  padding: 0;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color var(--transition-fast);
+  width: 20px;
+  z-index: 2;
+  
+  &:hover {
+    color: var(--color-primary);
+    box-shadow: none !important;
+  }
+
+  &:active,
+  &:focus {
+    outline: none;
+    box-shadow: none !important;
+  }
+
+  i {
+    height: 22px;
+    width: 22px;
+    align-content: center;
   }
 }
 

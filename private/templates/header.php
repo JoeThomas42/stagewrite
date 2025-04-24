@@ -79,6 +79,7 @@
                   Hello, <?php echo htmlspecialchars($_SESSION['first_name']); ?>!
                 </div>
                 <a href="#" id="change-password-link">Change Password</a>
+                <a href="#" id="change-email-link">Change Email</a>
                 <a href="#" id="delete-account-link">Delete Account</a>
                 <a href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
               </div>
@@ -116,7 +117,12 @@
 
             <div>
               <label for="password">Password:</label>
-              <input type="password" id="password" name="password" required>
+              <div class="password-field-container">
+                <input type="password" id="password" name="password" required>
+                <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
             </div>
 
             <div class="forgot-password-link">
@@ -179,12 +185,22 @@
 
             <div>
               <label for="password_signup">Password:</label>
-              <input type="password" id="password_signup" name="password" required>
+              <div class="password-field-container">
+                <input type="password" id="password_signup" name="password" required>
+                <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
             </div>
 
             <div>
               <label for="confirm_password">Confirm Password:</label>
-              <input type="password" id="confirm_password" name="confirm_password" required>
+              <div class="password-field-container">
+                <input type="password" id="confirm_password" name="confirm_password" required>
+                <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
             </div>
 
             <button type="submit">Sign Up</button>
@@ -195,6 +211,7 @@
     </div>
   </div>
 
+  <!-- Password Change Modal -->
   <div id="password-change-modal" class="modal hidden">
     <div class="modal-content">
       <span class="close-button">&times;</span>
@@ -202,12 +219,22 @@
       <form id="password-change-form">
         <div>
           <label for="current_password">Current Password:</label>
-          <input type="password" id="current_password" name="current_password" required>
+          <div class="password-field-container">
+            <input type="password" id="current_password" name="current_password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
         </div>
 
         <div>
           <label for="new_password">New Password:</label>
-          <input type="password" id="new_password" name="new_password" required>
+          <div class="password-field-container">
+            <input type="password" id="new_password" name="new_password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
           <small class="password-requirements">
             Minimum 8 characters, including at least one number
           </small>
@@ -215,7 +242,12 @@
 
         <div>
           <label for="confirm_new_password">Confirm New Password:</label>
-          <input type="password" id="confirm_new_password" name="confirm_new_password" required>
+          <div class="password-field-container">
+            <input type="password" id="confirm_new_password" name="confirm_new_password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
         </div>
 
         <div id="password-change-error" class="error-message hidden"></div>
