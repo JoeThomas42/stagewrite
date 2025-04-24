@@ -63,10 +63,11 @@ class User
     }
 
     // Find user with this token
+    // Using COLLATE to ensure consistent collation in the JOIN operation
     $user = $this->db->fetchOne(
       "SELECT * FROM user_tokens 
-             JOIN users ON user_tokens.user_id = users.user_id
-             WHERE token = ? AND expires_at > NOW() AND users.is_active = 1",
+           JOIN users ON user_tokens.user_id COLLATE utf8mb4_unicode_ci = users.user_id COLLATE utf8mb4_unicode_ci
+           WHERE token = ? AND expires_at > NOW() AND users.is_active = 1",
       [$token]
     );
 
