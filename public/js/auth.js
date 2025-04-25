@@ -242,10 +242,16 @@ function initLoginForm() {
   loginFormElement.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Clear any existing error messages
     clearAllErrors(loginFormElement);
 
     const formData = new FormData(e.target);
+
+    const stayLoggedIn = document.getElementById('stay_logged_in');
+    if (stayLoggedIn && stayLoggedIn.checked) {
+      formData.set('stay_logged_in', '1');
+    } else {
+      formData.set('stay_logged_in', '0');
+    }
 
     try {
       const response = await fetch('/handlers/login_handler.php', {
@@ -256,7 +262,6 @@ function initLoginForm() {
       const data = await response.json();
 
       if (data.errors) {
-        // Handle field-specific errors
         for (const [field, errorType] of Object.entries(data.errors)) {
           const inputField = document.getElementById(field);
 
@@ -269,7 +274,6 @@ function initLoginForm() {
           }
         }
       } else if (data.success) {
-        // Redirect based on user role
         if (data.role_id == 2 || data.role_id == 3) {
           // Admin or Super Admin - go directly to management page
           window.location.href = '/data_management.php';

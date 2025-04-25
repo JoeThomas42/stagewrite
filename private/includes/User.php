@@ -62,24 +62,37 @@ class User
       return;
     }
 
-    // Find user with this token
-    // Using COLLATE to ensure consistent collation in the JOIN operation
-    $user = $this->db->fetchOne(
-      "SELECT * FROM user_tokens 
-           JOIN users ON user_tokens.user_id COLLATE utf8mb4_unicode_ci = users.user_id COLLATE utf8mb4_unicode_ci
-           WHERE token = ? AND expires_at > NOW() AND users.is_active = 1",
-      [$token]
-    );
+    try {
+      // Alternative implementation with explicit collation specified
+      // First get token data
+      $tokenData = $this->db->fetchOne(
+        "SELECT * FROM user_tokens WHERE token = ? AND expires_at > NOW()",
+        [$token]
+      );
 
-    if ($user) {
-      // Set session variables
-      $_SESSION['user_id'] = $user['user_id'];
-      $_SESSION['first_name'] = $user['first_name'];
-      $_SESSION['last_name'] = $user['last_name'];
-      $_SESSION['role_id'] = $user['role_id'];
+      if ($tokenData) {
+        // Then get user data separately to avoid collation issues in the JOIN
+        $user = $this->db->fetchOne(
+          "SELECT * FROM users WHERE user_id = ? AND is_active = 1",
+          [$tokenData['user_id']]
+        );
 
-      // Generate a new token for security (token rotation)
-      $this->refreshRememberMeToken($user['user_id'], $token);
+        if ($user) {
+          // Set session variables
+          $_SESSION['user_id'] = $user['user_id'];
+          $_SESSION['first_name'] = $user['first_name'];
+          $_SESSION['last_name'] = $user['last_name'];
+          $_SESSION['role_id'] = $user['role_id'];
+
+          // Generate a new token for security (token rotation)
+          $this->refreshRememberMeToken($user['user_id'], $token);
+        }
+      }
+    } catch (Exception $e) {
+      // Log error but don't show to user
+      error_log('Remember me token validation error: ' . $e->getMessage());
+      // Clear the problematic cookie
+      setcookie('remember_token', '', time() - 3600, '/');
     }
   }
 
@@ -100,20 +113,39 @@ class User
     // Store token in database
     $this->db->query(
       "INSERT INTO user_tokens (user_id, token, expires_at, created_at) 
-             VALUES (?, ?, ?, NOW())",
+           VALUES (?, ?, ?, NOW())",
       [$userId, $token, $expiryDate]
     );
 
-    // Set cookie
-    setcookie(
-      'remember_token',
-      $token,
-      time() + 30 * 24 * 60 * 60, // 30 days
-      '/',
-      '',
-      true,    // Secure cookie (HTTPS only)
-      true     // HttpOnly
-    );
+    // Set cookie with proper parameters
+    $cookieParams = session_get_cookie_params();
+
+    // For PHP 7.3+
+    if (PHP_VERSION_ID >= 70300) {
+      setcookie(
+        'remember_token',
+        $token,
+        [
+          'expires' => time() + 30 * 24 * 60 * 60, // 30 days
+          'path' => '/',
+          'domain' => $cookieParams['domain'],
+          'secure' => true,    // Secure cookie (HTTPS only)
+          'httponly' => true,  // HttpOnly
+          'samesite' => 'Lax'  // SameSite policy
+        ]
+      );
+    } else {
+      // Fallback for older PHP versions
+      setcookie(
+        'remember_token',
+        $token,
+        time() + 30 * 24 * 60 * 60, // 30 days
+        '/',
+        $cookieParams['domain'],
+        true,    // Secure cookie (HTTPS only)
+        true     // HttpOnly
+      );
+    }
 
     return $token;
   }
@@ -127,14 +159,19 @@ class User
    */
   private function refreshRememberMeToken($userId, $oldToken)
   {
-    // Delete the old token
-    $this->db->query(
-      "DELETE FROM user_tokens WHERE token = ?",
-      [$oldToken]
-    );
+    try {
+      // Delete the old token
+      $this->db->query(
+        "DELETE FROM user_tokens WHERE token = ?",
+        [$oldToken]
+      );
 
-    // Create a new token
-    return $this->createRememberMeToken($userId);
+      // Create a new token
+      return $this->createRememberMeToken($userId);
+    } catch (Exception $e) {
+      error_log('Error refreshing remember me token: ' . $e->getMessage());
+      return null;
+    }
   }
 
   /**
@@ -145,14 +182,45 @@ class User
     if (isset($_COOKIE['remember_token'])) {
       $token = $_COOKIE['remember_token'];
 
-      // Remove from database
-      $this->db->query(
-        "DELETE FROM user_tokens WHERE token = ?",
-        [$token]
-      );
+      try {
+        // Remove from database
+        $this->db->query(
+          "DELETE FROM user_tokens WHERE token = ?",
+          [$token]
+        );
+      } catch (Exception $e) {
+        error_log('Error clearing remember token from database: ' . $e->getMessage());
+      }
 
-      // Clear cookie
-      setcookie('remember_token', '', time() - 3600, '/');
+      // Clear cookie with proper parameters
+      $cookieParams = session_get_cookie_params();
+
+      // For PHP 7.3+
+      if (PHP_VERSION_ID >= 70300) {
+        setcookie(
+          'remember_token',
+          '',
+          [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'domain' => $cookieParams['domain'],
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Lax'
+          ]
+        );
+      } else {
+        // Fallback for older PHP versions
+        setcookie(
+          'remember_token',
+          '',
+          time() - 3600,
+          '/',
+          $cookieParams['domain'],
+          true,
+          true
+        );
+      }
     }
   }
 

@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $password = isset($_POST['password']) ? $_POST['password'] : '';
 
   // Get the stay logged in preference
-  $stayLoggedIn = isset($_POST['stay_logged_in']) ? (bool)$_POST['stay_logged_in'] : false;
+  $stayLoggedIn = isset($_POST['stay_logged_in']) && ($_POST['stay_logged_in'] == '1' || $_POST['stay_logged_in'] === 'on');
 
   // Validate required fields
   if (empty($email)) {
