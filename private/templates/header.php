@@ -77,9 +77,9 @@
               </button>
               <div class="dropdown-menu account-menu">
                 <div class="account-greeting">
-                  Hello, <?php echo htmlspecialchars($_SESSION['first_name']); ?>!
+                  <p>Hello, <?php echo htmlspecialchars($_SESSION['first_name']); ?>!</p>
+                  <a id="logout-button" href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
                 </div>
-                <a href="<?= HANDLERS_URL ?>/logout_handler.php">Logout</a>
                 <a href="#" id="change-password-link">Change Password</a>
                 <a href="#" id="change-email-link">Change Email</a>
                 <a href="#" id="delete-account-link">Delete Account</a>

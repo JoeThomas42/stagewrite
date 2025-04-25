@@ -417,11 +417,23 @@ header.header-container {
 }
 
 .account-greeting {
+  align-items: center;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-primary-dark);
+  display: flex;
+  gap: var(--spacing-xl);
+  justify-content: space-between;
   font-weight: 600;
   padding: var(--spacing-md);
   text-align: center;
+
+  p {
+    color: var(--color-text);
+    font-size: var(--font-size-xl);
+    font-style: italic;
+    margin: 0;
+    padding: 0 var(--spacing-md);
+  }
 }
 
 /* ----- reset_password.php -----  */
