@@ -21,6 +21,8 @@ function initAuthForms() {
   if (switchToSignup) {
     switchToSignup.addEventListener('click', (e) => {
       e.preventDefault();
+      clearAllErrors(loginForm);
+
       loginForm.classList.add('hidden');
       signupForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
@@ -33,6 +35,8 @@ function initAuthForms() {
   if (switchToLogin) {
     switchToLogin.addEventListener('click', (e) => {
       e.preventDefault();
+      clearAllErrors(signupForm);
+      
       signupForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
