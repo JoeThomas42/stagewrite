@@ -27,6 +27,7 @@
   </script>
   <script src="<?= JS_PATH ?>/main.js" defer></script>
   <script src="https://kit.fontawesome.com/6a66a6b74c.js" crossorigin="anonymous"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
@@ -206,6 +207,8 @@
               </div>
             </div>
 
+            <div class="g-recaptcha" data-theme="dark" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+            <div id="recaptcha-error" class="field-error" style="display: none;">Please complete the CAPTCHA.</div>
             <button type="submit">Sign Up</button>
           </form>
           <p>Already have an account? <a href="#" id="switch-to-login">Login</a></p>

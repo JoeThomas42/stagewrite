@@ -36,7 +36,7 @@ function initAuthForms() {
     switchToLogin.addEventListener('click', (e) => {
       e.preventDefault();
       clearAllErrors(signupForm);
-      
+
       signupForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
@@ -175,6 +175,16 @@ function initSignupForm() {
     });
 
     const formData = new FormData(e.target);
+    const recaptchaResponse = grecaptcha.getResponse();
+    const recaptchaErrorDiv = document.getElementById('recaptcha-error');
+
+    if (recaptchaResponse.length === 0) {
+      if (recaptchaErrorDiv) recaptchaErrorDiv.style.display = 'block';
+      e.preventDefault();
+      return;
+    } else {
+      if (recaptchaErrorDiv) recaptchaErrorDiv.style.display = 'none';
+    }
 
     try {
       const response = await fetch('/handlers/signup_handler.php', {

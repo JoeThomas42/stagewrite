@@ -8,18 +8,14 @@
  * This function is called by core.js during application initialization
  */
 window.initThemeSystem = function () {
-  // Initialize theme based on saved preference or system setting
   applyThemePreference();
 
-  // Add event listener to theme toggle button
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.addEventListener('click', toggleTheme);
   }
 
-  // Listen for system theme changes
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    // Only apply system preference if user hasn't manually set a theme
     if (!localStorage.getItem('theme')) {
       setTheme(e.matches ? 'dark' : 'light');
     }
@@ -30,17 +26,13 @@ window.initThemeSystem = function () {
  * Apply theme preference from localStorage or system preference
  */
 function applyThemePreference() {
-  // Check if user has previously set a theme preference
   const savedTheme = localStorage.getItem('theme');
 
   if (savedTheme) {
-    // Apply saved theme
     setTheme(savedTheme);
   } else {
-    // Check if user prefers dark mode at the OS level
     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // Set theme based on system preference
     setTheme(prefersDarkMode ? 'dark' : 'light');
   }
 }
@@ -54,7 +46,6 @@ function toggleTheme() {
 
   setTheme(newTheme);
 
-  // Save theme preference to localStorage
   localStorage.setItem('theme', newTheme);
 
   // Show notification about theme change

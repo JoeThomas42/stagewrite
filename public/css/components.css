@@ -189,6 +189,10 @@
   }
 }
 
+.g-recaptcha {
+  align-self: center;
+}
+  
 /* Delete Account Modal Styling */
 .warning-message {
   background-color: rgba(220, 53, 69, 0.1);
