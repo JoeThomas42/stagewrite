@@ -289,29 +289,9 @@ function initLoginForm() {
  * Initialize account dropdown functionality
  */
 function initAccountDropdown() {
-  
   initPasswordChangeModal();
   initEmailChangeModal();
-
-  // Delete Account link
-  const deleteAccountLink = document.getElementById('delete-account-link');
-  if (deleteAccountLink) {
-    deleteAccountLink.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      // For now, just show a notification that this feature is coming soon
-      if (typeof showNotification === 'function') {
-        showNotification('Account deletion feature coming soon!', 'info');
-      } else {
-        alert('Account deletion feature coming soon!');
-      }
-
-      // Close dropdown after action
-      const dropdown = this.closest('.dropdown');
-      const menu = dropdown.querySelector('.dropdown-menu');
-      menu.classList.remove('active');
-    });
-  }
+  initAccountDeletion();
 }
 
 /**
@@ -653,6 +633,145 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
+/**
+ * Initialize account deletion feature
+ */
+function initAccountDeletion() {
+  const deleteAccountLink = document.getElementById('delete-account-link');
+  const deleteAccountModal = document.getElementById('delete-account-modal');
+
+  if (!deleteAccountLink || !deleteAccountModal) return;
+
+  // Open the modal when the delete account link is clicked
+  deleteAccountLink.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    // Reset form
+    const form = document.getElementById('delete-account-form');
+    if (form) form.reset();
+
+    // Clear any error messages
+    const errorMessage = document.getElementById('delete-account-error');
+    if (errorMessage) errorMessage.classList.add('hidden');
+
+    // Open the modal
+    openModal(deleteAccountModal);
+
+    // Initialize password toggles
+    initPasswordToggles();
+
+    // Close dropdown after action
+    const dropdown = this.closest('.dropdown');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    if (menu) menu.classList.remove('active');
+  });
+
+  // Close button functionality
+  const closeButton = deleteAccountModal.querySelector('.close-button');
+  if (closeButton) {
+    closeButton.addEventListener('click', function () {
+      closeModal(deleteAccountModal);
+    });
+  }
+
+  // Cancel button functionality
+  const cancelButton = deleteAccountModal.querySelector('.cancel-button');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', function () {
+      closeModal(deleteAccountModal);
+    });
+  }
+
+  // Close on outside click
+  deleteAccountModal.addEventListener('click', function (e) {
+    if (e.target === deleteAccountModal) {
+      closeModal(deleteAccountModal);
+    }
+  });
+
+  // Form submission with double-confirmation using setupConfirmButton
+  const deleteAccountForm = document.getElementById('delete-account-form');
+  if (deleteAccountForm) {
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+
+    deleteAccountForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Use setupConfirmButton for double confirmation
+      setupConfirmButton(
+        confirmDeleteBtn,
+        async function () {
+          // This function will run after the second click
+          const password = document.getElementById('delete_account_password').value;
+          const errorMessageElement = document.getElementById('delete-account-error');
+
+          // Clear any existing error messages
+          if (errorMessageElement) {
+            errorMessageElement.textContent = '';
+            errorMessageElement.classList.add('hidden');
+          }
+
+          // Validate password is not empty
+          if (!password) {
+            if (errorMessageElement) {
+              errorMessageElement.textContent = 'Password is required';
+              errorMessageElement.classList.remove('hidden');
+            }
+            return;
+          }
+
+          try {
+            const response = await fetch('/handlers/delete_account.php', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                password: password,
+              }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Show notification before redirect
+              if (typeof showNotification === 'function') {
+                showNotification('Your account has been deleted. Redirecting to homepage...', 'info', 2000);
+              }
+
+              // Redirect to homepage after a short delay
+              setTimeout(function () {
+                window.location.href = '/';
+              }, 2000);
+            } else {
+              // Show error message
+              if (errorMessageElement) {
+                errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
+                errorMessageElement.classList.remove('hidden');
+              }
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            if (errorMessageElement) {
+              errorMessageElement.textContent = 'Network error. Please try again later.';
+              errorMessageElement.classList.remove('hidden');
+            }
+          }
+        },
+        {
+          confirmText: 'Confirm Delete',
+          confirmTitle: 'Click again to permanently delete your account',
+          originalText: 'Delete Account',
+          originalTitle: 'Delete your account',
+          timeout: 5000, // Give users more time (5 seconds) to think about this important action
+          stopPropagation: true,
+          event: e,
+        }
+      );
+    });
+  }
+}
+
 // -------------------- Make authentication functions available globally ---------------------
 window.initAuthForms = initAuthForms;
 window.initSignupForm = initSignupForm;
@@ -661,3 +780,4 @@ window.initAccountDropdown = initAccountDropdown;
 window.initPasswordChangeModal = initPasswordChangeModal;
 window.initPasswordToggles = initPasswordToggles;
 window.initEmailChangeModal = initEmailChangeModal;
+window.initAccountDeletion = initAccountDeletion;

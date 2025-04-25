@@ -120,6 +120,107 @@
   }
 }
 
+/* ------------ Account Control Modals ------------ */
+#login-modal,
+#password-change-modal,
+#email-change-modal {
+
+  .modal-content {
+    max-width: 400px;
+  }
+}
+
+#forgot-password-form {
+  p {
+    text-align: left;
+  }
+
+  #back-to-login {
+    background-color: var(--color-secondary);
+  }
+}
+
+/* ----- Password Fields ----- */
+.password-field-container {
+  position: relative;
+  width: 100%;
+
+  input[type="password"],
+  input[type="text"] {
+    padding-right: 35px;
+  }
+}
+
+.password-toggle {
+  align-items: center;
+  background: none;
+  border: none;
+  box-shadow: none !important;
+  color: var(--color-grey-3);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--font-size-sm);
+  height: 20px;
+  justify-content: flex-end;
+  padding: 0;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color var(--transition-fast);
+  width: 20px;
+  z-index: 2;
+  
+  &:hover {
+    color: var(--color-primary);
+    box-shadow: none !important;
+  }
+
+  &:active,
+  &:focus {
+    outline: none;
+    box-shadow: none !important;
+  }
+
+  i {
+    height: 22px;
+    width: 22px;
+    align-content: center;
+  }
+}
+
+/* Delete Account Modal Styling */
+.warning-message {
+  background-color: rgba(220, 53, 69, 0.1);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--border-radius-sm);
+  margin: 0 0 var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.warning-message p {
+  color: var(--color-danger-dark);
+  font-size: var(--font-size-sm);
+  margin: 0;
+  text-align: left;
+}
+
+#delete-account-modal {
+
+  .modal-content {
+    width: auto;
+  }
+
+  .delete-button {
+    width: 120px;
+  
+    &.confirming {
+      animation: pulseIntense 1s alternate infinite;
+      width: 150px;
+    }
+  }
+}
+
 /* -------------------- Tables --------------------- */
 table {
   border-collapse: collapse;
@@ -844,7 +945,6 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #dc3545;
   font-size: 12px;
   margin-top: 8px;
-  /* margin-bottom: 10px; */
 }
 
 /* ---------------- Share/Print Modal Styles ----------------- */

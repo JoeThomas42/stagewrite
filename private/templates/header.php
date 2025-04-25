@@ -309,5 +309,35 @@
     </div>
   </div>
 
+  <!-- Account Deletion Modal -->
+  <div id="delete-account-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Delete Account</h2>
+      <div class="warning-message">
+        <p><strong>Warning:</strong> This action cannot be undone. All your data will be permanently deleted.</p>
+      </div>
+      <form id="delete-account-form">
+        <div>
+          <label for="delete_account_password">Enter your password to confirm:</label>
+          <div class="password-field-container">
+            <input type="password" id="delete_account_password" name="password" required>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="delete-account-error" class="error-message hidden"></div>
+
+        <div class="form-actions">
+          <button type="submit" id="confirm-delete-btn" class="delete-button">Delete Account</button>
+          <button type="button" class="cancel-button">Cancel</button>
+        </div>
+      </form>
+      <div class="modal-notification-area"></div>
+    </div>
+  </div>
+
   <div id="page-wrapper">
     <div id="notification-area" class="notification-area pinned"></div>

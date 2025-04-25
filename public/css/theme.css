@@ -71,7 +71,6 @@
     background-color: var(--color-background);
   }
   
-  /* ----- Login ----- */
   #login-modal {
     h2 {
       color: var(--color-text); 
@@ -81,6 +80,15 @@
       color: var(--color-primary-lightest);
     }
   }
+
+  .warning-message {
+    background-color: rgba(220, 53, 70, 0.02);
+
+    p {
+      color: var(--color-danger-light)
+    }
+  }
+  
 
   /* ----- Tables ----- */
   .custom-dropdown-optgroup {

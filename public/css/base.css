@@ -426,75 +426,6 @@ header.header-container {
   text-align: center;
 }
 
-/* ------------ Account Control Modals ------------ */
-#login-modal,
-#password-change-modal,
-#email-change-modal {
-
-  .modal-content {
-    max-width: 400px;
-  }
-}
-
-#forgot-password-form {
-  p {
-    text-align: left;
-  }
-
-  #back-to-login {
-    background-color: var(--color-secondary);
-  }
-}
-
-/* ----- Password Fields ----- */
-.password-field-container {
-  position: relative;
-  width: 100%;
-
-  input[type="password"],
-  input[type="text"] {
-    padding-right: 35px;
-  }
-}
-
-.password-toggle {
-  align-items: center;
-  background: none;
-  border: none;
-  box-shadow: none !important;
-  color: var(--color-grey-3);
-  cursor: pointer;
-  display: flex;
-  font-size: var(--font-size-sm);
-  height: 20px;
-  justify-content: flex-end;
-  padding: 0;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: color var(--transition-fast);
-  width: 20px;
-  z-index: 2;
-  
-  &:hover {
-    color: var(--color-primary);
-    box-shadow: none !important;
-  }
-
-  &:active,
-  &:focus {
-    outline: none;
-    box-shadow: none !important;
-  }
-
-  i {
-    height: 22px;
-    width: 22px;
-    align-content: center;
-  }
-}
-
 /* ----- reset_password.php -----  */
 .reset-password-container {
   display: flex;
@@ -695,6 +626,17 @@ form {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes pulseIntense {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.90);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
   }
 }
 
