@@ -204,9 +204,9 @@ function initSortableTables() {
  */
 function initTableFilters() {
   // Setup filter functionality for each search field
-  setupTableFilter('admin-search', 'admins-table', [1, 2]); // Name and Email columns
-  setupTableFilter('member-search', 'members-table', [1, 2]); // Name and Email columns
-  setupTableFilter('venue-search', 'venues-table', [1, 2, 3]); // Name, City, State columns
+  setupTableFilter('admin-search', 'admins-table', 'admins', [1, 2]); // Name and Email columns
+  setupTableFilter('member-search', 'members-table', 'members', [1, 2]); // Name and Email columns
+  setupTableFilter('venue-search', 'venues-table', 'venues', [1, 2, 3]); // Name, City, State columns
 }
 
 /**
@@ -214,8 +214,9 @@ function initTableFilters() {
  * @param {string} searchId - The ID of the search input field
  * @param {string} tableId - The ID of the table to filter
  * @param {string} tableType - Type of table (members, admins, venues)
+ * @param {Array<number>} columnIndexes - Array of column indexes to search within
  */
-function setupTableFilter(searchId, tableId, tableType) {
+function setupTableFilter(searchId, tableId, tableType, columnIndexes) {
   const searchInput = document.getElementById(searchId);
   if (!searchInput) return; // Skip if element doesn't exist on current page
 
