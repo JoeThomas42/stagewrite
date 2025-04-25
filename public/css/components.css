@@ -401,8 +401,9 @@ th.sortable {
     padding: var(--spacing-sm) var(--spacing-md);
     width: 100%;
     
-    &:active {
-      box-shadow: 0;
+    &:active,
+    &:focus {
+      box-shadow: none;
     }
   }
 }
