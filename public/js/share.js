@@ -376,6 +376,8 @@ function sendPlotViaEmail(email, message, plotState) {
     eventStart: plotState.eventStart || null,
     eventEnd: plotState.eventEnd || null,
     venueId: plotState.venueId || null,
+    elements: plotState.elements || [],
+    inputs: plotState.inputs || [],
   };
 
   console.log('Data sent to sendPlotViaEmail handler:', plotData); // Debug log
