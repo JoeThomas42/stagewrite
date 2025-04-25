@@ -224,8 +224,6 @@ label:has(+ select:required)::after {
   animation: fadeIn 0.5s ease-in;
   color: var(--color-error);
   font-size: var(--font-size-sm);
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
   text-align: center;
 }
 
