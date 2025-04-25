@@ -294,12 +294,12 @@ header.header-container {
       position: relative;
     }
 
-    &:hover {
-      border-bottom: 3px solid var(--color-primary-light);
+    &:hover:not(.current-page) {
+      border-bottom: 2px solid var(--color-primary-light);
     }
 
     &:active {
-      box-shadow: inset var(--shadow-inset-sm);
+      border-bottom: 4px solid var(--color-primary-light);
     }
   }
 }
