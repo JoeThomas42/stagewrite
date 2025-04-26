@@ -7,9 +7,8 @@
 
 /* -------------------- Core Styles --------------------- */
 * {
-  box-sizing: border-box;
+  box-sizing: border-box !important;
   overscroll-behavior: contain;
-  /* scrollbar-color: var(--color-grey-4) var(--color-background-dark); */
   scrollbar-color: var(--color-grey-3) rgba(0, 0, 0, 0.05);
   scrollbar-width: thin;
 }
@@ -29,13 +28,19 @@ body {
   line-height: 1.6;
   margin: 0;
   min-height: 100vh;
-  overflow-x: hidden;
+  min-width: 100%;
   overflow-y: auto;
   position: relative;
 
   &.menu-open {
     overflow: hidden;
   }
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 h2 {
@@ -100,7 +105,6 @@ i {
 }
 
 input:not([type="checkbox"]),
-/* input:not(.search-input), */
 select,
 textarea {
   align-items: center;
@@ -207,11 +211,19 @@ ul {
   gap: 1rem;
   justify-content: flex-start;
   margin: 0 auto;
+  max-width: 100%;
   padding-bottom: 1rem;
   padding-top: 4rem;
+  width: 100%;
 }
 
-/* Required Fields */
+.profile-container,
+#stage-info-container {
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* -------------------- Required fields and Errors ------------------- */
 label:has(+ input:required)::after,
 label:has(> input:required)::after,
 label:has(+ select:required)::after {
@@ -220,7 +232,6 @@ label:has(+ select:required)::after {
   font-weight: bold;
 }
 
-/* Error styles */
 .error-message {
   animation: fadeIn 0.5s ease-in;
   color: var(--color-error);
@@ -508,9 +519,14 @@ header.header-container {
 footer {
   background: linear-gradient(to right, var(--color-header), var(--color-primary-dark));
   color: var(--color-white);
+  left: 0;
   margin-top: auto;
+  min-width: 100%;
   padding: var(--spacing-xl) 0;
+  position: relative;
+  right: 0;
   width: 100%;
+  width: 100vw;
 }
 
 #footer-content {
@@ -523,6 +539,7 @@ footer {
   max-width: 1200px;
   padding: 0 var(--spacing-xl);
   text-align: center;
+  width: 100%;
 
   h3 {
     color: var(--color-white);

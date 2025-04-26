@@ -8,8 +8,18 @@
 /* -------------------- 1000px --------------------- */
 @media screen and (max-width: 1000px) {
   #page-wrapper {
+    overflow-x: hidden;
     margin: 0;
     padding: 5rem 0 0;
+    width: 100%;
+  }
+  
+  .profile-container,
+  #stage-plot-container,
+  #stage-info-container {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
   }
 
   .action-cell {
@@ -47,9 +57,19 @@
   .config-field {
     width: 100%;
   }
+
 }
 
 /* ----------------------- 992px ------------------------ */
+@media screen and (max-width: 1320px) {
+  .profile-container,
+  #stage-info-container {
+    width: 98%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 @media screen and (max-width: 992px) {
   .plot-card-content {
     flex-direction: row; /* Keep row layout for tablets */
