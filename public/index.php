@@ -46,7 +46,7 @@ if ($isLoggedIn) {
 
 <!-- Mobile Restriction -->
 <div id="mobile-restriction-message" style="display: none;">
-    <h2>Desktop Version Required</h2>
+    <h2>Desktop Or Tablet Required</h2>
     <p>The stage plotting feature requires a larger screen for optimal use.</p>
     <p>Please access this feature from a tablet (landscape mode) or desktop computer.</p>
     <p>You can still view and manage your saved plots in the Portfolio section.</p>
