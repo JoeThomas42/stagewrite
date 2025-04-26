@@ -27,7 +27,9 @@ function initAuthForms() {
       signupForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
 
-      // Initialize password toggles after switching forms
+      // Reset reCAPTCHA
+      grecaptcha.reset();
+
       initPasswordToggles();
     });
   }
@@ -41,7 +43,9 @@ function initAuthForms() {
       loginForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
 
-      // Initialize password toggles after switching forms
+      // Reset reCAPTCHA
+      grecaptcha.reset();
+
       initPasswordToggles();
     });
   }
@@ -258,7 +262,21 @@ function initLoginForm() {
 
     clearAllErrors(loginFormElement);
 
+    // Verify reCAPTCHA
+    const recaptchaResponse = grecaptcha.getResponse();
+    const recaptchaErrorDiv = document.getElementById('login-recaptcha-error');
+
+    if (recaptchaResponse.length === 0) {
+      if (recaptchaErrorDiv) recaptchaErrorDiv.style.display = 'block';
+      return;
+    } else {
+      if (recaptchaErrorDiv) recaptchaErrorDiv.style.display = 'none';
+    }
+
     const formData = new FormData(e.target);
+
+    // reCAPTCHA response
+    formData.append('g-recaptcha-response', recaptchaResponse);
 
     const stayLoggedIn = document.getElementById('stay_logged_in');
     if (stayLoggedIn && stayLoggedIn.checked) {
@@ -277,6 +295,17 @@ function initLoginForm() {
 
       if (data.errors) {
         for (const [field, errorType] of Object.entries(data.errors)) {
+          if (field === 'recaptcha') {
+            // Handle reCAPTCHA error
+            if (recaptchaErrorDiv) {
+              recaptchaErrorDiv.textContent = data.message || 'reCAPTCHA verification failed';
+              recaptchaErrorDiv.style.display = 'block';
+            }
+            // Reset reCAPTCHA
+            grecaptcha.reset();
+            continue;
+          }
+
           const inputField = document.getElementById(field);
 
           if (errorType === 'required') {

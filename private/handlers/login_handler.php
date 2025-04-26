@@ -1,12 +1,30 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
+require_once VENDOR_PATH . '/autoload.php'; // Ensure Composer autoload is included
 
 // Always return JSON
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $errors = [];
+
+  // *** START reCAPTCHA Verification ***
+  $recaptchaSecret = RECAPTCHA_SECRET_KEY; // Get secret key from config
+  $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
+  $recaptchaResponse = $_POST['g-recaptcha-response'] ?? null;
+  $remoteIp = $_SERVER['REMOTE_ADDR'];
+
+  // Verify the reCAPTCHA response
+  $resp = $recaptcha->setExpectedHostname($_SERVER['SERVER_NAME']) // Optional: verify hostname
+    ->verify($recaptchaResponse, $remoteIp);
+
+  if (!$resp->isSuccess()) {
+    // reCAPTCHA verification failed
+    echo json_encode(['errors' => ['recaptcha' => 'invalid', 'message' => 'reCAPTCHA verification failed. Please try again.']]);
+    exit;
+  }
+  // *** END reCAPTCHA Verification ***
 
   // Trim email
   $email = isset($_POST['email']) ? trim($_POST['email']) : '';
