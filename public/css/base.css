@@ -207,8 +207,8 @@ ul {
   gap: 1rem;
   justify-content: flex-start;
   margin: 0 auto;
-  padding-bottom: 2rem;
-  padding-top: 6rem;
+  padding-bottom: 1rem;
+  padding-top: 4rem;
 }
 
 /* Required Fields */
@@ -236,7 +236,7 @@ label:has(+ select:required)::after {
 header {
   background: linear-gradient(to right, var(--color-header), var(--color-primary-dark));
   box-shadow: var(--shadow-lg);
-  padding: 1.25rem;
+  padding: var(--spacing-sm);
 
   h1 {
     color: var(--color-white);
