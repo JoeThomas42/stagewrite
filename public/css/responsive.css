@@ -20,10 +20,6 @@
     transform: scale(0.8) translateX(-50%);
     transform-origin: top left;
   }
-  
-  .modal.visible .modal-content {
-    top: -14%;
-  }
 }
 
 /* -------------------- 1070px --------------------- */
