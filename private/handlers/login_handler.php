@@ -1,71 +1,84 @@
 <?php
+// Extremely simple login handler
+// No whitespace before opening tag, no closing tag
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
-require_once VENDOR_PATH . '/autoload.php'; // Ensure Composer autoload is included
+// Prevent PHP errors from being displayed
+ini_set('display_errors', 0);
+error_reporting(0);
 
-// Always return JSON
-header('Content-Type: application/json');
+// Start output buffering to catch any unwanted output
+ob_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $errors = [];
+try {
+    // Load required files
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-  // *** START reCAPTCHA Verification ***
-  $recaptchaSecret = RECAPTCHA_SECRET_KEY; // Get secret key from config
-  $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
-  $recaptchaResponse = $_POST['g-recaptcha-response'] ?? null;
-  $remoteIp = $_SERVER['REMOTE_ADDR'];
+    // Always set content type to JSON
+    header('Content-Type: application/json');
 
-  // Verify the reCAPTCHA response
-  $resp = $recaptcha->setExpectedHostname($_SERVER['SERVER_NAME']) // Optional: verify hostname
-    ->verify($recaptchaResponse, $remoteIp);
+    // Check request method
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['errors' => ['general' => 'Method not allowed']]);
+        exit;
+    }
 
-  if (!$resp->isSuccess()) {
-    // reCAPTCHA verification failed
-    echo json_encode(['errors' => ['recaptcha' => 'invalid', 'message' => 'reCAPTCHA verification failed. Please try again.']]);
-    exit;
-  }
-  // *** END reCAPTCHA Verification ***
+    // Basic validation
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $stayLoggedIn = isset($_POST['stay_logged_in']) && ($_POST['stay_logged_in'] == '1' || $_POST['stay_logged_in'] === 'on');
 
-  // Trim email
-  $email = isset($_POST['email']) ? trim($_POST['email']) : '';
-  $password = isset($_POST['password']) ? $_POST['password'] : '';
+    // Simple validation
+    $errors = [];
+    if (empty($email)) $errors['email'] = 'required';
+    if (empty($password)) $errors['password'] = 'required';
 
-  // Get the stay logged in preference
-  $stayLoggedIn = isset($_POST['stay_logged_in']) && ($_POST['stay_logged_in'] == '1' || $_POST['stay_logged_in'] === 'on');
+    // Return validation errors if any
+    if (!empty($errors)) {
+        echo json_encode(['errors' => $errors]);
+        exit;
+    }
 
-  // Validate required fields
-  if (empty($email)) {
-    $errors['email'] = 'required';
-  }
-  if (empty($password)) {
-    $errors['password'] = 'required';
-  }
+    // Log attempt (don't include password)
+    error_log("Login attempt for: $email");
 
-  if (!empty($errors)) {
-    echo json_encode(['errors' => $errors]);
-    exit;
-  }
+    // Basic email validation
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['errors' => ['email' => 'invalid']]);
+        exit;
+    }
 
-  // Validate email format
-  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors['email'] = 'invalid';
-    echo json_encode(['errors' => $errors]);
-    exit;
-  }
+    // Try to authenticate
+    $userObj = new User();
+    $user = $userObj->login($email, $password, $stayLoggedIn);
 
-  // Use User class for authentication
-  $userObj = new User();
-  $user = $userObj->login($email, $password, $stayLoggedIn);
+    if ($user) {
+        // Login success
+        error_log("Login successful for: $email");
+        echo json_encode([
+            'success' => true,
+            'role_id' => $user['role_id']
+        ]);
+    } else {
+        // Login failed
+        error_log("Login failed for: $email");
+        echo json_encode(['errors' => ['email' => 'invalid_credentials']]);
+    }
+} catch (Exception $e) {
+    // Log error details for server admin
+    error_log("Login exception: " . $e->getMessage());
+    
+    // Clean any existing output
+    ob_clean();
+    
+    // Return a simple error response
+    header('Content-Type: application/json');
+    echo json_encode(['errors' => ['general' => 'Server error']]);
+}
 
-  if ($user) {
-    // User class automatically sets session variables
-    echo json_encode([
-      'success' => true,
-      'role_id' => $user['role_id']
-    ]);
-  } else {
-    // Invalid email or password
-    $errors['email'] = 'invalid_credentials';
-    echo json_encode(['errors' => $errors]);
-  }
+// In case we reach here, make sure content type is still set
+if (ob_get_length()) {
+    ob_end_flush();
+} else {
+    header('Content-Type: application/json');
+    echo json_encode(['errors' => ['general' => 'Unknown error']]);
 }

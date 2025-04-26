@@ -250,9 +250,6 @@ function initSignupForm() {
   });
 }
 
-/**
- * Initializes login form validation and submission
- */
 function initLoginForm() {
   const loginFormElement = document.querySelector('#login-form form');
   if (!loginFormElement) return;
@@ -286,12 +283,67 @@ function initLoginForm() {
     }
 
     try {
+      // Show form submission in progress indicator
+      const submitButton = loginFormElement.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
+      submitButton.disabled = true;
+      submitButton.textContent = 'Processing...';
+
       const response = await fetch('/handlers/login_handler.php', {
         method: 'POST',
         body: formData,
       });
 
-      const data = await response.json();
+      // Check if response is OK
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}: ${response.statusText}`);
+      }
+      
+      // Get response info
+      const contentLength = response.headers.get('content-length');
+      const contentType = response.headers.get('content-type');
+      
+      // Log headers for debugging
+      console.log('Response headers:', {
+        'content-type': contentType,
+        'content-length': contentLength
+      });
+      
+      // Check for empty response
+      if (contentLength === '0') {
+        throw new Error('Server returned an empty response');
+      }
+      
+      // Check if response is JSON
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        
+        // Debug non-JSON response
+        if (!text || text.trim() === '') {
+          console.error('Empty response received');
+          throw new Error('Server returned an empty response');
+        }
+        
+        console.error('Non-JSON response:', text);
+        throw new Error('Server returned non-JSON response');
+      }
+      
+      // Parse the JSON response with careful error handling
+      let data;
+      try {
+        const text = await response.text();
+        if (!text || text.trim() === '') {
+          throw new Error('Empty JSON response');
+        }
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        throw new Error(`Invalid JSON response: ${parseError.message}`);
+      }
+
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
 
       if (data.errors) {
         for (const [field, errorType] of Object.entries(data.errors)) {
@@ -306,7 +358,17 @@ function initLoginForm() {
             continue;
           }
 
+          if (field === 'general') {
+            // Show general error
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = errorType;
+            loginFormElement.prepend(errorDiv);
+            continue;
+          }
+
           const inputField = document.getElementById(field);
+          if (!inputField) continue;
 
           if (errorType === 'required') {
             showFieldError(inputField, 'Required');
@@ -317,6 +379,12 @@ function initLoginForm() {
           }
         }
       } else if (data.success) {
+        // Show success notification if available
+        if (typeof showNotification === 'function') {
+          showNotification('Login successful!', 'success');
+        }
+        
+        // Redirect based on role
         if (data.role_id == 2 || data.role_id == 3) {
           // Admin or Super Admin - go directly to management page
           window.location.href = '/data_management.php';
@@ -326,8 +394,28 @@ function initLoginForm() {
         }
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An unexpected error occurred');
+      console.error('Login error:', error);
+      
+      // Reset button state
+      const submitButton = loginFormElement.querySelector('button[type="submit"]');
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Login';
+      }
+      
+      // Create error message element
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = `Error: ${error.message}`;
+      loginFormElement.prepend(errorDiv);
+      
+      // Show notification if available
+      if (typeof showNotification === 'function') {
+        showNotification('Login failed. Please try again.', 'error');
+      }
+      
+      // Reset reCAPTCHA
+      grecaptcha.reset();
     }
   });
 }

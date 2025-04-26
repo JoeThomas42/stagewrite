@@ -60,11 +60,6 @@ function initLoginModal() {
   setupFormSubmission(signupForm, '/handlers/signup_handler.php');
 }
 
-/**
- * Set up AJAX form submission
- * @param {HTMLFormElement} form - The form to set up
- * @param {string} endpoint - The API endpoint for form submission
- */
 function setupFormSubmission(form, endpoint) {
   if (!form) return;
 
@@ -83,75 +78,98 @@ function setupFormSubmission(form, endpoint) {
     submitButton.disabled = true;
     submitButton.textContent = 'Processing...';
 
-    // Send form data to the server
+    // Basic handling function for errors
+    function handleError(message) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message || 'An error occurred. Please try again.';
+      form.prepend(errorDiv);
+      
+      console.error('Login error:', message);
+      
+      // Reset reCAPTCHA if present
+      if (typeof grecaptcha !== 'undefined') {
+        try { grecaptcha.reset(); } catch(e) {}
+      }
+    }
+
+    // Send form data to the server - use simpler fetch with error handling
     fetch(endpoint, {
       method: 'POST',
       body: formData,
     })
-      .then((response) => response.json())
-      .then((data) => {
-        // Reset button
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
+    .then(response => {
+      // First check for network or server errors
+      if (!response.ok) {
+        throw new Error(`Server error (${response.status})`);
+      }
+      
+      // Try to get the response as text first
+      return response.text();
+    })
+    .then(text => {
+      // Make sure we got a response
+      if (!text || text.trim() === '') {
+        throw new Error('Empty response from server');
+      }
+      
+      // Try to parse as JSON
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error('Server response:', text);
+        throw new Error('Invalid response format');
+      }
+    })
+    .then(data => {
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+      
+      // Process response data
+      if (data.success) {
+        // Show success notification
+        showNotification('Login successful!', 'success');
 
-        if (data.success) {
-          // Show success notification
-          showNotification('Login successful!', 'success');
-
-          // Reload page after successful login (to update UI with user info)
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } else if (data.errors) {
-          // Show field-specific errors
-          Object.keys(data.errors).forEach((field) => {
-            const fieldElement = form.querySelector(`[name="${field}"]`);
-            if (fieldElement) {
-              let errorMessage = '';
-
-              switch (data.errors[field]) {
-                case 'required':
-                  errorMessage = 'This field is required';
-                  break;
-                case 'invalid':
-                  errorMessage = 'Please enter a valid value';
-                  break;
-                case 'invalid_credentials':
-                  errorMessage = 'Invalid email or password';
-                  break;
-                case 'mismatch':
-                  errorMessage = 'Passwords do not match';
-                  break;
-                case 'exists':
-                  errorMessage = 'Email already exists';
-                  break;
-                default:
-                  errorMessage = 'There was an error with this field';
-              }
-
-              showFieldError(fieldElement, errorMessage);
-            }
-          });
-
-          // Show general error message if needed
-          if (data.errors.general) {
+        // Reload page after successful login
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else if (data.errors) {
+        // Process field errors
+        Object.keys(data.errors).forEach(field => {
+          // Handle general error differently
+          if (field === 'general') {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error-message';
-            errorDiv.textContent = data.errors.general === 'database_error' ? 'Database error. Please try again later.' : 'An error occurred. Please try again.';
-
+            errorDiv.textContent = data.errors[field];
             form.prepend(errorDiv);
+            return;
           }
-        }
-      })
-      .catch((error) => {
-        // Reset button
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-
-        // Show error notification
-        showNotification('Error connecting to server. Please try again.', 'error');
-        console.error('Form submission error:', error);
-      });
+          
+          // Handle field-specific errors
+          const fieldElement = form.querySelector(`[name="${field}"]`);
+          if (fieldElement) {
+            let errorMessage = 'Error';
+            
+            switch (data.errors[field]) {
+              case 'required': errorMessage = 'This field is required'; break;
+              case 'invalid': errorMessage = 'Please enter a valid value'; break;
+              case 'invalid_credentials': errorMessage = 'Invalid email or password'; break;
+              default: errorMessage = data.errors[field];
+            }
+            
+            showFieldError(fieldElement, errorMessage);
+          }
+        });
+      }
+    })
+    .catch(error => {
+      handleError(error.message);
+    });
   });
 }
 
