@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 window.initMobileDetection = function() {
   // Function to detect mobile devices (phones)
   function isMobileDevice() {
-    return window.innerWidth <= 768;
+    return window.innerWidth <= 932;
   }
   
   // Function to add page-specific class

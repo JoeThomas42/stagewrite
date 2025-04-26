@@ -5,6 +5,31 @@
 
 @import url('_variables.css');
 
+/* -------------------- 1320px --------------------- */
+@media screen and (max-width: 1320px) {
+  .profile-container,
+  #stage-info-container {
+    width: 98%;
+  }
+
+  #stage-plot-container {
+    left: 50%;
+    top: 50%;
+    margin-bottom: -190px;
+    position: relative;
+    transform: scale(0.8) translateX(-50%);
+    transform-origin: top left;
+  }
+}
+
+/* -------------------- 1070px --------------------- */
+@media screen and (max-width: 1070px) {
+  #stage-plot-container {
+    margin-bottom: -280px;
+    transform: scale(0.7) translateX(-50%);
+  }
+}
+
 /* -------------------- 1000px --------------------- */
 @media screen and (max-width: 1000px) {
   #page-wrapper {
@@ -13,24 +38,9 @@
     padding: 5rem 0 0;
     width: 100%;
   }
-  
-  .profile-container,
-  #stage-plot-container,
-  #stage-info-container {
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-  }
 
   .action-cell {
     padding: var(--spacing-md);
-  }
-
-  /* Stage/Plot Area */
-  #stage-plot-container {
-    border: none;
-    margin: 0;
-    padding: 0;
   }
   
   #stage-area {
@@ -61,55 +71,67 @@
 }
 
 /* ----------------------- 992px ------------------------ */
-@media screen and (max-width: 1320px) {
-  .profile-container,
-  #stage-info-container {
-    width: 98%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
 @media screen and (max-width: 992px) {
   .plot-card-content {
-    flex-direction: row; /* Keep row layout for tablets */
+    flex-direction: row;
   }
   
   .plot-card-snapshot {
-    max-width: 150px; /* Smaller on tablets */
+    max-width: 150px;
   }
   
   .plot-snapshot {
-    height: 100px; /* Slightly smaller height on tablets */
+    height: 100px;
   }
 }
 
-/* -------------------- 768px --------------------- */
-@media screen and (max-width: 768px) {
-  /* General Layout */
-  #login-container {
-    width: 75%;
+/* --------------------932px --------------------- */
+@media screen and (max-width: 932px) {
+  /* Hide stage plotting/opening functionality on phones */
+  body.is-mobile-device #stage-plot-container,
+  body.is-mobile-device #stage-info-container {
+    display: none;
   }
 
-  #page-wrapper {
-    margin: 0;
-    padding: 5rem 0 0;
+  body.is-mobile-device.index-page #mobile-restriction-message {
+    display: flex;
   }
-  
-  /* Header & Navigation */
-  header {
-    padding: 0.75rem;
+
+  body.is-mobile-device .open-plot-btn {
+    display: none;
   }
-  
-  #header-content {
+
+  /* Stage/Plot Area - Phone Restriction Message */
+  #mobile-restriction-message {
+    background-color: var(--color-background-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    margin: 2rem auto;
+    max-width: 90%;
+    padding: 2rem 1rem;
+    text-align: center;
   }
-  
-  .logo-container h1 {
-    font-size: 1.5rem;
+
+  #mobile-restriction-message h2 {
+    color: var(--color-primary-dark);
+    margin-bottom: 1rem;
   }
-  
+
+  #mobile-restriction-message p {
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    margin-bottom: 1.5rem;
+  }
+
+  #mobile-restriction-message .primary-button {
+    margin-top: 1rem;
+  }
+
   /* Mobile menu button */
   .mobile-menu-toggle {
     display: block;
@@ -185,7 +207,6 @@
     }
   }
   
-  /* Refactored user controls for mobile */
   .user-controls {
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -212,51 +233,32 @@
   .account-dropdown .dropdown-menu {
     left: -20px;
   }
+}
 
-  /* Stage/Plot Area - Phone Restriction Message */
-  #mobile-restriction-message {
-    background-color: var(--color-background-light);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-md);
-    display: flex;
-    flex-direction: column;
+/* -------------------- 768px --------------------- */
+@media screen and (max-width: 768px) {
+  /* General Layout */
+  #login-container {
+    width: 75%;
+  }
+
+  #page-wrapper {
+    margin: 0;
+    padding: 5rem 0 0;
+  }
+  
+  /* Header & Navigation */
+  header {
+    padding: 0.75rem;
+  }
+  
+  #header-content {
     align-items: center;
-    justify-content: center;
-    margin: 2rem auto;
-    max-width: 90%;
-    padding: 2rem 1rem;
-    text-align: center;
+    justify-content: space-between;
   }
-
-  #mobile-restriction-message h2 {
-    color: var(--color-primary-dark);
-    margin-bottom: 1rem;
-  }
-
-  #mobile-restriction-message p {
-    color: var(--color-text);
-    font-size: var(--font-size-md);
-    margin-bottom: 1.5rem;
-  }
-
-  #mobile-restriction-message .primary-button {
-    margin-top: 1rem;
-  }
-
-  /* Hide stage plotting functionality on phones */
-  body.is-mobile-device #stage-plot-container,
-  body.is-mobile-device #stage-info-container {
-    display: none;
-  }
-
-  body.is-mobile-device.index-page #mobile-restriction-message {
-    display: flex;
-  }
-
-  /* Portfolio Page */
-  body.is-mobile-device .open-plot-btn {
-    display: none;
+  
+  .logo-container h1 {
+    font-size: 1.5rem;
   }
   
   h1, h2 {
