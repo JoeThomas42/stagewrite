@@ -463,7 +463,7 @@ th.sortable {
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-md);
   display: none;
-  min-width: 220px;
+  min-width: 260px;
   opacity: 0;
   position: absolute;
   right: 0;
