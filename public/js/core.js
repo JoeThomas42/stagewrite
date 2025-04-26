@@ -26,6 +26,7 @@ window.initializeApp = function() {
   safeInit(window.initTooltips, "Enhanced Tooltips");
   safeInit(window.initPrintAndShare, "Print and Share Functionality");
   safeInit(window.initLoginModal, "Login Modal");
+  safeInit(window.initMobileDetection, "Mobile Detection"); // Add this line
   
   console.log("Application initialization complete!");
 };
@@ -41,6 +42,114 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error during initialization:", e);
   }
 });
+
+/**
+ * Mobile device detection and responsive handling
+ */
+window.initMobileDetection = function() {
+  // Function to detect mobile devices (phones)
+  function isMobileDevice() {
+    return window.innerWidth <= 768;
+  }
+  
+  // Function to add page-specific class
+  function addPageClass() {
+    const path = window.location.pathname;
+    if (path.endsWith('index.php') || path === '/' || path.endsWith('/')) {
+      document.body.classList.add('index-page');
+    } else if (path.endsWith('profile.php')) {
+      document.body.classList.add('profile-page');
+    } else if (path.endsWith('data_management.php')) {
+      document.body.classList.add('data-management-page');
+    }
+  }
+  
+  // Initial check and setup
+  function setupMobileDetection() {
+    if (isMobileDevice()) {
+      document.body.classList.add('is-mobile-device');
+      // Show mobile restriction message if on index page
+      if (document.body.classList.contains('index-page')) {
+        const restrictionMsg = document.getElementById('mobile-restriction-message');
+        if (restrictionMsg) {
+          restrictionMsg.style.display = 'flex';
+        }
+      }
+    } else {
+      document.body.classList.remove('is-mobile-device');
+      // Hide mobile restriction message
+      const restrictionMsg = document.getElementById('mobile-restriction-message');
+      if (restrictionMsg) {
+        restrictionMsg.style.display = 'none';
+      }
+    }
+    addPageClass();
+  }
+  
+  // Run on page load
+  setupMobileDetection();
+  
+  // Run on window resize
+  window.addEventListener('resize', function() {
+    setupMobileDetection();
+  });
+};
+
+/**
+ * Mobile menu system initialization
+ */
+window.initMobileMenu = function() {
+  const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
+  const navContainer = document.getElementById('nav-container');
+  
+  if (mobileMenuButton && navContainer) {
+    mobileMenuButton.addEventListener('click', function() {
+      mobileMenuButton.classList.toggle('active');
+      navContainer.classList.toggle('active');
+      document.body.classList.toggle('menu-open');
+    });
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      if (navContainer.classList.contains('active') &&
+          !navContainer.contains(event.target) && 
+          !mobileMenuButton.contains(event.target)) {
+        mobileMenuButton.classList.remove('active');
+        navContainer.classList.remove('active');
+        document.body.classList.remove('menu-open');
+      }
+    });
+  }
+};
+
+/**
+ * Account dropdown system initialization - enhance mobile behavior
+ */
+window.initAccountDropdown = function() {
+  const accountToggle = document.querySelector('.account-toggle');
+  const accountMenu = document.querySelector('.account-dropdown .dropdown-menu');
+  
+  if (accountToggle && accountMenu) {
+    accountToggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      accountMenu.classList.toggle('active');
+    });
+    
+    // Close when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!accountToggle.contains(event.target) && !accountMenu.contains(event.target)) {
+        accountMenu.classList.remove('active');
+      }
+    });
+    
+    // Additional mobile-specific behaviors
+    if (document.body.classList.contains('is-mobile-device')) {
+      // Prevent menu from going off screen
+      accountMenu.style.maxHeight = '80vh';
+      accountMenu.style.overflowY = 'auto';
+    }
+  }
+};
 
 /**
  * Safely initialize a module with error handling

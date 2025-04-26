@@ -70,10 +70,6 @@
     margin: 0;
     padding: 5rem 0 0;
   }
-
-  #stage-plot-container {
-    flex-direction: column;
-  }
   
   /* Header & Navigation */
   header {
@@ -164,10 +160,13 @@
     }
   }
   
+  /* Refactored user controls for mobile */
   .user-controls {
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     padding-top: 1.5rem;
     width: 100%;
   }
@@ -181,16 +180,60 @@
     text-align: center;
   }
 
-  /* Stage/Plot Area */
-  #elements-panel {
-    max-height: 360px;
-    overflow-y: auto;
+  .account-toggle, .theme-toggle {
+    margin: 0.5rem;
   }
-  
-  #stage {
-    aspect-ratio: 5/6;
-    height: auto;
-    max-width: 100%;
+
+  .account-dropdown .dropdown-menu {
+    top: auto;
+    bottom: calc(100% + 10px);
+    right: 0;
+  }
+
+  /* Stage/Plot Area - Phone Restriction Message */
+  #mobile-restriction-message {
+    background-color: var(--color-background-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+    max-width: 90%;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  #mobile-restriction-message h2 {
+    color: var(--color-primary-dark);
+    margin-bottom: 1rem;
+  }
+
+  #mobile-restriction-message p {
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    margin-bottom: 1.5rem;
+  }
+
+  #mobile-restriction-message .primary-button {
+    margin-top: 1rem;
+  }
+
+  /* Hide stage plotting functionality on phones */
+  body.is-mobile-device #stage-plot-container,
+  body.is-mobile-device #stage-info-container {
+    display: none;
+  }
+
+  body.is-mobile-device.index-page #mobile-restriction-message {
+    display: flex;
+  }
+
+  /* Portfolio Page */
+  body.is-mobile-device .open-plot-btn {
+    display: none;
   }
   
   h1, h2 {
@@ -433,6 +476,11 @@
     height: auto;
     max-height: 150px;
   }
+  
+  /* Further refine mobile Menu UI */
+  .account-dropdown, .theme-toggle {
+    margin: 0 0.5rem;
+  }
 }
 
 /* ---------------------------- 500px ----------------------------- */
@@ -513,5 +561,11 @@
   .input-number {
     min-width: 20px;
     font-size: var(--font-size-sm);
+  }
+  
+  /* Further refine mobile account UI */
+  .user-controls {
+    justify-content: center;
+    gap: 2rem;
   }
 }
