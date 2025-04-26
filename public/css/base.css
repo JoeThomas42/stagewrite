@@ -223,6 +223,10 @@ ul {
   width: 100%;
 }
 
+#mobile-restriction-message {
+  display: none;
+}
+
 /* -------------------- Required fields and Errors ------------------- */
 label:has(+ input:required)::after,
 label:has(> input:required)::after,

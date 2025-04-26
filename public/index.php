@@ -45,7 +45,7 @@ if ($isLoggedIn) {
 ?>
 
 <!-- Mobile Restriction -->
-<div id="mobile-restriction-message" style="display: none;">
+<div id="mobile-restriction-message">
     <h2>Desktop Or Tablet Required</h2>
     <p>The stage plotting feature requires a larger screen for optimal use.</p>
     <p>Please access this feature from a tablet (landscape mode) or desktop computer.</p>

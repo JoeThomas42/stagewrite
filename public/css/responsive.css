@@ -88,16 +88,9 @@
 /* --------------------932px --------------------- */
 @media screen and (max-width: 932px) {
   /* Hide stage plotting/opening functionality on phones */
-  body.is-mobile-device #stage-plot-container,
-  body.is-mobile-device #stage-info-container {
-    display: none;
-  }
-
-  body.is-mobile-device.index-page #mobile-restriction-message {
-    display: flex;
-  }
-
-  body.is-mobile-device .open-plot-btn {
+  #stage-plot-container,
+  #stage-info-container,
+  .open-plot-btn  {
     display: none;
   }
 

@@ -26,7 +26,6 @@ window.initializeApp = function() {
   safeInit(window.initTooltips, "Enhanced Tooltips");
   safeInit(window.initPrintAndShare, "Print and Share Functionality");
   safeInit(window.initLoginModal, "Login Modal");
-  safeInit(window.initMobileDetection, "Mobile Detection");
   
   console.log("Application initialization complete!");
 };
@@ -42,58 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error during initialization:", e);
   }
 });
-
-/**
- * Mobile device detection and responsive handling
- */
-window.initMobileDetection = function() {
-  // Function to detect mobile devices (phones)
-  function isMobileDevice() {
-    return window.innerWidth <= 932;
-  }
-  
-  // Function to add page-specific class
-  function addPageClass() {
-    const path = window.location.pathname;
-    if (path.endsWith('index.php') || path === '/' || path.endsWith('/')) {
-      document.body.classList.add('index-page');
-    } else if (path.endsWith('profile.php')) {
-      document.body.classList.add('profile-page');
-    } else if (path.endsWith('data_management.php')) {
-      document.body.classList.add('data-management-page');
-    }
-  }
-  
-  // Initial check and setup
-  function setupMobileDetection() {
-    if (isMobileDevice()) {
-      document.body.classList.add('is-mobile-device');
-      // Show mobile restriction message if on index page
-      if (document.body.classList.contains('index-page')) {
-        const restrictionMsg = document.getElementById('mobile-restriction-message');
-        if (restrictionMsg) {
-          restrictionMsg.style.display = 'flex';
-        }
-      }
-    } else {
-      document.body.classList.remove('is-mobile-device');
-      // Hide mobile restriction message
-      const restrictionMsg = document.getElementById('mobile-restriction-message');
-      if (restrictionMsg) {
-        restrictionMsg.style.display = 'none';
-      }
-    }
-    addPageClass();
-  }
-  
-  // Run on page load
-  setupMobileDetection();
-  
-  // Run on window resize
-  window.addEventListener('resize', function() {
-    setupMobileDetection();
-  });
-};
 
 /**
  * Mobile menu system initialization
