@@ -107,6 +107,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-md);
+    color: var(--color-text);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -118,18 +119,17 @@
   }
 
   #mobile-restriction-message h2 {
-    color: var(--color-primary-dark);
+    font-size: var(--font-size-lg);
     margin-bottom: 1rem;
   }
 
   #mobile-restriction-message p {
-    color: var(--color-text);
     font-size: var(--font-size-md);
     margin-bottom: 1.5rem;
   }
 
-  #mobile-restriction-message .primary-button {
-    margin-top: 1rem;
+  #mobile-restriction-message button a {
+    color: var(--color-white);
   }
 
   /* Mobile menu button */

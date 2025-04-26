@@ -50,7 +50,7 @@ if ($isLoggedIn) {
     <p>The stage plotting feature requires a larger screen for optimal use.</p>
     <p>Please access this feature from a tablet (landscape mode) or desktop computer.</p>
     <p>You can still view and manage your saved plots in the Portfolio section.</p>
-    <a href="profile.php" class="primary-button">Go to Portfolio</a>
+    <button><a href="profile.php">Go to Portfolio</a></button>
 </div>
 
 <div id="stage-plot-container">
