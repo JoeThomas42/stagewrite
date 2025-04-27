@@ -281,12 +281,6 @@
   #add-venue-button {
     width: 100%;
   }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
-  }
   
   .plots-grid {
     grid-template-columns: 1fr;
@@ -367,20 +361,9 @@
       }
     }
   }
-
-  /* Filtering & Search */
-  .table-actions, 
-  .search-actions {
-    align-items: stretch;
-    flex-direction: column;
-    
-    h2 {
-      margin-bottom: var(--spacing-md);
-    }
-  }
   
   .search-container {
-    margin: 0 0 var(--spacing-md) 0;
+    margin: 0;
     max-width: 100%;
   }
   
