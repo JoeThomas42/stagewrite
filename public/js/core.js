@@ -7,7 +7,6 @@
 window.initializeApp = function () {
   setupScrollRestoration();
 
-  // Initialize each feature independently with error handling
   safeInit(window.initFirstTimePopup, "First Time Popup");
   safeInit(window.initCustomDropdowns, 'Custom Dropdowns');
   safeInit(window.initAccountDropdown, 'Account Dropdown');
@@ -49,30 +48,26 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 window.initFirstTimePopup = function () {
   const popup = document.getElementById('first-time-popup');
-  if (!popup) return; // Exit if popup element doesn't exist
+  if (!popup) return;
 
   const popupShownKey = 'stagewrite_popup_shown';
 
-  // Check if the popup has already been shown
   if (localStorage.getItem(popupShownKey)) {
     console.log('First time popup already shown.');
     return;
   }
 
-  // Function to close the popup and set the flag
   const closePopup = () => {
     closeModal(popup);
     localStorage.setItem(popupShownKey, 'true');
     console.log('First time popup closed and flag set.');
   };
 
-  // Show the popup
   setTimeout(() => {
     openModal(popup);
     console.log('Showing first time popup.');
   }, 500);
 
-  // Add event listeners to close buttons
   const closeButtons = popup.querySelectorAll('.modal-close-button');
   closeButtons.forEach((button) => {
     button.removeEventListener('click', closePopup);
@@ -100,7 +95,6 @@ window.initMobileMenu = function () {
       document.body.classList.toggle('menu-open');
     });
 
-    // Close mobile menu when clicking outside
     document.addEventListener('click', function (event) {
       if (navContainer.classList.contains('active') && !navContainer.contains(event.target) && !mobileMenuButton.contains(event.target)) {
         mobileMenuButton.classList.remove('active');
@@ -124,16 +118,13 @@ window.initAccountDropdown = function () {
       accountMenu.classList.toggle('active');
     });
 
-    // Close when clicking outside
     document.addEventListener('click', function (event) {
       if (!accountToggle.contains(event.target) && !accountMenu.contains(event.target)) {
         accountMenu.classList.remove('active');
       }
     });
 
-    // Additional mobile-specific behaviors
     if (document.body.classList.contains('is-mobile-device')) {
-      // Prevent menu from going off screen
       accountMenu.style.maxHeight = '80vh';
       accountMenu.style.overflowY = 'auto';
     }
@@ -156,7 +147,6 @@ function safeInit(initFunction, moduleName) {
     }
   } catch (err) {
     console.error(`Error initializing ${moduleName}:`, err);
-    // Continue with other initializations despite this error
   }
 }
 
@@ -171,20 +161,15 @@ function saveScrollPosition() {
  * Sets up scroll position preservation between page loads
  */
 function setupScrollRestoration() {
-  // Try to prevent browser's automatic scroll restoration
   if ('scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
 
-  // Check if we need to restore scroll position
   if (sessionStorage.getItem('scrollPosition')) {
-    // Prevent the flash of content at the top by setting position immediately
     document.documentElement.style.opacity = '0';
 
-    // Restore scroll position right away
     window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition')));
 
-    // Fade the content back in
     setTimeout(function () {
       document.documentElement.style.opacity = '1';
       sessionStorage.removeItem('scrollPosition');
@@ -198,13 +183,10 @@ function setupScrollRestoration() {
  * @param {string} message - The error message to display
  */
 function showFieldError(field, message) {
-  // Remove any previous error
   clearFieldError(field);
 
-  // Add error class to the input
   field.classList.add('error-input');
 
-  // Create and add error message
   const errorSpan = document.createElement('span');
   errorSpan.className = 'field-error';
   errorSpan.textContent = message;
@@ -265,7 +247,6 @@ function closeModal(modal) {
   document.getElementById('notification-area').classList.remove('modal-open');
 }
 
-// -------------------- Make core utilities available globally ----------------------
 window.safeInit = safeInit;
 window.showFieldError = showFieldError;
 window.clearFieldError = clearFieldError;

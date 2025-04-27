@@ -3,7 +3,6 @@
  * Main entry point that imports all module scripts
  */
 
-// Load scripts in the correct order
 document.addEventListener('DOMContentLoaded', () => {
   const scripts = [
     '/js/core.js',
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     '/js/login.js',
   ];
   
-  // Load scripts sequentially
   loadScriptsSequentially(scripts, 0);
 });
 
@@ -28,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadScriptsSequentially(scripts, index) {
   if (index >= scripts.length) {
     console.log('All scripts loaded successfully');
-    // Initialize the application after all scripts are loaded
     if (typeof window.initializeApp === 'function') {
       window.initializeApp();
     } else {

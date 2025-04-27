@@ -10,26 +10,21 @@
 function initTouchInteraction() {
   console.log('Initializing Touch Interaction...');
 
-  // Ensure plotState is available
   if (!window.plotState) {
     console.warn('plotState not found. Touch interactions cannot be initialized.');
     return;
   }
 
-  // Detect touch device
   detectTouchDevice(window.plotState);
 
   if (window.plotState.isTouchDevice) {
     console.log('Touch device detected. Setting up touch listeners.');
     document.body.classList.add('touch-detected');
 
-    // Initialize dragging from the elements list
     initTouchDragFromList(window.plotState);
 
-    // Initialize dragging and tapping for elements already on the stage
     initTouchOnStageElements(window.plotState);
 
-    // Override console logging to disable during touch drag
     overrideConsoleDuringDrag();
   } else {
     console.log('No touch device detected. Skipping touch listener setup.');
@@ -52,10 +47,10 @@ function detectTouchDevice(plotState) {
 function initTouchDragFromList(plotState) {
   const elementsList = document.getElementById('elements-list');
   const stage = document.getElementById('stage');
-  let touchDragElement = null; // The visual clone being dragged
-  let originalElement = null; // The source element in the list
+  let touchDragElement = null;
+  let originalElement = null;
   let touchStartX, touchStartY;
-  let initialOffsetX, initialOffsetY; // Offset within the dragged element
+  let initialOffsetX, initialOffsetY;
 
   if (!elementsList || !stage) {
     console.warn('Elements list or stage not found for touch drag initialization.');
@@ -66,11 +61,11 @@ function initTouchDragFromList(plotState) {
     'touchstart',
     (e) => {
       const target = e.target.closest('.draggable-element');
-      if (!target || target.closest('.favorite-button')) return; // Ignore if touching favorite button
+      if (!target || target.closest('.favorite-button')) return;
 
-      e.preventDefault(); // Prevent default scroll/zoom/context menu
+      e.preventDefault();
       originalElement = target;
-      plotState.isTouchDragging = true; // Global flag
+      plotState.isTouchDragging = true;
 
       const touch = e.touches[0];
       touchStartX = touch.clientX;
@@ -80,30 +75,33 @@ function initTouchDragFromList(plotState) {
       initialOffsetX = touchStartX - rect.left;
       initialOffsetY = touchStartY - rect.top;
 
-      // Create visual clone
       touchDragElement = target.cloneNode(true);
-      touchDragElement.classList.add('touch-drag-element'); // Use CSS class for styling
-      // Remove favorite button from clone
+      touchDragElement.classList.add('touch-drag-element');
+
       const favButton = touchDragElement.querySelector('.favorite-button');
       if (favButton) favButton.remove();
 
-      touchDragElement.style.position = 'fixed'; // Use fixed to position relative to viewport
+      touchDragElement.style.position = 'fixed';
       touchDragElement.style.zIndex = '10000';
       touchDragElement.style.pointerEvents = 'none';
-      touchDragElement.style.margin = '0'; // Reset margin
+      touchDragElement.style.margin = '0';
       touchDragElement.style.left = `${touchStartX - initialOffsetX}px`;
       touchDragElement.style.top = `${touchStartY - initialOffsetY}px`;
 
       document.body.appendChild(touchDragElement);
 
-      // Add move/end listeners to the document for wider tracking
       document.addEventListener('touchmove', touchMoveFromList, { passive: false });
       document.addEventListener('touchend', touchEndFromList, { passive: false });
-      document.addEventListener('touchcancel', touchEndFromList, { passive: false }); // Handle cancel
+      document.addEventListener('touchcancel', touchEndFromList, { passive: false });
     },
     { passive: false }
-  ); // Need non-passive to prevent default
+  );
 
+  /**
+   * Handles the touch move event when dragging an element from the list.
+   * Updates the position of the dragged clone.
+   * @param {TouchEvent} e - The touch move event object.
+   */
   function touchMoveFromList(e) {
     if (!touchDragElement) return;
     e.preventDefault();
@@ -113,6 +111,12 @@ function initTouchDragFromList(plotState) {
     touchDragElement.style.top = `${touch.clientY - initialOffsetY}px`;
   }
 
+  /**
+   * Handles the touch end/cancel event when dragging an element from the list.
+   * Determines if the element was dropped onto the stage and creates a new element if so.
+   * Cleans up drag state and listeners.
+   * @param {TouchEvent} e - The touch end/cancel event object.
+   */
   function touchEndFromList(e) {
     if (!touchDragElement) return;
     e.preventDefault();
@@ -120,24 +124,22 @@ function initTouchDragFromList(plotState) {
     const touch = e.changedTouches[0];
     const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
 
-    // Drop on stage logic
     if (dropTarget && stage.contains(dropTarget)) {
       const stageRect = stage.getBoundingClientRect();
-      // Calculate drop relative to stage, adjusting for scroll
+
       const dropX = touch.clientX - stageRect.left;
       const dropY = touch.clientY - stageRect.top;
 
-      // --- Get element data (ensure functions are available) ---
       const elementId = originalElement.getAttribute('data-element-id');
-      const elementData = typeof getElementData === 'function' ? getElementData(elementId) : null; // Use existing func if possible
+      const elementData = typeof getElementData === 'function' ? getElementData(elementId) : null;
 
       if (elementData) {
-        const elementWidth = 75; // Default placed size
+        const elementWidth = 75;
         const elementHeight = 75;
 
         const maxLeft = stageRect.width - elementWidth;
         const maxTop = stageRect.height - elementHeight;
-        // Drop position relative to the center of the touch point
+
         const constrainedX = Math.max(0, Math.min(dropX - elementWidth / 2, maxLeft));
         const constrainedY = Math.max(0, Math.min(dropY - elementHeight / 2, maxTop));
 
@@ -161,13 +163,12 @@ function initTouchDragFromList(plotState) {
 
         plotState.elements.push(newElement);
 
-        // Use existing createPlacedElement function
         if (typeof createPlacedElement === 'function') {
           createPlacedElement(newElement, plotState).then(() => {
             const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
             if (domElement) {
               requestAnimationFrame(() => {
-                domElement.classList.add('dropping'); // Add drop animation class
+                domElement.classList.add('dropping');
                 domElement.addEventListener(
                   'animationend',
                   () => {
@@ -177,11 +178,11 @@ function initTouchDragFromList(plotState) {
                 );
               });
             }
-            // Update info list (ensure function exists)
+
             if (typeof renderElementInfoList === 'function') {
               renderElementInfoList(plotState);
             }
-            // Mark plot as modified (ensure function exists)
+
             if (typeof markPlotAsModified === 'function') {
               markPlotAsModified(plotState);
             }
@@ -194,13 +195,12 @@ function initTouchDragFromList(plotState) {
       }
     }
 
-    // Cleanup
     if (touchDragElement.parentNode) {
       touchDragElement.remove();
     }
     touchDragElement = null;
     originalElement = null;
-    plotState.isTouchDragging = false; // Reset flag
+    plotState.isTouchDragging = false;
     document.removeEventListener('touchmove', touchMoveFromList);
     document.removeEventListener('touchend', touchEndFromList);
     document.removeEventListener('touchcancel', touchEndFromList);
@@ -218,34 +218,33 @@ function initTouchOnStageElements(plotState) {
 
   let draggedElement = null;
   let isDragging = false;
-  let isTap = true; // Assume tap initially
+  let isTap = true;
   let touchStartX, touchStartY;
   let elementStartX, elementStartY;
   let groupOffsets = [];
   let isDraggingGroup = false;
   let lastTapTime = 0;
-  const DOUBLE_TAP_THRESHOLD = 300; // ms
-  const TAP_MOVE_THRESHOLD = 10; // px tolerance for tap vs drag
-  const TAP_DURATION_THRESHOLD = 200; // ms max duration for tap
+  const DOUBLE_TAP_THRESHOLD = 300;
+  const TAP_MOVE_THRESHOLD = 10;
+  const TAP_DURATION_THRESHOLD = 200;
   let touchStartTime = 0;
 
   stage.addEventListener(
     'touchstart',
     (e) => {
       const targetElement = e.target.closest('.placed-element');
-      if (!targetElement) return; // Touched stage background
+      if (!targetElement) return;
 
-      // Prevent dragging if touching an action button
       if (e.target.closest('.element-actions button')) {
         return;
       }
 
-      e.preventDefault(); // Prevent scrolling/zooming while interacting with elements
+      e.preventDefault();
 
       touchStartTime = Date.now();
       draggedElement = targetElement;
-      isDragging = false; // Will be set true on first significant move
-      isTap = true; // Reset tap flag
+      isDragging = false;
+      isTap = true;
 
       const touch = e.touches[0];
       touchStartX = touch.clientX;
@@ -253,7 +252,6 @@ function initTouchOnStageElements(plotState) {
       elementStartX = parseInt(draggedElement.style.left || '0');
       elementStartY = parseInt(draggedElement.style.top || '0');
 
-      // Group dragging logic
       const elementId = parseInt(draggedElement.getAttribute('data-id'));
       isDraggingGroup = plotState.selectedElements.includes(elementId) && plotState.selectedElements.length > 1;
 
@@ -270,13 +268,11 @@ function initTouchOnStageElements(plotState) {
           }
         });
       } else {
-        // If not dragging a group, bring the single element to front
         if (typeof bringToFront === 'function') {
           bringToFront(elementId, plotState);
         }
       }
 
-      // Add move/end listeners to the document
       document.addEventListener('touchmove', touchMoveOnStage, { passive: false });
       document.addEventListener('touchend', touchEndOnStage, { passive: false });
       document.addEventListener('touchcancel', touchEndOnStage, { passive: false });
@@ -284,6 +280,12 @@ function initTouchOnStageElements(plotState) {
     { passive: false }
   );
 
+  /**
+   * Handles touch move events on the stage for dragging placed elements.
+   * Differentiates between tap and drag based on movement threshold.
+   * Updates element(s) position during drag.
+   * @param {TouchEvent} e - The touch move event object.
+   */
   function touchMoveOnStage(e) {
     if (!draggedElement) return;
     e.preventDefault();
@@ -292,19 +294,17 @@ function initTouchOnStageElements(plotState) {
     const deltaX = touch.clientX - touchStartX;
     const deltaY = touch.clientY - touchStartY;
 
-    // If movement exceeds threshold, it's a drag, not a tap
     if (Math.abs(deltaX) > TAP_MOVE_THRESHOLD || Math.abs(deltaY) > TAP_MOVE_THRESHOLD) {
       isTap = false;
       if (!isDragging) {
-        // First significant move
         isDragging = true;
-        // Add dragging styles if needed
+
         if (isDraggingGroup) {
           groupOffsets.forEach((item) => item.element.classList.add('dragging-group'));
         } else {
           draggedElement.classList.add('dragging');
         }
-        // Disable console logging during drag
+
         if (window.disableConsole) window.disableConsole();
       }
     }
@@ -314,7 +314,6 @@ function initTouchOnStageElements(plotState) {
       const stageWidth = stageRect.width;
       const stageHeight = stageRect.height;
 
-      // Update positions
       if (isDraggingGroup) {
         groupOffsets.forEach((item) => {
           const newX = item.startX + deltaX;
@@ -333,46 +332,40 @@ function initTouchOnStageElements(plotState) {
     }
   }
 
+  /**
+   * Handles touch end/cancel events on the stage.
+   * Differentiates between tap (toggles element actions) and drag end (updates state).
+   * Cleans up drag state and listeners.
+   * @param {TouchEvent} e - The touch end/cancel event object.
+   */
   function touchEndOnStage(e) {
     if (!draggedElement) return;
     e.preventDefault();
 
-    // Re-enable console logging
     if (window.enableConsole) window.enableConsole();
 
     const touchEndTime = Date.now();
     const touchDuration = touchEndTime - touchStartTime;
 
     if (isTap && touchDuration < TAP_DURATION_THRESHOLD) {
-      // --- Handle Tap ---
       const elementId = parseInt(draggedElement.getAttribute('data-id'));
       const isCurrentlyVisible = draggedElement.classList.contains('actions-visible');
       const now = Date.now();
 
-      // Double Tap Check (for potential future use like opening props modal)
-      // if (now - lastTapTime < DOUBLE_TAP_THRESHOLD) {
-      //     console.log("Double tap detected on element:", elementId);
-      //     // Example: Open properties modal on double tap
-      //     // if (typeof openPropertiesModal === 'function') {
-      //     //     openPropertiesModal(elementId, plotState);
-      //     // }
-      // } else {
-      // Single Tap: Toggle actions
       console.log('Single tap detected on element:', elementId);
-      // Hide actions on all other elements first
+
       document.querySelectorAll('.placed-element.actions-visible').forEach((el) => {
         if (el !== draggedElement) {
           el.classList.remove('actions-visible');
         }
       });
-      // Toggle actions for the tapped element
+
       draggedElement.classList.toggle('actions-visible');
-      // }
+
       lastTapTime = now;
     } else if (isDragging) {
-      // --- Handle Drag End ---
       console.log('Drag end detected.');
-      // Update plotState with final positions
+
       if (isDraggingGroup) {
         groupOffsets.forEach((item) => {
           const id = parseInt(item.element.getAttribute('data-id'));
@@ -393,17 +386,15 @@ function initTouchOnStageElements(plotState) {
         draggedElement.classList.remove('dragging');
       }
 
-      // Mark plot as modified (ensure function exists)
       if (typeof markPlotAsModified === 'function') {
         markPlotAsModified(plotState);
       }
-      // Update info list (ensure function exists)
+
       if (typeof renderElementInfoList === 'function') {
         renderElementInfoList(plotState);
       }
     }
 
-    // Cleanup
     draggedElement = null;
     isDragging = false;
     isTap = true;
@@ -414,7 +405,15 @@ function initTouchOnStageElements(plotState) {
     document.removeEventListener('touchcancel', touchEndOnStage);
   }
 
-  // Helper to constrain element position within the stage
+  /**
+   * Constrains the desired element position within the stage boundaries.
+   * @param {HTMLElement} element - The element being positioned.
+   * @param {number} desiredX - The desired horizontal position (left).
+   * @param {number} desiredY - The desired vertical position (top).
+   * @param {number} stageWidth - The width of the stage container.
+   * @param {number} stageHeight - The height of the stage container.
+   * @returns {{x: number, y: number}} The constrained x and y coordinates.
+   */
   function constrainElementPosition(element, desiredX, desiredY, stageWidth, stageHeight) {
     const elementWidth = element.offsetWidth;
     const elementHeight = element.offsetHeight;
@@ -438,26 +437,29 @@ function overrideConsoleDuringDrag() {
   };
   let consoleDisabled = false;
 
+  /**
+   * Disables console output methods (log, warn, error).
+   */
   window.disableConsole = () => {
     if (!consoleDisabled) {
       console.log = () => {};
       console.warn = () => {};
       console.error = () => {};
       consoleDisabled = true;
-      // originalConsole.log("Console logging disabled during drag."); // Debug
     }
   };
 
+  /**
+   * Re-enables console output methods (log, warn, error) by restoring the original functions.
+   */
   window.enableConsole = () => {
     if (consoleDisabled) {
       console.log = originalConsole.log;
       console.warn = originalConsole.warn;
       console.error = originalConsole.error;
       consoleDisabled = false;
-      // console.log("Console logging re-enabled."); // Debug
     }
   };
 }
 
-// Expose the main init function globally
 window.initTouchInteraction = initTouchInteraction;

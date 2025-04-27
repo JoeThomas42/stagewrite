@@ -4,13 +4,12 @@
  */
 
 /**
- * Initialize stage plot editor
+ * Initialize stage plot editor by setting up the initial state and initializing
+ * various UI components and event listeners.
  */
 function initStageEditor() {
-  // Skip if not on a page with the stage plot editor
   if (!document.getElementById('stage')) return;
 
-  // Initialize the plot state
   const plotState = {
     elements: [],
     nextZIndex: 1,
@@ -30,7 +29,6 @@ function initStageEditor() {
 
   window.plotState = plotState;
 
-  // Initialize components
   initPlotControls(plotState);
   initDragAndDrop(plotState);
   initModalControls(plotState);
@@ -48,69 +46,46 @@ function initStageEditor() {
   initDeleteSelectedButton(plotState);
   initShiftCursorStyle();
 
-  // Expose render function to plotState
   plotState.renderElementInfoList = () => renderElementInfoList(plotState);
 
-  // Try to restore state from localStorage first
   const stateRestored = restoreStateFromStorage(plotState);
   if (!stateRestored) {
-    setupInitialState(plotState); // Setup default stage size, dates etc.
-    // If state wasn't restored, ensure the input list has the default 6 rows
+    setupInitialState(plotState);
     if (plotState.renderInputList) {
       plotState.renderInputList([]);
     }
   }
 
-  // Only set up initial state if not restored from storage
   if (!stateRestored) {
     setupInitialState(plotState);
   }
 
-  // Setup change tracking AFTER restoring state
   setupChangeTracking(plotState);
-
-  // Check for URL parameters
   checkUrlParameters(plotState);
-
-  // Initialize venue select change handler
   setupVenueSelectHandler(plotState);
-
-  // Initialize date change handlers
   setupDateHandlers(plotState);
-
-  // Initialize date validation
   setupDateValidation(plotState);
-
-  // Render the initial list
   renderElementInfoList(plotState);
 }
 
 /**
- * Calculate stage dimensions based on venue dimensions
- * @param {number} venueWidth - Venue width in feet
- * @param {number} venueDepth - Venue depth in feet
- * @param {number} maxStageWidth - Maximum stage width in pixels
- * @returns {Object} Object with calculated width, height, and grid size
+ * Calculate stage dimensions in pixels and grid units based on venue dimensions in feet.
+ * @param {number} venueWidth - Venue width in feet.
+ * @param {number} venueDepth - Venue depth in feet.
+ * @param {number} [maxStageWidth=900] - Maximum stage width in pixels.
+ * @returns {Object} Object with calculated width, height, gridSize, dimensions in feet, and grid square counts.
  */
 function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
-  // Default values if dimensions are invalid
   if (!venueWidth || !venueDepth || venueWidth <= 0 || venueDepth <= 0) {
     venueWidth = 20;
     venueDepth = 15;
   }
 
-  // Calculate aspect ratio
   const aspectRatio = venueDepth / venueWidth;
-
-  // Calculate stage dimensions in pixels
   const stageWidth = maxStageWidth;
   const stageHeight = Math.round(stageWidth * aspectRatio);
-
-  // Calculate grid size (each grid square is 5' x 5')
   const gridSizeWidth = stageWidth / (venueWidth / 5);
   const gridSizeHeight = stageHeight / (venueDepth / 5);
-
-  // Use the smaller of the two to ensure squares
   const gridSize = Math.min(gridSizeWidth, gridSizeHeight);
 
   return {
@@ -125,39 +100,30 @@ function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
 }
 
 /**
- * Update stage dimensions based on venue selection
- * @param {Object} dimensions - The calculated dimensions
- * @param {HTMLElement} stage - The stage element
+ * Update stage element's dimensions, data attributes, grid overlay, and label.
+ * @param {Object} dimensions - The calculated dimensions object from calculateStageDimensions.
+ * @param {HTMLElement} stage - The stage DOM element.
  */
 function updateStageDimensions(dimensions, stage) {
   if (!stage) return;
 
-  // Update stage dimensions
   stage.style.width = `${dimensions.width}px`;
   stage.style.height = `${dimensions.height}px`;
-
-  // Update data attributes
   stage.setAttribute('data-stage-width', dimensions.widthInFeet);
   stage.setAttribute('data-stage-depth', dimensions.depthInFeet);
-
-  // Update grid overlay
   updateGridOverlay(dimensions, stage);
-
-  // Update dimensions label
   updateDimensionsLabel(dimensions, stage);
 }
 
 /**
- * Update the grid overlay with proper scaling
- * @param {Object} dimensions - The calculated dimensions
- * @param {HTMLElement} stage - The stage element
+ * Update or create the grid overlay element with proper scaling for 5-foot and 1-foot lines.
+ * @param {Object} dimensions - The calculated dimensions object.
+ * @param {HTMLElement} stage - The stage DOM element.
  */
 function updateGridOverlay(dimensions, stage) {
-  // Find or create grid overlay
   let gridOverlay = stage.querySelector('.grid-overlay');
 
   if (!gridOverlay) {
-    // Create grid overlay if it doesn't exist
     gridOverlay = document.createElement('div');
     gridOverlay.className = 'grid-overlay';
     gridOverlay.style.position = 'absolute';
@@ -167,32 +133,24 @@ function updateGridOverlay(dimensions, stage) {
     gridOverlay.style.height = '100%';
     gridOverlay.style.pointerEvents = 'none';
     gridOverlay.style.zIndex = '1';
-    gridOverlay.style.opacity = '0'; // Start hidden
+    gridOverlay.style.opacity = '0';
     gridOverlay.style.transition = 'opacity 0.3s ease';
     stage.appendChild(gridOverlay);
   }
 
-  // Calculate foot size in pixels (1/5 of the grid size)
   const footSize = dimensions.gridSize / 5;
-
-  // Create a complex background with both 5-foot and 1-foot lines
-  // The 5-foot lines are darker (rgba opacity 0.15) than the 1-foot lines (rgba opacity 0.05)
   gridOverlay.style.backgroundImage = `
     linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
     linear-gradient(to right, rgba(82, 108, 129, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(82, 108, 129, 0.05) 1px, transparent 1px)
   `;
-
-  // Set the background sizes for both types of grid lines
   gridOverlay.style.backgroundSize = `
     ${dimensions.gridSize}px ${dimensions.gridSize}px,
     ${dimensions.gridSize}px ${dimensions.gridSize}px,
     ${footSize}px ${footSize}px,
     ${footSize}px ${footSize}px
   `;
-
-  // Store grid size in data attribute for reference
   gridOverlay.setAttribute('data-grid-size', dimensions.gridSize);
   gridOverlay.setAttribute('data-foot-size', footSize);
   gridOverlay.setAttribute('data-grid-squares-x', dimensions.gridSquaresX);
@@ -200,12 +158,11 @@ function updateGridOverlay(dimensions, stage) {
 }
 
 /**
- * Update dimensions label on the stage
- * @param {Object} dimensions - The calculated dimensions
- * @param {HTMLElement} stage - The stage element
+ * Update or create the dimensions label element on the stage.
+ * @param {Object} dimensions - The calculated dimensions object.
+ * @param {HTMLElement} stage - The stage DOM element.
  */
 function updateDimensionsLabel(dimensions, stage) {
-  // Find existing dimensions label or create one
   let dimensionsLabel = stage.querySelector('.stage-dimensions');
 
   if (!dimensionsLabel) {
@@ -214,11 +171,7 @@ function updateDimensionsLabel(dimensions, stage) {
     stage.appendChild(dimensionsLabel);
   }
 
-  // Update label with dimensions and grid squares
-  // Format: Width × Depth (grid squares) | pixels
   dimensionsLabel.textContent = `${dimensions.widthInFeet}' × ${dimensions.depthInFeet}' (${dimensions.gridSquaresX}×${dimensions.gridSquaresY} grid)`;
-
-  // Add a tooltip with more detailed information
   dimensionsLabel.title = `Stage dimensions: ${dimensions.widthInFeet}' × ${dimensions.depthInFeet}'
   Grid size: ${dimensions.gridSquaresX} × ${dimensions.gridSquaresY} of 5' squares
   Pixel dimensions: ${dimensions.width}px × ${dimensions.height}px
@@ -226,8 +179,8 @@ function updateDimensionsLabel(dimensions, stage) {
 }
 
 /**
- * Setup date validation to make sure end date is after start date
- * @param {Object} plotState - The current plot state
+ * Setup date validation to ensure the end date is not before the start date.
+ * @param {Object} plotState - The current plot state object.
  */
 function setupDateValidation(plotState) {
   const eventStartInput = document.getElementById('event_start');
@@ -235,81 +188,58 @@ function setupDateValidation(plotState) {
 
   if (!eventStartInput || !eventEndInput) return;
 
-  // Set min date for end date when start date changes
   eventStartInput.addEventListener('change', function () {
-    // Set min end date to match start
     eventEndInput.min = this.value;
-
-    // If the end date is before start date update it
     if (eventEndInput.value && eventEndInput.value < this.value) {
       eventEndInput.value = this.value;
-
-      // Mark as modified if editing an existing plot
       if (typeof showNotification === 'function') {
         showNotification('End date changed.', 'info');
       }
     }
   });
 
-  // Prevent end date from being before start date
   eventEndInput.addEventListener('change', function () {
     const startDate = eventStartInput.value;
-
     if (startDate && this.value < startDate) {
       this.value = startDate;
-
-      // Show notification
       if (typeof showNotification === 'function') {
         showNotification('End date must be after start.', 'warning');
       }
     }
-
-    // Mark as modified if editing a new plot
     if (plotState.currentPlotId) {
       markPlotAsModified(plotState);
     }
   });
 
-  // Set initial min date for the end date based off start date
   if (eventStartInput.value) {
     eventEndInput.min = eventStartInput.value;
   }
 }
 
 /**
- * Initialize accordion behavior for the elements list
+ * Initialize accordion behavior for the elements list panel.
  */
 function initElementsAccordion() {
   const elementsPanel = document.getElementById('elements-list');
   if (!elementsPanel) return;
 
-  // Get all accordion headers
   const headers = elementsPanel.querySelectorAll('.accordion-header');
 
-  // Add click event to each header
   headers.forEach((header) => {
     header.addEventListener('click', function () {
-      // Get the parent accordion item
       const item = this.closest('.accordion-item');
-
-      // Check if this header is already active
       const isActive = this.classList.contains('active');
 
-      // Close all accordions first
       headers.forEach((h) => {
         h.classList.remove('active');
-        // Find and collapse all content sections
         const content = h.nextElementSibling;
         if (content && content.classList.contains('accordion-content')) {
           content.classList.remove('expanded');
         }
       });
 
-      // If the clicked header wasn't active, open it
       if (!isActive) {
         this.classList.add('active');
-
-        // Find and expand the content section
         const content = this.nextElementSibling;
         if (content && content.classList.contains('accordion-content')) {
           content.classList.add('expanded');
@@ -318,7 +248,6 @@ function initElementsAccordion() {
     });
   });
 
-  // Initialize: ensure at least Favorites is expanded by default
   const favoritesHeader = elementsPanel.querySelector('.favorites-section .accordion-header');
   if (favoritesHeader && !favoritesHeader.classList.contains('active')) {
     favoritesHeader.click();
@@ -326,38 +255,30 @@ function initElementsAccordion() {
 }
 
 /**
- * Initialize favorites functionality
- * @param {Object} plotState - The current plot state
+ * Initialize favorites functionality by fetching user favorites and setting up UI.
+ * @param {Object} plotState - The current plot state object.
  */
 function initFavorites(plotState) {
-  // Initialize favorites array in plot state
   plotState.favorites = [];
   plotState.favoritesData = [];
 
-  // Get user's favorited elements
   fetchUserFavorites(plotState).then(() => {
-    // Add favorite buttons to elements
     addFavoriteButtons(plotState);
-
-    // Update favorites category
     updateFavoritesCategory(plotState);
   });
 }
 
 /**
- * Fetch user's favorite elements
- * @param {Object} plotState - The current plot state
- * @returns {Promise} - Promise that resolves when favorites are loaded
+ * Fetch user's favorite elements from the server and update the plot state.
+ * @param {Object} plotState - The current plot state object.
+ * @returns {Promise} - Promise that resolves when favorites are fetched and processed.
  */
 function fetchUserFavorites(plotState) {
   return fetch('/handlers/get_favorites.php')
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        // Store favorite element IDs in plot state
         plotState.favorites = data.favorites.map((fav) => parseInt(fav.element_id));
-
-        // Store complete favorite data for creating elements
         plotState.favoritesData = data.favorites;
       }
     })
@@ -367,8 +288,8 @@ function fetchUserFavorites(plotState) {
 }
 
 /**
- * Add favorite buttons to all elements
- * @param {Object} plotState - The current plot state
+ * Add favorite toggle buttons to all draggable elements in the list.
+ * @param {Object} plotState - The current plot state object.
  */
 function addFavoriteButtons(plotState) {
   const elements = document.querySelectorAll('.draggable-element:not(.favorite-element)');
@@ -377,91 +298,67 @@ function addFavoriteButtons(plotState) {
     const elementId = parseInt(element.getAttribute('data-element-id'));
     const isFavorite = plotState.favorites.includes(elementId);
 
-    // Only add button if it doesn't already exist
     if (!element.querySelector('.favorite-button')) {
-      // Create favorite button
       const favoriteBtn = document.createElement('button');
       favoriteBtn.className = 'favorite-button';
       favoriteBtn.setAttribute('type', 'button');
       favoriteBtn.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
       favoriteBtn.innerHTML = isFavorite ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
 
-      // Add click handler to toggle favorite
       favoriteBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         toggleFavorite(elementId, plotState);
       });
 
-      // Add button to element
       element.appendChild(favoriteBtn);
     }
   });
 }
 
 /**
- * Toggle element's favorite status
- * @param {number} elementId - The element ID to toggle
- * @param {Object} plotState - The current plot state
+ * Toggle an element's favorite status both in the UI and on the server.
+ * Includes animation for removing elements from the favorites section.
+ * @param {number} elementId - The ID of the element to toggle favorite status for.
+ * @param {Object} plotState - The current plot state object.
  */
 function toggleFavorite(elementId, plotState) {
-  // Prevent toggling if another toggle operation is already in progress
   if (plotState.favoriteToggleInProgress) {
     return;
   }
 
-  // Create form data for the request
   const formData = new FormData();
   formData.append('element_id', elementId);
-
-  // Set the flag to indicate a toggle is in progress
   plotState.favoriteToggleInProgress = true;
-
-  // Check if we're removing a favorite
   const isRemoving = plotState.favorites.includes(elementId);
 
-  // If removing, find the element in the favorites section to animate
   if (isRemoving) {
     const favoriteElement = document.querySelector(`.favorite-element[data-element-id="${elementId}"]`);
     if (favoriteElement) {
-      // Use requestAnimationFrame to ensure DOM is updated before animation starts
       requestAnimationFrame(() => {
-        // Add removing class to trigger animation
         favoriteElement.classList.add('removing');
-
-        // Create a flag variable to track if request has been sent
         let requestSent = false;
-
-        // Set up animation end listener
         const handleAnimationEnd = () => {
-          if (requestSent) return; // Prevent duplicate calls
+          if (requestSent) return;
           requestSent = true;
           favoriteElement.removeEventListener('animationend', handleAnimationEnd);
-          // Now send the server request
           sendToggleRequest();
         };
-
-        // Add event listener for animation end
         favoriteElement.addEventListener('animationend', handleAnimationEnd);
-
-        // Fallback: If animation doesn't complete after 500ms, proceed anyway
         setTimeout(() => {
-          if (requestSent) return; // Don't send if already sent
+          if (requestSent) return;
           requestSent = true;
-          favoriteElement.classList.remove('removing'); // Ensure class is removed
+          favoriteElement.classList.remove('removing');
           sendToggleRequest();
         }, 500);
       });
-
-      return; // Exit early, the sendToggleRequest will be called after animation
+      return;
     }
   }
 
-  // If not removing or element not found, proceed normally
   sendToggleRequest();
 
   function sendToggleRequest() {
-    // Rest of your existing code (unchanged)
     fetch('/handlers/toggle_favorite.php', {
       method: 'POST',
       body: formData,
@@ -469,33 +366,21 @@ function toggleFavorite(elementId, plotState) {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Update favorites in state
           const isFavorite = data.action === 'added';
-
           if (isFavorite) {
-            // Add to favorites if not already there
             if (!plotState.favorites.includes(elementId)) {
               plotState.favorites.push(elementId);
-
-              // Get element data for the favorites category
               const elementData = getElementData(elementId);
               if (elementData) {
                 plotState.favoritesData.push(elementData);
               }
             }
           } else {
-            // Remove from favorites
             plotState.favorites = plotState.favorites.filter((id) => id !== elementId);
             plotState.favoritesData = plotState.favoritesData.filter((fav) => fav.element_id !== elementId);
           }
-
-          // Update all instances of this element's favorite button
           updateElementFavoriteButtons(elementId, isFavorite);
-
-          // Update favorites category
           updateFavoritesCategory(plotState);
-
-          // Show notification
           if (typeof showNotification === 'function') {
             showNotification(data.message, 'success');
           }
@@ -504,8 +389,6 @@ function toggleFavorite(elementId, plotState) {
             showNotification(data.error || 'Error toggling favorite', 'error');
           }
         }
-
-        // IMPORTANT: Clear the toggle in progress flag
         plotState.favoriteToggleInProgress = false;
       })
       .catch((error) => {
@@ -513,21 +396,18 @@ function toggleFavorite(elementId, plotState) {
         if (typeof showNotification === 'function') {
           showNotification('Error toggling favorite', 'error');
         }
-
-        // IMPORTANT: Clear the toggle in progress flag even on error
         plotState.favoriteToggleInProgress = false;
       });
   }
 }
 
 /**
- * Update all instances of an element's favorite button
- * @param {number} elementId - The element ID
- * @param {boolean} isFavorite - Whether the element is favorited
+ * Update the visual state (icon, title) of all favorite buttons associated with a specific element ID.
+ * @param {number} elementId - The ID of the element whose buttons need updating.
+ * @param {boolean} isFavorite - The new favorite status.
  */
 function updateElementFavoriteButtons(elementId, isFavorite) {
   const buttons = document.querySelectorAll(`.draggable-element[data-element-id="${elementId}"] .favorite-button`);
-
   buttons.forEach((button) => {
     button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
     button.innerHTML = isFavorite ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
@@ -535,13 +415,12 @@ function updateElementFavoriteButtons(elementId, isFavorite) {
 }
 
 /**
- * Get element data for an element ID
- * @param {number} elementId - The element ID
- * @returns {Object|null} - Element data or null if not found
+ * Retrieve element data (ID, name, category, image) from a DOM element.
+ * @param {number} elementId - The ID of the element to get data for.
+ * @returns {Object|null} An object containing element data, or null if the element is not found.
  */
 function getElementData(elementId) {
   const element = document.querySelector(`.draggable-element[data-element-id="${elementId}"]`);
-
   if (element) {
     return {
       element_id: elementId,
@@ -550,68 +429,51 @@ function getElementData(elementId) {
       element_image: element.getAttribute('data-image'),
     };
   }
-
   return null;
 }
 
 /**
- * Update the favorites category in the elements list
- * @param {Object} plotState - The current plot state
+ * Update the "Favorites" category section in the elements list UI.
+ * Creates the section if it doesn't exist, populates it with favorited elements,
+ * and handles adding/removing animations.
+ * @param {Object} plotState - The current plot state object.
  */
 function updateFavoritesCategory(plotState) {
   const elementsPanel = document.getElementById('elements-list');
   if (!elementsPanel) return;
 
-  // Find existing favorites section if it exists
   let favoritesSection = elementsPanel.querySelector('.category-section.favorites-section');
-
-  // Initialize previousFavorites array if it doesn't exist
   if (!plotState.previousFavorites) {
     plotState.previousFavorites = [];
   }
-
-  // Track which elements are new
   const newFavorites = plotState.favorites.filter((id) => !plotState.previousFavorites.includes(id));
 
-  // Create favorites section if it doesn't exist yet
   if (!favoritesSection) {
     favoritesSection = document.createElement('div');
     favoritesSection.className = 'category-section favorites-section accordion-item';
     favoritesSection.setAttribute('data-category-id', '1');
 
-    // Create header
     const heading = document.createElement('h3');
-    heading.className = 'accordion-header active'; // Start expanded
+    heading.className = 'accordion-header active';
     heading.textContent = 'Favorites';
-
-    // Add accordion icon
     const icon = document.createElement('span');
     icon.className = 'accordion-icon';
     heading.appendChild(icon);
-
     favoritesSection.appendChild(heading);
 
-    // Create content container
     const grid = document.createElement('div');
-    grid.className = 'accordion-content elements-grid expanded'; // Start expanded
+    grid.className = 'accordion-content elements-grid expanded';
     favoritesSection.appendChild(grid);
-
-    // Add to DOM before first child
     elementsPanel.insertBefore(favoritesSection, elementsPanel.firstChild);
 
-    // Add click handler to the new header
     heading.addEventListener('click', function () {
       const isActive = this.classList.contains('active');
-
-      // Close all accordions
       const allHeaders = elementsPanel.querySelectorAll('.accordion-header');
       allHeaders.forEach((h) => {
         h.classList.remove('active');
         const content = h.nextElementSibling;
         if (content) content.classList.remove('expanded');
       });
-
-      // If it wasn't active, open it
       if (!isActive) {
         this.classList.add('active');
         grid.classList.add('expanded');
@@ -626,16 +488,14 @@ function updateFavoritesCategory(plotState) {
     favoritesSection.appendChild(favoritesGrid);
   }
 
-  favoritesGrid.innerHTML = ''; // Clear existing grid content
+  favoritesGrid.innerHTML = '';
 
-  // Handle empty favorites state
   if (!plotState.favorites || plotState.favorites.length === 0) {
     const noFavorites = document.createElement('p');
     noFavorites.className = 'no-favorites-message';
     noFavorites.textContent = 'No favorites yet. Click the ☆ icon on any element.';
     favoritesGrid.appendChild(noFavorites);
   } else {
-    // Populate grid with favorite elements
     plotState.favorites.forEach((elementId) => {
       const elementData = plotState.favoritesData.find((fav) => parseInt(fav.element_id) === elementId);
       if (elementData) {
@@ -647,10 +507,8 @@ function updateFavoritesCategory(plotState) {
         favoriteElement.setAttribute('data-category-id', elementData.category_id);
         favoriteElement.setAttribute('data-image', elementData.element_image);
 
-        // Add animation class if it's a new favorite
         if (newFavorites.includes(elementId)) {
           favoriteElement.classList.add('adding');
-          // Remove the class after animation completes
           favoriteElement.addEventListener('animationend', () => {
             favoriteElement.classList.remove('adding');
           });
@@ -684,62 +542,47 @@ function updateFavoritesCategory(plotState) {
     });
   }
 
-  // Update previous favorites for next time
   plotState.previousFavorites = [...plotState.favorites];
-
-  // Ensure Favorites section is still at the top
   moveFavoritesToTop();
 }
 
 /**
- * Ensures Favorites section is at the top of the elements list.
+ * Ensures the "Favorites" section is always the first child within the elements list panel
+ * and has the correct accordion structure.
  */
 function moveFavoritesToTop() {
   const elementsPanel = document.getElementById('elements-list');
   if (!elementsPanel) return;
 
-  // Find the Favorites section
   const favoritesSection = elementsPanel.querySelector('.category-section[data-category-id="1"], .category-section.favorites-section');
-  if (!favoritesSection) return; // Exit if no Favorites section
+  if (!favoritesSection) return;
 
-  // Ensure it has the class for consistency
   favoritesSection.classList.add('favorites-section');
   favoritesSection.classList.add('accordion-item');
 
-  // Move Favorites section to the top if it's not already there
   const firstChild = elementsPanel.firstChild;
   if (favoritesSection !== firstChild) {
     elementsPanel.insertBefore(favoritesSection, firstChild);
   }
 
-  // Ensure accordion structure is correct for favorites
   let header = favoritesSection.querySelector('.accordion-header');
   if (!header) {
-    // Create header if it doesn't exist
     header = document.createElement('h3');
     header.className = 'accordion-header active';
     header.textContent = 'Favorites';
-
-    // Add accordion icon
     const icon = document.createElement('span');
     icon.className = 'accordion-icon';
     header.appendChild(icon);
-
     favoritesSection.insertBefore(header, favoritesSection.firstChild);
 
-    // Add click handler
     header.addEventListener('click', function () {
       const isActive = this.classList.contains('active');
-
-      // Close all accordions
       const allHeaders = elementsPanel.querySelectorAll('.accordion-header');
       allHeaders.forEach((h) => {
         h.classList.remove('active');
         const content = h.nextElementSibling;
         if (content) content.classList.remove('expanded');
       });
-
-      // If it wasn't active, open it
       if (!isActive) {
         this.classList.add('active');
         const content = this.nextElementSibling;
@@ -748,12 +591,9 @@ function moveFavoritesToTop() {
     });
   }
 
-  // Make sure the content div has the right classes
   let content = favoritesSection.querySelector('.elements-grid');
   if (content) {
     content.classList.add('accordion-content');
-
-    // If the header is active, ensure content is expanded
     if (header.classList.contains('active')) {
       content.classList.add('expanded');
     }
@@ -761,8 +601,8 @@ function moveFavoritesToTop() {
 }
 
 /**
- * Initialize drag and drop functionality
- * @param {Object} plotState - The current plot state
+ * Initialize drag and drop functionality for elements from the list to the stage.
+ * @param {Object} plotState - The current plot state object.
  */
 function initDragAndDrop(plotState) {
   const stage = document.getElementById('stage');
@@ -786,9 +626,10 @@ function initDragAndDrop(plotState) {
 
 /**
  * Handles the start of a drag operation from the elements list.
- * Creates a custom drag preview that aligns the top-left of the ghost with the cursor.
- * @param {DragEvent} e - The drag event.
- * @param {Object} plotState - The current plot state.
+ * Sets drag data, effect allowed, and creates a custom drag preview image
+ * positioned relative to the cursor.
+ * @param {DragEvent} e - The drag event object.
+ * @param {Object} plotState - The current plot state object.
  */
 function handleDragStart(e, plotState) {
   if (window.plotState && window.plotState.isTouchDragging) {
@@ -801,10 +642,8 @@ function handleDragStart(e, plotState) {
   e.dataTransfer.setData('text/plain', elementId);
   e.dataTransfer.effectAllowed = 'copy';
 
-  // Detect browser
   const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
-  
-  // Store basic element data
+
   const sourceRect = sourceElement.getBoundingClientRect();
   const clickOffsetX = e.clientX - sourceRect.left;
   const clickOffsetY = e.clientY - sourceRect.top;
@@ -817,19 +656,16 @@ function handleDragStart(e, plotState) {
     offsetY: clickOffsetY,
   };
 
-  // Create clone for preview
   const clone = sourceElement.cloneNode(true);
   clone.classList.add('drag-preview-element');
   clone.classList.remove('dragging');
-  
-  // Remove favorite button from clone to avoid interference
+
   const favoriteButton = clone.querySelector('.favorite-button');
   if (favoriteButton) {
     favoriteButton.style.display = 'none';
   }
-  
+
   if (isFirefox) {
-    // Firefox-specific handling - Offscreen positioning works well
     clone.style.position = 'absolute';
     clone.style.top = '-1000px';
     clone.style.left = '-1000px';
@@ -837,23 +673,20 @@ function handleDragStart(e, plotState) {
     clone.style.pointerEvents = 'none';
     clone.style.margin = '0';
     document.body.appendChild(clone);
-    
+
     try {
-      // Using 0,0 offset for Firefox to align top-left corner with cursor
       e.dataTransfer.setDragImage(clone, 0, 0);
       console.log("Firefox: setDragImage called with offset (0, 0)");
     } catch (error) {
       console.error("Error setting drag image:", error);
     }
-    
-    // Firefox captures immediately
+
     setTimeout(() => {
       if (clone.parentNode === document.body) {
         document.body.removeChild(clone);
       }
     }, 0);
   } else {
-    // Chrome-specific handling - Needs visible positioning
     clone.style.position = 'fixed';
     clone.style.top = '0';
     clone.style.left = '0';
@@ -862,19 +695,16 @@ function handleDragStart(e, plotState) {
     clone.style.margin = '0';
     clone.style.transform = 'translateZ(0)';
     document.body.appendChild(clone);
-    
-    // Force a browser reflow
+
     void clone.offsetWidth;
-    
+
     try {
-      // For Chrome, we're using 0,0 to align the top-left corner with cursor
       e.dataTransfer.setDragImage(clone, 0, 0);
       console.log("Chrome: setDragImage called with offset (0, 0)");
     } catch (error) {
       console.error("Error setting drag image:", error);
     }
-    
-    // Chrome needs some time to capture the image
+
     setTimeout(() => {
       if (clone.parentNode === document.body) {
         document.body.removeChild(clone);
@@ -882,7 +712,6 @@ function handleDragStart(e, plotState) {
     }, 100);
   }
 
-  // Set up cleanup
   function cleanupDragState() {
     document.removeEventListener('dragend', cleanupDragState);
     plotState.currentDragId = null;
@@ -893,8 +722,8 @@ function handleDragStart(e, plotState) {
 }
 
 /**
- * Handle drag over event to allow dropping
- * @param {DragEvent} e - The drag event
+ * Handles the drag over event on the stage to allow dropping.
+ * @param {DragEvent} e - The drag event object.
  */
 function handleDragOver(e) {
   e.preventDefault();
@@ -902,13 +731,15 @@ function handleDragOver(e) {
 }
 
 /**
- * Handle drop event
- * @param {DragEvent} e - The drop event
- * @param {Object} plotState - The current plot state
+ * Handles the drop event on the stage. Creates a new element based on the dragged data,
+ * calculates its position considering browser differences and stage boundaries,
+ * adds it to the plot state, and renders it on the stage with an animation.
+ * @param {DragEvent} e - The drop event object.
+ * @param {Object} plotState - The current plot state object.
  */
 function handleDrop(e, plotState) {
   if (window.plotState && window.plotState.isTouchDragging) {
-    return; // Let the touchEnd handler manage the drop
+    return;
   }
 
   const stage = document.getElementById('stage');
@@ -936,33 +767,27 @@ function handleDrop(e, plotState) {
   const stageRect = stage.getBoundingClientRect();
   const elementWidth = 75;
   const elementHeight = 75;
-  
-  // Restore the original margin compensation constants
+
   const elementMarginChrome = 14;
   const elementMarginFoxX = 10;
   const elementMarginFoxY = 5;
 
-  // Calculate the cursor's drop position relative to the stage's top-left corner
   let dropXRelativeToStage = e.clientX - stageRect.left;
   let dropYRelativeToStage = e.clientY - stageRect.top;
   let finalX, finalY;
 
-  // Browser-specific logic for margin compensation
   const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
   if (isFirefox) {
-    // For Firefox
     console.log("Firefox detected: Using direct offset calculation.");
     finalX = dropXRelativeToStage + elementMarginFoxX;
     finalY = dropYRelativeToStage + elementMarginFoxY;
   } else {
-    // For Chrome and other browsers
     console.log("Non-Firefox browser detected: Using margin-compensated calculation.");
     finalX = dropXRelativeToStage - elementMarginChrome;
     finalY = dropYRelativeToStage - elementMarginChrome;
   }
 
-  // Boundary Constraints
   const maxLeft = stageRect.width - elementWidth;
   const maxTop = stageRect.height - elementHeight;
   const constrainedX = Math.max(0, Math.min(finalX, maxLeft));
@@ -1014,10 +839,11 @@ function handleDrop(e, plotState) {
 }
 
 /**
- * Create a placed element on the stage
- * @param {Object} elementData - The element data object
- * @param {Object} plotState - The current plot state
- * @returns {Promise} - Resolves when the element's image (if any) is loaded
+ * Creates and appends a placed element DOM node to the stage based on element data.
+ * Handles image loading, aspect ratio adjustments, label display, and adds action buttons (edit, delete, flip).
+ * @param {Object} elementData - The data object for the element to be created.
+ * @param {Object} plotState - The current plot state object.
+ * @returns {Promise} - A promise that resolves when the element's image (if any) has loaded or errored.
  */
 function createPlacedElement(elementData, plotState) {
   return new Promise((resolve) => {
@@ -1027,24 +853,19 @@ function createPlacedElement(elementData, plotState) {
       return;
     }
 
-    // Create element
     const element = document.createElement('div');
     element.className = 'placed-element';
     element.setAttribute('data-id', elementData.id);
     element.setAttribute('data-element-id', elementData.elementId);
-
     element.style.left = `${elementData.x}px`;
     element.style.top = `${elementData.y}px`;
     element.style.height = `${elementData.height}px`;
     element.style.zIndex = elementData.zIndex;
-
     element.style.width = `${elementData.width}px`;
 
-    // Create image
     const img = document.createElement('img');
     img.src = `/images/elements/${elementData.image}`;
     img.alt = elementData.elementName;
-
     if (elementData.flipped) {
       img.style.transform = 'scaleX(-1)';
     }
@@ -1052,24 +873,19 @@ function createPlacedElement(elementData, plotState) {
     img.onload = function () {
       const aspectRatio = this.naturalWidth / this.naturalHeight;
       const newWidth = Math.round(elementData.height * aspectRatio);
-
       element.style.width = `${newWidth}px`;
-
       const elementIndex = plotState.elements.findIndex((el) => el.id === elementData.id);
       if (elementIndex !== -1) {
         plotState.elements[elementIndex].width = newWidth;
       }
-
       resolve();
     };
     img.onerror = function () {
       console.warn(`Failed to load image for element ${elementData.elementName}`);
       resolve();
     };
-
     element.appendChild(img);
 
-    // Add label if present
     if (elementData.label) {
       const label = document.createElement('div');
       label.className = 'element-label';
@@ -1077,11 +893,9 @@ function createPlacedElement(elementData, plotState) {
       element.appendChild(label);
     }
 
-    // Add edit button
     const editAction = document.createElement('div');
     editAction.className = 'element-actions';
     editAction.id = 'edit-action';
-
     const editBtn = document.createElement('button');
     editBtn.className = 'edit-element';
     editBtn.innerHTML = '<i class="fa-regular fa-pen-to-square"></i>';
@@ -1090,27 +904,15 @@ function createPlacedElement(elementData, plotState) {
       e.stopPropagation();
       openPropertiesModal(elementData.id, plotState);
     });
-
-    // Add button event handlers
-    editBtn.addEventListener('mousedown', function (e) {
-      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-    });
-    editBtn.addEventListener('mouseup', function () {
-      this.style.boxShadow = '';
-    });
-    editBtn.addEventListener('mouseleave', function () {
-      this.style.boxShadow = '';
-    });
-
+    editBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
+    editBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
+    editBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
     editAction.appendChild(editBtn);
     element.appendChild(editAction);
 
-    // Add delete button
     const deleteAction = document.createElement('div');
     deleteAction.className = 'element-actions';
     deleteAction.id = 'delete-action';
-
-    // Setup delete button confirmation
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'edit-element';
     deleteBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
@@ -1120,37 +922,19 @@ function createPlacedElement(elementData, plotState) {
       e.stopPropagation();
       setupConfirmButton(
         deleteBtn,
-        () => {
-          deleteElement(elementData.id, plotState);
-        },
-        {
-          confirmText: 'Delete',
-          confirmTitle: 'Permanent',
-          stopPropagation: true,
-          event: e,
-        }
+        () => { deleteElement(elementData.id, plotState); },
+        { confirmText: 'Delete', confirmTitle: 'Permanent', stopPropagation: true, event: e }
       );
     });
-
-    // Add button event handlers
-    deleteBtn.addEventListener('mousedown', function (e) {
-      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-    });
-    deleteBtn.addEventListener('mouseup', function () {
-      this.style.boxShadow = '';
-    });
-    deleteBtn.addEventListener('mouseleave', function () {
-      this.style.boxShadow = '';
-    });
-
+    deleteBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
+    deleteBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
+    deleteBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
     deleteAction.appendChild(deleteBtn);
     element.appendChild(deleteAction);
 
-    // Add flip button
     const flipAction = document.createElement('div');
     flipAction.className = 'element-actions';
     flipAction.id = 'flip-action';
-
     const flipBtn = document.createElement('button');
     flipBtn.className = 'edit-element flip-btn';
     flipBtn.innerHTML = '<i class="fa-solid fa-repeat"></i>';
@@ -1158,41 +942,28 @@ function createPlacedElement(elementData, plotState) {
     if (elementData.flipped) {
       flipBtn.classList.add('flipped');
     }
-
     flipBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-
       const currentElementId = elementData.id;
       const elementIndex = plotState.elements.findIndex((el) => el.id === currentElementId);
-
       if (elementIndex === -1) {
         console.error('Flip error: Element not found in state with ID:', currentElementId);
         return;
       }
-
-      // Prevent multiple flips if already flipping
       if (element.classList.contains('flipping')) return;
-
       const currentlyFlipped = plotState.elements[elementIndex].flipped;
-
-      // Hide controls
       const controls = element.querySelectorAll('.element-actions, .element-label');
       controls.forEach((control) => {
         control.style.opacity = '0';
         control.style.pointerEvents = 'none';
         control.style.transition = 'none';
       });
-
-      // Add overlay
       const flipOverlay = document.createElement('div');
       flipOverlay.className = 'flip-overlay';
       element.appendChild(flipOverlay);
-
-      // Start animation
       requestAnimationFrame(() => {
         element.classList.add('flipping');
         element.classList.add(currentlyFlipped ? 'to-left' : 'to-right');
-
         const imageElement = element.querySelector('img');
         if (!imageElement) {
           console.warn('Flip warning: Image element not found for ID:', currentElementId);
@@ -1200,19 +971,11 @@ function createPlacedElement(elementData, plotState) {
           flipBtn.classList.toggle('flipped', !currentlyFlipped);
           flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
           element.classList.remove('flipping', 'to-right', 'to-left');
-          if (flipOverlay && flipOverlay.parentNode) {
-            flipOverlay.remove();
-          }
-          setTimeout(() => {
-            controls.forEach((control) => {
-              control.removeAttribute('style');
-            });
-          }, 50);
+          if (flipOverlay && flipOverlay.parentNode) flipOverlay.remove();
+          setTimeout(() => { controls.forEach((control) => control.removeAttribute('style')); }, 50);
           markPlotAsModified(plotState);
           return;
         }
-
-        // Animation end handler
         const handleAnimationEnd = () => {
           plotState.elements[elementIndex].flipped = !currentlyFlipped;
           imageElement.style.transform = !currentlyFlipped ? 'scaleX(-1)' : '';
@@ -1220,46 +983,27 @@ function createPlacedElement(elementData, plotState) {
           flipBtn.title = !currentlyFlipped ? 'Unflip Horizontally' : 'Flip Horizontally';
           element.classList.remove('flipping', 'to-right', 'to-left');
           imageElement.removeEventListener('animationend', handleAnimationEnd);
-          if (flipOverlay && flipOverlay.parentNode) {
-            flipOverlay.remove();
-          }
-          setTimeout(() => {
-            controls.forEach((control) => {
-              control.removeAttribute('style');
-            });
-          }, 50);
-
+          if (flipOverlay && flipOverlay.parentNode) flipOverlay.remove();
+          setTimeout(() => { controls.forEach((control) => control.removeAttribute('style')); }, 50);
           markPlotAsModified(plotState);
         };
-
         imageElement.addEventListener('animationend', handleAnimationEnd);
-
         setTimeout(() => {
           if (element.classList.contains('flipping')) {
             console.warn('Flip animation fallback triggered for ID:', currentElementId);
             imageElement.removeEventListener('animationend', handleAnimationEnd);
-            handleAnimationEnd(); // Force cleanup
+            handleAnimationEnd();
           }
         }, 500);
       });
     });
-
-    // Add button visual feedback handlers
-    flipBtn.addEventListener('mousedown', function (e) {
-      this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)';
-    });
-    flipBtn.addEventListener('mouseup', function () {
-      this.style.boxShadow = '';
-    });
-    flipBtn.addEventListener('mouseleave', function () {
-      this.style.boxShadow = '';
-    });
-
+    flipBtn.addEventListener('mousedown', function (e) { this.style.boxShadow = 'inset 0 0 10px rgba(0, 0, 0, 0.3)'; });
+    flipBtn.addEventListener('mouseup', function () { this.style.boxShadow = ''; });
+    flipBtn.addEventListener('mouseleave', function () { this.style.boxShadow = ''; });
     flipAction.appendChild(flipBtn);
     element.appendChild(flipAction);
 
     makeDraggableOnStage(element, plotState);
-
     stage.appendChild(element);
 
     if (!img.src || img.complete) {
@@ -1269,17 +1013,16 @@ function createPlacedElement(elementData, plotState) {
         resolve();
       }
     }
-
     if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
   });
 }
 
 /**
- * Initializes lasso selection functionality
- * @param {Object} plotState - The current plot state
+ * Initializes lasso selection functionality on the stage area.
+ * Allows selecting multiple elements by dragging a box, or toggling selection with Shift+Click.
+ * @param {Object} plotState - The current plot state object.
  */
 function initLassoSelection(plotState) {
-  // If the element is inside the stage, always prevent selection
   document.addEventListener('selectstart', function (e) {
     if (e.target && typeof e.target.closest === 'function' && e.target.closest('#stage')) {
       e.preventDefault();
@@ -1292,84 +1035,65 @@ function initLassoSelection(plotState) {
   let lassoStartX, lassoStartY;
   let lassoElement = null;
 
-  // Handler for element selection via shift+click
   stage.addEventListener(
     'mousedown',
     (e) => {
       const clickedElement = e.target && typeof e.target.closest === 'function' ? e.target.closest('.placed-element') : null;
 
-      // Case 1: Shift+Click on an element (for selection)
       if (e.shiftKey && clickedElement) {
-        // Skip if clicking on a button
         if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element') || e.target.classList.contains('favorite-button')) {
-          return; // Let the button's handler take over
+          return;
         }
-
         e.stopPropagation();
-
-        // Toggle selection for this element
         const elementId = parseInt(clickedElement.getAttribute('data-id'));
         const selectionIndex = plotState.selectedElements.indexOf(elementId);
-
         if (selectionIndex !== -1) {
-          // Remove from selection
           plotState.selectedElements.splice(selectionIndex, 1);
           clickedElement.classList.remove('selected');
         } else {
-          // Add to selection
           plotState.selectedElements.push(elementId);
           clickedElement.classList.add('selected');
         }
-
         updateStageSelectionState(plotState);
-
-        // Important: we set a flag on the event to tell the drag handler to ignore this event
         e._handledBySelection = true;
         return;
       }
 
-      // Case 2: Click directly on the stage (for lasso selection)
       if ((e.target === stage || e.target.classList.contains('grid-overlay')) && !clickedElement) {
-        // Clear previous selection if not holding Shift
         if (!e.shiftKey) {
           clearElementSelection(plotState);
         }
-
         lassoActive = true;
         lassoStartX = e.clientX - stage.getBoundingClientRect().left;
         lassoStartY = e.clientY - stage.getBoundingClientRect().top;
-
-        // Create visual lasso element
         lassoElement = document.createElement('div');
         lassoElement.className = 'lasso-box';
         lassoElement.style.left = `${lassoStartX}px`;
         lassoElement.style.top = `${lassoStartY}px`;
         stage.appendChild(lassoElement);
-
         document.addEventListener('mousemove', handleLassoMove);
         document.addEventListener('mouseup', handleLassoEnd, { once: true });
-      }
-      // Case 3: Click on empty space but not on stage (outside any element)
-      else if (!clickedElement && !e.shiftKey) {
+      } else if (!clickedElement && !e.shiftKey) {
         clearElementSelection(plotState);
       }
     },
     true
-  ); // Use capturing phase to handle before element's own listeners
+  );
 
+  /**
+   * Handles mouse movement during lasso selection, updating the lasso box dimensions.
+   * @param {MouseEvent} e - The mouse move event.
+   */
   function handleLassoMove(e) {
     if (!lassoActive || !lassoElement) return;
     e.preventDefault();
-
     const stageRect = stage.getBoundingClientRect();
     const currentX = e.clientX - stageRect.left;
     const currentY = e.clientY - stageRect.top;
-
     const width = Math.abs(currentX - lassoStartX);
     const height = Math.abs(currentY - lassoStartY);
     const left = Math.min(currentX, lassoStartX);
     const top = Math.min(currentY, lassoStartY);
-
     lassoElement.style.width = `${width}px`;
     lassoElement.style.height = `${height}px`;
     lassoElement.style.left = `${left}px`;
@@ -1377,8 +1101,10 @@ function initLassoSelection(plotState) {
   }
 
   /**
-   * Improved handler for when lasso selection ends
-   * @param {MouseEvent} e - The mouse event
+   * Handles the end of the lasso selection (mouseup).
+   * Determines which elements intersect with the lasso box and updates the selection state.
+   * Removes the lasso visual element.
+   * @param {MouseEvent} e - The mouse up event.
    */
   function handleLassoEnd(e) {
     if (!lassoActive || !lassoElement) return;
@@ -1386,19 +1112,14 @@ function initLassoSelection(plotState) {
 
     const lassoRect = lassoElement.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
-
-    // Minimum size threshold to consider the lasso valid
-    // This prevents accidental micro-selections from quick clicks
-    const MIN_LASSO_SIZE = 5; // 5 pixels
+    const MIN_LASSO_SIZE = 5;
     if (lassoRect.width < MIN_LASSO_SIZE || lassoRect.height < MIN_LASSO_SIZE) {
-      // Lasso is too small, treat as invalid and clean up
       lassoElement.remove();
       lassoElement = null;
       document.removeEventListener('mousemove', handleLassoMove);
       return;
     }
 
-    // Adjust lassoRect to be relative to the stage
     const relativeLassoRect = {
       left: lassoRect.left - stageRect.left,
       top: lassoRect.top - stageRect.top,
@@ -1408,12 +1129,9 @@ function initLassoSelection(plotState) {
       height: lassoRect.height,
     };
 
-    // Keep track of how many elements were selected
     let selectedCount = 0;
-
     stage.querySelectorAll('.placed-element').forEach((el) => {
       const elRect = el.getBoundingClientRect();
-      // Adjust elRect to be relative to the stage
       const relativeElRect = {
         left: elRect.left - stageRect.left,
         top: elRect.top - stageRect.top,
@@ -1423,7 +1141,6 @@ function initLassoSelection(plotState) {
         height: elRect.height,
       };
 
-      // Improved intersection check with more reliable logic
       const intersects = !(relativeElRect.right < relativeLassoRect.left || relativeElRect.left > relativeLassoRect.right || relativeElRect.bottom < relativeLassoRect.top || relativeElRect.top > relativeLassoRect.bottom);
 
       if (intersects) {
@@ -1436,15 +1153,12 @@ function initLassoSelection(plotState) {
       }
     });
 
-    // Only update if we actually selected something
     if (selectedCount > 0) {
       updateStageSelectionState(plotState);
     }
 
-    // Remove lasso visual element
     lassoElement.remove();
     lassoElement = null;
-
     document.removeEventListener('mousemove', handleLassoMove);
   }
 
@@ -1452,48 +1166,47 @@ function initLassoSelection(plotState) {
 }
 
 /**
- * Initialize shift key cursor style
- * @param {Object} plotState - The current plot state
+ * Initializes event listeners to change the cursor style to 'pointer'
+ * and add a CSS class to the stage when the Shift key is held down,
+ * facilitating visual indication for shift-click selection mode.
  */
 function initShiftCursorStyle() {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Store original cursor style
   let originalCursorStyle = '';
   let isShiftDown = false;
 
-  // Function to handle shift key down
+  /**
+   * Handles the keydown event, specifically checking for the Shift key.
+   * @param {KeyboardEvent} e - The keyboard event.
+   */
   function handleShiftDown(e) {
     if (e.key === 'Shift' && !isShiftDown) {
       isShiftDown = true;
-      // Store original cursor style if not already stored
       if (!originalCursorStyle) {
         originalCursorStyle = stage.style.cursor || '';
       }
-      // Set cursor to pointer when shift is pressed
       stage.style.cursor = 'pointer';
-      // Add a class to stage to enable CSS targeting elements inside the stage when shift is held
       stage.classList.add('shift-selection-mode');
     }
   }
 
-  // Function to handle shift key up
+  /**
+   * Handles the keyup event, specifically checking for the Shift key.
+   * @param {KeyboardEvent} e - The keyboard event.
+   */
   function handleShiftUp(e) {
     if (e.key === 'Shift' && isShiftDown) {
       isShiftDown = false;
-      // Restore original cursor style
       stage.style.cursor = originalCursorStyle;
-      // Remove the class
       stage.classList.remove('shift-selection-mode');
     }
   }
 
-  // Add keydown/keyup listeners to document
   document.addEventListener('keydown', handleShiftDown);
   document.addEventListener('keyup', handleShiftUp);
 
-  // Handle cases where focus might be lost while shift is down
   window.addEventListener('blur', () => {
     if (isShiftDown) {
       isShiftDown = false;
@@ -1504,8 +1217,9 @@ function initShiftCursorStyle() {
 }
 
 /**
- * Update the stage's selection status class
- * @param {Object} plotState - The current plot state
+ * Updates the stage's CSS class based on whether elements are currently selected.
+ * Also triggers an update for the "Delete Selected" button visibility.
+ * @param {Object} plotState - The current plot state object.
  */
 function updateStageSelectionState(plotState) {
   const stage = document.getElementById('stage');
@@ -1516,20 +1230,20 @@ function updateStageSelectionState(plotState) {
   } else {
     stage.classList.remove('has-selection');
   }
-
-  // Also update delete button visibility
   updateDeleteSelectedButton(plotState);
 }
 
 /**
- * Make an element draggable within the stage with duplication on Ctrl+Drag
- * @param {HTMLElement} element - The element to make draggable
- * @param {Object} plotState - The current plot state
+ * Makes a placed element draggable within the stage boundaries.
+ * Handles dragging single elements, groups of selected elements,
+ * and duplication of elements/groups using Ctrl/Cmd+Drag.
+ * @param {HTMLElement} element - The DOM element to make draggable.
+ * @param {Object} plotState - The current plot state object.
  */
 function makeDraggableOnStage(element, plotState) {
   let startX, startY, startLeft, startTop;
   let isDraggingGroup = false;
-  let isDuplicating = false; // Flag for duplication mode
+  let isDuplicating = false;
   let groupOffsets = [];
   let ghostElements = [];
   let sourceElements = [];
@@ -1538,112 +1252,68 @@ function makeDraggableOnStage(element, plotState) {
   element.addEventListener('touchstart', startDrag, { passive: false });
 
   /**
-   * Start dragging an element, with improved handling for selections and duplication
-   * @param {MouseEvent|TouchEvent} e - The event that triggered the drag
+   * Initiates the drag operation for an element on the stage.
+   * Determines if dragging a group, duplicating, or moving a single element.
+   * Sets up necessary state and event listeners for move and end events.
+   * @param {MouseEvent|TouchEvent} e - The mousedown or touchstart event.
    */
   function startDrag(e) {
-    if (e._handledBySelection === true) {
-      return;
-    }
-
-    // If clicked on a button or action element, don't start dragging
-    if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) {
-      return;
-    }
-
-    // Check if the event is a drag event before preventing default
-    if (e.type === 'mousedown' && e.dataTransfer) {
-        e.preventDefault();
-    }
+    if (e._handledBySelection === true) return;
+    if (e.target.closest('.element-actions') || e.target.classList.contains('edit-element')) return;
+    if (e.type === 'mousedown' && e.dataTransfer) e.preventDefault();
     e.stopPropagation();
 
     const elementId = parseInt(element.getAttribute('data-id'));
-
-    // Check if CTRL/CMD key is pressed for duplication
     isDuplicating = e.ctrlKey || e.metaKey;
 
-    // Explicitly set drag image during duplication to prevent browser default preview
     if (isDuplicating && e.type === 'mousedown' && e.dataTransfer) {
       const emptyPreview = document.createElement('div');
-      emptyPreview.style.width = '1px';
-      emptyPreview.style.height = '1px';
-      emptyPreview.style.position = 'absolute';
-      emptyPreview.style.left = '-10px';
-      emptyPreview.style.top = '-10px';
-      emptyPreview.style.opacity = '0';
+      emptyPreview.style.cssText = 'width:1px;height:1px;position:absolute;left:-10px;top:-10px;opacity:0;';
       document.body.appendChild(emptyPreview);
-
       try {
         e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('text/plain', elementId.toString());
         e.dataTransfer.setDragImage(emptyPreview, 0, 0);
         console.log("Invisible drag image set for duplication.");
       } catch (error) {
-          console.error("Error setting drag image:", error);
+        console.error("Error setting drag image:", error);
       }
-
-      setTimeout(() => {
-        if (emptyPreview.parentNode) {
-          emptyPreview.remove();
-        }
-      }, 0);
+      setTimeout(() => { if (emptyPreview.parentNode) emptyPreview.remove(); }, 0);
     }
 
-    // Check if the dragged element is part of the selection
     isDraggingGroup = plotState.selectedElements && plotState.selectedElements.includes(elementId);
 
     if (!isDraggingGroup) {
-        // Check if plotState and plotState.selectedElements are valid before clearing
         if (plotState && plotState.selectedElements && Array.isArray(plotState.selectedElements)) {
-        clearElementSelection(plotState);
-      } else {
-        console.warn("Attempted to clear selection, but plotState or selectedElements was invalid.", plotState);
-        if (plotState) {
-            plotState.selectedElements = [];
-            if (typeof updateStageSelectionState === 'function') {
-                updateStageSelectionState(plotState);
+            clearElementSelection(plotState);
+        } else {
+            console.warn("Attempted to clear selection, but plotState or selectedElements was invalid.", plotState);
+            if (plotState) {
+                plotState.selectedElements = [];
+                if (typeof updateStageSelectionState === 'function') {
+                    updateStageSelectionState(plotState);
+                }
             }
         }
-      }
-
-      if (!isDuplicating) {
-        bringToFront(elementId, plotState);
-      }
+        if (!isDuplicating) bringToFront(elementId, plotState);
     } else {
-      if (!isDuplicating) {
-        bringToFront(elementId, plotState);
-      }
-
-      // Calculate offsets cache dimensions
+      if (!isDuplicating) bringToFront(elementId, plotState);
       groupOffsets = [];
       plotState.selectedElements.forEach((id) => {
         const domEl = document.querySelector(`.placed-element[data-id="${id}"]`);
         if (domEl) {
           const rect = domEl.getBoundingClientRect();
-
-          // Get positions directly from DOM
           const elLeft = parseInt(window.getComputedStyle(domEl).left);
           const elTop = parseInt(window.getComputedStyle(domEl).top);
           const primaryLeft = parseInt(window.getComputedStyle(element).left);
           const primaryTop = parseInt(window.getComputedStyle(element).top);
-
-          // Calculate offset using DOM positions
           const offsetX = id === elementId ? 0 : elLeft - primaryLeft;
           const offsetY = id === elementId ? 0 : elTop - primaryTop;
-
-          groupOffsets.push({
-            id: id,
-            offsetX: offsetX,
-            offsetY: offsetY,
-            width: rect.width,
-            height: rect.height,
-            element: domEl,
-          });
+          groupOffsets.push({ id: id, offsetX: offsetX, offsetY: offsetY, width: rect.width, height: rect.height, element: domEl });
         }
       });
     }
 
-    // Track initial positions of the primary dragged element
     if (e.type === 'touchstart') {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
@@ -1651,32 +1321,26 @@ function makeDraggableOnStage(element, plotState) {
       startX = e.clientX;
       startY = e.clientY;
     }
-
     startLeft = parseInt(window.getComputedStyle(element).left);
     startTop = parseInt(window.getComputedStyle(element).top);
 
     document.body.classList.add('dragging-on-stage');
 
-    // Create ghost elements for duplication mode
     if (isDuplicating) {
       document.body.classList.add('duplicating-element');
-
       if (isDraggingGroup) {
         groupOffsets.forEach((offsetData) => {
           offsetData.element.classList.add('is-being-duplicated');
           sourceElements.push(offsetData.element);
-
           createGhostElement(offsetData.element, offsetData.offsetX, offsetData.offsetY);
         });
       } else {
         element.classList.add('is-being-duplicated');
         sourceElements.push(element);
-
         createGhostElement(element, 0, 0);
       }
     }
 
-    // Add move and end events
     document.addEventListener('mousemove', dragMove);
     document.addEventListener('touchmove', dragMove, { passive: false });
     document.addEventListener('mouseup', dragEnd);
@@ -1684,10 +1348,10 @@ function makeDraggableOnStage(element, plotState) {
   }
 
   /**
-   * Create a ghost element for duplication preview
-   * @param {HTMLElement} sourceElement - The source element to duplicate
-   * @param {number} offsetX - X offset for group positioning
-   * @param {number} offsetY - Y offset for group positioning
+   * Creates a visual clone (ghost) of an element for drag duplication preview.
+   * @param {HTMLElement} sourceElement - The original element being duplicated.
+   * @param {number} offsetX - The horizontal offset relative to the primary dragged element (for group dragging).
+   * @param {number} offsetY - The vertical offset relative to the primary dragged element (for group dragging).
    */
   function createGhostElement(sourceElement, offsetX, offsetY) {
     const ghost = sourceElement.cloneNode(true);
@@ -1698,26 +1362,21 @@ function makeDraggableOnStage(element, plotState) {
     ghost.style.opacity = '0.6';
     ghost.style.left = `${startLeft + offsetX}px`;
     ghost.style.top = `${startTop + offsetY}px`;
-
-    // Remove any buttons or interactive elements from ghost
     const actionsToRemove = ghost.querySelectorAll('.element-actions');
     actionsToRemove.forEach((action) => action.remove());
-
-    ghostElements.push({
-      ghost: ghost,
-      source: sourceElement,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    });
-
-    // Add ghost to the stage
+    ghostElements.push({ ghost: ghost, source: sourceElement, offsetX: offsetX, offsetY: offsetY });
     document.getElementById('stage').appendChild(ghost);
   }
 
+  /**
+   * Handles the movement during a drag operation on the stage.
+   * Calculates the new position based on mouse/touch movement, applies constraints
+   * to keep the element(s) within the stage boundaries, and updates the visual
+   * position of the dragged element(s) or ghost element(s).
+   * @param {MouseEvent|TouchEvent} e - The mousemove or touchmove event.
+   */
   function dragMove(e) {
-    if (e.type === 'touchmove') {
-      e.preventDefault();
-    }
+    if (e.type === 'touchmove') e.preventDefault();
 
     let clientX, clientY;
     if (e.type === 'touchmove') {
@@ -1735,10 +1394,8 @@ function makeDraggableOnStage(element, plotState) {
 
     const dx = clientX - startX;
     const dy = clientY - startY;
-
     const nextPrimaryLeft = startLeft + dx;
     const nextPrimaryTop = startTop + dy;
-
     let constrainedPrimaryLeft = nextPrimaryLeft;
     let constrainedPrimaryTop = nextPrimaryTop;
 
@@ -1748,95 +1405,76 @@ function makeDraggableOnStage(element, plotState) {
     const stageHeight = stageRect.height;
     const boundaryBuffer = 0;
 
-    // Calculate constraints for ghost elements or real elements
     if (isDraggingGroup) {
-      let minX = Infinity,
-        minY = Infinity,
-        maxX = -Infinity,
-        maxY = -Infinity;
-
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       groupOffsets.forEach((offsetData) => {
         const memberNextX = nextPrimaryLeft + offsetData.offsetX;
         const memberNextY = nextPrimaryTop + offsetData.offsetY;
         const memberWidth = Number(offsetData.width) || 0;
         const memberHeight = Number(offsetData.height) || 0;
-
         minX = Math.min(minX, memberNextX);
         minY = Math.min(minY, memberNextY);
         maxX = Math.max(maxX, memberNextX + memberWidth);
         maxY = Math.max(maxY, memberNextY + memberHeight);
       });
-
-      // Calculate necessary adjustments to keep the group within stage bounds
       let deltaX = 0;
-      if (minX < boundaryBuffer) {
-        deltaX = boundaryBuffer - minX; // Adjust right
-      } else if (maxX > stageWidth - boundaryBuffer) {
-        deltaX = stageWidth - boundaryBuffer - maxX; // Adjust left
-      }
-
+      if (minX < boundaryBuffer) deltaX = boundaryBuffer - minX;
+      else if (maxX > stageWidth - boundaryBuffer) deltaX = stageWidth - boundaryBuffer - maxX;
       let deltaY = 0;
-      if (minY < boundaryBuffer) {
-        deltaY = boundaryBuffer - minY; // Adjust down
-      } else if (maxY > stageHeight - boundaryBuffer) {
-        deltaY = stageHeight - boundaryBuffer - maxY; // Adjust up
-      }
-
-      // Apply adjustments to the primary element's potential position
+      if (minY < boundaryBuffer) deltaY = boundaryBuffer - minY;
+      else if (maxY > stageHeight - boundaryBuffer) deltaY = stageHeight - boundaryBuffer - maxY;
       constrainedPrimaryLeft = nextPrimaryLeft + deltaX;
       constrainedPrimaryTop = nextPrimaryTop + deltaY;
     } else {
       const elementRect = element.getBoundingClientRect();
       const elementWidth = Number(elementRect.width) || 0;
       const elementHeight = Number(elementRect.height) || 0;
-
-      // Calculate max allowed positions considering margins for single element
       const maxLeft = stageWidth - elementWidth - boundaryBuffer;
       const maxTop = stageHeight - elementHeight - boundaryBuffer;
-
-      // Apply constraints for single element
       constrainedPrimaryLeft = Math.max(boundaryBuffer, Math.min(maxLeft, nextPrimaryLeft));
       constrainedPrimaryTop = Math.max(boundaryBuffer, Math.min(maxTop, nextPrimaryTop));
     }
-    // Calculate the delta applied after constraints
+
     const actualDx = constrainedPrimaryLeft - startLeft;
     const actualDy = constrainedPrimaryTop - startTop;
 
     if (isDuplicating) {
       ghostElements.forEach((ghostData) => {
-        if (ghostData.ghost) {
-            ghostData.ghost.style.left = `${startLeft + ghostData.offsetX + actualDx}px`;
-            ghostData.ghost.style.top = `${startTop + ghostData.offsetY + actualDy}px`;
-        } else {
-            console.warn("Ghost element missing in ghostData during dragMove.");
-        }
+          if (ghostData.ghost) {
+              ghostData.ghost.style.left = `${startLeft + ghostData.offsetX + actualDx}px`;
+              ghostData.ghost.style.top = `${startTop + ghostData.offsetY + actualDy}px`;
+          } else {
+              console.warn("Ghost element missing in ghostData during dragMove.");
+          }
       });
     } else if (isDraggingGroup) {
       groupOffsets.forEach((offsetData) => {
         const groupElement = offsetData.element;
         const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
-
         if (groupElement && elementStateIndex !== -1) {
           const targetLeft = startLeft + offsetData.offsetX + actualDx;
           const targetTop = startTop + offsetData.offsetY + actualDy;
-
-          // Apply position visually during drag
           groupElement.style.left = `${targetLeft}px`;
           groupElement.style.top = `${targetTop}px`;
         }
       });
     } else {
-      // Move just the single element
       element.style.left = `${constrainedPrimaryLeft}px`;
       element.style.top = `${constrainedPrimaryTop}px`;
     }
   }
 
+  /**
+   * Finalizes the drag operation (on mouseup or touchend).
+   * If duplicating, creates new elements in the plot state based on the ghost positions.
+   * If moving, updates the position(s) of the element(s) in the plot state.
+   * Cleans up event listeners, ghost elements, and drag-related state.
+   * @param {MouseEvent|TouchEvent} e - The mouseup or touchend event.
+   */
   function dragEnd(e) {
     document.body.classList.remove('dragging-on-stage');
     document.body.classList.remove('duplicating-element');
 
-    // Final position calculation
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
 
@@ -1849,46 +1487,34 @@ function makeDraggableOnStage(element, plotState) {
       const duplicatePromises = ghostElements.map((ghostData) => {
         const ghost = ghostData.ghost;
         const source = ghostData.source;
-
-        // Ensure ghost and source are valid elements
         if (!ghost || !source || !source.getAttribute) {
           console.warn("Invalid ghost or source element in dragEnd.");
           return Promise.resolve();
         }
-
         const elementId = parseInt(source.getAttribute('data-id'));
         const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-
         if (elementIndex !== -1) {
-          // Get final position from ghost's computed style
           const finalLeft = parseInt(window.getComputedStyle(ghost).left);
           const finalTop = parseInt(window.getComputedStyle(ghost).top);
-
-          // Generate a new unique ID
           const maxId = plotState.elements.reduce((max, el) => Math.max(max, el.id), 0);
           const newElementId = maxId + 1;
-
           newElementIds.push(newElementId);
-
-          // Clone the element data
           const sourceElementData = plotState.elements[elementIndex];
           const newElementData = JSON.parse(JSON.stringify(sourceElementData));
           newElementData.id = newElementId;
           newElementData.x = finalLeft;
           newElementData.y = finalTop;
           newElementData.zIndex = plotState.nextZIndex++;
-
           plotState.elements.push(newElementData);
           return createPlacedElement(newElementData, plotState);
         }
         return Promise.resolve();
       });
 
-      // Clean up ghost elements from DOM
       ghostElements.forEach((ghostData) => {
-        if (ghostData.ghost && ghostData.ghost.parentNode) {
-            ghostData.ghost.remove();
-        }
+          if (ghostData.ghost && ghostData.ghost.parentNode) {
+              ghostData.ghost.remove();
+          }
       });
       ghostElements = [];
 
@@ -1898,9 +1524,7 @@ function makeDraggableOnStage(element, plotState) {
           el.classList.remove('selected');
         });
         sourceElements = [];
-
         plotState.selectedElements = [];
-
         if (isMultiSelection || (wasSelectedBeforeDrag && plotState.selectedElements.length > 0)) {
           newElementIds.forEach((id) => {
             const newDomElement = document.querySelector(`.placed-element[data-id="${id}"]`);
@@ -1910,19 +1534,15 @@ function makeDraggableOnStage(element, plotState) {
             }
           });
         }
-
         updateStageSelectionState(plotState);
         renderElementInfoList(plotState);
         markPlotAsModified(plotState);
       });
 
     } else if (!isDuplicating) {
-      // Get final position of the primary dragged element
       const finalPrimaryLeft = parseInt(window.getComputedStyle(element).left);
       const finalPrimaryTop = parseInt(window.getComputedStyle(element).top);
-
       if (isDraggingGroup) {
-        // Update state for all elements in the group
         groupOffsets.forEach((offsetData) => {
           const elementStateIndex = plotState.elements.findIndex((el) => el.id === offsetData.id);
           if (elementStateIndex !== -1) {
@@ -1931,7 +1551,6 @@ function makeDraggableOnStage(element, plotState) {
           }
         });
       } else {
-        // Update single element state
         const elementId = parseInt(element.getAttribute('data-id'));
         const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
         if (elementIndex !== -1) {
@@ -1943,13 +1562,11 @@ function makeDraggableOnStage(element, plotState) {
       renderElementInfoList(plotState);
     }
 
-    // Clean up listeners
     document.removeEventListener('mousemove', dragMove);
     document.removeEventListener('touchmove', dragMove);
     document.removeEventListener('mouseup', dragEnd);
     document.removeEventListener('touchend', dragEnd);
 
-    // Reset state variables
     isDraggingGroup = false;
     isDuplicating = false;
     groupOffsets = [];
@@ -1957,8 +1574,8 @@ function makeDraggableOnStage(element, plotState) {
 }
 
 /**
- * Clears the current element selection
- * @param {Object} plotState - The current plot state
+ * Clears the current element selection state and removes the 'selected' class from DOM elements.
+ * @param {Object} plotState - The current plot state object.
  */
 function clearElementSelection(plotState) {
   if (!plotState || !Array.isArray(plotState.selectedElements)) {
@@ -1966,7 +1583,6 @@ function clearElementSelection(plotState) {
     if (plotState) {
         plotState.selectedElements = [];
     }
-    // Update UI state if the function exists
     if (typeof updateStageSelectionState === 'function') {
         updateStageSelectionState(plotState || { selectedElements: [] });
     }
@@ -1980,52 +1596,35 @@ function clearElementSelection(plotState) {
     }
   });
 
-  // Always reset the array
   plotState.selectedElements = [];
 
-  // Update stage selection class if the function exists
   if (typeof updateStageSelectionState === 'function') {
       updateStageSelectionState(plotState);
   }
 }
 
 /**
- * Bring an element to the front (highest z-index)
- * @param {number} elementId - The ID of the element to bring to front
- * @param {Object} plotState - The current plot state
+ * Brings a specified element to the front by assigning it the highest z-index.
+ * Handles z-index reset if the maximum value is approached.
+ * @param {number} elementId - The ID of the element to bring to the front.
+ * @param {Object} plotState - The current plot state object.
  */
 function bringToFront(elementId, plotState) {
   const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-
   if (elementIndex !== -1) {
-    // Define a maximum z-index value
     const MAX_Z_INDEX = 500;
-
-    // Check if we're approaching the limit
     if (plotState.nextZIndex >= MAX_Z_INDEX) {
-      // Reset all z-indexes while maintaining relative order
-      // Sort elements by current z-index
       plotState.elements.sort((a, b) => a.zIndex - b.zIndex);
-
-      // Reassign z-indexes starting from 1
       plotState.elements.forEach((element, index) => {
         element.zIndex = index + 1;
-
-        // Update DOM elements
         const domElement = document.querySelector(`.placed-element[data-id="${element.id}"]`);
         if (domElement) {
           domElement.style.zIndex = element.zIndex;
         }
       });
-
-      // Reset counter
       plotState.nextZIndex = plotState.elements.length + 1;
     }
-
-    // Now bring the requested element to front
     plotState.elements[elementIndex].zIndex = plotState.nextZIndex++;
-
-    // Update z-index in DOM
     const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
     if (domElement) {
       domElement.style.zIndex = plotState.elements[elementIndex].zIndex;
@@ -2034,31 +1633,22 @@ function bringToFront(elementId, plotState) {
 }
 
 /**
- * Updates the visibility of the delete selected button based on selection state
- * @param {Object} plotState - The current plot state
+ * Updates the visibility and appearance of the "Delete Selected" button based on
+ * whether any elements are currently selected. Uses CSS transitions for smooth appearance/disappearance.
+ * @param {Object} plotState - The current plot state object.
  */
 function updateDeleteSelectedButton(plotState) {
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
 
-  // Check if we have elements selected
   if (plotState.selectedElements.length > 0) {
-    // First, ensure the button exists in the DOM by removing hidden class
     deleteSelectedButton.classList.remove('hidden');
-
-    // Force a browser reflow before adding the visible class
     void deleteSelectedButton.offsetWidth;
-
-    // Now add the visible class which will trigger the transition
     deleteSelectedButton.classList.add('visible');
   } else {
-    // Hide the button if no selections
     deleteSelectedButton.classList.remove('visible');
-
-    // Wait for the transition to complete before hiding completely
-    const transitionDuration = 300; // Match the CSS transition duration
+    const transitionDuration = 300;
     setTimeout(() => {
-      // Only add hidden class if we still have no selections
       if (plotState.selectedElements.length === 0) {
         deleteSelectedButton.classList.add('hidden');
       }
@@ -2067,98 +1657,73 @@ function updateDeleteSelectedButton(plotState) {
 }
 
 /**
- * Delete all currently selected elements
- * @param {Object} plotState - The current plot state
+ * Initiates the process to delete all currently selected elements after confirmation.
+ * @param {Object} plotState - The current plot state object.
  */
 function deleteSelectedElements(plotState) {
   if (!plotState.selectedElements.length) return;
 
-  // Get the button
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
 
-  // Create a copy of the array to avoid modification issues during iteration
   const selectedElementIds = [...plotState.selectedElements];
 
-  // Use the setupConfirmButton function for confirmation
   setupConfirmButton(
     deleteSelectedButton,
     () => {
-      // Delete each element
       selectedElementIds.forEach((elementId) => {
         deleteElement(elementId, plotState);
       });
-
-      // Clear selection array
       plotState.selectedElements = [];
-
-      // Update stage selection state (this is the key fix)
       updateStageSelectionState(plotState);
-
-      // The button visibility is already updated by updateStageSelectionState
     },
-    {
-      confirmText: 'Confirm',
-      confirmTitle: 'Cannot undo!',
-      originalText: 'Delete Selected',
-    }
+    { confirmText: 'Confirm', confirmTitle: 'Cannot undo!', originalText: 'Delete Selected' }
   );
 }
 
 /**
- * Initialize the delete selected button
- * @param {Object} plotState - The current plot state
+ * Initializes the "Delete Selected" button by adding its click handler and setting
+ * its initial visibility based on the current selection state.
+ * @param {Object} plotState - The current plot state object.
  */
 function initDeleteSelectedButton(plotState) {
   const deleteSelectedButton = document.getElementById('delete-selected');
   if (!deleteSelectedButton) return;
 
-  // Add click handler
   deleteSelectedButton.addEventListener('click', () => {
     deleteSelectedElements(plotState);
   });
-
-  // Initialize button state based on current selection
   updateDeleteSelectedButton(plotState);
 }
 
 /**
- * Open the element properties modal
- * @param {number} elementId - The ID of the element to edit
- * @param {Object} plotState - The current plot state
+ * Opens the element properties modal, populating it with the data of the specified element.
+ * @param {number} elementId - The ID of the element whose properties are to be edited.
+ * @param {Object} plotState - The current plot state object.
  */
 function openPropertiesModal(elementId, plotState) {
   const propsModal = document.getElementById('element-props-modal');
   if (!propsModal) return;
 
   const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
-
   if (elementIndex === -1) return;
 
-  // Store selected element info
   plotState.selectedElement = elementId;
 
-  // Fill form with element data
   const form = document.getElementById('element-props-form');
   form.reset();
-
   document.getElementById('element_index').value = elementIndex;
   document.getElementById('element_label').value = plotState.elements[elementIndex].label || '';
   document.getElementById('element_notes').value = plotState.elements[elementIndex].notes || '';
 
-  // Show modal
   openModal(propsModal);
-
-  // Focus on label input
   document.getElementById('element_label').focus();
 
-  // Handle form submission
   form.onsubmit = (e) => {
     e.preventDefault();
     applyElementProperties(plotState);
   };
 
-  // Handle delete button
   document.querySelector('#element-props-form .delete-button').onclick = () => {
     setupConfirmButton(
       document.querySelector('#element-props-form .delete-button'),
@@ -2166,42 +1731,31 @@ function openPropertiesModal(elementId, plotState) {
         deleteElement(elementId, plotState);
         closeModal(propsModal);
       },
-      {
-        confirmText: 'Confirm',
-        confirmTitle: 'This is Permanent!',
-        originalText: 'Delete',
-      }
+      { confirmText: 'Confirm', confirmTitle: 'This is Permanent!', originalText: 'Delete' }
     );
   };
 }
 
 /**
- * Apply properties from modal to element
- * @param {Object} plotState - The current plot state
+ * Applies the properties (label, notes) edited in the modal to the selected element's state and DOM representation.
+ * @param {Object} plotState - The current plot state object.
  */
 function applyElementProperties(plotState) {
   const propsModal = document.getElementById('element-props-modal');
-
   const elementIndex = parseInt(document.getElementById('element_index').value);
   const label = document.getElementById('element_label').value.trim();
   const notes = document.getElementById('element_notes').value.trim();
 
   if (elementIndex < 0 || elementIndex >= plotState.elements.length) return;
 
-  // Update state
   plotState.elements[elementIndex].label = label;
   plotState.elements[elementIndex].notes = notes;
 
-  // Update DOM element
   const elementId = plotState.elements[elementIndex].id;
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
-
   if (domElement) {
-    // Update label
     let labelElement = domElement.querySelector('.element-label');
-
     if (label) {
-      // If label exists, update it, otherwise create a new one
       if (labelElement) {
         labelElement.textContent = label;
       } else {
@@ -2211,75 +1765,58 @@ function applyElementProperties(plotState) {
         domElement.appendChild(labelElement);
       }
     } else if (labelElement) {
-      // Remove label if it exists but should no longer be displayed
       labelElement.remove();
     }
   }
 
-  // Close the modal
   closeModal(propsModal);
-
   renderElementInfoList(plotState);
   markPlotAsModified(plotState);
-
   if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
 }
 
 /**
- * Delete element from stage and state
- * @param {number} elementId - The ID of the element to delete
- * @param {Object} plotState - The current plot state
+ * Deletes an element from the stage and the plot state, including a visual removal animation.
+ * @param {number} elementId - The ID of the element to delete.
+ * @param {Object} plotState - The current plot state object.
  */
 function deleteElement(elementId, plotState) {
   const domElement = document.querySelector(`.placed-element[data-id="${elementId}"]`);
-
   if (domElement) {
-    // Remove from state immediately (don't wait for animation)
     const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
     if (elementIndex !== -1) {
       plotState.elements.splice(elementIndex, 1);
     }
-
-    // Add deleting class to trigger animation
     requestAnimationFrame(() => {
       domElement.classList.add('deleting');
-
-      // Set up animation end listener
       const handleAnimationEnd = () => {
         domElement.removeEventListener('animationend', handleAnimationEnd);
         domElement.remove();
       };
-
-      // Add event listener for animation end
       domElement.addEventListener('animationend', handleAnimationEnd);
-
-      // Fallback: If animation doesn't complete after 400ms, force remove
       setTimeout(() => {
         if (document.body.contains(domElement)) {
           domElement.remove();
         }
-      }, 400); // Slightly longer than animation duration (300ms)
+      }, 400);
     });
   } else {
-    // Handle case where DOM element isn't found but might be in state
     const elementIndex = plotState.elements.findIndex((el) => el.id === elementId);
     if (elementIndex !== -1) {
       plotState.elements.splice(elementIndex, 1);
     }
   }
-
   renderElementInfoList(plotState);
   markPlotAsModified(plotState);
-
   if (plotState.updateInputSuggestions) plotState.updateInputSuggestions();
 }
 
 /**
- * Initialize modal controls
- * @param {Object} plotState - The current plot state
+ * Initialize controls related to modals (Save, Load, Properties).
+ * Sets up event listeners for opening modals and handling form submissions or actions within them.
+ * @param {Object} plotState - The current plot state object.
  */
 function initModalControls(plotState) {
-  // DOM Elements
   const stage = document.getElementById('stage');
   const saveButton = document.getElementById('save-plot');
   const saveChangesButton = document.getElementById('save-changes');
@@ -2288,61 +1825,33 @@ function initModalControls(plotState) {
   const loadModal = document.getElementById('my-plots-modal');
   const propsModal = document.getElementById('element-props-modal');
 
-  // Setup save button
   if (saveButton) {
     saveButton.addEventListener('click', () => {
-      // Only show save modal if there are elements on the stage
       if (plotState.elements.length > 0) {
-        // Clear the plot name input field when opening the save modal
         const plotNameInput = document.getElementById('plot_name');
         if (plotNameInput) {
           plotNameInput.value = '';
         }
-
         openModal(saveModal);
-
-        // Load existing plots for overwrite options
         loadExistingPlotsForOverwrite(plotState);
-
-        // Handle form submission for new plot
         const saveForm = document.getElementById('save-new-plot-form');
         const saveNewButton = saveForm ? saveForm.querySelector('#save-new-button') : null;
-
         if (saveForm && saveNewButton) {
-          // Remove any existing listeners to prevent multiple bindings
           const newSaveBtn = saveNewButton.cloneNode(true);
           saveNewButton.parentNode.replaceChild(newSaveBtn, saveNewButton);
-
-          // Prevent form from submitting when pressing Enter
-          saveForm.onsubmit = (e) => {
-            e.preventDefault();
-            return false;
-          };
-
-          // Add click handler to the save button with confirmation
+          saveForm.onsubmit = (e) => { e.preventDefault(); return false; };
           newSaveBtn.addEventListener('click', (e) => {
             e.preventDefault();
-
-            // Get the plot name
             const plotName = document.getElementById('plot_name').value.trim();
             const plotTitle = document.getElementById('plot-title').textContent.trim();
-
             if (!plotName || plotName === plotTitle) {
               showNotification('Enter a unique plot name.', 'warning');
               return;
             }
-
             setupConfirmButton(
               newSaveBtn,
-              () => {
-                savePlot(true, null, null, null, plotState); // Save as new plot
-              },
-              {
-                confirmText: 'Confirm Save',
-                confirmTitle: 'This will create a new plot',
-                originalText: 'Save as New',
-                originalTitle: 'Save plot as new',
-              }
+              () => { savePlot(true, null, null, null, plotState); },
+              { confirmText: 'Confirm Save', confirmTitle: 'This will create a new plot', originalText: 'Save as New', originalTitle: 'Save plot as new' }
             );
           });
         }
@@ -2352,7 +1861,6 @@ function initModalControls(plotState) {
     });
   }
 
-  // Setup load button
   if (loadButton) {
     loadButton.addEventListener('click', () => {
       openModal(loadModal);
@@ -2360,7 +1868,6 @@ function initModalControls(plotState) {
     });
   }
 
-  // Setup modal close buttons
   document.querySelectorAll('.modal .close-button, .modal .cancel-button').forEach((button) => {
     button.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2369,7 +1876,6 @@ function initModalControls(plotState) {
     });
   });
 
-  // Close modal on outside click
   document.querySelectorAll('.modal').forEach((modal) => {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
@@ -2378,30 +1884,17 @@ function initModalControls(plotState) {
     });
   });
 
-  // Add specific handlers for the load plot modal
   if (loadModal) {
     const closeBtn = loadModal.querySelector('.close-button');
     const cancelBtn = loadModal.querySelector('.cancel-button');
-
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => closeModal(loadModal));
-    }
-
-    if (cancelBtn) {
-      cancelBtn.addEventListener('click', () => closeModal(loadModal));
-    }
-
-    // Close when clicking outside the modal
-    loadModal.addEventListener('click', (e) => {
-      if (e.target === loadModal) closeModal(loadModal);
-    });
+    if (closeBtn) closeBtn.addEventListener('click', () => closeModal(loadModal));
+    if (cancelBtn) cancelBtn.addEventListener('click', () => closeModal(loadModal));
+    loadModal.addEventListener('click', (e) => { if (e.target === loadModal) closeModal(loadModal); });
   }
 
-  // Add event handler for the save changes button
   if (saveChangesButton) {
     saveChangesButton.addEventListener('click', () => {
       if (plotState.currentPlotId) {
-        // Save changes directly without showing modal
         savePlot(false, plotState.currentPlotId, null, null, plotState);
       }
     });
@@ -2409,41 +1902,35 @@ function initModalControls(plotState) {
 }
 
 /**
- * Save plot to database
- * @param {boolean} isNew - Whether this is a new plot or updating an existing one
- * @param {number|null} existingPlotId - ID of existing plot when overwriting
- * @param {string|null} newName - New name when renaming existing plot
- * @param {string|null} existingName - Original name when overwriting existing plot
- * @param {Object} plotState - The current plot state
+ * Saves the current stage plot data (elements, inputs, metadata) to the database.
+ * Can save as a new plot, overwrite an existing plot, or save changes to the currently loaded plot.
+ * @param {boolean} [isNew=true] - Indicates if saving as a new plot.
+ * @param {number|null} [existingPlotId=null] - The ID of the plot to overwrite (if applicable).
+ * @param {string|null} [newName=null] - A new name for the plot when overwriting (if applicable).
+ * @param {string|null} [existingName=null] - The original name of the plot being overwritten (if applicable).
+ * @param {Object} plotState - The current plot state object.
  */
 function savePlot(isNew = true, existingPlotId = null, newName = null, existingName = null, plotState) {
   let plotName;
-
   if (isNew) {
     plotName = document.getElementById('plot_name').value.trim();
   } else if (newName) {
-    // Overwriting with a new name
     plotName = newName;
   } else if (existingName) {
-    // Overwriting existing plot with its original name
     plotName = existingName;
   } else {
-    // Saving changes to existing plot - use current name
     plotName = plotState.currentPlotName;
   }
 
   const venueId = document.getElementById('venue_select') ? document.getElementById('venue_select').value : null;
   const eventDateStart = document.getElementById('event_start') ? document.getElementById('event_start').value : null;
   const eventDateEnd = document.getElementById('event_end') ? document.getElementById('event_end').value : null;
-
-  // Gather input list data
   const inputData = [];
   const inputItems = document.querySelectorAll('#input-list .input-item');
   inputItems.forEach((item) => {
     const number = parseInt(item.getAttribute('data-input-number'));
     const labelInput = item.querySelector('input[type="text"]');
     const label = labelInput ? labelInput.value.trim() : '';
-    // Only save inputs that have a label
     if (label) {
       inputData.push({ input_number: number, input_name: label });
     }
@@ -2453,13 +1940,11 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
     showNotification('Please enter a plot name', 'warning');
     return;
   }
-
   if (!plotName) {
     showNotification('Please enter a plot name', 'warning');
     return;
   }
 
-  // Create plot data
   const plotData = {
     plot_name: plotName,
     venue_id: venueId || null,
@@ -2479,7 +1964,6 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
     inputs: inputData,
   };
 
-  // For overwrite, add plot_id
   if (!isNew && existingPlotId) {
     plotData.plot_id = existingPlotId;
   }
@@ -2488,59 +1972,42 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
 
   fetch('/handlers/save_plot.php', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(plotData),
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        // Show notification
-        if (isNew) {
-          showNotification('New Plot Saved!', 'success');
-        } else if (newName || existingName) {
-          showNotification('Plot Overwritten!', 'success');
-        } else {
-          showNotification('Changes Saved!', 'success');
-        }
+        if (isNew) showNotification('New Plot Saved!', 'success');
+        else if (newName || existingName) showNotification('Plot Overwritten!', 'success');
+        else showNotification('Changes Saved!', 'success');
 
-        // Update plot state with the correct plot ID
-        if (isNew && data.plot_id) {
-          // For new plots, use the ID returned from the server
-          plotState.currentPlotId = data.plot_id;
-        } else if (!isNew && existingPlotId) {
-          // For overwriting existing plots, use the existing ID
-          plotState.currentPlotId = existingPlotId;
-        }
+        if (isNew && data.plot_id) plotState.currentPlotId = data.plot_id;
+        else if (!isNew && existingPlotId) plotState.currentPlotId = existingPlotId;
 
-        // Always update the plot name
         plotState.currentPlotName = plotData.plot_name;
         const plotTitle = document.getElementById('plot-title');
         if (plotTitle) plotTitle.textContent = plotData.plot_name;
 
-        // KEY FIX: Update window.plotState to sync with the current plotState
         window.plotState = { ...plotState };
         console.log('window.plotState updated after save:', window.plotState);
 
-        // If print/share module is initialized, update it
         if (typeof initPrintAndShare === 'function') {
           initPrintAndShare(plotState);
           console.log('Print/share module updated after save');
         }
 
-        // Reset UI
         plotState.isModified = false;
         const saveChangesButton = document.getElementById('save-changes');
         if (saveChangesButton) {
           saveChangesButton.classList.remove('visible');
-          setTimeout(() => saveChangesButton.classList.add('hidden'), 300); // Match transition
+          setTimeout(() => saveChangesButton.classList.add('hidden'), 300);
         }
         const saveModal = document.getElementById('save-plot-modal');
         closeModal(saveModal);
         const plotNameInput = document.getElementById('plot_name');
         if (plotNameInput) plotNameInput.value = '';
-        saveStateToStorage(plotState); // Save updated state
+        saveStateToStorage(plotState);
       } else {
         showNotification('Error saving plot: ' + (data.error || 'Unknown error'), 'error');
       }
@@ -2552,47 +2019,26 @@ function savePlot(isNew = true, existingPlotId = null, newName = null, existingN
 }
 
 /**
- * Load existing plots for the save dialog's overwrite section
- * @param {Object} plotState - The current plot state
+ * Loads the list of existing saved plots into the "Overwrite" section of the save modal.
+ * @param {Object} plotState - The current plot state object.
  */
 function loadExistingPlotsForOverwrite(plotState) {
   const plotsList = document.querySelector('.existing-plots-list');
   if (!plotsList) return;
 
-  // Add overlay instead of replacing content
   const loadingOverlay = document.createElement('div');
   loadingOverlay.className = 'loading-overlay';
   loadingOverlay.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
-  loadingOverlay.style.position = 'absolute';
-  loadingOverlay.style.top = '0';
-  loadingOverlay.style.left = '0';
-  loadingOverlay.style.width = '100%';
-  loadingOverlay.style.height = '100%';
-  loadingOverlay.style.background = 'rgba(255,255,255,0.8)';
-  loadingOverlay.style.display = 'flex';
-  loadingOverlay.style.alignItems = 'center';
-  loadingOverlay.style.justifyContent = 'center';
-
-  // Make sure the container is positioned relative
+  loadingOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;';
   plotsList.style.position = 'relative';
-
-  // Add the overlay instead of replacing content
   plotsList.appendChild(loadingOverlay);
-
-  // Show loading message
   plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
 
-  // Fetch saved plots
   fetch('/handlers/get_plots.php')
     .then((response) => response.json())
     .then((data) => {
-      // Remove the loading overlay first
-      if (loadingOverlay.parentNode === plotsList) {
-        plotsList.removeChild(loadingOverlay);
-      }
-
+      if (loadingOverlay.parentNode === plotsList) plotsList.removeChild(loadingOverlay);
       if (data.plots && data.plots.length > 0) {
-        // Create plots list
         let html = '<ul class="plots-list">';
         data.plots.forEach((plot) => {
           const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
@@ -2600,8 +2046,7 @@ function loadExistingPlotsForOverwrite(plotState) {
             <div class="plot-info">
               <div class="plot-name">${plot.plot_name}</div>
               <div class="plot-details">
-                <span class="venue">${plot.venue_name}</span>
-                <span class="date">${formattedDate}</span>
+                <span class="venue">${plot.venue_name}</span><span class="date">${formattedDate}</span>
               </div>
             </div>
             <div class="plot-actions">
@@ -2613,48 +2058,28 @@ function loadExistingPlotsForOverwrite(plotState) {
         html += '</ul>';
         plotsList.innerHTML = html;
 
-        // Add click handlers for overwrite buttons
         document.querySelectorAll('.overwrite-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
             e.preventDefault();
             const plotId = btn.getAttribute('data-plot-id');
             const plotName = btn.getAttribute('data-plot-name');
-
-            // Check if there's a new name entered
             const newNameInput = document.getElementById('plot_name');
             const newName = newNameInput && newNameInput.value.trim() ? newNameInput.value.trim() : null;
-
             setupConfirmButton(
               btn,
-              () => {
-                savePlot(false, plotId, newName, plotName, plotState); // Pass the existing plot name
-              },
-              {
-                confirmText: 'Confirm',
-                originalText: 'Overwrite',
-              }
+              () => { savePlot(false, plotId, newName, plotName, plotState); },
+              { confirmText: 'Confirm', originalText: 'Overwrite' }
             );
           });
         });
 
-        // Add delete button handlers
         document.querySelectorAll('.existing-plots-list .delete-plot-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
-            // Get plot ID
             const plotId = btn.getAttribute('data-plot-id');
-
             setupConfirmButton(
               btn,
-              () => {
-                deletePlot(plotId, true, plotState);
-              },
-              {
-                confirmText: 'Delete',
-                confirmTitle: 'This is permanent!',
-                originalTitle: 'Delete plot',
-                stopPropagation: true,
-                event: e,
-              }
+              () => { deletePlot(plotId, true, plotState); },
+              { confirmText: 'Delete', confirmTitle: 'This is permanent!', originalTitle: 'Delete plot', stopPropagation: true, event: e }
             );
           });
         });
@@ -2663,62 +2088,36 @@ function loadExistingPlotsForOverwrite(plotState) {
       }
     })
     .catch((error) => {
-      if (loadingOverlay.parentNode === plotsList) {
-        plotsList.removeChild(loadingOverlay);
-      }
-
+      if (loadingOverlay.parentNode === plotsList) plotsList.removeChild(loadingOverlay);
       console.error('Error loading plots:', error);
       plotsList.innerHTML = '<p class="error-message">Error loading plots. Please try again.</p>';
     });
 }
 
 /**
- * Load saved plots for the load modal
- * @param {Object} plotState - The current plot state
+ * Loads the list of saved plots into the "Load Plot" modal.
+ * @param {Object} plotState - The current plot state object.
  */
 function loadSavedPlots(plotState) {
   const plotsList = document.querySelector('.saved-plots-list');
   if (!plotsList) return;
 
-  // Add overlay instead of replacing content
   const loadingOverlay = document.createElement('div');
   loadingOverlay.className = 'loading-overlay';
   loadingOverlay.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
-  loadingOverlay.style.position = 'absolute';
-  loadingOverlay.style.top = '0';
-  loadingOverlay.style.left = '0';
-  loadingOverlay.style.width = '100%';
-  loadingOverlay.style.height = '100%';
-  loadingOverlay.style.background = 'rgba(255,255,255,0.8)';
-  loadingOverlay.style.display = 'flex';
-  loadingOverlay.style.alignItems = 'center';
-  loadingOverlay.style.justifyContent = 'center';
-
-  // Make sure the container is positioned relative
+  loadingOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;';
   plotsList.style.position = 'relative';
-
-  // Add the overlay instead of replacing content
   plotsList.appendChild(loadingOverlay);
-
-  // Show loading message
   plotsList.innerHTML = '<p class="loading-message">Loading your saved plots...</p>';
 
-  // Fetch saved plots
   fetch('/handlers/get_plots.php')
     .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
       return response.json();
     })
     .then((data) => {
-      // Remove the loading overlay first
-      if (loadingOverlay.parentNode === plotsList) {
-        plotsList.removeChild(loadingOverlay);
-      }
-
+      if (loadingOverlay.parentNode === plotsList) plotsList.removeChild(loadingOverlay);
       if (data.plots && data.plots.length > 0) {
-        // Create plots list
         let html = '<ul class="plots-list">';
         data.plots.forEach((plot) => {
           const formattedDate = plot.event_date_start ? new Date(plot.event_date_start).toLocaleDateString() : 'No date';
@@ -2726,8 +2125,7 @@ function loadSavedPlots(plotState) {
             <div class="plot-info">
               <div class="plot-name">${plot.plot_name}</div>
               <div class="plot-details">
-                <span class="venue">${plot.venue_name}</span>
-                <span class="date">${formattedDate}</span>
+                <span class="venue">${plot.venue_name}</span><span class="date">${formattedDate}</span>
               </div>
             </div>
             <div class="plot-actions">
@@ -2739,53 +2137,29 @@ function loadSavedPlots(plotState) {
         html += '</ul>';
         plotsList.innerHTML = html;
 
-        // Add load button handlers
         document.querySelectorAll('.load-plot-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const plotId = btn.getAttribute('data-plot-id');
-
-            // Check if there are elements on stage that would be replaced
             if (plotState.elements.length > 0) {
               setupConfirmButton(
                 btn,
-                () => {
-                  loadPlot(plotId, plotState);
-                },
-                {
-                  confirmText: 'Confirm',
-                  confirmTitle: 'This will replace your current stage',
-                  originalText: 'Load',
-                  originalTitle: 'Load plot',
-                  stopPropagation: true,
-                  event: e,
-                }
+                () => { loadPlot(plotId, plotState); },
+                { confirmText: 'Confirm', confirmTitle: 'This will replace your current stage', originalText: 'Load', originalTitle: 'Load plot', stopPropagation: true, event: e }
               );
             } else {
-              // No confirmation needed, just load
               loadPlot(plotId, plotState);
             }
           });
         });
 
-        // Add delete button handlers
         document.querySelectorAll('.saved-plots-list .delete-plot-btn').forEach((btn) => {
           btn.addEventListener('click', (e) => {
-            // Get plot ID
             const plotId = btn.getAttribute('data-plot-id');
-
             setupConfirmButton(
               btn,
-              () => {
-                deletePlot(plotId, true, plotState);
-              },
-              {
-                confirmText: 'Delete',
-                confirmTitle: 'This is permanent!',
-                originalTitle: 'Delete plot',
-                stopPropagation: true,
-                event: e,
-              }
+              () => { deletePlot(plotId, true, plotState); },
+              { confirmText: 'Delete', confirmTitle: 'This is permanent!', originalTitle: 'Delete plot', stopPropagation: true, event: e }
             );
           });
         });
@@ -2794,19 +2168,17 @@ function loadSavedPlots(plotState) {
       }
     })
     .catch((error) => {
-      if (loadingOverlay.parentNode === plotsList) {
-        plotsList.removeChild(loadingOverlay);
-      }
-
+      if (loadingOverlay.parentNode === plotsList) plotsList.removeChild(loadingOverlay);
       console.error('Error loading plots:', error);
       plotsList.innerHTML = '<p class="error-message">Error loading plots. Please try again.</p>';
     });
 }
 
 /**
- * Load a specific plot
- * @param {number} plotId - The ID of the plot to load
- * @param {Object} plotState - The current plot state
+ * Loads a specific plot's data from the server and updates the stage and state.
+ * Clears the current stage, updates metadata (title, venue, dates), loads elements and inputs.
+ * @param {number} plotId - The ID of the plot to load.
+ * @param {Object} plotState - The current plot state object.
  */
 function loadPlot(plotId, plotState) {
   fetch(`/handlers/get_plot.php?id=${plotId}`)
@@ -2814,15 +2186,11 @@ function loadPlot(plotId, plotState) {
     .then((data) => {
       if (data.success) {
         plotState.isLoading = true;
-
-        // Clear current stage
         clearElements(plotState);
         plotState.selectedElements = [];
         updateStageSelectionState(plotState);
+        if (plotState.clearInputList) plotState.clearInputList();
 
-        if (plotState.clearInputList) plotState.clearInputList(); // Clear input list state & DOM
-
-        // Update plot title, venue, dates, buttons
         const plotTitle = document.getElementById('plot-title');
         if (plotTitle) plotTitle.textContent = data.plot.plot_name;
         plotState.currentPlotName = data.plot.plot_name;
@@ -2853,10 +2221,9 @@ function loadPlot(plotId, plotState) {
           plotState.renderInputList(plotState.inputs);
         }
 
-        // Load placed elements
         const elementPromises = (data.elements || []).map((element, index) => {
           const elementData = {
-            id: index + 1, // Assign new local ID
+            id: index + 1,
             elementId: element.element_id,
             elementName: element.element_name,
             categoryId: element.category_id,
@@ -2876,15 +2243,13 @@ function loadPlot(plotId, plotState) {
 
         Promise.all(elementPromises)
           .then(() => {
-            plotState.nextZIndex = Math.max(1, ...plotState.elements.map((el) => el.zIndex)) + 1; // Recalculate nextZIndex
+            plotState.nextZIndex = Math.max(1, ...plotState.elements.map((el) => el.zIndex)) + 1;
             plotState.isLoading = false;
             console.log('Finished loading elements.');
 
-            // KEY FIX: Make sure window.plotState is updated with the current state
             window.plotState = { ...plotState };
             console.log('window.plotState synchronized after plot load:', window.plotState);
 
-            // If the print/share functionality is initialized, update it with the latest state
             if (typeof initPrintAndShare === 'function') {
               initPrintAndShare(plotState);
               console.log('Print/share module updated with new plot state');
@@ -2914,34 +2279,24 @@ function loadPlot(plotId, plotState) {
 }
 
 /**
- * Update the custom dropdown UI to match the selected value in the native select
- * @param {HTMLSelectElement} selectElement - The native select element
+ * Update the custom dropdown UI (selected text, option classes) to match the
+ * selected value in the underlying native select element.
+ * @param {HTMLSelectElement} selectElement - The native select element that changed.
  */
 function updateCustomDropdown(selectElement) {
   if (!selectElement) return;
-
-  // Find the associated custom dropdown container
   const customDropdown = document.querySelector(`.custom-dropdown [data-id="${selectElement.id}"]`) || document.querySelector(`.custom-dropdown select[id="${selectElement.id}"]`).closest('.custom-dropdown');
-
   if (!customDropdown) return;
 
-  // Get the selected option text
   const selectedOption = selectElement.options[selectElement.selectedIndex];
   const selectedText = selectedOption ? selectedOption.textContent : '';
-
-  // Update the visual display of the selection
   const selectedDisplay = customDropdown.querySelector('.selected-option');
   if (selectedDisplay) {
     selectedDisplay.textContent = selectedText;
-
-    if (selectedText) {
-      selectedDisplay.classList.remove('placeholder');
-    } else {
-      selectedDisplay.classList.add('placeholder');
-    }
+    if (selectedText) selectedDisplay.classList.remove('placeholder');
+    else selectedDisplay.classList.add('placeholder');
   }
 
-  // Update the selected class in the dropdown options
   const options = customDropdown.querySelectorAll('.custom-dropdown-option');
   options.forEach((option) => {
     option.classList.remove('selected');
@@ -2952,84 +2307,66 @@ function updateCustomDropdown(selectElement) {
 }
 
 /**
- * Update button states and UI for loaded plot
- * @param {Object} plotState - The current plot state
+ * Updates the UI state (buttons, modified flag) typically after a plot is loaded or saved.
+ * @param {Object} plotState - The current plot state object.
  */
 function updatePlotUIState(plotState) {
   const saveButton = document.getElementById('save-plot');
-  if (saveButton) {
-    saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
-  }
+  if (saveButton) saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
 
-  // Hide the save changes button initially
   const saveChangesButton = document.getElementById('save-changes');
-  if (saveChangesButton) {
-    saveChangesButton.classList.add('hidden');
-  }
+  if (saveChangesButton) saveChangesButton.classList.add('hidden');
 
-  // Reset modified flag
   plotState.isModified = false;
 }
 
 /**
- * Update favorites data from server
- * @param {Object} plotState - The current plot state
- * @param {Array} favorites - Favorites data from server
+ * Updates the favorites state and UI based on data received from the server (e.g., after loading a plot).
+ * @param {Object} plotState - The current plot state object.
+ * @param {Array} favorites - An array of favorite element data objects from the server.
  */
 function updateFavoritesFromServer(plotState, favorites) {
   if (!favorites) return;
 
-  // Update favorites in state
   plotState.favorites = favorites.map((fav) => parseInt(fav.element_id));
   plotState.favoritesData = favorites;
-
-  // Update favorites UI
   updateFavoritesCategory(plotState);
 
-  // Update the favorite buttons on all elements
   const allButtons = document.querySelectorAll('.draggable-element .favorite-button');
   allButtons.forEach((button) => {
     const elementContainer = button.closest('.draggable-element');
     if (!elementContainer) return;
-
     const elementId = parseInt(elementContainer.getAttribute('data-element-id'));
     const isFavorite = plotState.favorites.includes(elementId);
-
     button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
     button.innerHTML = isFavorite ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
   });
 }
 
 /**
- * Load placed elements from server data
- * @param {Array} elements - The elements data from the server
- * @param {Object} plotState - The current plot state
+ * Loads placed elements onto the stage based on data typically retrieved from the server.
+ * Clears existing elements, updates plot state, and creates new DOM elements.
+ * @param {Array} elements - Array of element data objects from the server/saved state.
+ * @param {Object} plotState - The current plot state object.
  */
 function loadPlacedElements(elements, plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Get stage dimensions
   const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
   const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-
-  // Calculate dimensions for proper scaling
   const dimensions = calculateStageDimensions(stageWidth, stageDepth);
 
-  // Clear existing elements first
   const placedElements = stage.querySelectorAll('.placed-element');
   placedElements.forEach((element) => element.remove());
 
-  // Reset state but keep z-index counter
   const nextZ = plotState.nextZIndex;
   plotState.elements = [];
   plotState.nextZIndex = nextZ;
 
-  // Create each element from the saved data
   elements.forEach((element, index) => {
-    // Map database field names to local state format
     const elementData = {
-      id: index + 1, // Generate new sequential IDs
+      id: index + 1,
       elementId: element.element_id,
       elementName: element.element_name,
       categoryId: element.category_id,
@@ -3044,55 +2381,40 @@ function loadPlacedElements(elements, plotState) {
       label: element.label || '',
       notes: element.notes || '',
     };
-
-    // Add to state
     plotState.elements.push(elementData);
-
-    // Create DOM element
     createPlacedElement(elementData, plotState);
-
-    // Update next z-index if needed
     plotState.nextZIndex = Math.max(plotState.nextZIndex, element.z_index + 1);
   });
 }
 
 /**
- * Initialize load plot modal
- * @param {Object} plotState - The current plot state
+ * Initializes the "Load Plot" modal button listener.
+ * @param {Object} plotState - The current plot state object.
  */
 function initLoadPlotModal(plotState) {
   const loadButton = document.getElementById('my-plots');
   const loadModal = document.getElementById('my-plots-modal');
-
   if (loadButton && loadModal) {
     loadButton.addEventListener('click', () => {
-      // First show the modal
       openModal(loadModal);
-
-      // Then populate it with plots
       loadSavedPlots(plotState);
     });
   }
 }
 
 /**
- * Delete a saved plot
- * @param {number} plotId - The ID of the plot to delete
- * @param {boolean} confirmed - Whether the action has been confirmed
- * @param {Object} plotState - The current plot state
+ * Deletes a saved plot from the database after confirmation.
+ * Reloads the plot lists in relevant modals and clears the stage if the deleted plot was currently loaded.
+ * @param {number} plotId - The ID of the plot to delete.
+ * @param {boolean} [confirmed=false] - Flag indicating if user confirmation was received (used internally by confirmation handler).
+ * @param {Object} plotState - The current plot state object.
  */
 function deletePlot(plotId, confirmed = false, plotState) {
-  // Skip confirmation if already confirmed
-  if (!confirmed) {
-    // The confirmation is now handled by the button itself
-    return;
-  }
+  if (!confirmed) return;
 
-  // Create form data
   const formData = new FormData();
   formData.append('plot_id', plotId);
 
-  // Send deletion request to server
   fetch('/handlers/delete_plot.php', {
     method: 'POST',
     body: formData,
@@ -3100,18 +2422,11 @@ function deletePlot(plotId, confirmed = false, plotState) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        // Show notification
         showNotification('Plot deleted!', 'success');
-
-        // If we're currently viewing the plot that was deleted, clear the stage
         if (plotState.currentPlotId && plotState.currentPlotId == plotId) {
           clearElements(plotState);
         }
-
-        // Reload the plots list
         loadSavedPlots(plotState);
-
-        // Also reload the overwrite list if the save modal is open
         const saveModal = document.getElementById('save-plot-modal');
         if (saveModal && !saveModal.classList.contains('hidden')) {
           loadExistingPlotsForOverwrite(plotState);
@@ -3127,46 +2442,37 @@ function deletePlot(plotId, confirmed = false, plotState) {
 }
 
 /**
- * Initialize page navigation handlers
- * @param {Object} plotState - The current plot state
+ * Initializes page navigation handlers to save the current state to localStorage
+ * before the user navigates away or closes the page, if there are unsaved changes.
+ * @param {Object} plotState - The current plot state object.
  */
 function initPageNavigation(plotState) {
-  // Save state when navigating away from the page
   window.addEventListener('beforeunload', function (e) {
-    // Only prompt if there are unsaved changes
     if (plotState.elements.length > 0 && (plotState.isModified || !plotState.currentPlotId)) {
-      // Save current state to localStorage
       saveStateToStorage(plotState);
     }
   });
 
-  // Add click handlers to all navigation links to save state
   document.querySelectorAll('nav a').forEach((link) => {
     link.addEventListener('click', function (e) {
-      // Don't intercept the current page link
-      if (this.classList.contains('active')) {
-        return;
-      }
-
-      // Save state before navigating
+      if (this.classList.contains('active')) return;
       saveStateToStorage(plotState);
     });
   });
 }
 
 /**
- * Save current state to localStorage
- * @param {Object} plotState - The current plot state
+ * Saves the relevant current plot state (elements, inputs, metadata) to browser localStorage.
+ * @param {Object} plotState - The current plot state object containing data to save.
  */
 function saveStateToStorage(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
   try {
-    // Create a serializable state object
     const stateToSave = {
       elements: plotState.elements,
-      inputs: plotState.inputs || [], // <<< ADD THIS LINE: Include inputs array
+      inputs: plotState.inputs || [],
       nextZIndex: plotState.nextZIndex,
       currentPlotName: plotState.currentPlotName,
       currentPlotId: plotState.currentPlotId,
@@ -3175,19 +2481,17 @@ function saveStateToStorage(plotState) {
       eventStart: document.getElementById('event_start') ? document.getElementById('event_start').value : null,
       eventEnd: document.getElementById('event_end') ? document.getElementById('event_end').value : null,
     };
-
-    // Save to localStorage
     localStorage.setItem('stageplot_state', JSON.stringify(stateToSave));
-    // console.log("State saved to localStorage:", stateToSave); // Optional: for debugging
   } catch (e) {
     console.error('Error saving state to localStorage:', e);
   }
 }
 
 /**
- * Restore state from localStorage if available
- * @param {Object} plotState - The current plot state
- * @returns {boolean} Whether state was restored successfully
+ * Restores the plot state from browser localStorage if previously saved state exists.
+ * Updates the UI (elements, inputs, metadata) to match the restored state.
+ * @param {Object} plotState - The current plot state object to populate with restored data.
+ * @returns {boolean} True if state was successfully restored, false otherwise.
  */
 function restoreStateFromStorage(plotState) {
   const stage = document.getElementById('stage');
@@ -3199,32 +2503,24 @@ function restoreStateFromStorage(plotState) {
 
     const state = JSON.parse(savedState);
 
-    // Only restore if there was saved data (elements or inputs)
     if ((state.elements && state.elements.length > 0) || (state.inputs && state.inputs.length > 0)) {
-      // <<< UPDATED CONDITION
-
-      // ... (rest of the state restoration logic: plot title, state values) ...
       const plotTitle = document.getElementById('plot-title');
       if (plotTitle && state.currentPlotName) {
         plotTitle.textContent = state.currentPlotName;
       } else if (plotTitle) {
-        // Use a default title if restoring state without a name (e.g., unsaved work)
         plotTitle.textContent = state.currentPlotId ? 'Restored Plot' : 'Unsaved Work';
       }
 
-      plotState.elements = []; // Clear first
+      plotState.elements = [];
       plotState.nextZIndex = state.nextZIndex || 1;
       plotState.currentPlotName = state.currentPlotName;
       plotState.currentPlotId = state.currentPlotId;
       plotState.isModified = state.isModified;
-
-      // Restore Inputs
-      plotState.inputs = state.inputs || []; // Restore inputs or default to empty array
+      plotState.inputs = state.inputs || [];
       if (plotState.renderInputList) {
-        plotState.renderInputList(plotState.inputs); // Render the restored input list
+        plotState.renderInputList(plotState.inputs);
       }
 
-      // Restore form inputs (venue, dates)
       const venueSelect = document.getElementById('venue_select');
       const eventStartInput = document.getElementById('event_start');
       const eventEndInput = document.getElementById('event_end');
@@ -3243,34 +2539,23 @@ function restoreStateFromStorage(plotState) {
         updateStageForVenue(null, plotState, true);
       }
 
-      if (eventStartInput && state.eventStart) {
-        eventStartInput.value = state.eventStart;
-      }
+      if (eventStartInput && state.eventStart) eventStartInput.value = state.eventStart;
       if (eventEndInput && state.eventEnd) {
         eventEndInput.value = state.eventEnd;
-        if (eventStartInput && eventStartInput.value) {
-          eventEndInput.min = eventStartInput.value;
-        }
+        if (eventStartInput && eventStartInput.value) eventEndInput.min = eventStartInput.value;
       }
 
-      // Restore button states
       const saveButton = document.getElementById('save-plot');
-      if (saveButton && state.currentPlotId) {
-        saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>'; // Keep floppy disk icon? Maybe change text?
-      }
+      if (saveButton && state.currentPlotId) saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
       const saveChangesButton = document.getElementById('save-changes');
       if (saveChangesButton && state.isModified) {
         saveChangesButton.classList.remove('hidden');
         saveChangesButton.classList.add('visible');
       }
 
-      // Restore placed elements
       plotState.isLoading = true;
       const elementPromises = (state.elements || []).map((elementData) => {
-        // Handle case where elements might be null/undefined
-        if (elementData.id === undefined) {
-          elementData.id = plotState.elements.length + 1;
-        }
+        if (elementData.id === undefined) elementData.id = plotState.elements.length + 1;
         plotState.elements.push(elementData);
         return createPlacedElement(elementData, plotState);
       });
@@ -3286,53 +2571,42 @@ function restoreStateFromStorage(plotState) {
         });
 
       console.log('Stage plot state restored from localStorage');
-      return true; // Indicate state was restored
+      return true;
     }
-    return false; // No elements or inputs to restore
+    return false;
   } catch (e) {
     console.error('Error restoring state from localStorage:', e);
-    localStorage.removeItem('stageplot_state'); // Clear potentially corrupt state
+    localStorage.removeItem('stageplot_state');
     return false;
   }
 }
 
 /**
- * Setup change tracking after state is restored or for a new plot
- * @param {Object} plotState - The current plot state
+ * Sets up MutationObserver and event listeners to track changes to the stage elements,
+ * venue selection, or event dates, marking the plot as modified if necessary.
+ * @param {Object} plotState - The current plot state object.
  */
 function setupChangeTracking(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
   const observer = new MutationObserver((mutations) => {
-    if (plotState.isLoading) return; // Ignore mutations during loading
-
+    if (plotState.isLoading) return;
     const relevantMutations = mutations.some((mutation) => (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0) && (Array.from(mutation.addedNodes).some((node) => node.classList?.contains('placed-element')) || Array.from(mutation.removedNodes).some((node) => node.classList?.contains('placed-element')))) || (mutation.type === 'attributes' && mutation.target.classList?.contains('placed-element') && mutation.attributeName === 'style'));
-
-    if (relevantMutations) {
-      markPlotAsModified(plotState);
-    }
+    if (relevantMutations) markPlotAsModified(plotState);
   });
 
-  observer.observe(stage, {
-    childList: true,
-    attributes: true,
-    attributeFilter: ['style'],
-    subtree: true,
-  });
+  observer.observe(stage, { childList: true, attributes: true, attributeFilter: ['style'], subtree: true });
 
   const venueSelect = document.getElementById('venue_select');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
 
-  // Add listener for event start date change
   if (eventStartInput) {
     eventStartInput.addEventListener('change', () => {
-      // Use the correctly scoped variables
       if (plotState && plotState.currentPlotId && !plotState.isLoading) {
         markPlotAsModified(plotState);
       }
-      // Ensure eventEndInput exists before modifying it
       if (eventEndInput) {
         eventEndInput.min = eventStartInput.value;
         if (eventEndInput.value && eventEndInput.value < eventStartInput.value) {
@@ -3347,17 +2621,15 @@ function setupChangeTracking(plotState) {
     console.warn("Start date input ('event_start') not found.");
   }
 
-  // Add listener for event end date change
   if (eventEndInput) {
     eventEndInput.addEventListener('change', () => {
       if (plotState && plotState.currentPlotId && !plotState.isLoading) {
         markPlotAsModified(plotState);
       }
-      // Ensure eventStartInput exists before comparing
       if (eventStartInput) {
         if (eventStartInput.value && eventEndInput.value < eventStartInput.value) {
           showNotification('End date cannot be before start date.', 'warning');
-          eventEndInput.value = eventStartInput.value; // Reset to start date
+          eventEndInput.value = eventStartInput.value;
         }
       } else {
         console.warn("Start date input ('event_start') not found when end date changed.");
@@ -3369,14 +2641,13 @@ function setupChangeTracking(plotState) {
 }
 
 /**
- * Initialize plot controls and buttons
- * @param {Object} plotState - The current plot state
+ * Initializes the main plot control buttons (Clear Stage, New Plot) with confirmation dialogs.
+ * @param {Object} plotState - The current plot state object.
  */
 function initPlotControls(plotState) {
   const clearButton = document.getElementById('clear-plot');
   const newPlotButton = document.getElementById('new-plot');
 
-  // Setup clear button
   if (clearButton) {
     clearButton.addEventListener('click', () => {
       setupConfirmButton(
@@ -3385,91 +2656,68 @@ function initPlotControls(plotState) {
           clearElements(plotState);
           showNotification('Stage cleared!', 'success');
         },
-        {
-          confirmText: 'Clear Stage',
-          confirmTitle: 'Clear all placed elements',
-          originalTitle: 'Clear Stage',
-          originalText: '<i class="fa-solid fa-trash"></i>',
-        }
+        { confirmText: 'Clear Stage', confirmTitle: 'Clear all placed elements', originalTitle: 'Clear Stage', originalText: '<i class="fa-solid fa-trash"></i>' }
       );
     });
   }
 
-  // Setup new plot button
   if (newPlotButton) {
     newPlotButton.addEventListener('click', () => {
       setupConfirmButton(
         newPlotButton,
-        () => {
-          newPlot(plotState);
-        },
-        {
-          confirmText: 'New Plot',
-          confirmTitle: 'You will lose unsaved changes',
-          originalTitle: 'New Plot',
-          originalText: '<i class="fa-solid fa-file-circle-plus"></i>',
-        }
+        () => { newPlot(plotState); },
+        { confirmText: 'New Plot', confirmTitle: 'You will lose unsaved changes', originalTitle: 'New Plot', originalText: '<i class="fa-solid fa-file-circle-plus"></i>' }
       );
     });
   }
 }
 
 /**
- * Setup initial state for a new plot
- * @param {Object} plotState - The current plot state
+ * Sets up the initial state for a new, empty plot, including default stage dimensions and dates.
+ * @param {Object} plotState - The current plot state object.
  */
 function setupInitialState(plotState) {
   const stage = document.getElementById('stage');
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
 
-  // Set up initial stage dimensions based on default venue
   if (stage) {
     const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
     const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-
-    // Calculate and apply dimensions
     const dimensions = calculateStageDimensions(stageWidth, stageDepth);
     updateStageDimensions(dimensions, stage);
-
-    // Initialize venue info panel with no venue selected
     updateStageForVenue(null, plotState, true);
   }
 
-  // Set current date for event dates when the page loads
   if (eventStartInput && eventEndInput) {
     const now = new Date();
-    const formattedDate = now.toISOString().split('T')[0]; // Format for date input (YYYY-MM-DD)
+    const formattedDate = now.toISOString().split('T')[0];
     eventStartInput.value = formattedDate;
     eventEndInput.value = formattedDate;
   }
 
-  // Initialize plot title
   const plotTitle = document.getElementById('plot-title');
-  if (plotTitle) {
-    plotTitle.textContent = 'New Plot';
-  }
+  if (plotTitle) plotTitle.textContent = 'New Plot';
 }
 
 /**
- * Setup venue select change handler
- * @param {Object} plotState - The current plot state
+ * Sets up the event listener for the venue selection dropdown.
+ * @param {Object} plotState - The current plot state object.
  */
 function setupVenueSelectHandler(plotState) {
   const venueSelect = document.getElementById('venue_select');
   if (!venueSelect) return;
-
   venueSelect.addEventListener('change', () => {
     updateStageForVenue(venueSelect.value, plotState, false);
   });
 }
 
 /**
- *
- * @param {*} venueValue
- * @param {*} plotState
- * @param {*} isRestoring
- * @returns
+ * Updates the stage dimensions and venue info panel based on the selected venue ID.
+ * Fetches venue details (including stage dimensions) from the server.
+ * @param {string|null} venueValue - The value from the venue select dropdown (e.g., '123' or 'user_45'). Null clears the venue.
+ * @param {Object} plotState - The current plot state object.
+ * @param {boolean} [isRestoring=false] - Flag indicating if this update is part of a state restoration process (to suppress modification marking).
  */
 function updateStageForVenue(venueValue, plotState, isRestoring = false) {
   const stage = document.getElementById('stage');
@@ -3485,29 +2733,25 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
     return;
   }
 
-  // Function to reset and show "No venue selected" message
   const showNoVenueInfo = () => {
-    const dimensions = calculateStageDimensions(20, 15); // Default size
+    const dimensions = calculateStageDimensions(20, 15);
     updateStageDimensions(dimensions, stage);
-    detailsDiv.style.display = 'none'; // Hide details
-    noVenueMsg.style.display = 'block'; // Show 'no venue' message
+    detailsDiv.style.display = 'none';
+    noVenueMsg.style.display = 'block';
     venueNameEl.textContent = 'N/A';
     venueAddressEl.textContent = 'N/A';
     venueStageEl.textContent = 'N/A';
-    // Only mark modified if NOT restoring and a plot is loaded
     if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
       markPlotAsModified(plotState);
     }
   };
 
-  // If no venue is selected, set defaults and show "No venue selected"
   if (!venueValue) {
     showNoVenueInfo();
     return;
   }
 
-  let venueId,
-    isUserVenue = false;
+  let venueId, isUserVenue = false;
   if (venueValue.startsWith('user_')) {
     isUserVenue = true;
     venueId = venueValue.replace('user_', '');
@@ -3530,68 +2774,56 @@ function updateStageForVenue(venueValue, plotState, isRestoring = false) {
         stage.setAttribute('data-venue-id', venueId);
         stage.setAttribute('data-is-user-venue', isUserVenue ? '1' : '0');
 
-        // Populate Venue Info Panel
         venueNameEl.textContent = venue.venue_name || 'N/A';
-
         let addressParts = [];
         if (venue.venue_street) addressParts.push(venue.venue_street);
         if (venue.venue_city) addressParts.push(venue.venue_city);
         if (venue.state_abbr) addressParts.push(venue.state_abbr);
         if (venue.venue_zip) addressParts.push(venue.venue_zip);
         venueAddressEl.textContent = addressParts.length > 0 ? addressParts.join(', ') : 'N/A';
-
         let stageParts = [];
         if (venue.stage_width) stageParts.push(`Width: ${venue.stage_width}'`);
         if (venue.stage_depth) stageParts.push(`Depth: ${venue.stage_depth}'`);
         venueStageEl.textContent = stageParts.length > 0 ? stageParts.join(' / ') : 'N/A';
 
-        // Show the details and hide the 'no venue' message
         detailsDiv.style.display = 'block';
         noVenueMsg.style.display = 'none';
-
-        // Only mark modified if NOT restoring and a plot is loaded
         if (!isRestoring && plotState.currentPlotId && !plotState.isLoading) {
           markPlotAsModified(plotState);
         }
       } else {
         console.error('Failed to get venue data:', data.error);
-        showNoVenueInfo(); // Fallback to default view
+        showNoVenueInfo();
       }
     })
     .catch((error) => {
       console.error('Error fetching venue:', error);
-      showNoVenueInfo(); // Fallback to default view
+      showNoVenueInfo();
     });
 }
 
 /**
- * Setup event date input handlers
- * @param {Object} plotState - The current plot state
+ * Sets up event listeners for the event start and end date inputs to mark the plot as modified on change.
+ * @param {Object} plotState - The current plot state object.
  */
 function setupDateHandlers(plotState) {
   const eventStartInput = document.getElementById('event_start');
   const eventEndInput = document.getElementById('event_end');
 
-  // Add event listeners for date/time changes
   if (eventStartInput) {
     eventStartInput.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
-        markPlotAsModified(plotState);
-      }
+      if (plotState.currentPlotId) markPlotAsModified(plotState);
     });
   }
-
   if (eventEndInput) {
     eventEndInput.addEventListener('change', () => {
-      if (plotState.currentPlotId) {
-        markPlotAsModified(plotState);
-      }
+      if (plotState.currentPlotId) markPlotAsModified(plotState);
     });
   }
 }
 
 /**
- * Initialize the category filter dropdown event listener
+ * Initializes the category filter dropdown listener to show/hide element categories.
  */
 function initCategoryFilter() {
   const categoryFilter = document.getElementById('category-filter');
@@ -3603,22 +2835,16 @@ function initCategoryFilter() {
     if (!elementsPanel) return;
 
     if (categoryId === '0') {
-      // Show all categories
       document.querySelectorAll('.category-section').forEach((section) => {
         section.style.display = '';
       });
     } else {
-      // Hide all categories first
       document.querySelectorAll('.category-section').forEach((section) => {
         section.style.display = 'none';
       });
-
-      // Show only the selected category
       const selectedSection = elementsPanel.querySelector(`.category-section[data-category-id="${categoryId}"]`);
       if (selectedSection) {
         selectedSection.style.display = '';
-
-        // Expand the selected category (if it's not already)
         const header = selectedSection.querySelector('.accordion-header');
         if (header && !header.classList.contains('active')) {
           header.click();
@@ -3626,69 +2852,54 @@ function initCategoryFilter() {
       }
     }
   });
-
-  // Ensure correct order of sections initially after page load
   moveFavoritesToTop();
 }
 
 /**
- * Mark the plot as modified
- * @param {Object} plotState - The current plot state
+ * Marks the plot as modified and updates the UI accordingly (e.g., shows the "Save Changes" button).
+ * Does nothing if the plot is currently loading.
+ * @param {Object} plotState - The current plot state object.
  */
 function markPlotAsModified(plotState) {
-  if (plotState.isLoading) return; // <<< ADDED: Exit if loading
+  if (plotState.isLoading) return;
 
   const saveChangesButton = document.getElementById('save-changes');
-
   if (!plotState.isModified && plotState.currentPlotId !== null) {
     plotState.isModified = true;
-    console.log('Marking plot as modified.'); // Debug log
-
-    // Show the save changes button with animation
+    console.log('Marking plot as modified.');
     if (saveChangesButton) {
       saveChangesButton.classList.remove('hidden');
-      // Use a small timeout to ensure the transition works
-      setTimeout(() => {
-        saveChangesButton.classList.add('visible');
-      }, 10);
+      setTimeout(() => { saveChangesButton.classList.add('visible'); }, 10);
     }
   }
 }
 
 /**
- * Clear only elements from the stage
- * @param {Object} plotState - The current plot state
+ * Clears only the placed elements from the stage DOM and the plot state.
+ * Resets selection and input list. Marks plot as modified if applicable.
+ * @param {Object} plotState - The current plot state object.
  */
 function clearElements(plotState) {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Clear DOM elements
   const placedElements = stage.querySelectorAll('.placed-element');
   placedElements.forEach((element) => element.remove());
 
-  // Reset elements state
   plotState.elements = [];
   plotState.nextZIndex = 1;
   plotState.selectedElement = null;
   plotState.selectedElements = [];
-
   updateStageSelectionState(plotState);
-
-  if (plotState.clearInputList) {
-    plotState.clearInputList();
-  }
-
+  if (plotState.clearInputList) plotState.clearInputList();
   renderElementInfoList(plotState);
-
-  if (plotState.currentPlotId) {
-    markPlotAsModified(plotState);
-  }
+  if (plotState.currentPlotId) markPlotAsModified(plotState);
 }
 
 /**
- * Create a completely new plot (reset everything)
- * @param {Object} plotState - The current plot state
+ * Resets the entire editor to a new, blank plot state.
+ * Clears elements, inputs, metadata, resets UI buttons/titles, clears localStorage state, and sets default dates/venue.
+ * @param {Object} plotState - The current plot state object.
  */
 function newPlot(plotState) {
   const saveButton = document.getElementById('save-plot');
@@ -3698,88 +2909,70 @@ function newPlot(plotState) {
   const eventEndInput = document.getElementById('event_end');
   const plotTitle = document.getElementById('plot-title');
 
-  // Clear all elements
   clearElements(plotState);
-
   plotState.selectedElements = [];
-
   updateStageSelectionState(plotState);
-
   renderElementInfoList(plotState);
 
-  // Reset plot info
   plotState.currentPlotName = null;
   plotState.currentPlotId = null;
   plotState.isModified = false;
 
-  // Reset plot title
   if (plotTitle) plotTitle.textContent = 'New Plot';
-
-  // Reset buttons
   if (saveButton) saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i>';
   if (saveChangesButton) {
     saveChangesButton.classList.remove('visible');
     setTimeout(() => saveChangesButton.classList.add('hidden'), 300);
   }
 
-  // Clear localStorage
   try {
     localStorage.removeItem('stageplot_state');
   } catch (e) {
     console.error('Error clearing state from localStorage:', e);
   }
 
-  // Set default dates
   if (eventStartInput && eventEndInput) {
     const now = new Date();
     const formattedDate = now.toISOString().split('T')[0];
     eventStartInput.value = formattedDate;
     eventEndInput.value = formattedDate;
-    eventEndInput.min = formattedDate; // Ensure min date is set
+    eventEndInput.min = formattedDate;
   }
 
-  // Reset venue
   if (venueSelect) {
-    venueSelect.value = ''; // Reset to "No Venue"
-    updateCustomDropdown(venueSelect); // Update custom dropdown UI
-    updateStageForVenue(null, plotState, false); // Update stage to default dimensions
+    venueSelect.value = '';
+    updateCustomDropdown(venueSelect);
+    updateStageForVenue(null, plotState, false);
   }
-
   showNotification('New plot created!', 'success');
 }
 
 /**
- * Initialize the grid system for the stage
- * Creates toggle buttons and sets up grid overlay
- * Reads and applies saved grid state from localStorage
- * Saves grid state changes to localStorage
+ * Initializes the stage grid functionality, including toggle buttons for visibility
+ * and detail level, grid overlay creation/update, and persistence of grid state
+ * in localStorage.
  */
 function initStageGrid() {
   const stage = document.getElementById('stage');
   if (!stage) return;
 
-  // Load saved grid state
   const savedGridVisible = localStorage.getItem('gridVisible') === 'true';
-  const savedDetailedGrid = localStorage.getItem('detailedGrid') !== 'false'; // Default to true if not saved
+  const savedDetailedGrid = localStorage.getItem('detailedGrid') !== 'false';
 
-  // Check if grid toggle already exists
   if (stage.querySelector('#grid-toggle')) return;
 
-  // Create grid toggle button
   const gridToggle = document.createElement('button');
   gridToggle.id = 'grid-toggle';
   gridToggle.className = 'grid-button';
   gridToggle.innerHTML = '<i class="fa-solid fa-border-all"></i>';
   gridToggle.title = "Toggle Grid (5' squares)";
 
-  // Create grid type toggle button
   const gridTypeToggle = document.createElement('button');
   gridTypeToggle.id = 'grid-type-toggle';
   gridTypeToggle.className = 'grid-button';
   gridTypeToggle.innerHTML = '<i class="fa-solid fa-ruler"></i>';
   gridTypeToggle.title = 'Toggle Detail Level';
 
-  // Create grid overlay if it doesn't exist
   let gridOverlay = stage.querySelector('.grid-overlay');
   if (!gridOverlay) {
     gridOverlay = document.createElement('div');
@@ -3787,36 +2980,28 @@ function initStageGrid() {
     stage.appendChild(gridOverlay);
   }
 
-  // Get initial dimensions from stage
   const stageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
   const stageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
-
-  // Calculate initial grid size
   const dimensions = calculateStageDimensions(stageWidth, stageDepth);
 
-  // Add buttons to the stage
   stage.appendChild(gridToggle);
   stage.appendChild(gridTypeToggle);
 
-  // Add toggle functionality with varying opacity levels
-  let gridVisible = savedGridVisible; // Initialize with saved state
-  let detailedGrid = savedDetailedGrid; // Initialize with saved state
+  let gridVisible = savedGridVisible;
+  let detailedGrid = savedDetailedGrid;
 
-  // Function to update grid display based on state variables
+  /**
+   * Updates the grid overlay's appearance (visibility, line style) based on current state.
+   */
   function updateGridDisplay() {
     gridOverlay.style.opacity = gridVisible ? '1' : '0';
-    if (gridVisible) {
-      gridToggle.classList.add('active');
-    } else {
-      gridToggle.classList.remove('active');
-    }
+    if (gridVisible) gridToggle.classList.add('active');
+    else gridToggle.classList.remove('active');
 
-    // Get current dimensions (might have changed if venue changed)
     const currentStageWidth = parseInt(stage.getAttribute('data-stage-width')) || 20;
     const currentStageDepth = parseInt(stage.getAttribute('data-stage-depth')) || 15;
     const currentDimensions = calculateStageDimensions(currentStageWidth, currentStageDepth);
-
-    updateGridOverlay(currentDimensions, stage); // Make sure overlay size is correct
+    updateGridOverlay(currentDimensions, stage);
 
     if (detailedGrid) {
       const footSize = currentDimensions.gridSize / 5;
@@ -3832,7 +3017,7 @@ function initStageGrid() {
               ${footSize}px ${footSize}px,
               ${footSize}px ${footSize}px
           `;
-      gridTypeToggle.classList.add('active'); // Show as active in detailed mode
+      gridTypeToggle.classList.add('active');
     } else {
       gridOverlay.style.backgroundImage = `
               linear-gradient(to right, rgba(82, 108, 129, 0.15) 1px, transparent 1px),
@@ -3842,43 +3027,35 @@ function initStageGrid() {
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px,
               ${currentDimensions.gridSize}px ${currentDimensions.gridSize}px
           `;
-      gridTypeToggle.classList.remove('active'); // Show as inactive in simple mode
+      gridTypeToggle.classList.remove('active');
     }
 
-    // Update grid type toggle icon rotation
     const icon = gridTypeToggle.querySelector('i');
     if (icon) {
       icon.style.transition = 'transform 0.3s ease';
-      icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(90deg)'; // Rotate for simple view
+      icon.style.transform = detailedGrid ? 'rotate(0deg)' : 'rotate(90deg)';
     }
   }
 
-  // Apply initial state loaded from localStorage
   updateGridDisplay();
 
   gridToggle.addEventListener('click', () => {
     gridVisible = !gridVisible;
     updateGridDisplay();
-    // Save visibility state
     localStorage.setItem('gridVisible', gridVisible);
   });
 
   gridTypeToggle.addEventListener('click', () => {
-    if (!gridVisible) {
-      gridVisible = true; // Turn on grid if changing type while off
-    }
+    if (!gridVisible) gridVisible = true;
     detailedGrid = !detailedGrid;
     updateGridDisplay();
-    // Save detail state
     localStorage.setItem('detailedGrid', detailedGrid);
-    localStorage.setItem('gridVisible', gridVisible); // Also save visibility in case it was turned on
+    localStorage.setItem('gridVisible', gridVisible);
   });
 
-  // Listen for stage dimension changes to re-apply grid display correctly
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && (mutation.attributeName === 'data-stage-width' || mutation.attributeName === 'data-stage-depth')) {
-        // Re-calculate and apply grid display when stage dimensions change
         updateGridDisplay();
       }
     });
@@ -3887,27 +3064,25 @@ function initStageGrid() {
 }
 
 /**
- * Check URL parameters for plot loading instructions
- * @param {Object} plotState - The current plot state
+ * Checks the URL for a 'load' parameter and attempts to load the specified plot ID if found.
+ * Removes the parameter from the URL after attempting the load.
+ * @param {Object} plotState - The current plot state object.
  */
 function checkUrlParameters(plotState) {
-  // Parse URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const loadPlotId = urlParams.get('load');
-
-  // If there's a load parameter, load the specified plot
   if (loadPlotId) {
     loadPlot(loadPlotId, plotState);
-
-    // Remove the parameter from URL to prevent reloading the same plot on page refresh
     const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
     window.history.replaceState({ path: newUrl }, '', newUrl);
   }
 }
 
 /**
- * Initialize the input list functionality
- * @param {Object} plotState - The current plot state
+ * Initializes the input list section, including adding/removing lines,
+ * handling input changes, providing suggestions based on placed elements,
+ * and integrating with the main plot state.
+ * @param {Object} plotState - The current plot state object.
  */
 function initInputList(plotState) {
   const inputListContainer = document.getElementById('input-list');
@@ -3919,35 +3094,20 @@ function initInputList(plotState) {
     return;
   }
 
-  // Create a function to update the datalist options based on placed elements
+  /**
+   * Updates the datalist options for input suggestions based on current element names and labels.
+   */
   function updateInputSuggestions() {
     if (!inputSuggestions) return;
-
-    // Clear existing options
     inputSuggestions.innerHTML = '';
-
-    // Create a Set to track unique suggestions and avoid duplicates
     const suggestions = new Set();
-
-    // Add element names and labels from placed elements
     plotState.elements.forEach((element) => {
-      // Add element name
-      if (element.elementName) {
-        suggestions.add(element.elementName);
-      }
-
-      // Add element label if it exists
-      if (element.label && element.label.trim() !== '') {
-        suggestions.add(element.label);
-      }
-
-      // Add combined name+label if both exist
+      if (element.elementName) suggestions.add(element.elementName);
+      if (element.label && element.label.trim() !== '') suggestions.add(element.label);
       if (element.elementName && element.label && element.label.trim() !== '') {
         suggestions.add(`${element.elementName} - ${element.label}`);
       }
     });
-
-    // Create option elements for each suggestion
     suggestions.forEach((suggestion) => {
       const option = document.createElement('option');
       option.value = suggestion;
@@ -3955,7 +3115,11 @@ function initInputList(plotState) {
     });
   }
 
-  // Function to add a new input line to the DOM
+  /**
+   * Adds a single input line item to the DOM.
+   * @param {number} number - The input number (e.g., 1 for A1).
+   * @param {string} [label=''] - The initial label value for the input.
+   */
   function addInputLineDOM(number, label = '') {
     const inputItem = document.createElement('div');
     inputItem.className = 'input-item';
@@ -3971,20 +3135,14 @@ function initInputList(plotState) {
     labelInput.id = `input_label_A${number}`;
     labelInput.placeholder = `Input A${number} Label`;
     labelInput.value = label;
-    labelInput.maxLength = 50; // Match database schema
-    labelInput.setAttribute('list', 'input-suggestions'); // Connect to datalist
+    labelInput.maxLength = 50;
+    labelInput.setAttribute('list', 'input-suggestions');
 
-    // Add event listener to mark plot as modified when input changes
     labelInput.addEventListener('input', () => {
-      // Find the corresponding input in plotState and update it
       const inputData = plotState.inputs.find((inp) => inp.number === number);
-      if (inputData) {
-        inputData.label = labelInput.value;
-      } else {
-        // If it doesn't exist, add it (e.g., for newly added lines)
-        plotState.inputs.push({ number: number, label: labelInput.value });
-      }
-      markPlotAsModified(plotState); // Use existing function
+      if (inputData) inputData.label = labelInput.value;
+      else plotState.inputs.push({ number: number, label: labelInput.value });
+      markPlotAsModified(plotState);
     });
 
     inputItem.appendChild(numberSpan);
@@ -3992,59 +3150,52 @@ function initInputList(plotState) {
     inputListContainer.appendChild(inputItem);
   }
 
+  /**
+   * Renders the entire input list based on the provided inputs array.
+   * Ensures a minimum number of lines are displayed.
+   * @param {Array} inputs - Array of input objects ({ number: number, label: string }).
+   */
   function renderInputList(inputs) {
-    inputListContainer.innerHTML = ''; // Clear existing list
-    const maxInputs = Math.max(6, inputs.length); // Ensure at least 6 are shown
-
+    inputListContainer.innerHTML = '';
+    const maxInputs = Math.max(6, inputs.length);
     for (let i = 1; i <= maxInputs; i++) {
       const inputData = inputs.find((inp) => inp.number === i);
       addInputLineDOM(i, inputData ? inputData.label : '');
     }
-
-    // Update suggestions after rendering the list
     updateInputSuggestions();
   }
 
-  // Add button functionality
   addButton.addEventListener('click', () => {
     const currentCount = inputListContainer.children.length;
     const nextNumber = currentCount + 1;
     addInputLineDOM(nextNumber);
-    // Automatically add to plotState when adding a line
     if (!plotState.inputs) plotState.inputs = [];
     plotState.inputs.push({ number: nextNumber, label: '' });
     markPlotAsModified(plotState);
   });
 
-  // Initial render (assuming plotState.inputs is populated during loadPlot)
-  if (!plotState.inputs) plotState.inputs = []; // Ensure inputs array exists
+  if (!plotState.inputs) plotState.inputs = [];
   renderInputList(plotState.inputs);
 
-  // Expose render function if needed elsewhere (e.g., in loadPlot)
   plotState.renderInputList = renderInputList;
-
-  // Expose function to clear list (e.g., in newPlot, clearElements)
   plotState.clearInputList = () => {
-    plotState.inputs = []; // Clear state
-    renderInputList([]); // Re-render empty list (with defaults)
+    plotState.inputs = [];
+    renderInputList([]);
   };
-
-  // Store the update function in plotState so we can call it from other functions
   plotState.updateInputSuggestions = updateInputSuggestions;
-
-  // Initial update of suggestions
   updateInputSuggestions();
 }
 
 /**
- * Renders the list of placed elements in the element-info section.
- * @param {Object} plotState - The current plot state.
+ * Renders the list of currently placed elements in the "Element Info" panel.
+ * Displays element name, label (if any), and notes (if any).
+ * @param {Object} plotState - The current plot state object.
  */
 function renderElementInfoList(plotState) {
   const listContainer = document.getElementById('element-info-list');
   if (!listContainer) return;
 
-  listContainer.innerHTML = ''; // Clear existing list
+  listContainer.innerHTML = '';
 
   if (plotState.elements.length === 0) {
     const noElementsMsg = document.createElement('li');
@@ -4054,7 +3205,6 @@ function renderElementInfoList(plotState) {
     return;
   }
 
-  // Sort elements by z-index or ID for consistent order (optional, z-index might be better)
   const sortedElements = [...plotState.elements].sort((a, b) => a.zIndex - b.zIndex);
 
   sortedElements.forEach((elementData) => {
@@ -4062,13 +3212,11 @@ function renderElementInfoList(plotState) {
     listItem.className = 'element-info-item';
     listItem.setAttribute('data-id', elementData.id);
 
-    // Element Name Span
     const nameSpan = document.createElement('span');
     nameSpan.className = 'element-info-name';
     nameSpan.textContent = elementData.elementName;
     listItem.appendChild(nameSpan);
 
-    // Append Label Span if label exists
     if (elementData.label) {
       const labelSpan = document.createElement('span');
       labelSpan.className = 'element-info-item-label';
@@ -4076,28 +3224,26 @@ function renderElementInfoList(plotState) {
       nameSpan.appendChild(labelSpan);
     }
 
-    // Notes (if exists)
     if (elementData.notes) {
       const notesSpan = document.createElement('span');
       notesSpan.className = 'element-info-notes';
       notesSpan.textContent = `${elementData.notes}`;
       listItem.appendChild(notesSpan);
     }
-
     listContainer.appendChild(listItem);
   });
 }
 
 /**
- * Initializes the element info list event listeners.
- * @param {Object} plotState - The current plot state.
+ * Initializes event listeners for the element info list.
+ * Clicking an item opens the properties modal for that element.
+ * @param {Object} plotState - The current plot state object.
  */
 function initElementInfoListEvents(plotState) {
   const listContainer = document.getElementById('element-info-list');
   if (!listContainer) return;
 
   listContainer.addEventListener('click', (event) => {
-    // Check if the click is directly on an item or its child span
     const listItem = event.target.closest('.element-info-item');
     if (listItem) {
       const elementId = parseInt(listItem.getAttribute('data-id'));
@@ -4108,7 +3254,7 @@ function initElementInfoListEvents(plotState) {
   });
 }
 
-// --------------------- Make stage plot editor functions available globally ----------------------
+
 window.initStageEditor = initStageEditor;
 window.handleDragStart = handleDragStart;
 window.handleDragOver = handleDragOver;

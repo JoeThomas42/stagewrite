@@ -33,7 +33,6 @@ function initUserRemoval() {
           .then((response) => response.json())
           .then((data) => {
             if (data.success) {
-              // Remove the row from the table
               link.closest('tr').remove();
             } else {
               alert(data.error || 'An error occurred while trying to remove the user');
@@ -68,12 +67,9 @@ function initStatusToggle() {
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
-            // Update the status cell in the table
             const row = link.closest('tr');
             const statusCell = row.querySelector('td:nth-child(4)');
             statusCell.textContent = data.status_text;
-
-            // Update the data attribute on the link
             link.setAttribute('data-status', data.is_active);
           } else {
             alert(data.error || 'An error occurred while toggling user status');
@@ -85,6 +81,14 @@ function initStatusToggle() {
         });
     });
   });
+}
+
+/**
+ * Saves the current scroll position to session storage.
+ * This is useful for restoring the scroll position after a page reload.
+ */
+function saveScrollPosition() {
+  sessionStorage.setItem('scrollPosition', window.scrollY);
 }
 
 /**
@@ -161,7 +165,6 @@ function initUserDemotion() {
   });
 }
 
-// ---------------------- Make user management functions available globally ----------------------
 window.initUserManagement = initUserManagement;
 window.initUserRemoval = initUserRemoval;
 window.initStatusToggle = initStatusToggle;

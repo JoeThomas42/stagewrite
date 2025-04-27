@@ -48,7 +48,6 @@ function toggleTheme() {
 
   localStorage.setItem('theme', newTheme);
 
-  // Show notification about theme change
   if (typeof window.showNotification === 'function') {
     const message = newTheme === 'dark' ? 'Dark mode enabled' : 'Light mode enabled';
     window.showNotification(message, 'info', 2000);
@@ -65,7 +64,6 @@ function toggleTheme() {
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
 
-  // Update icon based on current theme
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     const icon = themeToggle.querySelector('i');
@@ -81,7 +79,6 @@ function setTheme(theme) {
   }
 }
 
-// Make functions available globally
 window.toggleTheme = toggleTheme;
 window.setTheme = setTheme;
 window.applyThemePreference = applyThemePreference;

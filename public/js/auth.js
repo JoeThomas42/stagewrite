@@ -4,8 +4,8 @@
  */
 
 /**
- * Initializes authentication forms (login and signup)
- * Handles form switching, validation, error display, and form submission
+ * Initializes authentication forms (login, signup, forgot password)
+ * Handles form switching, validation, error display, and form submission.
  */
 function initAuthForms() {
   const loginForm = document.getElementById('login-form');
@@ -17,7 +17,6 @@ function initAuthForms() {
   const backToLoginBtn = document.getElementById('back-to-login');
   const resetBackToLoginBtn = document.getElementById('reset-back-to-login');
 
-  // Add form switching functionality
   if (switchToSignup) {
     switchToSignup.addEventListener('click', (e) => {
       e.preventDefault();
@@ -27,7 +26,6 @@ function initAuthForms() {
       signupForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
 
-      // Reset reCAPTCHA
       grecaptcha.reset();
 
       initPasswordToggles();
@@ -43,14 +41,12 @@ function initAuthForms() {
       loginForm.classList.remove('hidden');
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
 
-      // Reset reCAPTCHA
       grecaptcha.reset();
 
       initPasswordToggles();
     });
   }
 
-  // Password reset form switching
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -58,7 +54,6 @@ function initAuthForms() {
       if (forgotPasswordForm) {
         forgotPasswordForm.classList.remove('hidden');
 
-        // Reset form state
         const resetMessage = forgotPasswordForm.querySelector('.reset-message');
         const resetRequestForm = forgotPasswordForm.querySelector('#reset-request-form');
         const successMessage = forgotPasswordForm.querySelector('.success-message');
@@ -72,37 +67,30 @@ function initAuthForms() {
     });
   }
 
-  // Back to login from password reset
   if (backToLoginBtn) {
     backToLoginBtn.addEventListener('click', function (e) {
       e.preventDefault();
-      // Important: Stop propagation to prevent modal from closing
       e.stopPropagation();
 
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
       if (loginForm) loginForm.classList.remove('hidden');
 
-      // Initialize password toggles after switching forms
       initPasswordToggles();
     });
   }
 
-  // After reset message, back to login
   if (resetBackToLoginBtn) {
     resetBackToLoginBtn.addEventListener('click', function (e) {
       e.preventDefault();
-      // Important: Stop propagation to prevent modal from closing
       e.stopPropagation();
 
       if (forgotPasswordForm) forgotPasswordForm.classList.add('hidden');
       if (loginForm) loginForm.classList.remove('hidden');
 
-      // Initialize password toggles after switching forms
       initPasswordToggles();
     });
   }
 
-  // Handle password reset request form submission
   const resetRequestForm = document.getElementById('reset-request-form');
   if (resetRequestForm) {
     resetRequestForm.addEventListener('submit', async function (e) {
@@ -133,13 +121,11 @@ function initAuthForms() {
         const data = await response.json();
 
         if (data.success) {
-          // Show success message
           resetRequestForm.classList.add('hidden');
           if (resetMessage) resetMessage.classList.remove('hidden');
           if (successMessage) successMessage.classList.remove('hidden');
           if (errorMessage) errorMessage.classList.add('hidden');
         } else {
-          // Show error message
           if (resetErrorText) resetErrorText.textContent = data.error || 'An error occurred. Please try again.';
           if (errorMessage) errorMessage.classList.remove('hidden');
         }
@@ -151,16 +137,15 @@ function initAuthForms() {
     });
   }
 
-  // Set up form submissions
   initSignupForm();
   initLoginForm();
-
-  // Initialize password toggles for initial forms
   initPasswordToggles();
 }
 
 /**
- * Initializes signup form validation and submission
+ * Initializes signup form validation and submission.
+ * Handles input trimming, reCAPTCHA validation, form submission via fetch,
+ * error display, and redirection upon successful signup and login.
  */
 function initSignupForm() {
   const signupFormElement = document.querySelector('#signup-form form');
@@ -169,10 +154,8 @@ function initSignupForm() {
   signupFormElement.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Clear any existing error messages
     clearAllErrors(signupFormElement);
 
-    // Trim inputs before submission (except passwords)
     const inputs = signupFormElement.querySelectorAll('input:not([type="password"])');
     inputs.forEach((input) => {
       input.value = input.value.trim();
@@ -199,9 +182,7 @@ function initSignupForm() {
       const data = await response.json();
 
       if (data.errors) {
-        // Handle field-specific errors
         for (const [field, errorType] of Object.entries(data.errors)) {
-          // Map field names to element IDs
           let fieldId = field;
           if (field === 'password') fieldId = 'password_signup';
           if (field === 'email') fieldId = 'email_signup';
@@ -229,18 +210,13 @@ function initSignupForm() {
           }
         }
       } else if (data.success) {
-        // Modified section to handle automatic login
         if (data.role_id) {
-          // User was automatically logged in, redirect based on role
           if (data.role_id == 2 || data.role_id == 3) {
-            // Admin or Super Admin - go directly to management page
             window.location.href = '/data_management.php';
           } else {
-            // Regular user - go to home page
             window.location.href = '/index.php';
           }
         } else {
-          // Fallback - just go to homepage if no role_id
           window.location.href = '/index.php';
         }
       }
@@ -251,7 +227,9 @@ function initSignupForm() {
 }
 
 /**
- * Initializes login form validation and submission
+ * Initializes login form validation and submission.
+ * Handles reCAPTCHA verification, form data preparation (including 'Stay logged in'),
+ * form submission via fetch, processing indicators, error display, and redirection upon success.
  */
 function initLoginForm() {
   const loginFormElement = document.querySelector('#login-form form');
@@ -262,7 +240,6 @@ function initLoginForm() {
 
     clearAllErrors(loginFormElement);
 
-    // Verify reCAPTCHA
     const recaptchaResponse = grecaptcha.getResponse();
     const recaptchaErrorDiv = document.getElementById('login-recaptcha-error');
 
@@ -274,50 +251,45 @@ function initLoginForm() {
     }
 
     const formData = new FormData(e.target);
-
-    // reCAPTCHA response
     formData.append('g-recaptcha-response', recaptchaResponse);
 
-    // Handle "Stay logged in" checkbox - ensure it's properly included
     const stayLoggedIn = document.getElementById('stay_logged_in');
     if (stayLoggedIn && stayLoggedIn.checked) {
       formData.set('stay_logged_in', '1');
-      console.log("Stay logged in checked");
     } else {
       formData.set('stay_logged_in', '0');
-      console.log("Stay logged in not checked");
     }
 
+    const submitButton = loginFormElement.querySelector('button[type="submit"]');
+    let originalButtonText;
+
     try {
-      // Show form submission in progress indicator
-      const submitButton = loginFormElement.querySelector('button[type="submit"]');
-      const originalButtonText = submitButton.textContent;
-      submitButton.disabled = true;
-      submitButton.textContent = 'Processing...';
+      if (submitButton) {
+        originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Processing...';
+      }
 
       const response = await fetch('/handlers/login_handler.php', {
         method: 'POST',
         body: formData,
       });
 
-      // Reset button state
-      submitButton.disabled = false;
-      submitButton.textContent = originalButtonText;
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+      }
 
-      // Check if response is OK
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}: ${response.statusText}`);
       }
-      
-      // Get response as text first
+
       const text = await response.text();
-      
-      // Check for empty response
+
       if (!text || text.trim() === '') {
         throw new Error('Server returned an empty response');
       }
-      
-      // Try to parse as JSON
+
       let data;
       try {
         data = JSON.parse(text);
@@ -330,18 +302,15 @@ function initLoginForm() {
       if (data.errors) {
         for (const [field, errorType] of Object.entries(data.errors)) {
           if (field === 'recaptcha') {
-            // Handle reCAPTCHA error
             if (recaptchaErrorDiv) {
               recaptchaErrorDiv.textContent = data.message || 'reCAPTCHA verification failed';
               recaptchaErrorDiv.style.display = 'block';
             }
-            // Reset reCAPTCHA
             grecaptcha.reset();
             continue;
           }
 
           if (field === 'general') {
-            // Show general error
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error-message';
             errorDiv.textContent = errorType;
@@ -361,49 +330,41 @@ function initLoginForm() {
           }
         }
       } else if (data.success) {
-        // Show success notification if available
         if (typeof showNotification === 'function') {
           showNotification('Login successful!', 'success');
         }
-        
-        // Redirect based on role
+
         if (data.role_id == 2 || data.role_id == 3) {
-          // Admin or Super Admin - go directly to management page
           window.location.href = '/data_management.php';
         } else {
-          // Regular user - go to home page
           window.location.href = '/index.php';
         }
       }
     } catch (error) {
       console.error('Login error:', error);
-      
-      // Reset button state
-      const submitButton = loginFormElement.querySelector('button[type="submit"]');
+
       if (submitButton) {
         submitButton.disabled = false;
-        submitButton.textContent = 'Login';
+        submitButton.textContent = originalButtonText || 'Login'; // Fallback text
       }
-      
-      // Create error message element
+
       const errorDiv = document.createElement('div');
       errorDiv.className = 'error-message';
       errorDiv.textContent = `Error: ${error.message}`;
       loginFormElement.prepend(errorDiv);
-      
-      // Show notification if available
+
       if (typeof showNotification === 'function') {
         showNotification('Login failed. Please try again.', 'error');
       }
-      
-      // Reset reCAPTCHA
+
       grecaptcha.reset();
     }
   });
 }
 
 /**
- * Initialize account dropdown functionality
+ * Initializes account dropdown functionality by setting up
+ * listeners for password change, email change, and account deletion modals.
  */
 function initAccountDropdown() {
   initPasswordChangeModal();
@@ -412,7 +373,9 @@ function initAccountDropdown() {
 }
 
 /**
- * Initialize password change modal functionality
+ * Initializes password change modal functionality.
+ * Handles opening the modal, form reset, form submission via fetch,
+ * validation, error/success message display, and closing the modal.
  */
 function initPasswordChangeModal() {
   const changePasswordLink = document.getElementById('change-password-link');
@@ -420,36 +383,27 @@ function initPasswordChangeModal() {
 
   if (!changePasswordLink || !passwordChangeModal) return;
 
-  // Open the modal when the change password link is clicked
   changePasswordLink.addEventListener('click', function (e) {
     e.preventDefault();
 
-    // Reset form
     const form = document.getElementById('password-change-form');
     if (form) form.reset();
 
-    // Hide success message, show form
     const successMessage = passwordChangeModal.querySelector('.password-change-success');
     if (successMessage) successMessage.classList.add('hidden');
     if (form) form.classList.remove('hidden');
 
-    // Clear any error messages
     const errorMessage = document.getElementById('password-change-error');
     if (errorMessage) errorMessage.classList.add('hidden');
 
-    // Open the modal
     openModal(passwordChangeModal);
-
-    // Initialize password toggles
     initPasswordToggles();
 
-    // Close dropdown after action
     const dropdown = this.closest('.dropdown');
     const menu = dropdown.querySelector('.dropdown-menu');
     if (menu) menu.classList.remove('active');
   });
 
-  // Close button functionality
   const closeButton = passwordChangeModal.querySelector('.close-button');
   if (closeButton) {
     closeButton.addEventListener('click', function () {
@@ -457,7 +411,6 @@ function initPasswordChangeModal() {
     });
   }
 
-  // Cancel button functionality
   const cancelButton = passwordChangeModal.querySelector('.cancel-button');
   if (cancelButton) {
     cancelButton.addEventListener('click', function () {
@@ -465,14 +418,12 @@ function initPasswordChangeModal() {
     });
   }
 
-  // Close on outside click
   passwordChangeModal.addEventListener('click', function (e) {
     if (e.target === passwordChangeModal) {
       closeModal(passwordChangeModal);
     }
   });
 
-  // Close success button
   const closeSuccessBtn = document.getElementById('close-success-btn');
   if (closeSuccessBtn) {
     closeSuccessBtn.addEventListener('click', function () {
@@ -480,7 +431,6 @@ function initPasswordChangeModal() {
     });
   }
 
-  // Form submission
   const passwordChangeForm = document.getElementById('password-change-form');
   if (passwordChangeForm) {
     passwordChangeForm.addEventListener('submit', async function (e) {
@@ -491,13 +441,11 @@ function initPasswordChangeModal() {
       const confirmNewPassword = document.getElementById('confirm_new_password').value;
       const errorMessageElement = document.getElementById('password-change-error');
 
-      // Clear any existing error messages
       if (errorMessageElement) {
         errorMessageElement.textContent = '';
         errorMessageElement.classList.add('hidden');
       }
 
-      // Validate passwords
       if (newPassword.length < 8) {
         if (errorMessageElement) {
           errorMessageElement.textContent = 'New password must be at least 8 characters';
@@ -537,17 +485,14 @@ function initPasswordChangeModal() {
         const data = await response.json();
 
         if (data.success) {
-          // Show success message
           passwordChangeForm.classList.add('hidden');
           const successMessage = passwordChangeModal.querySelector('.password-change-success');
           if (successMessage) successMessage.classList.remove('hidden');
 
-          // Show notification
           if (typeof showNotification === 'function') {
             showNotification('Password changed successfully!', 'success');
           }
         } else {
-          // Show error message
           if (errorMessageElement) {
             errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
             errorMessageElement.classList.remove('hidden');
@@ -565,26 +510,33 @@ function initPasswordChangeModal() {
 }
 
 /**
- * Initialize password toggle functionality for all password fields
- * This allows users to show/hide their password input
+ * Initializes password toggle functionality for all password fields.
+ * This allows users to show/hide their password input by clicking an associated icon.
+ * It replaces existing buttons with clones to ensure clean event listener setup.
  */
 function initPasswordToggles() {
   const toggleButtons = document.querySelectorAll('.password-toggle');
 
   toggleButtons.forEach((button) => {
+    // Clone the button to remove any existing event listeners
     const newButton = button.cloneNode(true);
     button.parentNode.replaceChild(newButton, button);
 
     newButton.addEventListener('click', function () {
       const container = this.parentNode;
-      const passwordField = container.querySelector('input');
+      // Find the input field within the same container as the button
+      const passwordField = container.querySelector('input[type="password"], input[type="text"]');
+      if (!passwordField) return; // Exit if no password field found
+
       const fieldType = passwordField.getAttribute('type');
 
       if (fieldType === 'password') {
         passwordField.setAttribute('type', 'text');
+        // Update the icon to show the 'slashed eye'
         this.innerHTML = '<i class="fas fa-eye-slash"></i>';
       } else {
         passwordField.setAttribute('type', 'password');
+        // Update the icon to show the 'eye'
         this.innerHTML = '<i class="fas fa-eye"></i>';
       }
     });
@@ -592,7 +544,9 @@ function initPasswordToggles() {
 }
 
 /**
- * Initialize email change modal functionality
+ * Initializes email change modal functionality.
+ * Handles opening the modal, fetching current email, form reset, form submission via fetch,
+ * validation, error/success message display, and closing the modal.
  */
 function initEmailChangeModal() {
   const changeEmailLink = document.getElementById('change-email-link');
@@ -600,15 +554,12 @@ function initEmailChangeModal() {
 
   if (!changeEmailLink || !emailChangeModal) return;
 
-  // Open the modal when the change email link is clicked
   changeEmailLink.addEventListener('click', function (e) {
     e.preventDefault();
 
-    // Reset form
     const form = document.getElementById('email-change-form');
     if (form) form.reset();
 
-    // Fetch the current email from the server
     fetch('/handlers/get_user_info.php')
       .then((response) => response.json())
       .then((data) => {
@@ -621,28 +572,21 @@ function initEmailChangeModal() {
         console.error('Error fetching user info:', error);
       });
 
-    // Hide success message, show form
     const successMessage = emailChangeModal.querySelector('.email-change-success');
     if (successMessage) successMessage.classList.add('hidden');
     if (form) form.classList.remove('hidden');
 
-    // Clear any error messages
     const errorMessage = document.getElementById('email-change-error');
     if (errorMessage) errorMessage.classList.add('hidden');
 
-    // Open the modal
     openModal(emailChangeModal);
-
-    // Initialize password toggles
     initPasswordToggles();
 
-    // Close dropdown after action
     const dropdown = this.closest('.dropdown');
     const menu = dropdown.querySelector('.dropdown-menu');
     if (menu) menu.classList.remove('active');
   });
 
-  // Close button functionality
   const closeButton = emailChangeModal.querySelector('.close-button');
   if (closeButton) {
     closeButton.addEventListener('click', function () {
@@ -650,7 +594,6 @@ function initEmailChangeModal() {
     });
   }
 
-  // Cancel button functionality
   const cancelButton = emailChangeModal.querySelector('.cancel-button');
   if (cancelButton) {
     cancelButton.addEventListener('click', function () {
@@ -658,14 +601,12 @@ function initEmailChangeModal() {
     });
   }
 
-  // Close on outside click
   emailChangeModal.addEventListener('click', function (e) {
     if (e.target === emailChangeModal) {
       closeModal(emailChangeModal);
     }
   });
 
-  // Close success button
   const closeSuccessBtn = document.getElementById('close-email-success-btn');
   if (closeSuccessBtn) {
     closeSuccessBtn.addEventListener('click', function () {
@@ -673,7 +614,6 @@ function initEmailChangeModal() {
     });
   }
 
-  // Form submission
   const emailChangeForm = document.getElementById('email-change-form');
   if (emailChangeForm) {
     emailChangeForm.addEventListener('submit', async function (e) {
@@ -683,13 +623,11 @@ function initEmailChangeModal() {
       const newEmail = document.getElementById('new_email').value;
       const errorMessageElement = document.getElementById('email-change-error');
 
-      // Clear any existing error messages
       if (errorMessageElement) {
         errorMessageElement.textContent = '';
         errorMessageElement.classList.add('hidden');
       }
 
-      // Validate email format
       if (!isValidEmail(newEmail)) {
         if (errorMessageElement) {
           errorMessageElement.textContent = 'Please enter a valid email address';
@@ -713,17 +651,14 @@ function initEmailChangeModal() {
         const data = await response.json();
 
         if (data.success) {
-          // Show success message
           emailChangeForm.classList.add('hidden');
           const successMessage = emailChangeModal.querySelector('.email-change-success');
           if (successMessage) successMessage.classList.remove('hidden');
 
-          // Show notification
           if (typeof showNotification === 'function') {
             showNotification('Email changed successfully!', 'success');
           }
         } else {
-          // Show error message
           if (errorMessageElement) {
             errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
             errorMessageElement.classList.remove('hidden');
@@ -741,9 +676,9 @@ function initEmailChangeModal() {
 }
 
 /**
- * Validate email format
- * @param {string} email - Email address to validate
- * @return {boolean} Whether the email is valid
+ * Validates if the provided string is a valid email format.
+ * @param {string} email - The email string to validate.
+ * @returns {boolean} True if the email format is valid, false otherwise.
  */
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -751,7 +686,10 @@ function isValidEmail(email) {
 }
 
 /**
- * Initialize account deletion feature
+ * Initializes account deletion feature.
+ * Handles opening the deletion confirmation modal, form submission via fetch,
+ * password validation, error display, and redirection upon successful deletion.
+ * Uses a double-confirmation mechanism for the delete button.
  */
 function initAccountDeletion() {
   const deleteAccountLink = document.getElementById('delete-account-link');
@@ -759,31 +697,23 @@ function initAccountDeletion() {
 
   if (!deleteAccountLink || !deleteAccountModal) return;
 
-  // Open the modal when the delete account link is clicked
   deleteAccountLink.addEventListener('click', function (e) {
     e.preventDefault();
 
-    // Reset form
     const form = document.getElementById('delete-account-form');
     if (form) form.reset();
 
-    // Clear any error messages
     const errorMessage = document.getElementById('delete-account-error');
     if (errorMessage) errorMessage.classList.add('hidden');
 
-    // Open the modal
     openModal(deleteAccountModal);
-
-    // Initialize password toggles
     initPasswordToggles();
 
-    // Close dropdown after action
     const dropdown = this.closest('.dropdown');
     const menu = dropdown.querySelector('.dropdown-menu');
     if (menu) menu.classList.remove('active');
   });
 
-  // Close button functionality
   const closeButton = deleteAccountModal.querySelector('.close-button');
   if (closeButton) {
     closeButton.addEventListener('click', function () {
@@ -791,7 +721,6 @@ function initAccountDeletion() {
     });
   }
 
-  // Cancel button functionality
   const cancelButton = deleteAccountModal.querySelector('.cancel-button');
   if (cancelButton) {
     cancelButton.addEventListener('click', function () {
@@ -799,14 +728,12 @@ function initAccountDeletion() {
     });
   }
 
-  // Close on outside click
   deleteAccountModal.addEventListener('click', function (e) {
     if (e.target === deleteAccountModal) {
       closeModal(deleteAccountModal);
     }
   });
 
-  // Form submission with double-confirmation using setupConfirmButton
   const deleteAccountForm = document.getElementById('delete-account-form');
   if (deleteAccountForm) {
     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
@@ -814,25 +741,25 @@ function initAccountDeletion() {
     deleteAccountForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      // Use setupConfirmButton for double confirmation
       setupConfirmButton(
         confirmDeleteBtn,
         async function () {
-          // This function will run after the second click
           const password = document.getElementById('delete_account_password').value;
           const errorMessageElement = document.getElementById('delete-account-error');
 
-          // Clear any existing error messages
           if (errorMessageElement) {
             errorMessageElement.textContent = '';
             errorMessageElement.classList.add('hidden');
           }
 
-          // Validate password is not empty
           if (!password) {
             if (errorMessageElement) {
               errorMessageElement.textContent = 'Password is required';
               errorMessageElement.classList.remove('hidden');
+            }
+            // Reset the confirm button state if validation fails
+            if (confirmDeleteBtn._resetConfirmState) {
+              confirmDeleteBtn._resetConfirmState();
             }
             return;
           }
@@ -851,20 +778,20 @@ function initAccountDeletion() {
             const data = await response.json();
 
             if (data.success) {
-              // Show notification before redirect
               if (typeof showNotification === 'function') {
                 showNotification('Your account has been deleted. Redirecting to homepage...', 'info', 2000);
               }
-
-              // Redirect to homepage after a short delay
               setTimeout(function () {
                 window.location.href = '/';
               }, 2000);
             } else {
-              // Show error message
               if (errorMessageElement) {
                 errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
                 errorMessageElement.classList.remove('hidden');
+              }
+              // Reset the confirm button state on error
+              if (confirmDeleteBtn._resetConfirmState) {
+                confirmDeleteBtn._resetConfirmState();
               }
             }
           } catch (error) {
@@ -873,6 +800,10 @@ function initAccountDeletion() {
               errorMessageElement.textContent = 'Network error. Please try again later.';
               errorMessageElement.classList.remove('hidden');
             }
+            // Reset the confirm button state on network error
+            if (confirmDeleteBtn._resetConfirmState) {
+              confirmDeleteBtn._resetConfirmState();
+            }
           }
         },
         {
@@ -880,7 +811,7 @@ function initAccountDeletion() {
           confirmTitle: 'Click again to permanently delete your account',
           originalText: 'Delete Account',
           originalTitle: 'Delete your account',
-          timeout: 5000, // Give users more time (5 seconds) to think about this important action
+          timeout: 5000,
           stopPropagation: true,
           event: e,
         }
@@ -889,7 +820,7 @@ function initAccountDeletion() {
   }
 }
 
-// -------------------- Make authentication functions available globally ---------------------
+// Make authentication functions available globally
 window.initAuthForms = initAuthForms;
 window.initSignupForm = initSignupForm;
 window.initLoginForm = initLoginForm;
