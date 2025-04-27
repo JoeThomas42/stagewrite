@@ -1,13 +1,15 @@
 <?php
-// Extremely simple login handler
-// No whitespace before opening tag, no closing tag
-
-// Prevent PHP errors from being displayed
+// Set display of PHP errors for debugging
 ini_set('display_errors', 0);
 error_reporting(0);
 
 // Start output buffering to catch any unwanted output
 ob_start();
+
+// Add debugging for remember me functionality
+function debug_log($message) {
+    error_log("[Login Debug] " . $message);
+}
 
 try {
     // Load required files
@@ -25,7 +27,15 @@ try {
     // Basic validation
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $stayLoggedIn = isset($_POST['stay_logged_in']) && ($_POST['stay_logged_in'] == '1' || $_POST['stay_logged_in'] === 'on');
+    
+    // Handle "Stay logged in" properly
+    $stayLoggedIn = false;
+    if (isset($_POST['stay_logged_in'])) {
+        if ($_POST['stay_logged_in'] === '1' || $_POST['stay_logged_in'] === 'on' || $_POST['stay_logged_in'] === 'true') {
+            $stayLoggedIn = true;
+            debug_log("Stay logged in requested for: $email");
+        }
+    }
 
     // Simple validation
     $errors = [];
@@ -39,7 +49,7 @@ try {
     }
 
     // Log attempt (don't include password)
-    error_log("Login attempt for: $email");
+    debug_log("Login attempt for: $email, Stay logged in: " . ($stayLoggedIn ? 'Yes' : 'No'));
 
     // Basic email validation
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -53,19 +63,19 @@ try {
 
     if ($user) {
         // Login success
-        error_log("Login successful for: $email");
+        debug_log("Login successful for: $email");
         echo json_encode([
             'success' => true,
             'role_id' => $user['role_id']
         ]);
     } else {
         // Login failed
-        error_log("Login failed for: $email");
+        debug_log("Login failed for: $email");
         echo json_encode(['errors' => ['email' => 'invalid_credentials']]);
     }
 } catch (Exception $e) {
     // Log error details for server admin
-    error_log("Login exception: " . $e->getMessage());
+    debug_log("Login exception: " . $e->getMessage());
     
     // Clean any existing output
     ob_clean();

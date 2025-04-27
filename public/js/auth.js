@@ -250,6 +250,9 @@ function initSignupForm() {
   });
 }
 
+/**
+ * Initializes login form validation and submission
+ */
 function initLoginForm() {
   const loginFormElement = document.querySelector('#login-form form');
   if (!loginFormElement) return;
@@ -275,11 +278,14 @@ function initLoginForm() {
     // reCAPTCHA response
     formData.append('g-recaptcha-response', recaptchaResponse);
 
+    // Handle "Stay logged in" checkbox - ensure it's properly included
     const stayLoggedIn = document.getElementById('stay_logged_in');
     if (stayLoggedIn && stayLoggedIn.checked) {
       formData.set('stay_logged_in', '1');
+      console.log("Stay logged in checked");
     } else {
       formData.set('stay_logged_in', '0');
+      console.log("Stay logged in not checked");
     }
 
     try {
@@ -294,56 +300,32 @@ function initLoginForm() {
         body: formData,
       });
 
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+
       // Check if response is OK
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}: ${response.statusText}`);
       }
       
-      // Get response info
-      const contentLength = response.headers.get('content-length');
-      const contentType = response.headers.get('content-type');
-      
-      // Log headers for debugging
-      console.log('Response headers:', {
-        'content-type': contentType,
-        'content-length': contentLength
-      });
+      // Get response as text first
+      const text = await response.text();
       
       // Check for empty response
-      if (contentLength === '0') {
+      if (!text || text.trim() === '') {
         throw new Error('Server returned an empty response');
       }
       
-      // Check if response is JSON
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        
-        // Debug non-JSON response
-        if (!text || text.trim() === '') {
-          console.error('Empty response received');
-          throw new Error('Server returned an empty response');
-        }
-        
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned non-JSON response');
-      }
-      
-      // Parse the JSON response with careful error handling
+      // Try to parse as JSON
       let data;
       try {
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-          throw new Error('Empty JSON response');
-        }
         data = JSON.parse(text);
       } catch (parseError) {
         console.error('JSON parse error:', parseError);
+        console.error('Raw response:', text);
         throw new Error(`Invalid JSON response: ${parseError.message}`);
       }
-
-      // Reset button state
-      submitButton.disabled = false;
-      submitButton.textContent = originalButtonText;
 
       if (data.errors) {
         for (const [field, errorType] of Object.entries(data.errors)) {
