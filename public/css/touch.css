@@ -1,0 +1,58 @@
+/**
+ * StageWrite Touch Interaction Styles
+ */
+
+/* Hide stage tips on touch devices */
+.touch-detected #stage-tips {
+  display: none !important;
+}
+
+/* Style for the visual clone during touch drag from list */
+.touch-drag-element {
+  height: 75px !important;
+  width: 75px !important;
+  padding: 5px !important;
+  background-color: rgba(200, 220, 240, 0.85) !important; /* Distinct background */
+  border: 2px dashed var(--color-primary-light) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--border-radius-md) !important;
+  opacity: 0.85 !important;
+  /* Remove element name from clone if needed */
+  /* .element-name { display: none; } */
+}
+
+[data-theme="dark"] .touch-drag-element {
+   background-color: rgba(40, 60, 80, 0.85) !important; /* Dark theme background */
+   border-color: var(--color-primary-lighter) !important;
+}
+
+
+/* Ensure action buttons are visible when tapped */
+.placed-element.actions-visible .element-actions {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  /* Add a subtle border or background to indicate visibility */
+  /* background-color: rgba(0, 0, 0, 0.1); */
+  /* border-radius: 5px; */
+}
+
+/* Ensure action buttons themselves are tappable */
+.placed-element .element-actions button {
+  pointer-events: auto;
+}
+
+/* Style to visually indicate dragging */
+.placed-element.dragging, .placed-element.dragging-group {
+  opacity: 0.7;
+  box-shadow: var(--shadow-lg); /* Enhance shadow while dragging */
+  /* border-style: dashed; */ /* Optional: dashed border while dragging */
+}
+
+/* Prevent text selection during touch interactions on the stage */
+#stage, #stage * {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  -webkit-touch-callout: none; /* Disable callout, copy/paste menu */
+}

@@ -25,6 +25,7 @@ window.initializeApp = function() {
   safeInit(window.initCustomNumberInputs, "Custom Number Inputs");
   safeInit(window.initTooltips, "Enhanced Tooltips");
   safeInit(window.initPrintAndShare, "Print and Share Functionality");
+  safeInit(window.initTouchInteraction, "Touch Interaction");
   safeInit(window.initLoginModal, "Login Modal");
   
   console.log("Application initialization complete!");

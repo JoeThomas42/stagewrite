@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     '/js/notifications.js',
     '/js/theme.js',
     '/js/stage-plot.js',
+    '/js/touch.js',
     '/js/profile.js',
     '/js/login.js',
   ];

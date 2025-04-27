@@ -22,6 +22,7 @@ function initStageEditor() {
     isModified: false,
     isLoading: false,
     favorites: [],
+    isTouchDragging: false,
     favoritesData: [],
     renderInputList: null,
     clearInputList: null,
@@ -771,6 +772,9 @@ function initDragAndDrop(plotState) {
 
   draggableElements.forEach((element) => {
     element.addEventListener('dragstart', (e) => {
+      if (window.plotState && window.plotState.isTouchDragging) {
+        e.preventDefault(); return;
+      }
       handleDragStart(e, plotState);
     });
     element.setAttribute('draggable', true);
@@ -787,6 +791,10 @@ function initDragAndDrop(plotState) {
  * @param {Object} plotState - The current plot state.
  */
 function handleDragStart(e, plotState) {
+  if (window.plotState && window.plotState.isTouchDragging) {
+    e.preventDefault(); return;
+  }
+
   const sourceElement = e.target;
   const elementId = sourceElement.getAttribute('data-element-id');
 
@@ -899,6 +907,10 @@ function handleDragOver(e) {
  * @param {Object} plotState - The current plot state
  */
 function handleDrop(e, plotState) {
+  if (window.plotState && window.plotState.isTouchDragging) {
+    return; // Let the touchEnd handler manage the drop
+  }
+
   const stage = document.getElementById('stage');
   if (!stage) return;
 
@@ -1578,11 +1590,20 @@ function makeDraggableOnStage(element, plotState) {
     }
 
     // Check if the dragged element is part of the selection
-    isDraggingGroup = plotState.selectedElements.includes(elementId);
+    isDraggingGroup = plotState.selectedElements && plotState.selectedElements.includes(elementId);
 
     if (!isDraggingGroup) {
-      if (!e.shiftKey && !element.classList.contains('selected')) {
+        // Check if plotState and plotState.selectedElements are valid before clearing
+        if (plotState && plotState.selectedElements && Array.isArray(plotState.selectedElements)) {
         clearElementSelection(plotState);
+      } else {
+        console.warn("Attempted to clear selection, but plotState or selectedElements was invalid.", plotState);
+        if (plotState) {
+            plotState.selectedElements = [];
+            if (typeof updateStageSelectionState === 'function') {
+                updateStageSelectionState(plotState);
+            }
+        }
       }
 
       if (!isDuplicating) {
@@ -1940,16 +1961,32 @@ function makeDraggableOnStage(element, plotState) {
  * @param {Object} plotState - The current plot state
  */
 function clearElementSelection(plotState) {
+  if (!plotState || !Array.isArray(plotState.selectedElements)) {
+    console.warn("clearElementSelection called with invalid plotState or selectedElements is not an array. Resetting selection.", plotState);
+    if (plotState) {
+        plotState.selectedElements = [];
+    }
+    // Update UI state if the function exists
+    if (typeof updateStageSelectionState === 'function') {
+        updateStageSelectionState(plotState || { selectedElements: [] });
+    }
+    return;
+  }
+
   plotState.selectedElements.forEach((id) => {
     const el = document.querySelector(`.placed-element[data-id="${id}"]`);
     if (el) {
       el.classList.remove('selected');
     }
   });
+
+  // Always reset the array
   plotState.selectedElements = [];
 
-  // Update stage selection class
-  updateStageSelectionState(plotState);
+  // Update stage selection class if the function exists
+  if (typeof updateStageSelectionState === 'function') {
+      updateStageSelectionState(plotState);
+  }
 }
 
 /**
