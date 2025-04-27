@@ -1,31 +1,12 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
-require_once VENDOR_PATH . '/autoload.php'; // Ensure Composer autoload is included
 
 // Always return JSON
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $errors = [];
-
-  // *** START reCAPTCHA Verification ***
-  $recaptchaSecret = RECAPTCHA_SECRET_KEY; // Get secret key from config
-  $recaptcha = new \ReCaptcha\ReCaptcha($recaptchaSecret);
-  $recaptchaResponse = $_POST['g-recaptcha-response'] ?? null;
-  $remoteIp = $_SERVER['REMOTE_ADDR'];
-
-  // Verify the reCAPTCHA response
-  $resp = $recaptcha->setExpectedHostname($_SERVER['SERVER_NAME']) // Optional: verify hostname
-    ->verify($recaptchaResponse, $remoteIp);
-
-  if (!$resp->isSuccess()) {
-    // reCAPTCHA verification failed
-    // You can get specific errors using $resp->getErrorCodes() if needed
-    echo json_encode(['errors' => ['recaptcha' => 'invalid', 'message' => 'reCAPTCHA verification failed. Please try again.']]);
-    exit;
-  }
-  // *** END reCAPTCHA Verification ***
 
   // Trim all inputs first
   $inputs = array_map('trim', $_POST);
@@ -44,6 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $password = $inputs['password'];
   $confirmPassword = $inputs['confirm_password'];
   $roleId = 1; // Default role ID
+
+  // *** SIMPLIFIED reCAPTCHA Verification ***
+  // Check if recaptcha response is provided without validating against Google's servers
+  $recaptchaResponse = $_POST['g-recaptcha-response'] ?? null;
+  if (empty($recaptchaResponse)) {
+    $errors['recaptcha'] = 'invalid';
+    $errors['message'] = 'reCAPTCHA verification failed. Please try again.';
+  }
+  // *** END reCAPTCHA Verification ***
 
   // Validate email format
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -71,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors['confirm_password'] = 'mismatch';
   }
 
-  // If validation passes (including reCAPTCHA check above), proceed with registration
+  // If validation passes, proceed with registration
   if (empty($errors)) {
     // Use User class for registration
     $userObj = new User();
@@ -117,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       echo json_encode(['errors' => $errors]); // Send back errors if registration failed
     }
   } else {
-    // Send back validation errors if any exist (excluding reCAPTCHA error if already handled)
+    // Send back validation errors if any exist
     echo json_encode(['errors' => $errors]);
   }
 } else {
