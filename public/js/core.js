@@ -4,64 +4,105 @@
  */
 
 // Define main initialization function
-window.initializeApp = function() {
+window.initializeApp = function () {
   setupScrollRestoration();
-  
+
   // Initialize each feature independently with error handling
-  safeInit(window.initCustomDropdowns, "Custom Dropdowns");
-  safeInit(window.initAccountDropdown, "Account Dropdown");
-  safeInit(window.initAuthForms, "Auth Forms");
-  safeInit(window.initUserManagement, "User Management");
-  safeInit(window.initVenueManagement, "Venue Management");  
-  safeInit(window.initSortableTables, "Sortable Tables");
-  safeInit(window.initTableFilters, "Table Filters");
-  safeInit(window.initMobileMenu, "Mobile Menu");
-  safeInit(window.initDropdownMenus, "Dropdown Menus");
-  safeInit(window.initTableInteractions, "Table Interactions");
-  safeInit(window.initNotificationSystem, "Notification System");
-  safeInit(window.initThemeSystem, "Theme System");
-  safeInit(window.initStageEditor, "Stage Editor");
-  safeInit(window.initProfileFunctionality, "Profile Functionality");
-  safeInit(window.initCustomNumberInputs, "Custom Number Inputs");
-  safeInit(window.initTooltips, "Enhanced Tooltips");
-  safeInit(window.initPrintAndShare, "Print and Share Functionality");
-  safeInit(window.initTouchInteraction, "Touch Interaction");
-  safeInit(window.initLoginModal, "Login Modal");
-  
-  console.log("Application initialization complete!");
+  safeInit(window.initFirstTimePopup, "First Time Popup");
+  safeInit(window.initCustomDropdowns, 'Custom Dropdowns');
+  safeInit(window.initAccountDropdown, 'Account Dropdown');
+  safeInit(window.initAuthForms, 'Auth Forms');
+  safeInit(window.initUserManagement, 'User Management');
+  safeInit(window.initVenueManagement, 'Venue Management');
+  safeInit(window.initSortableTables, 'Sortable Tables');
+  safeInit(window.initTableFilters, 'Table Filters');
+  safeInit(window.initMobileMenu, 'Mobile Menu');
+  safeInit(window.initDropdownMenus, 'Dropdown Menus');
+  safeInit(window.initTableInteractions, 'Table Interactions');
+  safeInit(window.initNotificationSystem, 'Notification System');
+  safeInit(window.initThemeSystem, 'Theme System');
+  safeInit(window.initStageEditor, 'Stage Editor');
+  safeInit(window.initProfileFunctionality, 'Profile Functionality');
+  safeInit(window.initCustomNumberInputs, 'Custom Number Inputs');
+  safeInit(window.initTooltips, 'Enhanced Tooltips');
+  safeInit(window.initPrintAndShare, 'Print and Share Functionality');
+  safeInit(window.initTouchInteraction, 'Touch Interaction');
+  safeInit(window.initLoginModal, 'Login Modal');
+
+  console.log('Application initialization complete!');
 };
 
 /**
  * Main initialization - hook into DOMContentLoaded event
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   try {
-    console.log("Initializing application...");
+    console.log('Initializing application...');
     window.initializeApp();
   } catch (e) {
-    console.error("Error during initialization:", e);
+    console.error('Error during initialization:', e);
   }
 });
 
 /**
+ * Initializes and shows the first-time user popup if needed.
+ */
+window.initFirstTimePopup = function () {
+  const popup = document.getElementById('first-time-popup');
+  if (!popup) return; // Exit if popup element doesn't exist
+
+  const popupShownKey = 'stagewrite_popup_shown';
+
+  // Check if the popup has already been shown
+  if (localStorage.getItem(popupShownKey)) {
+    console.log('First time popup already shown.');
+    return;
+  }
+
+  // Function to close the popup and set the flag
+  const closePopup = () => {
+    closeModal(popup);
+    localStorage.setItem(popupShownKey, 'true');
+    console.log('First time popup closed and flag set.');
+  };
+
+  // Show the popup
+  setTimeout(() => {
+    openModal(popup);
+    console.log('Showing first time popup.');
+  }, 500);
+
+  // Add event listeners to close buttons
+  const closeButtons = popup.querySelectorAll('.modal-close-button');
+  closeButtons.forEach((button) => {
+    button.removeEventListener('click', closePopup);
+    button.addEventListener('click', closePopup);
+  });
+
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+      closePopup();
+    }
+  });
+};
+
+/**
  * Mobile menu system initialization
  */
-window.initMobileMenu = function() {
+window.initMobileMenu = function () {
   const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
   const navContainer = document.getElementById('nav-container');
-  
+
   if (mobileMenuButton && navContainer) {
-    mobileMenuButton.addEventListener('click', function() {
+    mobileMenuButton.addEventListener('click', function () {
       mobileMenuButton.classList.toggle('active');
       navContainer.classList.toggle('active');
       document.body.classList.toggle('menu-open');
     });
-    
+
     // Close mobile menu when clicking outside
-    document.addEventListener('click', function(event) {
-      if (navContainer.classList.contains('active') &&
-          !navContainer.contains(event.target) && 
-          !mobileMenuButton.contains(event.target)) {
+    document.addEventListener('click', function (event) {
+      if (navContainer.classList.contains('active') && !navContainer.contains(event.target) && !mobileMenuButton.contains(event.target)) {
         mobileMenuButton.classList.remove('active');
         navContainer.classList.remove('active');
         document.body.classList.remove('menu-open');
@@ -73,23 +114,23 @@ window.initMobileMenu = function() {
 /**
  * Account dropdown system initialization - enhance mobile behavior
  */
-window.initAccountDropdown = function() {
+window.initAccountDropdown = function () {
   const accountToggle = document.querySelector('.account-toggle');
   const accountMenu = document.querySelector('.account-dropdown .dropdown-menu');
-  
+
   if (accountToggle && accountMenu) {
-    accountToggle.addEventListener('click', function(e) {
+    accountToggle.addEventListener('click', function (e) {
       e.stopPropagation();
       accountMenu.classList.toggle('active');
     });
-    
+
     // Close when clicking outside
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
       if (!accountToggle.contains(event.target) && !accountMenu.contains(event.target)) {
         accountMenu.classList.remove('active');
       }
     });
-    
+
     // Additional mobile-specific behaviors
     if (document.body.classList.contains('is-mobile-device')) {
       // Prevent menu from going off screen
@@ -139,12 +180,12 @@ function setupScrollRestoration() {
   if (sessionStorage.getItem('scrollPosition')) {
     // Prevent the flash of content at the top by setting position immediately
     document.documentElement.style.opacity = '0';
-    
+
     // Restore scroll position right away
     window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition')));
-    
+
     // Fade the content back in
-    setTimeout(function() {
+    setTimeout(function () {
       document.documentElement.style.opacity = '1';
       sessionStorage.removeItem('scrollPosition');
     }, 10);
@@ -159,16 +200,16 @@ function setupScrollRestoration() {
 function showFieldError(field, message) {
   // Remove any previous error
   clearFieldError(field);
-  
+
   // Add error class to the input
   field.classList.add('error-input');
-  
+
   // Create and add error message
   const errorSpan = document.createElement('span');
   errorSpan.className = 'field-error';
   errorSpan.textContent = message;
   errorSpan.style.display = 'block';
-  
+
   field.parentNode.insertBefore(errorSpan, field.nextSibling);
 }
 
@@ -190,10 +231,10 @@ function clearFieldError(field) {
  */
 function clearAllErrors(form) {
   const inputs = form.querySelectorAll('input');
-  inputs.forEach(input => {
+  inputs.forEach((input) => {
     clearFieldError(input);
   });
-  
+
   const generalError = form.querySelector('.error-message');
   if (generalError) {
     generalError.remove();

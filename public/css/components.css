@@ -4,6 +4,54 @@
 */
 
 @import url('_variables.css');
+/* -------------- First Time Popup ---------------- */
+#first-time-popup .modal-content {
+  max-width: 400px;
+  text-align: center;
+  
+  h2 {
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-xxl);
+  }
+  
+  p {
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    font-size: var(--font-size-md);
+  }
+  
+  ul {
+    list-style: none;
+    margin: 0 auto var(--spacing-lg);
+    max-width: 322px;
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+    text-align: left;
+  }
+  
+  li {
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+  
+  li i {
+    color: var(--color-primary);
+    width: 20px;
+    text-align: center;
+  }
+  
+  .form-actions {
+    justify-content: center;
+  }
+  
+  .primary-button {
+      cursor: pointer;
+      width: 120px;
+  }
+}
 
 /* -------------------- Login Container --------------------- */
 #login-container {

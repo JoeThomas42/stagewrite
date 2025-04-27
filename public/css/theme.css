@@ -8,9 +8,18 @@
 
 
 /* -------------------------- Dark theme specific overrides ---------------------------- */
-/* ----- Header Actions ----- */
-[data-theme="dark"] {
 
+[data-theme="dark"] {
+  /*------ First Time Popup ------ */
+  #first-time-popup h2 {
+    color: var(--color-text);
+  }
+
+  #first-time-popup li i {
+    color: var(--color-primary-lightest);
+  }
+
+  /* ----- Header Actions ----- */
   .account-toggle:hover,
   .theme-toggle:hover {
     box-shadow: var(--shadow-md) !important;
