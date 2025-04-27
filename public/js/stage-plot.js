@@ -782,7 +782,7 @@ function initDragAndDrop(plotState) {
 
 /**
  * Handles the start of a drag operation from the elements list.
- * Creates a custom drag preview aligned to the cursor's top-left.
+ * Creates a custom drag preview that aligns the top-left of the ghost with the cursor.
  * @param {DragEvent} e - The drag event.
  * @param {Object} plotState - The current plot state.
  */
@@ -793,24 +793,10 @@ function handleDragStart(e, plotState) {
   e.dataTransfer.setData('text/plain', elementId);
   e.dataTransfer.effectAllowed = 'copy';
 
-  // Create clone for preview
-  const clone = sourceElement.cloneNode(true);
-  clone.classList.add('drag-preview-element');
-  clone.classList.remove('dragging');
-  clone.style.position = 'absolute';
-  clone.style.top = '-9999px';
-  clone.style.left = '-9999px';
-  clone.style.pointerEvents = 'none';
-  clone.style.margin = '0';
-  document.body.appendChild(clone);
-
-  try {
-    e.dataTransfer.setDragImage(clone, 0, 0);
-    console.log("setDragImage called with offset (0, 0)"); // Debug log
-  } catch (error) {
-    console.error("Error setting drag image:", error);
-  }
-
+  // Detect browser
+  const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+  
+  // Store basic element data
   const sourceRect = sourceElement.getBoundingClientRect();
   const clickOffsetX = e.clientX - sourceRect.left;
   const clickOffsetY = e.clientY - sourceRect.top;
@@ -823,17 +809,77 @@ function handleDragStart(e, plotState) {
     offsetY: clickOffsetY,
   };
 
-  setTimeout(() => {
-    if (clone.parentNode === document.body) {
-      document.body.removeChild(clone);
+  // Create clone for preview
+  const clone = sourceElement.cloneNode(true);
+  clone.classList.add('drag-preview-element');
+  clone.classList.remove('dragging');
+  
+  // Remove favorite button from clone to avoid interference
+  const favoriteButton = clone.querySelector('.favorite-button');
+  if (favoriteButton) {
+    favoriteButton.style.display = 'none';
+  }
+  
+  if (isFirefox) {
+    // Firefox-specific handling - Offscreen positioning works well
+    clone.style.position = 'absolute';
+    clone.style.top = '-1000px';
+    clone.style.left = '-1000px';
+    clone.style.opacity = '0.99';
+    clone.style.pointerEvents = 'none';
+    clone.style.margin = '0';
+    document.body.appendChild(clone);
+    
+    try {
+      // Using 0,0 offset for Firefox to align top-left corner with cursor
+      e.dataTransfer.setDragImage(clone, 0, 0);
+      console.log("Firefox: setDragImage called with offset (0, 0)");
+    } catch (error) {
+      console.error("Error setting drag image:", error);
     }
-  }, 0);
+    
+    // Firefox captures immediately
+    setTimeout(() => {
+      if (clone.parentNode === document.body) {
+        document.body.removeChild(clone);
+      }
+    }, 0);
+  } else {
+    // Chrome-specific handling - Needs visible positioning
+    clone.style.position = 'fixed';
+    clone.style.top = '0';
+    clone.style.left = '0';
+    clone.style.zIndex = '-1';
+    clone.style.opacity = '0.01';
+    clone.style.margin = '0';
+    clone.style.transform = 'translateZ(0)';
+    document.body.appendChild(clone);
+    
+    // Force a browser reflow
+    void clone.offsetWidth;
+    
+    try {
+      // For Chrome, we're using 0,0 to align the top-left corner with cursor
+      e.dataTransfer.setDragImage(clone, 0, 0);
+      console.log("Chrome: setDragImage called with offset (0, 0)");
+    } catch (error) {
+      console.error("Error setting drag image:", error);
+    }
+    
+    // Chrome needs some time to capture the image
+    setTimeout(() => {
+      if (clone.parentNode === document.body) {
+        document.body.removeChild(clone);
+      }
+    }, 100);
+  }
 
+  // Set up cleanup
   function cleanupDragState() {
     document.removeEventListener('dragend', cleanupDragState);
     plotState.currentDragId = null;
     plotState.dragSourceRect = null;
-    console.log("Drag state cleaned up on dragend."); // Debug log
+    console.log("Drag state cleaned up on dragend.");
   }
   document.addEventListener('dragend', cleanupDragState, { once: true });
 }
@@ -878,6 +924,8 @@ function handleDrop(e, plotState) {
   const stageRect = stage.getBoundingClientRect();
   const elementWidth = 75;
   const elementHeight = 75;
+  
+  // Restore the original margin compensation constants
   const elementMarginChrome = 14;
   const elementMarginFoxX = 10;
   const elementMarginFoxY = 5;
