@@ -7,8 +7,7 @@
 
 /**
  * Generate a detailed snapshot image of a stage plot using element images
- * 
- * @param int $plotId - The ID of the plot
+ * * @param int $plotId - The ID of the plot
  * @param array $elements - Array of elements in the plot
  * @param int|null $venueId - The ID of the venue (if any)
  * @param int|null $userVenueId - The ID of the user venue (if any)
@@ -22,10 +21,9 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
     mkdir($snapshotDir, 0755, true);
   }
 
-  // Connect to database
   $db = Database::getInstance();
 
-  // Check if the plot already has a snapshot, and get its filename if it exists
+  // Check if the plot already has a snapshot
   $existingSnapshot = $db->fetchOne(
     "SELECT snapshot_filename FROM saved_plots WHERE plot_id = ?",
     [$plotId]
@@ -53,62 +51,53 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
   }
 
   // --- Calculate Snapshot Canvas Dimensions ---
-  $snapshotBaseWidth = 1200; // Desired width for the snapshot image
-  $aspectRatio = ($venueWidthFeet > 0) ? $venueDepthFeet / $venueWidthFeet : 3 / 4; // Calculate aspect ratio based on feet
+  $snapshotBaseWidth = 1200;
+  $aspectRatio = ($venueWidthFeet > 0) ? $venueDepthFeet / $venueWidthFeet : 3 / 4;
   $snapshotCanvasHeight = round($snapshotBaseWidth * $aspectRatio);
   $snapshotCanvasHeight = max($snapshotCanvasHeight, 180); // Ensure minimum height
 
-  // --- Reference UI Dimensions ---
-  // This assumes the JS calculates stage height based on a 900px width
+  // --- Reference UI Dimensions (for scaling) ---
   $referenceUIWidth = 900;
   $referenceUIHeight = round($referenceUIWidth * $aspectRatio);
 
-  // Create a blank image
   $image = imagecreatetruecolor($snapshotBaseWidth, $snapshotCanvasHeight);
 
-  // Enable alpha blending
   imagealphablending($image, true);
   imagesavealpha($image, true);
 
-  // Fill the background
   $bgColor = imagecolorallocate($image, 255, 255, 255);
   imagefill($image, 0, 0, $bgColor);
 
-  // Draw a border
-  $borderColor = imagecolorallocate($image, 221, 221, 221); // #DDD
+  $borderColor = imagecolorallocate($image, 221, 221, 221);
   imagerectangle($image, 0, 0, $snapshotBaseWidth - 1, $snapshotCanvasHeight - 1, $borderColor);
 
   // Add grid lines (5 foot intervals)
   $gridColor = imagecolorallocate($image, 230, 230, 230);
   $gridLineThickness = 1;
-
-  // Calculate grid size in pixels (how many pixels per 5 feet)
   $gridSizeX = $snapshotBaseWidth / ($venueWidthFeet / 5);
   $gridSizeY = $snapshotCanvasHeight / ($venueDepthFeet / 5);
 
-  // Draw vertical grid lines (left to right)
   for ($i = 1; $i < ($venueWidthFeet / 5); $i++) {
     $x = round($i * $gridSizeX);
     imageline($image, $x, 0, $x, $snapshotCanvasHeight, $gridColor);
   }
 
-  // Draw horizontal grid lines (top to bottom)
   for ($i = 1; $i < ($venueDepthFeet / 5); $i++) {
     $y = round($i * $gridSizeY);
     imageline($image, 0, $y, $snapshotBaseWidth, $y, $gridColor);
   }
 
-  // Add stage dimensions text at the top
-  $dimensionsColor = imagecolorallocate($image, 120, 120, 120); // Darker than grid lines
-  $dimensionsFont = 4; // Use built-in font
+  // Add stage dimensions text
+  $dimensionsColor = imagecolorallocate($image, 120, 120, 120);
+  $dimensionsFont = 4;
   $dimensionsText = "Stage: {$venueWidthFeet}' x {$venueDepthFeet}'";
   $dimensionsWidth = imagefontwidth($dimensionsFont) * strlen($dimensionsText);
-  $dimensionsX = 10; // Position in top-left with padding
+  $dimensionsX = 10;
   $dimensionsY = 10;
   imagestring($image, $dimensionsFont, $dimensionsX, $dimensionsY, $dimensionsText, $dimensionsColor);
 
   // Add "FRONT OF STAGE" text
-  $textColor = imagecolorallocate($image, 102, 102, 102); // #666
+  $textColor = imagecolorallocate($image, 102, 102, 102);
   $font = 2;
   $text = "FRONT OF STAGE";
   $textWidth = imagefontwidth($font) * strlen($text);
@@ -135,17 +124,15 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
       drawElementAsRectangle($image, $element, $snapshotBaseWidth, $snapshotCanvasHeight, $referenceUIWidth, $referenceUIHeight);
     } else {
       // --- Calculate Element Position and Size for Snapshot ---
-      // Calculate relative position/size based on reference UI dimensions
       $relativeX = $element['x_position'] / $referenceUIWidth;
       $relativeY = $element['y_position'] / $referenceUIHeight;
       $relativeWidth = $element['width'] / $referenceUIWidth;
-      $relativeHeight = $element['height'] / $referenceUIHeight; // Use relative height based on reference UI
+      $relativeHeight = $element['height'] / $referenceUIHeight;
 
-      // Calculate actual pixel position/size on the snapshot canvas
       $x = $relativeX * $snapshotBaseWidth;
       $y = $relativeY * $snapshotCanvasHeight;
       $width = $relativeWidth * $snapshotBaseWidth;
-      $height = $relativeHeight * $snapshotCanvasHeight; // Scale height relative to snapshot canvas
+      $height = $relativeHeight * $snapshotCanvasHeight;
 
       // Attempt to load element image
       $elementImagePath = PUBLIC_PATH . '/images/elements/' . $elementDetails['element_image'];
@@ -172,8 +159,8 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
             imagesavealpha($elementImg, true);
           }
 
-          $resizedImg = imagecreatetruecolor(max(1, round($width)), max(1, round($height))); // Ensure dimensions are at least 1
-          imagealphablending($resizedImg, false); // Use false for better transparency handling
+          $resizedImg = imagecreatetruecolor(max(1, round($width)), max(1, round($height)));
+          imagealphablending($resizedImg, false); // Better transparency handling
           imagesavealpha($resizedImg, true);
           $transparent = imagecolorallocatealpha($resizedImg, 255, 255, 255, 127);
           imagefill($resizedImg, 0, 0, $transparent);
@@ -186,7 +173,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
             0,
             0,
             max(1, round($width)),
-            max(1, round($height)), // Use rounded dimensions >= 1
+            max(1, round($height)),
             imagesx($elementImg),
             imagesy($elementImg)
           );
@@ -202,7 +189,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
             round($x),
             round($y),
             0,
-            0, // Use rounded positions
+            0,
             imagesx($resizedImg),
             imagesy($resizedImg)
           );
@@ -217,39 +204,32 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
       }
     }
     // --- ADD LABEL DRAWING CODE START ---
-    // Add label if present
     if (!empty($element['label'])) {
-      // Define label properties
-      $labelTextColor = imagecolorallocate($image, 30, 30, 30); // Dark grey text
-      $labelFont = 3; // Use built-in GD font (1-5)
+      $labelTextColor = imagecolorallocate($image, 30, 30, 30);
+      $labelFont = 3;
 
       $labelText = trim($element['label']);
       $labelWidth = imagefontwidth($labelFont) * strlen($labelText);
       $labelHeight = imagefontheight($labelFont);
 
-      // Calculate position: Centered horizontally, slightly below the element
-      // Use the calculated $x, $y, $width, $height for the element's snapshot representation
       $labelX = round($x + ($width / 2) - ($labelWidth / 2));
-      $labelY = round($y + $height + 2); // Position 2px below the element
+      $labelY = round($y + $height + 2);
 
-      // Ensure label doesn't go off the bottom edge
+      // Ensure label doesn't go off edges
       if ($labelY + $labelHeight > $snapshotCanvasHeight - 2) {
-        $labelY = round($y - $labelHeight - 2); // Position above if no space below
+        $labelY = round($y - $labelHeight - 2);
       }
-      // Ensure label doesn't go off the top edge (if positioned above)
       if ($labelY < 2) {
-        $labelY = round($y + ($height / 2) - ($labelHeight / 2)); // Center vertically if no space above/below
+        $labelY = round($y + ($height / 2) - ($labelHeight / 2));
       }
-      // Ensure label doesn't go off the left/right edges
       $labelX = max(2, min($labelX, $snapshotBaseWidth - $labelWidth - 2));
 
-      // Draw the label string
       imagestring($image, $labelFont, $labelX, $labelY, $labelText, $labelTextColor);
     }
     // --- ADD LABEL DRAWING CODE END ---
   }
 
-  // Generate filename
+  // Generate filename, overwriting existing if necessary
   if ($existingSnapshot && !empty($existingSnapshot['snapshot_filename'])) {
     $filename = $existingSnapshot['snapshot_filename'];
     $oldFilePath = $snapshotDir . '/' . $filename;
@@ -262,7 +242,6 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
 
   $filePath = $snapshotDir . '/' . $filename;
 
-  // Save the image
   if (imagepng($image, $filePath, 8)) {
     imagedestroy($image);
     return $filename;
@@ -274,8 +253,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
 
 /**
  * Draw element as a colored rectangle (fallback method)
- * 
- * @param \GdImage $image - The image resource
+ * * @param \GdImage $image - The image resource
  * @param array $element - Element data
  * @param float $snapshotWidth - Snapshot canvas width
  * @param float $snapshotHeight - Snapshot canvas height
@@ -284,7 +262,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
  */
 function drawElementAsRectangle($image, $element, $snapshotWidth, $snapshotHeight, $refWidth, $refHeight)
 {
-  // Calculate relative position/size based on reference UI dimensions
+  // Calculate position/size relative to reference UI dimensions
   $relativeX = $element['x_position'] / $refWidth;
   $relativeY = $element['y_position'] / $refHeight;
   $relativeWidth = $element['width'] / $refWidth;
@@ -304,10 +282,9 @@ function drawElementAsRectangle($image, $element, $snapshotWidth, $snapshotHeigh
 }
 
 /**
- * Rotates and flips an image resource.
+ * Flips an image resource horizontally.
  *
  * @param \GdImage $image The image resource.
- * @param float $angle The rotation angle in degrees.
  * @param bool $flip Whether to flip the image horizontally.
  * @return \GdImage The modified image resource.
  */

@@ -1,94 +1,76 @@
 <?php
-// Set display of PHP errors for debugging
 ini_set('display_errors', 0);
 error_reporting(0);
 
-// Start output buffering to catch any unwanted output
 ob_start();
 
-// Add debugging for remember me functionality
-function debug_log($message) {
-    error_log("[Login Debug] " . $message);
+function debug_log($message)
+{
+  error_log("[Login Debug] " . $message);
 }
 
 try {
-    // Load required files
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
+  require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-    // Always set content type to JSON
-    header('Content-Type: application/json');
+  header('Content-Type: application/json');
 
-    // Check request method
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        echo json_encode(['errors' => ['general' => 'Method not allowed']]);
-        exit;
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['errors' => ['general' => 'Method not allowed']]);
+    exit;
+  }
+
+  $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+  $password = isset($_POST['password']) ? $_POST['password'] : '';
+
+  $stayLoggedIn = false;
+  if (isset($_POST['stay_logged_in'])) {
+    if ($_POST['stay_logged_in'] === '1' || $_POST['stay_logged_in'] === 'on' || $_POST['stay_logged_in'] === 'true') {
+      $stayLoggedIn = true;
+      debug_log("Stay logged in requested for: $email");
     }
+  }
 
-    // Basic validation
-    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
-    $password = isset($_POST['password']) ? $_POST['password'] : '';
-    
-    // Handle "Stay logged in" properly
-    $stayLoggedIn = false;
-    if (isset($_POST['stay_logged_in'])) {
-        if ($_POST['stay_logged_in'] === '1' || $_POST['stay_logged_in'] === 'on' || $_POST['stay_logged_in'] === 'true') {
-            $stayLoggedIn = true;
-            debug_log("Stay logged in requested for: $email");
-        }
-    }
+  $errors = [];
+  if (empty($email)) $errors['email'] = 'required';
+  if (empty($password)) $errors['password'] = 'required';
 
-    // Simple validation
-    $errors = [];
-    if (empty($email)) $errors['email'] = 'required';
-    if (empty($password)) $errors['password'] = 'required';
+  if (!empty($errors)) {
+    echo json_encode(['errors' => $errors]);
+    exit;
+  }
 
-    // Return validation errors if any
-    if (!empty($errors)) {
-        echo json_encode(['errors' => $errors]);
-        exit;
-    }
+  debug_log("Login attempt for: $email, Stay logged in: " . ($stayLoggedIn ? 'Yes' : 'No'));
 
-    // Log attempt (don't include password)
-    debug_log("Login attempt for: $email, Stay logged in: " . ($stayLoggedIn ? 'Yes' : 'No'));
+  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(['errors' => ['email' => 'invalid']]);
+    exit;
+  }
 
-    // Basic email validation
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['errors' => ['email' => 'invalid']]);
-        exit;
-    }
+  $userObj = new User();
+  $user = $userObj->login($email, $password, $stayLoggedIn);
 
-    // Try to authenticate
-    $userObj = new User();
-    $user = $userObj->login($email, $password, $stayLoggedIn);
-
-    if ($user) {
-        // Login success
-        debug_log("Login successful for: $email");
-        echo json_encode([
-            'success' => true,
-            'role_id' => $user['role_id']
-        ]);
-    } else {
-        // Login failed
-        debug_log("Login failed for: $email");
-        echo json_encode(['errors' => ['email' => 'invalid_credentials']]);
-    }
+  if ($user) {
+    debug_log("Login successful for: $email");
+    echo json_encode([
+      'success' => true,
+      'role_id' => $user['role_id']
+    ]);
+  } else {
+    debug_log("Login failed for: $email");
+    echo json_encode(['errors' => ['email' => 'invalid_credentials']]);
+  }
 } catch (Exception $e) {
-    // Log error details for server admin
-    debug_log("Login exception: " . $e->getMessage());
-    
-    // Clean any existing output
-    ob_clean();
-    
-    // Return a simple error response
-    header('Content-Type: application/json');
-    echo json_encode(['errors' => ['general' => 'Server error']]);
+  debug_log("Login exception: " . $e->getMessage());
+
+  ob_clean();
+
+  header('Content-Type: application/json');
+  echo json_encode(['errors' => ['general' => 'Server error']]);
 }
 
-// In case we reach here, make sure content type is still set
 if (ob_get_length()) {
-    ob_end_flush();
+  ob_end_flush();
 } else {
-    header('Content-Type: application/json');
-    echo json_encode(['errors' => ['general' => 'Unknown error']]);
+  header('Content-Type: application/json');
+  echo json_encode(['errors' => ['general' => 'Unknown error']]);
 }

@@ -9,11 +9,8 @@
 <html lang="en">
 
 <head>
-  <title>StageWrite - <?= htmlspecialchars($current_page) ?></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="<?= CSS_PATH ?>/main.css">
-  <link rel="preconnect" href="https://kit.fontawesome.com">
-  <link rel="preconnect" href="https://ka-f.fontawesome.com" crossorigin>
+  <meta charset="UTF-8">
+
   <script>
     // Immediately apply theme from localStorage
     (function() {
@@ -25,8 +22,18 @@
       }
     })();
   </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StageWrite - <?= htmlspecialchars($current_page) ?></title>
+
+  <link rel="preconnect" href="https://kit.fontawesome.com">
+  <link rel="preconnect" href="https://ka-f.fontawesome.com" crossorigin>
+  <link rel="preconnect" href="https://www.google.com">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="<?= CSS_PATH ?>/main.css">
+
+  <script src="https://kit.fontawesome.com/6a66a6b74c.js" crossorigin="anonymous" defer></script>
   <script src="<?= JS_PATH ?>/main.js" defer></script>
-  <script src="https://kit.fontawesome.com/6a66a6b74c.js" crossorigin="anonymous"></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 

@@ -1,30 +1,27 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-// Ensure user is logged in
 $userObj = new User();
 if (!$userObj->isLoggedIn()) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-    exit;
+  header('Content-Type: application/json');
+  echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+  exit;
 }
 
-// Check for plot ID
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'error' => 'Invalid plot ID']);
-    exit;
+  header('Content-Type: application/json');
+  echo json_encode(['success' => false, 'error' => 'Invalid plot ID']);
+  exit;
 }
 
 $plotId = (int)$_GET['id'];
 $db = Database::getInstance();
 
 try {
-    // Fetch plot info
-    $plot = $db->fetchOne("
+  $plot = $db->fetchOne("
         SELECT
             sp.plot_id, sp.plot_name, sp.event_date_start, sp.event_date_end,
-            sp.venue_id, sp.user_venue_id, sp.snapshot_filename, sp.snapshot_version, -- Added version
+            sp.venue_id, sp.user_venue_id, sp.snapshot_filename, sp.snapshot_version,
             CASE
                 WHEN sp.venue_id IS NOT NULL THEN v.venue_name
                 WHEN sp.user_venue_id IS NOT NULL THEN uv.venue_name
@@ -33,12 +30,12 @@ try {
             CASE
                 WHEN sp.venue_id IS NOT NULL THEN v.stage_width
                 WHEN sp.user_venue_id IS NOT NULL THEN uv.stage_width
-                ELSE 40 -- Default width
+                ELSE 40
             END as stage_width,
             CASE
                 WHEN sp.venue_id IS NOT NULL THEN v.stage_depth
                 WHEN sp.user_venue_id IS NOT NULL THEN uv.stage_depth
-                ELSE 30 -- Default depth
+                ELSE 30
             END as stage_depth,
             CASE
                 WHEN sp.user_venue_id IS NOT NULL THEN CONCAT('user_', sp.user_venue_id)
@@ -54,14 +51,13 @@ try {
         WHERE sp.plot_id = ? AND sp.user_id = ?
     ", [$plotId, $_SESSION['user_id']]);
 
-    if (!$plot) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => 'Plot not found or access denied']);
-        exit;
-    }
+  if (!$plot) {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'error' => 'Plot not found or access denied']);
+    exit;
+  }
 
-    // Fetch placed elements
-    $elements = $db->fetchAll("
+  $elements = $db->fetchAll("
         SELECT
             pe.*,
             e.element_name, e.category_id, e.element_image,
@@ -73,40 +69,35 @@ try {
         ORDER BY pe.z_index ASC
     ", [$_SESSION['user_id'], $plotId]);
 
-    // Fetch user's favorites (for the elements panel)
-    $favorites = $db->fetchAll("
+  $favorites = $db->fetchAll("
         SELECT e.element_id, e.element_name, e.category_id, e.element_image
         FROM user_favorites uf
         JOIN elements e ON uf.element_id = e.element_id
         WHERE uf.user_id = ?
     ", [$_SESSION['user_id']]);
 
-    //  Fetch Input List Data
-    $inputs = $db->fetchAll("
-        SELECT input_number, input_name as label -- Rename to match JS expectation
+  $inputs = $db->fetchAll("
+        SELECT input_number, input_name as label
         FROM plot_inputs
         WHERE plot_id = ?
         ORDER BY input_number ASC
     ", [$plotId]);
-     // Ensure input_number is an integer
-    $inputs = array_map(function($input) {
-         $input['number'] = (int)$input['input_number']; // Create 'number' key
-         unset($input['input_number']); // Remove original key
-        return $input;
-    }, $inputs);
+  $inputs = array_map(function ($input) {
+    $input['number'] = (int)$input['input_number'];
+    unset($input['input_number']);
+    return $input;
+  }, $inputs);
 
-    header('Content-Type: application/json');
-    echo json_encode([
-        'success' => true,
-        'plot' => $plot,
-        'elements' => $elements,
-        'favorites' => $favorites,
-        'inputs' => $inputs // --- NEW: Add inputs to response ---
-    ]);
-
+  header('Content-Type: application/json');
+  echo json_encode([
+    'success' => true,
+    'plot' => $plot,
+    'elements' => $elements,
+    'favorites' => $favorites,
+    'inputs' => $inputs
+  ]);
 } catch (Exception $e) {
-    error_log('Error fetching plot: ' . $e->getMessage());
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+  error_log('Error fetching plot: ' . $e->getMessage());
+  header('Content-Type: application/json');
+  echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
 }
-?>

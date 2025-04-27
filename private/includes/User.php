@@ -7,7 +7,7 @@
 class User
 {
   private $db;
-  
+
   // Change this constant to extend the expiration time (in days)
   private const REMEMBER_ME_DAYS = 60;
 
@@ -17,15 +17,13 @@ class User
   public function __construct()
   {
     $this->db = Database::getInstance();
-
     // Check for remember me cookie on initialization
     $this->checkRememberMeCookie();
   }
 
   /**
    * Check if user is logged in
-   * 
-   * @return bool True if user is logged in
+   * * @return bool True if user is logged in
    */
   public function isLoggedIn()
   {
@@ -34,8 +32,7 @@ class User
 
   /**
    * Check if user has specific role
-   * 
-   * @param int|array $roles Role ID(s) to check
+   * * @param int|array $roles Role ID(s) to check
    * @return bool True if user has role
    */
   public function hasRole($roles)
@@ -66,22 +63,21 @@ class User
     }
 
     try {
-      // First check if the token exists and is valid
+      // Check if token exists and is valid
       $sql = "SELECT * FROM user_tokens WHERE token = ? AND expires_at > NOW()";
       $tokenData = $this->db->fetchOne($sql, [$token]);
-      
+
       if (!$tokenData) {
         // Token not found or expired, clear the cookie
         $this->clearRememberMeCookie();
         return;
       }
-      
-      // Then get user data separately
+
+      // Get user data
       $sql = "SELECT * FROM users WHERE user_id = ? AND is_active = 1";
       $user = $this->db->fetchOne($sql, [$tokenData['user_id']]);
 
       if ($user) {
-        // Set session variables
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['first_name'] = $user['first_name'];
         $_SESSION['last_name'] = $user['last_name'];
@@ -89,16 +85,14 @@ class User
 
         // Generate a new token for security (token rotation)
         $this->refreshRememberMeToken($user['user_id'], $token);
-        
-        // Add to debug log
+
         error_log('Successfully authenticated user via remember me token: ' . $user['user_id']);
       } else {
-        // User not found or inactive, clear the cookie
+        // User not found or inactive
         $this->clearRememberMeCookie();
         error_log('Remember me token found but user is inactive or not found: ' . $tokenData['user_id']);
       }
     } catch (Exception $e) {
-      // Log error but don't show to user
       error_log('Remember me token validation error: ' . $e->getMessage());
       // Clear the problematic cookie
       $this->clearRememberMeCookie();
@@ -107,52 +101,41 @@ class User
 
   /**
    * Generate new remember me token and set cookie
-   * 
-   * @param string $userId User ID
+   * * @param string $userId User ID
    * @return string Generated token
    */
   private function createRememberMeToken($userId)
   {
     // Generate a strong random token
     $token = bin2hex(random_bytes(32));
-
-    // Calculate expiration seconds (days * 24 hours * 60 minutes * 60 seconds)
     $expirySeconds = self::REMEMBER_ME_DAYS * 24 * 60 * 60;
-    
-    // Set expiration date for the database
     $expiryDate = date('Y-m-d H:i:s', time() + $expirySeconds);
 
     try {
-      // First delete any existing tokens for this user to prevent multiple tokens
+      // Prevent multiple tokens per user
       $this->db->query(
         "DELETE FROM user_tokens WHERE user_id = ?",
         [$userId]
       );
-      
-      // Store token in database
+
       $this->db->query(
         "INSERT INTO user_tokens (user_id, token, expires_at, created_at) 
          VALUES (?, ?, ?, NOW())",
         [$userId, $token, $expiryDate]
       );
-      
-      // Get cookie parameters
+
       $cookieParams = session_get_cookie_params();
-      
-      // Determine if we should use secure cookies (only on HTTPS)
-      $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
-                  $_SERVER['SERVER_PORT'] == 443;
-      
-      // Set the cookie domain - use the current domain if not specified
+      $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+        $_SERVER['SERVER_PORT'] == 443;
       $domain = $cookieParams['domain'] ?: '';
-      
+
       // For PHP 7.3+
       if (PHP_VERSION_ID >= 70300) {
         setcookie(
           'remember_token',
           $token,
           [
-            'expires' => time() + $expirySeconds, // Use the same expiry time
+            'expires' => time() + $expirySeconds,
             'path' => '/',
             'domain' => $domain,
             'secure' => $isSecure,    // Secure cookie only on HTTPS
@@ -165,14 +148,14 @@ class User
         setcookie(
           'remember_token',
           $token,
-          time() + $expirySeconds, // Use the same expiry time
+          time() + $expirySeconds,
           '/',
           $domain,
-          $isSecure,    // Secure cookie only on HTTPS
-          true          // HttpOnly
+          $isSecure,
+          true
         );
       }
-      
+
       error_log('Created remember me token for user: ' . $userId . ', expires in ' . self::REMEMBER_ME_DAYS . ' days');
       return $token;
     } catch (Exception $e) {
@@ -183,8 +166,7 @@ class User
 
   /**
    * Refresh remember me token (token rotation)
-   * 
-   * @param string $userId User ID
+   * * @param string $userId User ID
    * @param string $oldToken Old token to invalidate
    * @return string New token
    */
@@ -223,11 +205,10 @@ class User
         error_log('Error clearing remember token from database: ' . $e->getMessage());
       }
 
-      // Get cookie parameters
       $cookieParams = session_get_cookie_params();
       $domain = $cookieParams['domain'] ?: '';
-      $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || 
-                  $_SERVER['SERVER_PORT'] == 443;
+      $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+        $_SERVER['SERVER_PORT'] == 443;
 
       // For PHP 7.3+
       if (PHP_VERSION_ID >= 70300) {
@@ -255,15 +236,14 @@ class User
           true
         );
       }
-      
+
       error_log('Cleared remember me cookie');
     }
   }
 
   /**
    * Authenticate user
-   * 
-   * @param string $email User email
+   * * @param string $email User email
    * @param string $password User password
    * @param bool $rememberMe Whether to create persistent login
    * @return bool|array User data or false on failure
@@ -278,7 +258,6 @@ class User
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password_hash'])) {
-      // Set session variables
       $_SESSION['user_id'] = $user['user_id'];
       $_SESSION['first_name'] = $user['first_name'];
       $_SESSION['last_name'] = $user['last_name'];
@@ -314,8 +293,7 @@ class User
 
   /**
    * Register a new user
-   * 
-   * @param array $userData User data
+   * * @param array $userData User data
    * @return bool|string User ID or false on failure
    */
   public function register($userData)
@@ -330,10 +308,8 @@ class User
       return false;
     }
 
-    // Hash password
     $passwordHash = password_hash($userData['password'], PASSWORD_BCRYPT);
 
-    // Insert user
     $this->db->query(
       "INSERT INTO users (user_id, first_name, last_name, email, password_hash, role_id, created_at, is_active) 
              VALUES (UUID(), ?, ?, ?, ?, ?, NOW(), 1)",
@@ -346,7 +322,6 @@ class User
       ]
     );
 
-    // Get the new user
     $user = $this->db->fetchOne(
       "SELECT * FROM users WHERE email = ?",
       [$userData['email']]
@@ -361,8 +336,7 @@ class User
 
   /**
    * Toggle user active status
-   * 
-   * @param string $userId User ID to toggle
+   * * @param string $userId User ID to toggle
    * @param array $allowedRoles Roles allowed to be modified
    * @return array|false Result with new status or false on failure
    */
@@ -378,7 +352,6 @@ class User
       return false;
     }
 
-    // Toggle the status
     $newStatus = $user['is_active'] ? 0 : 1;
 
     $success = $this->db->query(
@@ -400,8 +373,7 @@ class User
 
   /**
    * Delete a user
-   * 
-   * @param string $userId User ID to delete
+   * * @param string $userId User ID to delete
    * @param array $allowedRoles Roles allowed to be deleted
    * @return bool Success or failure
    */
@@ -425,8 +397,7 @@ class User
 
   /**
    * Promote user to admin
-   * 
-   * @param string $userId User ID to promote
+   * * @param string $userId User ID to promote
    * @return bool Success or failure
    */
   public function promoteToAdmin($userId)
@@ -451,8 +422,7 @@ class User
 
   /**
    * Demote admin to regular user
-   * 
-   * @param string $userId User ID to demote
+   * * @param string $userId User ID to demote
    * @return bool Success or failure
    */
   public function demoteToMember($userId)

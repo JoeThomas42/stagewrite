@@ -2,16 +2,13 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
-// Always return JSON
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $errors = [];
 
-  // Trim all inputs first
   $inputs = array_map('trim', $_POST);
 
-  // Validate required fields
   $required_fields = ['first_name', 'last_name', 'email', 'password', 'confirm_password'];
   foreach ($required_fields as $field) {
     if (empty($inputs[$field])) {
@@ -24,29 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = $inputs['email'];
   $password = $inputs['password'];
   $confirmPassword = $inputs['confirm_password'];
-  $roleId = 1; // Default role ID
+  $roleId = 1;
 
-  // *** SIMPLIFIED reCAPTCHA Verification ***
-  // Check if recaptcha response is provided without validating against Google's servers
   $recaptchaResponse = $_POST['g-recaptcha-response'] ?? null;
   if (empty($recaptchaResponse)) {
     $errors['recaptcha'] = 'invalid';
     $errors['message'] = 'reCAPTCHA verification failed. Please try again.';
   }
-  // *** END reCAPTCHA Verification ***
 
-  // Validate email format
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errors['email'] = 'invalid';
   }
 
-  // Password validation
   if (strlen($password) < 8) {
     $errors['password'] = 'too_short';
   } else if (!preg_match('/[0-9]/', $password)) {
     $errors['password'] = 'no_number';
   } else {
-    // Check for invalid characters
     $allowedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};:\'",./<>?|`~';
     for ($i = 0; $i < strlen($password); $i++) {
       $char = $password[$i];
@@ -61,12 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors['confirm_password'] = 'mismatch';
   }
 
-  // If validation passes, proceed with registration
   if (empty($errors)) {
-    // Use User class for registration
     $userObj = new User();
 
-    // Create user data array
     $userData = [
       'first_name' => $firstName,
       'last_name' => $lastName,
@@ -78,22 +66,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $userObj->register($userData);
 
     if ($userId) {
-      // NEW CODE: Automatically log in the user after successful registration
       $user = $userObj->login($email, $password);
 
       if ($user) {
-        // Return the role_id along with success status
         echo json_encode([
           'success' => true,
           'role_id' => $user['role_id']
         ]);
       } else {
-        // Registration successful but auto-login failed
         echo json_encode(['success' => true]);
       }
     } else {
-      // Check if the failure was due to existing email
-      $db = Database::getInstance(); // Get DB instance here if needed
+      $db = Database::getInstance();
       $emailExists = $db->fetchOne(
         "SELECT email FROM users WHERE email = ?",
         [$email]
@@ -104,14 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       } else {
         $errors['general'] = 'database_error';
       }
-      echo json_encode(['errors' => $errors]); // Send back errors if registration failed
+      echo json_encode(['errors' => $errors]);
     }
   } else {
-    // Send back validation errors if any exist
     echo json_encode(['errors' => $errors]);
   }
 } else {
-  // Handle non-POST requests if necessary
-  http_response_code(405); // Method Not Allowed
+  http_response_code(405);
   echo json_encode(['error' => 'Invalid request method']);
 }

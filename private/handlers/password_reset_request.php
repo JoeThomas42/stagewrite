@@ -7,62 +7,48 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-// Always return JSON
 header('Content-Type: application/json');
 
-// Only process POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
   echo json_encode(['success' => false, 'error' => 'Method not allowed']);
   exit;
 }
 
-// Get email from request
 $email = isset($_POST['email']) ? trim($_POST['email']) : '';
 
-// Validate email
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
   echo json_encode(['success' => false, 'error' => 'Please provide a valid email address']);
   exit;
 }
 
-// Database connection
 $db = Database::getInstance();
 
 try {
-  // Check if the email exists
   $user = $db->fetchOne(
     "SELECT user_id, first_name, last_name, email FROM users WHERE email = ? AND is_active = 1",
     [$email]
   );
 
   if (!$user) {
-    // Don't reveal if email exists for security reasons
-    // But still return success to prevent email enumeration
     echo json_encode(['success' => true]);
     exit;
   }
 
-  // Generate a secure token
   $token = bin2hex(random_bytes(32));
 
-  // Set token expiration (24 hours from now)
   $expires = date('Y-m-d H:i:s', time() + 24 * 60 * 60);
 
-  // Store the token in the database
-  // First, delete any existing tokens for this user
   $db->query(
     "DELETE FROM password_reset_tokens WHERE user_id = ?",
     [$user['user_id']]
   );
 
-  // Then insert the new token
   $db->query(
     "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
     [$user['user_id'], $token, $expires]
   );
 
-  // Create reset link
   $resetLink = sprintf(
     "%s://%s/reset_password.php?token=%s",
     isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
@@ -70,11 +56,9 @@ try {
     $token
   );
 
-  // Send the email with reset link
   $mail = new PHPMailer(true);
 
   try {
-    // Server settings - using the same settings as in your send_plot_email.php
     $mail->isSMTP();
     $mail->Host       = 'mail.stagewrite.app';
     $mail->SMTPAuth   = true;
@@ -84,15 +68,12 @@ try {
     $mail->Port       = 465;
     $mail->Timeout    = 60;
 
-    // Recipients
     $mail->setFrom('noreply@stagewrite.app', 'StageWrite');
     $mail->addAddress($user['email'], $user['first_name'] . ' ' . $user['last_name']);
 
-    // Content
     $mail->isHTML(true);
     $mail->Subject = 'Reset Your StageWrite Password';
 
-    // Create email body
     $htmlContent = "
         <html>
         <head>
@@ -101,7 +82,7 @@ try {
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
                 h1 { color: #4a6da7; }
                 .message { margin: 20px 0; padding: 15px; background-color: #f5f5f5; border-radius: 5px; }
-                .button { display: inline-block; padding: 10px 20px; background-color: #4a6da7; color: #ffffff; 
+                .button { display: inline-block; padding: 10px 20px; background-color: #4a6da7; color: #ffffff;
                           text-decoration: none; border-radius: 5px; }
                 .footer { margin-top: 30px; font-size: 12px; color: #999; }
             </style>
@@ -125,7 +106,6 @@ try {
         </body>
         </html>";
 
-    // Plain text alternative
     $textContent = "Reset Your StageWrite Password\n\n"
       . "Hello " . $user['first_name'] . ",\n\n"
       . "We received a request to reset the password for your StageWrite account. "
@@ -140,7 +120,6 @@ try {
 
     $mail->send();
 
-    // Return success response
     echo json_encode(['success' => true]);
   } catch (Exception $e) {
     error_log('Error sending password reset email: ' . $mail->ErrorInfo);

@@ -25,39 +25,28 @@ define('JS_PATH', WEB_ROOT . '/js');
 define('IMG_PATH', WEB_ROOT . '/images');
 define('HANDLERS_URL', WEB_ROOT . '/handlers');
 
-// Include configuration
 require_once PRIVATE_PATH . '/config/config.php';
 
-// Define development environment
 if (!defined('DEV_ENVIRONMENT')) {
     define('DEV_ENVIRONMENT', false);
 }
 
-// Include utility functions
 require_once INCLUDES_PATH . '/functions.php';
-
-// Include database class
 require_once INCLUDES_PATH . '/Database.php';
-
-// Include User class
 require_once INCLUDES_PATH . '/User.php';
 
-// Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Set up error handling
 function customErrorHandler($errno, $errstr, $errfile, $errline) {
     $message = "Error [$errno] $errstr - $errfile:$errline";
     error_log($message);
     
-    // Only show errors in development environment
     if (defined('DEV_ENVIRONMENT') && DEV_ENVIRONMENT === true) {
         echo "<p class='error-message'>$message</p>";
     }
     return true;
 }
 
-// Register error handler
 set_error_handler("customErrorHandler");

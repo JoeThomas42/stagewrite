@@ -7,8 +7,7 @@
 
 /**
  * Sanitize and clean user input
- * 
- * @param string|array $input Input to sanitize
+ * * @param string|array $input Input to sanitize
  * @param bool $trim Whether to trim whitespace
  * @return string|array Sanitized input
  */
@@ -23,7 +22,6 @@ function sanitizeInput($input, $trim = true)
   // Convert special characters to HTML entities to prevent XSS
   $clean = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
 
-  // Trim whitespace if requested
   if ($trim) {
     $clean = trim($clean);
   }
@@ -33,8 +31,7 @@ function sanitizeInput($input, $trim = true)
 
 /**
  * Format event date range for display
- * 
- * @param string $startDate Event start date
+ * * @param string $startDate Event start date
  * @param string $endDate Event end date
  * @return string Formatted date string
  */
@@ -43,29 +40,24 @@ function formatEventDate($startDate, $endDate)
   $start = new DateTime($startDate);
   $end = new DateTime($endDate);
 
-  // Same day event
   if ($start->format('Y-m-d') === $end->format('Y-m-d')) {
     return $start->format('F j, Y');
   }
 
-  // Same month event
   if ($start->format('Y-m') === $end->format('Y-m')) {
     return $start->format('F j') . ' - ' . $end->format('j, Y');
   }
 
-  // Same year event
   if ($start->format('Y') === $end->format('Y')) {
     return $start->format('F j') . ' - ' . $end->format('F j, Y');
   }
 
-  // Different year event
   return $start->format('F j, Y') . ' - ' . $end->format('F j, Y');
 }
 
 /**
  * Generate sort icons for table columns
- * 
- * @param string $column Column name
+ * * @param string $column Column name
  * @param string $currentSort Current sort column
  * @param string $currentOrder Current sort order
  * @param bool $explicitSort Whether sorting is explicit or default
@@ -76,14 +68,12 @@ function getSortIcon($column, $currentSort, $currentOrder, $explicitSort = true)
   if ($currentSort === $column && $explicitSort) {
     return $currentOrder === 'asc' ? '▲' : '▼';
   }
-  // Show a subtle indicator for unsorted columns
   return '';
 }
 
 /**
  * Format empty values with a dash for display
- * 
- * @param string $value The value to check
+ * * @param string $value The value to check
  * @param bool $trim Whether to trim the value before checking
  * @return string The original value or a dash if empty
  */
@@ -97,8 +87,7 @@ function formatEmpty($value, $trim = true)
 
 /**
  * Generate pagination HTML
- * 
- * @param int $currentPage Current page number
+ * * @param int $currentPage Current page number
  * @param int $totalPages Total number of pages
  * @param array $params Additional URL parameters to maintain
  * @param string $section Section identifier for multiple paginations on one page
@@ -113,7 +102,6 @@ function generatePagination($currentPage, $totalPages, $params = [], $section = 
   $html = '<div class="pagination-container">';
   $html .= '<ul class="pagination">';
 
-  // Add section parameter if provided
   if (!empty($section)) {
     $params['section'] = $section;
   }
@@ -136,7 +124,6 @@ function generatePagination($currentPage, $totalPages, $params = [], $section = 
     $html .= '<li><span class="pagination-link disabled">&lsaquo;</span></li>';
   }
 
-  // Page numbers with ellipsis for long lists
   $range = 2;
 
   // Always show first page
@@ -149,7 +136,6 @@ function generatePagination($currentPage, $totalPages, $params = [], $section = 
     $html .= '<li><span class="pagination-ellipsis">&hellip;</span></li>';
   }
 
-  // Page links around current page
   $startPage = max(2, $currentPage - $range);
   $endPage = min($totalPages - 1, $currentPage + $range);
 
@@ -194,8 +180,7 @@ function generatePagination($currentPage, $totalPages, $params = [], $section = 
 
 /**
  * Send a standardized JSON error response
- * 
- * @param string $message Error message
+ * * @param string $message Error message
  * @param int $code HTTP status code
  * @param array $details Additional error details
  */
@@ -213,8 +198,7 @@ function sendJsonError($message, $code = 400, $details = [])
 
 /**
  * Send a standardized JSON success response
- * 
- * @param array $data Response data
+ * * @param array $data Response data
  */
 function sendJsonSuccess($data = [])
 {
@@ -225,21 +209,18 @@ function sendJsonSuccess($data = [])
 
 /**
  * Check if user is authorized and has required role
- * 
- * @param array|int $requiredRoles Role(s) required for access
+ * * @param array|int $requiredRoles Role(s) required for access
  * @return bool True if authorized
  */
 function checkAuth($requiredRoles = [])
 {
   $userObj = new User();
 
-  // Check if user is logged in
   if (!$userObj->isLoggedIn()) {
     sendJsonError('Unauthorized', 401);
     return false;
   }
 
-  // If specific roles are required, check them
   if (!empty($requiredRoles)) {
     if (!$userObj->hasRole($requiredRoles)) {
       sendJsonError('Insufficient permissions', 403);
@@ -252,8 +233,7 @@ function checkAuth($requiredRoles = [])
 
 /**
  * Generate a PDF of a stage plot
- * 
- * @param array $data Plot data including elements, inputs, dimensions, etc.
+ * * @param array $data Plot data including elements, inputs, dimensions, etc.
  * @param Database $db Database connection
  * @param string $tempDir Directory to store temporary files
  * @param bool $autoPrint Whether to add JavaScript to auto-print
@@ -261,49 +241,38 @@ function checkAuth($requiredRoles = [])
  */
 function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
 {
-  // Make sure temp directory exists
+  // Ensure temp directory exists
   if (!is_dir($tempDir)) {
     mkdir($tempDir, 0755, true);
   }
 
-  // Get plot ID if available
   $plotId = isset($data['plotId']) ? (int)$data['plotId'] : null;
 
-  // Load TCPDF library
   require_once VENDOR_PATH . '/tecnickcom/tcpdf/tcpdf.php';
 
-  // Create new PDF document
   $pdf = new TCPDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
 
-  // Set document information
   $pdf->SetCreator('StageWrite');
   $pdf->SetAuthor('StageWrite User');
   $pdf->SetTitle($data['title'] ? $data['title'] : 'Stage Plot');
   $pdf->SetSubject('Stage Plot');
 
-  // Remove default header/footer
   $pdf->setPrintHeader(false);
   $pdf->setPrintFooter(false);
 
-  // Set margins
   $pdf->SetMargins(15, 15, 15);
 
-  // Set auto page breaks
   $pdf->SetAutoPageBreak(TRUE, 15);
 
-  // Add auto-print JavaScript if requested
   if ($autoPrint) {
     $pdf->IncludeJS("print();");
   }
 
-  // Add a page for the stage plot
   $pdf->AddPage();
 
-  // Title
   $pdf->SetFont('helvetica', 'B', 16);
   $pdf->Cell(0, 10, $data['title'] ? $data['title'] : 'Stage Plot', 0, 1, 'C');
 
-  // Add date range if available
   if (!empty($data['eventStart'])) {
     $pdf->SetFont('helvetica', '', 12);
     $dateText = date('F j, Y', strtotime($data['eventStart']));
@@ -313,7 +282,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
     $pdf->Cell(0, 7, $dateText, 0, 1, 'C');
   }
 
-  // Add venue information
   if (!empty($data['venue'])) {
     $pdf->SetFont('helvetica', 'B', 12);
     $pdf->Cell(0, 10, 'Venue: ' . $data['venue'], 0, 1, 'C');
@@ -327,7 +295,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
         if (strpos($data['venueId'], 'user_') === 0) {
           $userVenueId = (int)str_replace('user_', '', $data['venueId']);
 
-          // Fetch user venue address
           $venueInfo = $db->fetchOne(
             "
               SELECT 
@@ -344,7 +311,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
         } else {
           $venueId = (int)$data['venueId'];
 
-          // Fetch venue address
           $venueInfo = $db->fetchOne(
             "
               SELECT 
@@ -376,7 +342,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
 
   // Add stage plot image
   if ($plotId) {
-    // Get existing snapshot filename from database
     $snapshotInfo = $db->fetchOne(
       "SELECT snapshot_filename FROM saved_plots WHERE plot_id = ?",
       [$plotId]
@@ -386,7 +351,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
       $snapshotPath = PRIVATE_PATH . '/snapshots/' . $snapshotInfo['snapshot_filename'];
 
       if (file_exists($snapshotPath)) {
-        // Add the image to the PDF
         $pdf->Image($snapshotPath, 15, null, 180, 0, '', '', '', false, 300);
       } else {
         $pdf->Cell(0, 10, 'Snapshot file not found', 0, 1, 'C');
@@ -396,7 +360,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
       // Fall back to generating a snapshot if one doesn't exist
       $elements = $data['elements'];
 
-      // Extract venue ID and user venue ID
       $venueId = null;
       $userVenueId = null;
       if (!empty($data['venueId'])) {
@@ -407,7 +370,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
         }
       }
 
-      // Generate the snapshot as a fallback
       $snapshotFilename = generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId);
       if ($snapshotFilename) {
         $snapshotPath = PRIVATE_PATH . '/snapshots/' . $snapshotFilename;
@@ -429,7 +391,6 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
   // Elements table
   if (!empty($data['elements'])) {
     $pdf->SetFont('helvetica', 'B', 10);
-    // Table header
     $pdf->Cell(10, 7, '#', 1, 0, 'C');
     $pdf->Cell(50, 7, 'Element', 1, 0, 'C');
     $pdf->Cell(30, 7, 'Label', 1, 0, 'C');
@@ -450,13 +411,11 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
       $elementCounts[$name]++;
     }
 
-    // Table data
     $pdf->SetFont('helvetica', '', 10);
     $i = 1;
-    $nameCounts = []; // Track how many times we've seen each name
+    $nameCounts = [];
 
     foreach ($data['elements'] as $element) {
-      // Get proper element name
       $name = isset($element['elementName']) ? $element['elementName'] : (isset($element['element_name']) ? $element['element_name'] : 'Element ' . $i);
 
       // Add counter to name if there are multiple elements with this name
@@ -494,11 +453,9 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
   // Input list table
   if (!empty($data['inputs'])) {
     $pdf->SetFont('helvetica', 'B', 10);
-    // Table header
     $pdf->Cell(20, 7, 'Input #', 1, 0, 'C');
     $pdf->Cell(160, 7, 'Description', 1, 1, 'C');
 
-    // Table data
     $pdf->SetFont('helvetica', '', 10);
     foreach ($data['inputs'] as $input) {
       $inputNumber = isset($input['number']) ? $input['number'] : (isset($input['input_number']) ? $input['input_number'] : '');
@@ -514,11 +471,9 @@ function generatePlotPDF($data, $db, $tempDir, $autoPrint = false)
     $pdf->Cell(0, 10, 'No inputs defined', 0, 1, 'C');
   }
 
-  // Generate filename
   $filename = 'stage_plot_' . preg_replace('/[^a-z0-9_-]/i', '_', $data['title']) . '.pdf';
   $filepath = $tempDir . '/' . $filename;
 
-  // Save the PDF to disk
   $pdf->Output($filepath, 'F');
 
   return [

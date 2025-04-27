@@ -6,7 +6,7 @@ $db_name = 'jrtdesig_stagewrite';
 $db_user = 'root';
 $db_password = '';
 
-// *** reCAPTCHA Config ***
+// reCAPTCHA Config
 define('RECAPTCHA_SITE_KEY', '6Ld9xSQrAAAAADjwte96Or82zUJd-6Kfy-eNgJ73');
 define('RECAPTCHA_SECRET_KEY', '6Ld9xSQrAAAAAOcAFF-xkwG4pge-j609vVjh44Qt');
 
@@ -17,10 +17,4 @@ define('DB_USER', $db_user);
 define('DB_PASS', $db_password);
 define('DB_CHARSET', 'utf8mb4');
 
-// try {
-//     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_password);
-//     echo "Database connection successful!";
-// } catch (PDOException $e) {
-//     echo "Database connection failed: " . $e->getMessage();
-// }
 ?>
