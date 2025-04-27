@@ -282,10 +282,6 @@ table {
   margin-top: var(--spacing-xl);
   overflow: hidden;
   width: 100%;
-
-  &:has(.dropdown-menu.active) {   /* FIND MORE ELEGANT SOLUTION */
-    overflow: auto;
-  }
   
   th,
   td {
@@ -302,49 +298,84 @@ table {
     text-align: left;
   }
 
-  tr:nth-child(odd) {
-    background-color: var(--color-white);
+  tr {
     transition: all var(--transition-fast);
+    
+    &:nth-child(odd) {
+      background-color: var(--color-white);
 
-    &:hover {
-      background-color: var(--color-table-hover);
+      &:hover {
+        background-color: var(--color-table-hover);
+      }
+    }
+  
+    &:nth-child(even) {
+      background-color: var(--color-background-light);
+
+      &:hover {
+        background-color: var(--color-table-hover);
+      }
     }
   }
-
-  tr:nth-child(even) {
-    background-color: var(--color-background-light);
-    transition: all var(--transition-fast);
-
-    &:hover {
-      background-color: var(--color-table-hover);
-    }
+  
+  &:first-child th,
+  &:first-child td {
+    border-top: none;
   }
-}
-
-/* Remove borders from outside edges */
-tr:first-child th,
-tr:first-child td {
-  border-top: none; /* Remove top border from first row */
-}
-
-tr:last-child th,
-tr:last-child td {
-  border-bottom: none; /* Remove bottom border from last row */
-}
-
-tr th:first-child,
-tr td:first-child {
-  border-left: none; /* Remove left border from first column */
-}
-
-tr th:last-child,
-tr td:last-child {
-  border-right: none; /* Remove right border from last column */
+  
+  &:last-child th,
+  &:last-child td {
+    border-bottom: none;
+  }
+  
+  & th:first-child,
+  & td:first-child {
+    border-left: none;
+  }
+  
+  & th:last-child,
+  & td:last-child {
+    border-right: none;
+  }
 }
 
 .action-cell {
+  align-items: center;
+  display: flex;
+  justify-content: center;
   text-align: center;
   white-space: nowrap;
+
+  .view-button {
+    width: 100px;
+    height: 32px;
+    padding: 5px 10px;
+  }
+}
+
+.search-button {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 0 5px;
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  &:hover {
+    box-shadow: none;
+    color: var(--color-primary);
+  }
+}
+
+.add-button {
+  align-content: center;
+  height: 32px;
+  padding: 0;
+  width: 32px;
 }
 
 .sort-icon {
@@ -407,11 +438,11 @@ th.sortable {
   min-width: 100px;
 }
 
-/* -------------------- Search/Filtering --------------------- */
+/* -------------------- Data management -------------------- */
+/* ------- Search/Filtering ------ */
 .search-actions {
   align-items: center;
   display: flex;
-  flex-wrap: wrap;
   gap: var(--spacing-md);
   justify-content: flex-end;
   width: 100%;
@@ -447,7 +478,7 @@ th.sortable {
     margin: 0;
     outline: none;
     padding: var(--spacing-sm) var(--spacing-md);
-    width: 100%;
+    width: 300px;
     
     &:active,
     &:focus {
@@ -473,9 +504,211 @@ th.sortable {
 }
 
 .no-results-message {
-  background-color: #f8f8f8;
-  color: var(--color-text-light);
+  text-align: center;
   font-style: italic;
+  padding: 1rem;
+}
+
+/* ----- View User ----- */
+.email-log-table th {
+  width: auto;
+}
+
+.user-actions-section form {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
+
+  .button {
+    height: 38px;
+    flex: 1;
+  }
+}
+
+.button.action-button {
+  background-color: var(--color-primary);
+  width: 100%;
+}
+
+.button.warning-button {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.button.danger-button {
+  background-color: var(--color-danger);
+}
+
+.button.secondary-button {
+  background-color: var(--color-secondary);
+}
+
+/* ----- View Venue ----- */
+.view-container {
+  max-width: 800px;
+}
+
+.profile-header {
+  margin-bottom: 1.5rem;
+  align-items: center;
+
+  h1 {
+    color: var(--color-text);
+    margin: 0;
+    font-size: 1.8rem;
+  }
+}
+
+.back-button {
+  margin-left: auto;
+}
+
+.view-section {
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 1.3rem;
+  }
+}
+
+.view-table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  th,
+  td {
+    text-align: left;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--color-border-light);
+    vertical-align: top;
+  }
+  
+  th {
+    font-weight: 600;
+    width: 150px;
+  }
+  
+  tr:last-child th,
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.actions-section {
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+  
+    button,
+    form,
+    a {
+      height: 38px;
+      width: 100%;
+      flex: 1;
+    
+      &.action-button {
+        background-color: var(--color-primary);
+        padding: auto;
+      }
+    
+      &.danger-button {
+        background-color: var(--color-danger);
+      }
+    }
+  }
+}
+
+/* ----- Edit Venue ----- */
+.view-container {
+  max-width: 600px;
+}
+
+.profile-header {
+  margin-bottom: 1.5rem;
+  align-items: center;
+
+  h1 {
+    color: var(--color-text);
+    margin: 0;
+    font-size: 1.8rem;
+  }
+}
+
+.back-button {
+  margin-left: auto;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+
+  .form-group {
+    flex: 1;
+  }
+
+  .form-group:last-child {
+    flex: 0 0 100px;
+  }
+}
+
+.input-dimensions {
+  display: flex;
+  gap: 1rem;
+
+  .form-group {
+    flex: 1;
+  }
+}
+
+.form-actions {
+  margin-top: 1rem;
+
+  button,
+  .cancel-button {
+    flex: 1;
+    height: 38px;
+  }
+}
+
+.field-error {
+  color: var(--color-danger);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-group.error input,
+.form-group.error select {
+  border-color: var(--color-danger);
+}
+
+.success-message {
+  color: var(--color-success);
+  background-color: var(--color-success-lightest);
+  border: 1px solid var(--color-success-light);
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+.error-message {
+  color: var(--color-danger);
+  background-color: var(--color-danger-lightest);
+  border: 1px solid var(--color-danger-light);
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
 }
 
 /* -------------------- Dropdown Menu --------------------- */

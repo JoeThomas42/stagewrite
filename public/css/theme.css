@@ -106,9 +106,20 @@
   .custom-dropdown-menu,
   table tr:nth-child(odd) {
     background-color: var(--color-background);
+
+    &:hover {
+      background-color: var(--color-table-hover);
+    }
   }
   
-  table tr:nth-child(even),
+  table tr:nth-child(even) {
+    background-color: var(--color-background-light);
+
+    &:hover {
+      background-color: var(--color-table-hover);
+    }
+  }
+
   #stage,
   .custom-dropdown-option:hover,
   .custom-dropdown-option:focus {

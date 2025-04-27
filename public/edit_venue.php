@@ -1,0 +1,174 @@
+<?php
+/*
+stagewrite/public/edit_venue.php
+*/
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
+
+// Check if user is logged in and has admin privileges
+if (!isset($_SESSION['user_id']) || ($_SESSION['role_id'] != 2 && $_SESSION['role_id'] != 3)) {
+  header('Location: /');
+  exit;
+}
+
+$db = Database::getInstance();
+require_once INCLUDES_PATH . '/VenueManager.php';
+$venueManager = new VenueManager();
+
+$venue_id = isset($_GET['venue_id']) ? (int)$_GET['venue_id'] : null;
+$is_editing = !is_null($venue_id);
+$venue_data = null;
+$page_title = "Add Official Venue";
+$error_message = '';
+$success_message = '';
+$form_errors = [];
+
+// Fetch venue data if editing
+if ($is_editing) {
+  if ($venue_id == 1) { // Prevent editing the default venue
+    $_SESSION['error_message'] = "The default venue cannot be edited.";
+    header('Location: data_management.php');
+    exit;
+  }
+  $venue_data = $venueManager->getVenue($venue_id);
+  if (!$venue_data) {
+    $_SESSION['error_message'] = "Venue not found.";
+    header('Location: data_management.php');
+    exit;
+  }
+  $page_title = "Edit Official Venue";
+} else {
+  // Initialize empty array for adding
+  $venue_data = [
+    'venue_id' => null,
+    'venue_name' => '',
+    'venue_street' => '',
+    'venue_city' => '',
+    'venue_state_id' => '',
+    'venue_zip' => '',
+    'stage_width' => '',
+    'stage_depth' => ''
+  ];
+}
+
+// Handle Form Submission (POST request)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $submitted_data = [
+    'venue_id' => !empty($_POST['venue_id']) ? (int)$_POST['venue_id'] : null,
+    'venue_name' => trim($_POST['venue_name'] ?? ''),
+    'venue_street' => trim($_POST['venue_street'] ?? ''),
+    'venue_city' => trim($_POST['venue_city'] ?? ''),
+    'venue_state_id' => !empty($_POST['venue_state_id']) ? (int)$_POST['venue_state_id'] : null,
+    'venue_zip' => trim($_POST['venue_zip'] ?? ''),
+    'stage_width' => trim($_POST['stage_width'] ?? ''),
+    'stage_depth' => trim($_POST['stage_depth'] ?? '')
+  ];
+
+  // Ensure editing the correct venue ID
+  if ($is_editing && $submitted_data['venue_id'] !== $venue_id) {
+    $error_message = "Venue ID mismatch. Cannot save changes.";
+  } else {
+    $form_errors = $venueManager->validateVenueData($submitted_data);
+
+    if (empty($form_errors)) {
+      try {
+        if ($venueManager->saveVenue($submitted_data)) {
+          $_SESSION['success_message'] = $is_editing ? "Venue updated successfully." : "Venue added successfully.";
+          header('Location: data_management.php');
+          exit;
+        } else {
+          $error_message = "Failed to save venue. Please try again.";
+        }
+      } catch (Exception $e) {
+        $error_message = "An error occurred: " . $e->getMessage();
+        error_log("Error saving venue: " . $e->getMessage());
+      }
+    } else {
+      $error_message = "Please correct the errors below.";
+      // Repopulate $venue_data with submitted data to show in form
+      $venue_data = $submitted_data;
+    }
+  }
+}
+
+// Set page title for header
+$current_page = $page_title;
+include PRIVATE_PATH . '/templates/header.php';
+?>
+
+<div class="profile-container view-container edit-container">
+  <div class="profile-header">
+    <h1><?= htmlspecialchars($page_title) ?></h1>
+    <a href="data_management.php"><button class="button back-button">Back to Management</button></a>
+  </div>
+
+  <?php if ($error_message): ?>
+    <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
+  <?php endif; ?>
+
+  <form method="POST" action="edit_venue.php<?= $is_editing ? '?venue_id=' . urlencode($venue_id) : '' ?>">
+    <input type="hidden" name="venue_id" value="<?= htmlspecialchars($venue_data['venue_id'] ?? '') ?>">
+
+    <div class="form-group <?= isset($form_errors['venue_name']) ? 'error' : '' ?>">
+      <label for="venue_name">Venue Name:</label>
+      <input type="text" id="venue_name" name="venue_name" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_name'] ?? '') ?>" required>
+      <?php if (isset($form_errors['venue_name'])): ?><span class="field-error"><?= $form_errors['venue_name'] ?></span><?php endif; ?>
+    </div>
+
+    <div class="form-group <?= isset($form_errors['venue_street']) ? 'error' : '' ?>">
+      <label for="venue_street">Street Address:</label>
+      <input type="text" id="venue_street" name="venue_street" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_street'] ?? '') ?>">
+      <?php if (isset($form_errors['venue_street'])): ?><span class="field-error"><?= $form_errors['venue_street'] ?></span><?php endif; ?>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group <?= isset($form_errors['venue_city']) ? 'error' : '' ?>">
+        <label for="venue_city">City:</label>
+        <input type="text" id="venue_city" name="venue_city" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_city'] ?? '') ?>">
+        <?php if (isset($form_errors['venue_city'])): ?><span class="field-error"><?= $form_errors['venue_city'] ?></span><?php endif; ?>
+      </div>
+
+      <div class="form-group <?= isset($form_errors['venue_state_id']) ? 'error' : '' ?>">
+        <label for="venue_state_id">State:</label>
+        <select id="venue_state_id" name="venue_state_id">
+          <option value="" <?= empty($venue_data['venue_state_id']) ? 'selected' : '' ?>>Select State</option>
+          <?php
+          $states = $db->fetchAll("SELECT state_id, state_name FROM states ORDER BY state_name");
+          foreach ($states as $state) {
+            $selected = ($venue_data['venue_state_id'] ?? '') == $state['state_id'] ? 'selected' : '';
+            echo "<option value='{$state['state_id']}' {$selected}>" . htmlspecialchars($state['state_name']) . "</option>";
+          }
+          ?>
+        </select>
+        <?php if (isset($form_errors['venue_state_id'])): ?><span class="field-error"><?= $form_errors['venue_state_id'] ?></span><?php endif; ?>
+      </div>
+
+      <div class="form-group <?= isset($form_errors['venue_zip']) ? 'error' : '' ?>">
+        <label for="venue_zip">ZIP:</label>
+        <input type="text" id="venue_zip" name="venue_zip" maxlength="5" pattern="\d{5}" title="Enter a 5-digit ZIP code" value="<?= htmlspecialchars($venue_data['venue_zip'] ?? '') ?>">
+        <?php if (isset($form_errors['venue_zip'])): ?><span class="field-error"><?= $form_errors['venue_zip'] ?></span><?php endif; ?>
+      </div>
+    </div>
+
+    <div class="input-dimensions">
+      <div class="form-group <?= isset($form_errors['stage_width']) ? 'error' : '' ?>">
+        <label for="stage_width">Stage Width (feet):</label>
+        <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1" value="<?= htmlspecialchars($venue_data['stage_width'] ?? '') ?>" required>
+        <?php if (isset($form_errors['stage_width'])): ?><span class="field-error"><?= $form_errors['stage_width'] ?></span><?php endif; ?>
+      </div>
+
+      <div class="form-group <?= isset($form_errors['stage_depth']) ? 'error' : '' ?>">
+        <label for="stage_depth">Stage Depth (feet):</label>
+        <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1" value="<?= htmlspecialchars($venue_data['stage_depth'] ?? '') ?>" required>
+        <?php if (isset($form_errors['stage_depth'])): ?><span class="field-error"><?= $form_errors['stage_depth'] ?></span><?php endif; ?>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button save-button"><?= $is_editing ? 'Save Changes' : 'Add Venue' ?></button>
+      <a href="data_management.php" class="button cancel-button">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<?php include PRIVATE_PATH . '/templates/footer.php'; ?>

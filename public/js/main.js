@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const scripts = [
     '/js/core.js',
     '/js/auth.js',
-    '/js/users.js',
     '/js/venues.js', 
     '/js/ui.js',
     '/js/share.js',

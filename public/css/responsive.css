@@ -311,16 +311,6 @@
   table {
     margin-top: 0;
 
-    tr:nth-child(1) {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-    }
-
-    th:not(.sortable) {
-        display: none;
-    }
-
     th.sortable {
       flex: 1;
     }
@@ -336,11 +326,6 @@
       width: 1px;
     }
 
-    tr {
-      display: block;
-      margin-bottom: var(--spacing-lg);
-    }
-
     td {
       border-bottom: 1px solid var(--color-border);
       display: block;
@@ -354,9 +339,11 @@
       }
 
       &::before {
-        content: attr(data-label);
+        color: var(--color-text-light);
+        content: attr(data-label) " : ";
         float: left;
         font-weight: bold;
+        margin-right: var(--spacing-md);
         text-transform: uppercase;
       }
     }
@@ -369,10 +356,8 @@
   
   /* Action Cells */
   .action-cell {
-    align-items: center;
     border-top: none;
-    display: flex;
-    justify-content: space-between;
+    justify-content: space-between !important;
   }
   
   /* Dropdowns */
@@ -468,9 +453,16 @@
     max-height: 150px;
   }
   
-  /* Further refine mobile Menu UI */
   .account-dropdown, .theme-toggle {
     margin: 0 0.5rem;
+  }
+
+  .search-container .search-input {
+    width: 200px;
+  }
+
+  .user-actions-section form {
+    flex-direction: column;
   }
 }
 

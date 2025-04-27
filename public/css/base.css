@@ -51,7 +51,10 @@ h2 {
 }
 
 button,
-.log-link {
+.log-link,
+.add-button,
+.view-button,
+.cancel-button {
   background-color: var(--color-primary);
   border: none;
   border-radius: var(--border-radius-sm);
