@@ -40,6 +40,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
+ * Initializes and shows the first-time user popup if needed.
+ */
+window.initFirstTimePopup = function () {
+  const popup = document.getElementById('first-time-popup');
+  if (!popup) return;
+
+  const popupShownKey = 'stagewrite_popup_shown';
+
+  if (localStorage.getItem(popupShownKey)) {
+    console.log('First time popup already shown.');
+    return;
+  }
+
+  const closePopup = () => {
+    closeModal(popup);
+    localStorage.setItem(popupShownKey, 'true');
+    console.log('First time popup closed and flag set.');
+  };
+
+  setTimeout(() => {
+    openModal(popup);
+    console.log('Showing first time popup.');
+  }, 500);
+
+  const closeButtons = popup.querySelectorAll('.modal-close-button');
+  closeButtons.forEach((button) => {
+    button.removeEventListener('click', closePopup);
+    button.addEventListener('click', closePopup);
+  });
+
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+      closePopup();
+    }
+  });
+};
+
+/**
  * Simple client-side sorting indicator toggle if JS is enabled
  * Cycles through: Ascending -> Descending -> Default Order
  */
@@ -125,44 +163,6 @@ document.querySelector('.actions-section form').onsubmit = function(event) {
     return false;
   }
   return true;
-};
-
-/**
- * Initializes and shows the first-time user popup if needed.
- */
-window.initFirstTimePopup = function () {
-  const popup = document.getElementById('first-time-popup');
-  if (!popup) return;
-
-  const popupShownKey = 'stagewrite_popup_shown';
-
-  if (localStorage.getItem(popupShownKey)) {
-    console.log('First time popup already shown.');
-    return;
-  }
-
-  const closePopup = () => {
-    closeModal(popup);
-    localStorage.setItem(popupShownKey, 'true');
-    console.log('First time popup closed and flag set.');
-  };
-
-  setTimeout(() => {
-    openModal(popup);
-    console.log('Showing first time popup.');
-  }, 500);
-
-  const closeButtons = popup.querySelectorAll('.modal-close-button');
-  closeButtons.forEach((button) => {
-    button.removeEventListener('click', closePopup);
-    button.addEventListener('click', closePopup);
-  });
-
-  popup.addEventListener('click', (e) => {
-    if (e.target === popup) {
-      closePopup();
-    }
-  });
 };
 
 /**

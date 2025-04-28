@@ -212,7 +212,6 @@
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     padding-top: 1.5rem;
     width: 100%;
   }
@@ -222,7 +221,7 @@
   }
   
   .log-link {
-    padding: 0.75rem 5rem;
+    padding: 0.75rem 2rem;
     text-align: center;
   }
 
