@@ -106,6 +106,30 @@
         <?php endif; ?>
       </div>
     </div>
+
+    <!-- 404 Notification script -->
+    <?php if (isset($_SESSION['show_not_found_notification']) && $_SESSION['show_not_found_notification']): ?>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          if (typeof showNotification === 'function') {
+            showNotification('Page not found! Returned home!', 'warning', 5000);
+          } else {
+            setTimeout(function checkNotification() {
+              if (typeof showNotification === 'function') {
+                showNotification('Page not found! Returned home!', 'warning', 5000);
+              } else if (typeof window.showNotification === 'function') {
+                window.showNotification('Page not found! Returned home!', 'warning', 5000);
+              } else {
+                setTimeout(checkNotification, 100);
+              }
+            }, 100);
+          }
+        });
+      </script>
+      <?php
+      unset($_SESSION['show_not_found_notification']);
+      ?>
+    <?php endif; ?>
   </header>
 
   <!-- Login Modal -->

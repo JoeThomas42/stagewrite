@@ -1,6 +1,16 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
+// Check if this is a 404 redirect and store in session
+if (isset($_GET['notfound']) && $_GET['notfound'] == 1) {
+  $_SESSION['show_not_found_notification'] = true;
+  $cleanUrl = strtok($_SERVER['REQUEST_URI'], '?');
+  if ($cleanUrl !== '/') {
+      header("Location: /");
+      exit;
+  }
+}
+
 $current_page = "Plotter";
 include PRIVATE_PATH . '/templates/header.php';
 

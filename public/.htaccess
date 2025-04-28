@@ -2,8 +2,18 @@
     RewriteEngine On
     RewriteBase /
     
-    # Don't rewrite files or directories
+    # Redirect non-existent resources to index.php with notfound parameter
+    # but only if it's not already the home page or index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/index\.php
+    RewriteCond %{REQUEST_URI} !^/$
+    RewriteRule ^(.*)$ /index.php?notfound=1 [QSA,L]
+    
+    # Handle regular index.php redirects without the notfound parameter
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} ^/index\.php$ [OR]
+    RewriteCond %{REQUEST_URI} ^/$
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
