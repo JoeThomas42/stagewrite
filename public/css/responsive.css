@@ -14,7 +14,9 @@
 
   #stage-plot-container {
     gap: var(--spacing-xs);
+    max-width: fit-content;
     padding: var(--spacing-xs);
+    width: 100%;
   }
 
   .accordion-header {
@@ -333,6 +335,10 @@
     text-align: left;
   }
 
+  .table-actions {
+    flex-direction: column;
+  }
+
   /* Tables */
   table {
     margin-top: 0;
@@ -371,6 +377,16 @@
         font-weight: bold;
         margin-right: var(--spacing-md);
         text-transform: uppercase;
+      }
+    }
+
+    .action-cell {
+      &::before {
+      content: none;
+      }
+
+      .view-button {
+        width: 100%;
       }
     }
   }

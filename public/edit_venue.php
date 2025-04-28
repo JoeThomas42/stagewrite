@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // Ensure editing the correct venue ID
   if ($is_editing && $submitted_data['venue_id'] !== $venue_id) {
-    $error_message = "Venue ID mismatch. Cannot save changes.";
+    $error_message = "Venue ID mismatch. Cannot save changes to a different venue ID.";
     $_SESSION['error_message'] = $error_message;
     error_log('Venue ID mismatch error: submitted ' . $submitted_data['venue_id'] . ' vs expected ' . $venue_id);
   } else {
@@ -91,18 +91,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           header('Location: data_management.php');
           exit;
         } else {
-          $error_message = "Failed to save venue. Please try again.";
+          $error_message = "Failed to save venue. The database could not process the request.";
           $_SESSION['error_message'] = $error_message;
           error_log('Venue save returned false without throwing exception');
         }
       } catch (Exception $e) {
-        $error_message = "An error occurred: " . $e->getMessage();
+        $error_message = "An error occurred while saving the venue: " . $e->getMessage();
         $_SESSION['error_message'] = $error_message;
         error_log("Error saving venue: " . $e->getMessage());
         error_log("Exception details: " . print_r($e, true));
       }
     } else {
-      $error_message = "Please correct the errors below.";
+      $error_message = "Please correct the errors below before submitting.";
       // Repopulate $venue_data with submitted data to show in form
       $venue_data = $submitted_data;
     }
@@ -135,7 +135,7 @@ include PRIVATE_PATH . '/templates/header.php';
             $logLines = array_slice(explode("\n", $logContent), -10); // Get last 10 lines
             echo "<pre>" . htmlspecialchars(implode("\n", $logLines)) . "</pre>";
           } else {
-            echo "<p>Error log not available. Please check the server logs.</p>";
+            echo "<p>Error log not available for detailed information. Please contact system administrator.</p>";
           }
           ?>
         </div>
@@ -149,20 +149,58 @@ include PRIVATE_PATH . '/templates/header.php';
     <div class="form-group <?= isset($form_errors['venue_name']) ? 'error' : '' ?>">
       <label for="venue_name">Venue Name:</label>
       <input type="text" id="venue_name" name="venue_name" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_name'] ?? '') ?>" required>
-      <?php if (isset($form_errors['venue_name'])): ?><span class="field-error"><?= $form_errors['venue_name'] ?></span><?php endif; ?>
+      <?php if (isset($form_errors['venue_name'])): ?>
+        <span class="field-error">
+          <?php
+          if ($form_errors['venue_name'] === 'required') {
+            echo 'Venue name is required.';
+          } elseif ($form_errors['venue_name'] === 'max_length') {
+            echo 'Venue name must be less than 100 characters.';
+          } elseif ($form_errors['venue_name'] === 'exists') {
+            echo 'A venue with this name already exists.';
+          } else {
+            echo $form_errors['venue_name'];
+          }
+          ?>
+        </span>
+      <?php endif; ?>
     </div>
 
     <div class="form-group <?= isset($form_errors['venue_street']) ? 'error' : '' ?>">
       <label for="venue_street">Street Address:</label>
       <input type="text" id="venue_street" name="venue_street" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_street'] ?? '') ?>" required>
-      <?php if (isset($form_errors['venue_street'])): ?><span class="field-error"><?= $form_errors['venue_street'] ?></span><?php endif; ?>
+      <?php if (isset($form_errors['venue_street'])): ?>
+        <span class="field-error">
+          <?php
+          if ($form_errors['venue_street'] === 'required') {
+            echo 'Street address is required.';
+          } elseif ($form_errors['venue_street'] === 'max_length') {
+            echo 'Street address must be less than 100 characters.';
+          } else {
+            echo $form_errors['venue_street'];
+          }
+          ?>
+        </span>
+      <?php endif; ?>
     </div>
 
     <div class="form-row">
       <div class="form-group <?= isset($form_errors['venue_city']) ? 'error' : '' ?>">
         <label for="venue_city">City:</label>
         <input type="text" id="venue_city" name="venue_city" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_city'] ?? '') ?>" required>
-        <?php if (isset($form_errors['venue_city'])): ?><span class="field-error"><?= $form_errors['venue_city'] ?></span><?php endif; ?>
+        <?php if (isset($form_errors['venue_city'])): ?>
+          <span class="field-error">
+            <?php
+            if ($form_errors['venue_city'] === 'required') {
+              echo 'City is required.';
+            } elseif ($form_errors['venue_city'] === 'max_length') {
+              echo 'City must be less than 100 characters.';
+            } else {
+              echo $form_errors['venue_city'];
+            }
+            ?>
+          </span>
+        <?php endif; ?>
       </div>
 
       <div class="form-group <?= isset($form_errors['venue_state_id']) ? 'error' : '' ?>">
@@ -177,13 +215,37 @@ include PRIVATE_PATH . '/templates/header.php';
           }
           ?>
         </select>
-        <?php if (isset($form_errors['venue_state_id'])): ?><span class="field-error"><?= $form_errors['venue_state_id'] ?></span><?php endif; ?>
+        <?php if (isset($form_errors['venue_state_id'])): ?>
+          <span class="field-error">
+            <?php
+            if ($form_errors['venue_state_id'] === 'required') {
+              echo 'State selection is required.';
+            } elseif ($form_errors['venue_state_id'] === 'invalid') {
+              echo 'Please select a valid state.';
+            } else {
+              echo $form_errors['venue_state_id'];
+            }
+            ?>
+          </span>
+        <?php endif; ?>
       </div>
 
       <div class="form-group <?= isset($form_errors['venue_zip']) ? 'error' : '' ?>">
         <label for="venue_zip">ZIP:</label>
         <input type="text" id="venue_zip" name="venue_zip" maxlength="5" pattern="\d{5}" title="Enter a 5-digit ZIP code" value="<?= htmlspecialchars($venue_data['venue_zip'] ?? '') ?>" required>
-        <?php if (isset($form_errors['venue_zip'])): ?><span class="field-error"><?= $form_errors['venue_zip'] ?></span><?php endif; ?>
+        <?php if (isset($form_errors['venue_zip'])): ?>
+          <span class="field-error">
+            <?php
+            if ($form_errors['venue_zip'] === 'required') {
+              echo 'ZIP code is required.';
+            } elseif ($form_errors['venue_zip'] === 'format') {
+              echo 'ZIP code must be 5 digits.';
+            } else {
+              echo $form_errors['venue_zip'];
+            }
+            ?>
+          </span>
+        <?php endif; ?>
       </div>
     </div>
 
@@ -191,13 +253,45 @@ include PRIVATE_PATH . '/templates/header.php';
       <div class="form-group <?= isset($form_errors['stage_width']) ? 'error' : '' ?>">
         <label for="stage_width">Stage Width (feet):</label>
         <input type="number" id="stage_width" name="stage_width" min="1" max="200" step="1" value="<?= htmlspecialchars($venue_data['stage_width'] ?? '') ?>" required>
-        <?php if (isset($form_errors['stage_width'])): ?><span class="field-error"><?= $form_errors['stage_width'] ?></span><?php endif; ?>
+        <?php if (isset($form_errors['stage_width'])): ?>
+          <span class="field-error">
+            <?php
+            if ($form_errors['stage_width'] === 'required') {
+              echo 'Stage width is required.';
+            } elseif ($form_errors['stage_width'] === 'min') {
+              echo 'Stage width must be at least 1 foot.';
+            } elseif ($form_errors['stage_width'] === 'max') {
+              echo 'Stage width cannot exceed 200 feet.';
+            } elseif ($form_errors['stage_width'] === 'numeric') {
+              echo 'Stage width must be a number.';
+            } else {
+              echo $form_errors['stage_width'];
+            }
+            ?>
+          </span>
+        <?php endif; ?>
       </div>
 
       <div class="form-group <?= isset($form_errors['stage_depth']) ? 'error' : '' ?>">
         <label for="stage_depth">Stage Depth (feet):</label>
         <input type="number" id="stage_depth" name="stage_depth" min="1" max="200" step="1" value="<?= htmlspecialchars($venue_data['stage_depth'] ?? '') ?>" required>
-        <?php if (isset($form_errors['stage_depth'])): ?><span class="field-error"><?= $form_errors['stage_depth'] ?></span><?php endif; ?>
+        <?php if (isset($form_errors['stage_depth'])): ?>
+          <span class="field-error">
+            <?php
+            if ($form_errors['stage_depth'] === 'required') {
+              echo 'Stage depth is required.';
+            } elseif ($form_errors['stage_depth'] === 'min') {
+              echo 'Stage depth must be at least 1 foot.';
+            } elseif ($form_errors['stage_depth'] === 'max') {
+              echo 'Stage depth cannot exceed 200 feet.';
+            } elseif ($form_errors['stage_depth'] === 'numeric') {
+              echo 'Stage depth must be a number.';
+            } else {
+              echo $form_errors['stage_depth'];
+            }
+            ?>
+          </span>
+        <?php endif; ?>
       </div>
     </div>
 

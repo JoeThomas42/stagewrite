@@ -13,10 +13,32 @@ $venue_id = isset($_GET['venue_id']) ? (int)$_GET['venue_id'] : null;
 $db = Database::getInstance();
 $error_message = '';
 $success_message = '';
+$confirm_action = isset($_POST['confirm_action']) ? $_POST['confirm_action'] : '';
+$action_to_confirm = isset($_POST['action_to_confirm']) ? $_POST['action_to_confirm'] : '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_POST['action']) && $_POST['action'] === 'delete') {
+  // First step of confirmation
+  if (isset($_POST['action']) && empty($confirm_action)) {
+    $action = $_POST['action'];
     $action_venue_id = $_POST['venue_id'] ?? null;
+
+    // Store the action for confirmation
+    $action_to_confirm = $action;
+
+    // Set confirmation message based on action
+    if ($action === 'delete') {
+      if ($action_venue_id == 1) {
+        $error_message = "The default venue cannot be deleted.";
+        $action_to_confirm = ''; // Reset confirmation since we don't need it
+      } else {
+        $confirm_message = "Are you sure you want to delete this venue? Associated plots will be reassigned to the default venue. This cannot be undone.";
+      }
+    }
+  }
+  // Second step - user confirmed the action
+  else if (!empty($confirm_action) && !empty($action_to_confirm)) {
+    $action_venue_id = $_POST['venue_id'] ?? null;
+
     if ($action_venue_id != $venue_id) {
       $error_message = "Action mismatch. Please try again.";
     } else {
@@ -41,6 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       }
     }
+    // Clear the confirmation variables after processing
+    $action_to_confirm = '';
+    $confirm_action = '';
   }
 }
 
@@ -114,15 +139,31 @@ include PRIVATE_PATH . '/templates/header.php';
 
   <div class="view-section actions-section">
     <h2>Actions</h2>
-    <div class="action-buttons">
-      <a href="edit_venue.php?venue_id=<?= urlencode($venue_id) ?>"><button class="button action-button">Edit Venue</button></a>
-      <form method="POST" action="view_venue.php?venue_id=<?= urlencode($venue_id) ?>" onsubmit="return confirm('Are you sure you want to delete this venue? Associated plots will be reassigned to the default venue. This cannot be undone.');" style="display: inline;">
-        <input type="hidden" name="venue_id" value="<?= htmlspecialchars($venue_id) ?>">
-        <button type="submit" name="action" value="delete" class="button danger-button">Delete Venue</button>
-      </form>
-    </div>
-  </div>
 
+    <?php if (!empty($action_to_confirm)): ?>
+      <!-- Confirmation form -->
+      <div class="confirmation-box">
+        <p class="confirmation-message"><?= $confirm_message ?></p>
+        <form method="POST" action="view_venue.php?venue_id=<?= urlencode($venue_id) ?>">
+          <input type="hidden" name="venue_id" value="<?= htmlspecialchars($venue_id) ?>">
+          <input type="hidden" name="action_to_confirm" value="<?= htmlspecialchars($action_to_confirm) ?>">
+          <div class="confirmation-buttons">
+            <button type="submit" name="confirm_action" value="yes" class="button danger-button">Confirm</button>
+            <button type="submit" name="cancel_action" value="cancel" class="button secondary-button">Cancel</button>
+          </div>
+        </form>
+      </div>
+    <?php else: ?>
+      <!-- Regular action buttons -->
+      <div class="action-buttons">
+        <a href="edit_venue.php?venue_id=<?= urlencode($venue_id) ?>"><button class="button action-button">Edit Venue</button></a>
+        <form method="POST" action="view_venue.php?venue_id=<?= urlencode($venue_id) ?>" style="display: inline;">
+          <input type="hidden" name="venue_id" value="<?= htmlspecialchars($venue_id) ?>">
+          <button type="submit" name="action" value="delete" class="button danger-button" <?= $venue_id == 1 ? ' disabled' : '' ?>>Delete Venue</button>
+        </form>
+      </div>
+    <?php endif; ?>
+  </div>
 </div>
 
 <?php include PRIVATE_PATH . '/templates/footer.php'; ?>

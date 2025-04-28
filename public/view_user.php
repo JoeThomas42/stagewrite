@@ -20,16 +20,48 @@ if (!$view_user_id) {
 $db = Database::getInstance();
 $error_message = '';
 $success_message = '';
+$confirm_action = isset($_POST['confirm_action']) ? $_POST['confirm_action'] : '';
+$action_to_confirm = isset($_POST['action_to_confirm']) ? $_POST['action_to_confirm'] : '';
+
+// Check if cancel button was clicked
+if (isset($_POST['cancel_action'])) {
+  // Clear confirmation variables
+  $action_to_confirm = '';
+  $confirm_action = '';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_POST['action'])) {
+  // First step of confirmation or direct action
+  if (isset($_POST['action']) && empty($confirm_action)) {
+    $action = $_POST['action'];
     $action_user_id = $_POST['user_id'] ?? null;
+
+    // Store the action for confirmation
+    $action_to_confirm = $action;
+
+    // Set confirmation message based on action
+    if ($action === 'promote') {
+      $confirm_message = "Are you sure you want to promote this user to Admin?";
+    } else if ($action === 'demote') {
+      $confirm_message = "Are you sure you want to demote this user to Member?";
+    } else if ($action === 'delete') {
+      $confirm_message = "WARNING: Deleting this user is permanent and cannot be undone. Are you absolutely sure?";
+    } else if ($action === 'toggle_status') {
+      $user_data = $db->fetchOne("SELECT is_active FROM users WHERE user_id = ?", [$action_user_id]);
+      $current_status = $user_data['is_active'] ? 'deactivate' : 'activate';
+      $confirm_message = "Are you sure you want to {$current_status} this user?";
+    }
+  }
+  // Second step - user confirmed the action
+  else if (!empty($confirm_action) && !empty($action_to_confirm)) {
+    $action_user_id = $_POST['user_id'] ?? null;
+
     if ($action_user_id !== $view_user_id) {
       $error_message = "Action mismatch. Please try again.";
     } else {
       $userManager = new User();
       try {
-        switch ($_POST['action']) {
+        switch ($action_to_confirm) {
           case 'promote':
             if ($current_user_role == 3) { // Only Super Admin can promote
               if ($userManager->promoteToAdmin($action_user_id)) {
@@ -77,6 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "An error occurred: " . $e->getMessage();
         error_log("Error performing action on user $action_user_id: " . $e->getMessage());
       }
+      // Clear the confirmation variables after processing
+      $action_to_confirm = '';
+      $confirm_action = '';
     }
   }
 }
@@ -190,33 +225,49 @@ include PRIVATE_PATH . '/templates/header.php';
 
   <div class="view-section user-actions-section">
     <h2>Actions</h2>
-    <form method="POST" action="view_user.php?user_id=<?= urlencode($view_user_id) ?>" onsubmit="return confirmAction(this);">
-      <input type="hidden" name="user_id" value="<?= htmlspecialchars($view_user_id) ?>">
 
-      <button type="submit" name="action" value="toggle_status" class="button secondary-button">
-        <?= $user_data['is_active'] ? 'Deactivate User' : 'Activate User' ?>
-      </button>
+    <?php if (!empty($action_to_confirm)): ?>
+      <!-- Confirmation form -->
+      <div class="confirmation-box">
+        <p class="confirmation-message"><?= $confirm_message ?></p>
+        <form method="POST" action="view_user.php?user_id=<?= urlencode($view_user_id) ?>">
+          <input type="hidden" name="user_id" value="<?= htmlspecialchars($view_user_id) ?>">
+          <input type="hidden" name="action_to_confirm" value="<?= htmlspecialchars($action_to_confirm) ?>">
+          <div class="confirmation-buttons">
+            <button type="submit" name="confirm_action" value="yes" class="button danger-button">Confirm</button>
+            <button type="submit" name="cancel_action" value="cancel" class="button secondary-button">Cancel</button>
+          </div>
+        </form>
+      </div>
+    <?php else: ?>
+      <!-- Regular action buttons -->
+      <form method="POST" action="view_user.php?user_id=<?= urlencode($view_user_id) ?>">
+        <input type="hidden" name="user_id" value="<?= htmlspecialchars($view_user_id) ?>">
 
-      <?php // Promote/Demote only for Super Admin and if target is not Super Admin 
-      ?>
-      <?php if ($current_user_role == 3 && $user_data['role_id'] != 3): ?>
-        <?php if ($user_data['role_id'] == 1): // If Member, show Promote 
+        <button type="submit" name="action" value="toggle_status" class="button secondary-button">
+          <?= $user_data['is_active'] ? 'Deactivate User' : 'Activate User' ?>
+        </button>
+
+        <?php // Promote/Demote only for Super Admin and if target is not Super Admin 
         ?>
-          <button type="submit" name="action" value="promote" class="button action-button">Promote to Admin</button>
-        <?php elseif ($user_data['role_id'] == 2): // If Admin, show Demote 
-        ?>
-          <button type="submit" name="action" value="demote" class="button warning-button">Demote to Member</button>
+        <?php if ($current_user_role == 3 && $user_data['role_id'] != 3): ?>
+          <?php if ($user_data['role_id'] == 1): // If Member, show Promote 
+          ?>
+            <button type="submit" name="action" value="promote" class="button action-button">Promote to Admin</button>
+          <?php elseif ($user_data['role_id'] == 2): // If Admin, show Demote 
+          ?>
+            <button type="submit" name="action" value="demote" class="button warning-button">Demote to Member</button>
+          <?php endif; ?>
         <?php endif; ?>
-      <?php endif; ?>
 
-      <?php // Delete only if current user has permission for target role 
-      ?>
-      <?php if (($current_user_role == 3 && $user_data['role_id'] != 3) || ($current_user_role == 2 && $user_data['role_id'] == 1)): ?>
-        <button type="submit" name="action" value="delete" class="button danger-button">Delete User</button>
-      <?php endif; ?>
-    </form>
+        <?php // Delete only if current user has permission for target role 
+        ?>
+        <?php if (($current_user_role == 3 && $user_data['role_id'] != 3) || ($current_user_role == 2 && $user_data['role_id'] == 1)): ?>
+          <button type="submit" name="action" value="delete" class="button danger-button">Delete User</button>
+        <?php endif; ?>
+      </form>
+    <?php endif; ?>
   </div>
-
 </div>
 
 <?php include PRIVATE_PATH . '/templates/footer.php'; ?>

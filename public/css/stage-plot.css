@@ -15,11 +15,10 @@
   gap: var(--spacing-lg);
   justify-content: space-between;
   margin: var(--spacing-xl) auto 0;
-  max-width: fit-content;
-  /* max-width: 1600px; */
+  /* max-width: fit-content; */
   padding: var(--spacing-lg);
   transition: all var(--transition-medium);
-  width: 100%;
+  width: 1309px;
 }
 
 #stage-plot-container,
