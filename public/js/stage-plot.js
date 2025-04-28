@@ -68,6 +68,8 @@ function initStageEditor() {
   renderElementInfoList(plotState);
 }
 
+/** ---------------------- In development dynamic stage resizing --------------------------**/
+
 // /**
 //  * Calculate stage dimensions... (Updated Docstring + Logging)
 //  * Dynamically determines the maximum stage width based on available container space.
@@ -176,6 +178,8 @@ function initStageEditor() {
 //   updateGridOverlay(dimensions, stage);
 //   updateDimensionsLabel(dimensions, stage);
 // }
+
+/** ---------------------- End In development dynamic stage resizing --------------------------**/
 
 /**
  * Calculate stage dimensions in pixels and grid units based on venue dimensions in feet.
