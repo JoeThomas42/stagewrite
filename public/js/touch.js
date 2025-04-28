@@ -42,38 +42,60 @@ function detectTouchDevice(plotState) {
 
 /**
  * Initializes touch dragging for elements FROM the list TO the stage.
+ * Requires a long press (~500ms) to initiate drag, allowing scrolling otherwise.
  * @param {Object} plotState - The global plot state object.
  */
 function initTouchDragFromList(plotState) {
   const elementsList = document.getElementById('elements-list');
   const stage = document.getElementById('stage');
-  let touchDragElement = null;
-  let originalElement = null;
-  let touchStartX, touchStartY;
-  let initialOffsetX, initialOffsetY;
-
   if (!elementsList || !stage) {
     console.warn('Elements list or stage not found for touch drag initialization.');
     return;
   }
 
-  elementsList.addEventListener(
-    'touchstart',
-    (e) => {
-      const target = e.target.closest('.draggable-element');
-      if (!target || target.closest('.favorite-button')) return;
+  let touchDragElement = null;
+  let originalElement = null;
+  let touchStartX, touchStartY;
+  let initialOffsetX, initialOffsetY;
+  let longPressTimer = null;
+  let isLongPressDrag = false; // Flag to indicate if drag started via long press
+  const LONG_PRESS_DURATION = 500; // Milliseconds for long press
+  const SCROLL_THRESHOLD = 10; // Pixels moved before cancelling long press
 
-      e.preventDefault();
-      originalElement = target;
-      plotState.isTouchDragging = true;
+  elementsList.addEventListener('touchstart', (e) => {
+    const target = e.target.closest('.draggable-element');
+    // Ignore taps on favorite button or if already dragging
+    if (!target || target.closest('.favorite-button') || plotState.isTouchDragging) {
+      return;
+    }
 
-      const touch = e.touches[0];
-      touchStartX = touch.clientX;
-      touchStartY = touch.clientY;
+    // Don't prevent default yet, allow potential scroll
+    originalElement = target;
+    isLongPressDrag = false; // Reset flag
+
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
+    // Clear any previous timer
+    clearTimeout(longPressTimer);
+
+    // Start the long press timer
+    longPressTimer = setTimeout(() => {
+      // Timer completed - initiate drag
+      isLongPressDrag = true;
+      plotState.isTouchDragging = true; // Set global dragging flag
+
+      // Now prevent default as we are definitely dragging
+      e.preventDefault(); // Prevent scrolling *after* long press confirms drag
 
       const rect = target.getBoundingClientRect();
-      initialOffsetX = touchStartX - rect.left;
-      initialOffsetY = touchStartY - rect.top;
+      // Recalculate offsets based on current touch position *at the time drag starts*
+      // This assumes the finger might have drifted slightly during the hold
+      const currentTouch = e.touches[0] || e.changedTouches[0]; // Use changedTouches as fallback
+      initialOffsetX = (currentTouch?.clientX ?? touchStartX) - rect.left;
+      initialOffsetY = (currentTouch?.clientY ?? touchStartY) - rect.top;
+
 
       touchDragElement = target.cloneNode(true);
       touchDragElement.classList.add('touch-drag-element');
@@ -85,26 +107,73 @@ function initTouchDragFromList(plotState) {
       touchDragElement.style.zIndex = '10000';
       touchDragElement.style.pointerEvents = 'none';
       touchDragElement.style.margin = '0';
-      touchDragElement.style.left = `${touchStartX - initialOffsetX}px`;
-      touchDragElement.style.top = `${touchStartY - initialOffsetY}px`;
+      // Position based on where the finger is now
+      touchDragElement.style.left = `${(currentTouch?.clientX ?? touchStartX) - initialOffsetX}px`;
+      touchDragElement.style.top = `${(currentTouch?.clientY ?? touchStartY) - initialOffsetY}px`;
+
 
       document.body.appendChild(touchDragElement);
 
-      document.addEventListener('touchmove', touchMoveFromList, { passive: false });
-      document.addEventListener('touchend', touchEndFromList, { passive: false });
-      document.addEventListener('touchcancel', touchEndFromList, { passive: false });
-    },
-    { passive: false }
-  );
+      // Add move/end listeners *only after* long press confirms drag
+      document.addEventListener('touchmove', handleDragMoveFromList, { passive: false });
+      document.addEventListener('touchend', handleDragEndFromList, { passive: false });
+      document.addEventListener('touchcancel', handleDragEndFromList, { passive: false });
+
+      console.log("Long press detected, drag initiated.");
+
+    }, LONG_PRESS_DURATION);
+
+    // Add temporary listeners to cancel timer on scroll or early release
+    document.addEventListener('touchmove', cancelLongPressOnMove, { passive: false, once: true }); // Check move just once
+    document.addEventListener('touchend', cancelLongPressOnEnd, { once: true });
+    document.addEventListener('touchcancel', cancelLongPressOnEnd, { once: true });
+
+  }, { passive: true }); // START LISTENER IS PASSIVE TO ALLOW SCROLLING INITIALLY
 
   /**
-   * Handles the touch move event when dragging an element from the list.
+   * Cancels the long press timer if significant movement occurs (indicating scrolling).
+   * @param {TouchEvent} e - The touch move event object.
+   */
+  function cancelLongPressOnMove(e) {
+    if (!longPressTimer) return;
+
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartX);
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+
+    if (deltaX > SCROLL_THRESHOLD || deltaY > SCROLL_THRESHOLD) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+      // Remove other temporary listeners since interaction is now scrolling
+      document.removeEventListener('touchend', cancelLongPressOnEnd);
+      document.removeEventListener('touchcancel', cancelLongPressOnEnd);
+      console.log("Long press cancelled due to movement (scroll).");
+    } else {
+      // Re-attach listener if threshold not met, but only once
+      document.addEventListener('touchmove', cancelLongPressOnMove, { passive: false, once: true });
+    }
+  }
+
+  /**
+   * Cancels the long press timer if touch ends before duration.
+   */
+  function cancelLongPressOnEnd() {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+    // Remove the move listener as well
+    document.removeEventListener('touchmove', cancelLongPressOnMove);
+    console.log("Long press cancelled due to touch end/cancel.");
+  }
+
+
+  /**
+   * Handles the touch move event *after* drag has been initiated by long press.
    * Updates the position of the dragged clone.
    * @param {TouchEvent} e - The touch move event object.
    */
-  function touchMoveFromList(e) {
-    if (!touchDragElement) return;
-    e.preventDefault();
+  function handleDragMoveFromList(e) {
+    if (!touchDragElement || !isLongPressDrag) return;
+    e.preventDefault(); // Prevent scroll *during* confirmed drag
 
     const touch = e.touches[0];
     touchDragElement.style.left = `${touch.clientX - initialOffsetX}px`;
@@ -112,98 +181,105 @@ function initTouchDragFromList(plotState) {
   }
 
   /**
-   * Handles the touch end/cancel event when dragging an element from the list.
+   * Handles the touch end/cancel event *after* drag has been initiated.
    * Determines if the element was dropped onto the stage and creates a new element if so.
    * Cleans up drag state and listeners.
    * @param {TouchEvent} e - The touch end/cancel event object.
    */
-  function touchEndFromList(e) {
-    if (!touchDragElement) return;
+  function handleDragEndFromList(e) {
+    // Ensure cleanup happens even if drag didn't fully start but timer fired
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+    document.removeEventListener('touchmove', cancelLongPressOnMove);
+    document.removeEventListener('touchend', cancelLongPressOnEnd);
+    document.removeEventListener('touchcancel', cancelLongPressOnEnd);
+
+    if (!touchDragElement || !isLongPressDrag) {
+      // If drag didn't start via long press, just clean up state
+      plotState.isTouchDragging = false;
+      isLongPressDrag = false;
+      return;
+    }
+    // Prevent default actions if drag actually happened
     e.preventDefault();
 
     const touch = e.changedTouches[0];
+    // Use elementFromPoint with the final touch coordinates
     const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
 
     if (dropTarget && stage.contains(dropTarget)) {
       const stageRect = stage.getBoundingClientRect();
-
       const dropX = touch.clientX - stageRect.left;
       const dropY = touch.clientY - stageRect.top;
-
       const elementId = originalElement.getAttribute('data-element-id');
       const elementData = typeof getElementData === 'function' ? getElementData(elementId) : null;
 
       if (elementData) {
-        const elementWidth = 75;
-        const elementHeight = 75;
+          const elementWidth = 75;
+          const elementHeight = 75;
+          const maxLeft = stageRect.width - elementWidth;
+          const maxTop = stageRect.height - elementHeight;
+          const constrainedX = Math.max(0, Math.min(dropX - elementWidth / 2, maxLeft));
+          const constrainedY = Math.max(0, Math.min(dropY - elementHeight / 2, maxTop));
 
-        const maxLeft = stageRect.width - elementWidth;
-        const maxTop = stageRect.height - elementHeight;
+          const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map(el => el.id)) + 1 : 1;
 
-        const constrainedX = Math.max(0, Math.min(dropX - elementWidth / 2, maxLeft));
-        const constrainedY = Math.max(0, Math.min(dropY - elementHeight / 2, maxTop));
+          const newElement = {
+              id: newElementId,
+              elementId: parseInt(elementId),
+              elementName: elementData.element_name,
+              categoryId: elementData.category_id,
+              image: elementData.element_image,
+              x: constrainedX,
+              y: constrainedY,
+              width: elementWidth,
+              height: elementHeight,
+              flipped: false,
+              zIndex: plotState.nextZIndex++,
+              label: '',
+              notes: '',
+          };
 
-        const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
+          plotState.elements.push(newElement);
 
-        const newElement = {
-          id: newElementId,
-          elementId: parseInt(elementId),
-          elementName: elementData.element_name,
-          categoryId: elementData.category_id,
-          image: elementData.element_image,
-          x: constrainedX,
-          y: constrainedY,
-          width: elementWidth,
-          height: elementHeight,
-          flipped: false,
-          zIndex: plotState.nextZIndex++,
-          label: '',
-          notes: '',
-        };
-
-        plotState.elements.push(newElement);
-
-        if (typeof createPlacedElement === 'function') {
-          createPlacedElement(newElement, plotState).then(() => {
-            const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
-            if (domElement) {
-              requestAnimationFrame(() => {
-                domElement.classList.add('dropping');
-                domElement.addEventListener(
-                  'animationend',
-                  () => {
-                    domElement.classList.remove('dropping');
-                  },
-                  { once: true }
-                );
+          if (typeof createPlacedElement === 'function') {
+              createPlacedElement(newElement, plotState).then(() => {
+                  const domElement = document.querySelector(`.placed-element[data-id="${newElement.id}"]`);
+                  if (domElement) {
+                      requestAnimationFrame(() => {
+                          domElement.classList.add('dropping');
+                          domElement.addEventListener('animationend', () => {
+                              domElement.classList.remove('dropping');
+                          }, { once: true });
+                      });
+                  }
+                  if (typeof renderElementInfoList === 'function') {
+                      renderElementInfoList(plotState);
+                  }
+                  if (typeof markPlotAsModified === 'function') {
+                      markPlotAsModified(plotState);
+                  }
               });
-            }
-
-            if (typeof renderElementInfoList === 'function') {
-              renderElementInfoList(plotState);
-            }
-
-            if (typeof markPlotAsModified === 'function') {
-              markPlotAsModified(plotState);
-            }
-          });
-        } else {
-          console.error('createPlacedElement function is not available.');
-        }
+          } else {
+              console.error('createPlacedElement function is not available.');
+          }
       } else {
-        console.error('Could not retrieve data for element ID:', elementId);
+          console.error('Could not retrieve data for element ID:', elementId);
       }
     }
 
+    // Cleanup
     if (touchDragElement.parentNode) {
       touchDragElement.remove();
     }
     touchDragElement = null;
     originalElement = null;
-    plotState.isTouchDragging = false;
-    document.removeEventListener('touchmove', touchMoveFromList);
-    document.removeEventListener('touchend', touchEndFromList);
-    document.removeEventListener('touchcancel', touchEndFromList);
+    isLongPressDrag = false;
+    plotState.isTouchDragging = false; // Reset global flag
+    document.removeEventListener('touchmove', handleDragMoveFromList);
+    document.removeEventListener('touchend', handleDragEndFromList);
+    document.removeEventListener('touchcancel', handleDragEndFromList);
+    console.log("Drag end cleanup completed.");
   }
 }
 
