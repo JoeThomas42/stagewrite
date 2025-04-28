@@ -60,7 +60,11 @@ if ($isLoggedIn) {
     <p>The stage plotting feature requires a larger screen for optimal use.</p>
     <p>Please access this feature from a tablet (landscape mode) or desktop computer.</p>
     <p>You can still view and manage your saved plots in the Portfolio section.</p>
-    <button><a href="profile.php">Go to Portfolio</a></button>
+    <?php if ($isLoggedIn): ?>
+        <button class="primary-button"><a href="profile.php" style="color: inherit; text-decoration: none;">Go to Portfolio</a></button>
+    <?php else: ?>
+        <button id="mobile-login-trigger" class="primary-button">Login or Signup</button>
+    <?php endif; ?>
 </div>
 
 <div id="stage-plot-container">
