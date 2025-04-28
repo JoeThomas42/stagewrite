@@ -1377,7 +1377,7 @@ function makeDraggableOnStage(element, plotState) {
    */
   function dragMove(e) {
     if (e.type === 'touchmove') e.preventDefault();
-
+  
     let clientX, clientY;
     if (e.type === 'touchmove') {
       if (e.touches && e.touches.length > 0) {
@@ -1391,20 +1391,25 @@ function makeDraggableOnStage(element, plotState) {
       clientX = e.clientX;
       clientY = e.clientY;
     }
-
+  
     const dx = clientX - startX;
     const dy = clientY - startY;
     const nextPrimaryLeft = startLeft + dx;
     const nextPrimaryTop = startTop + dy;
     let constrainedPrimaryLeft = nextPrimaryLeft;
     let constrainedPrimaryTop = nextPrimaryTop;
-
+  
     const stage = document.getElementById('stage');
     const stageRect = stage.getBoundingClientRect();
     const stageWidth = stageRect.width;
     const stageHeight = stageRect.height;
-    const boundaryBuffer = 0;
-
+    
+    // Different buffer values for different sides
+    const leftBuffer = 0;
+    const topBuffer = 0;
+    const rightBuffer = 30;
+    const bottomBuffer = 30;
+  
     if (isDraggingGroup) {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       groupOffsets.forEach((offsetData) => {
@@ -1417,27 +1422,32 @@ function makeDraggableOnStage(element, plotState) {
         maxX = Math.max(maxX, memberNextX + memberWidth);
         maxY = Math.max(maxY, memberNextY + memberHeight);
       });
+      
       let deltaX = 0;
-      if (minX < boundaryBuffer) deltaX = boundaryBuffer - minX;
-      else if (maxX > stageWidth - boundaryBuffer) deltaX = stageWidth - boundaryBuffer - maxX;
+      if (minX < leftBuffer) deltaX = leftBuffer - minX;
+      else if (maxX > stageWidth - rightBuffer) deltaX = stageWidth - rightBuffer - maxX;
+      
       let deltaY = 0;
-      if (minY < boundaryBuffer) deltaY = boundaryBuffer - minY;
-      else if (maxY > stageHeight - boundaryBuffer) deltaY = stageHeight - boundaryBuffer - maxY;
+      if (minY < topBuffer) deltaY = topBuffer - minY;
+      else if (maxY > stageHeight - bottomBuffer) deltaY = stageHeight - bottomBuffer - maxY;
+      
       constrainedPrimaryLeft = nextPrimaryLeft + deltaX;
       constrainedPrimaryTop = nextPrimaryTop + deltaY;
     } else {
       const elementRect = element.getBoundingClientRect();
       const elementWidth = Number(elementRect.width) || 0;
       const elementHeight = Number(elementRect.height) || 0;
-      const maxLeft = stageWidth - elementWidth - boundaryBuffer;
-      const maxTop = stageHeight - elementHeight - boundaryBuffer;
-      constrainedPrimaryLeft = Math.max(boundaryBuffer, Math.min(maxLeft, nextPrimaryLeft));
-      constrainedPrimaryTop = Math.max(boundaryBuffer, Math.min(maxTop, nextPrimaryTop));
+      
+      const maxLeft = stageWidth - elementWidth - rightBuffer;
+      const maxTop = stageHeight - elementHeight - bottomBuffer;
+      
+      constrainedPrimaryLeft = Math.max(leftBuffer, Math.min(maxLeft, nextPrimaryLeft));
+      constrainedPrimaryTop = Math.max(topBuffer, Math.min(maxTop, nextPrimaryTop));
     }
-
+  
     const actualDx = constrainedPrimaryLeft - startLeft;
     const actualDy = constrainedPrimaryTop - startTop;
-
+  
     if (isDuplicating) {
       ghostElements.forEach((ghostData) => {
           if (ghostData.ghost) {
