@@ -342,34 +342,17 @@ function initMobileLoginTrigger() {
 
   if (mobileLoginButton && loginModal) {
       mobileLoginButton.addEventListener('click', () => {
-          // Use the existing openModal function from core.js
           if (typeof openModal === 'function') {
               openModal(loginModal);
           } else {
               console.error('openModal function not found.');
-              // Fallback or alert if function isn't available
-              // loginModal.classList.remove('hidden');
-              // loginModal.classList.add('visible');
           }
       });
       console.log('Mobile login trigger initialized.');
   } else {
-       // Log if elements aren't found (useful for debugging - button won't exist if user is logged in)
-       // console.log('Mobile login trigger or login modal not found on this page.');
+      console.log('Mobile login trigger or login modal not found on this page.');
   }
 }
-
-// Ensure this runs after the DOM is ready and other core functions are defined
-// Option 1: Add to existing DOMContentLoaded listener in main.js or core.js
-// document.addEventListener('DOMContentLoaded', initMobileLoginTrigger);
-
-// Option 2: Add to the initializeApp function in core.js
-// Make sure initializeApp exists and add this line inside it:
-// safeInit(initMobileLoginTrigger, 'Mobile Login Trigger');
-
-// Option 3: (If initializeApp is already robustly called after scripts load)
-// Just defining the function might be enough if initializeApp calls it via safeInit
-// Make sure safeInit(window.initMobileLoginTrigger, 'Mobile Login Trigger'); is added to initializeApp in core.js
 
 window.safeInit = safeInit;
 window.initMobileLoginTrigger = initMobileLoginTrigger;
