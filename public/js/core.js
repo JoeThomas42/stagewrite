@@ -78,93 +78,93 @@ window.initFirstTimePopup = function () {
   });
 };
 
-/**
- * Simple client-side sorting indicator toggle if JS is enabled
- * Cycles through: Ascending -> Descending -> Default Order
- */
-document.querySelectorAll('th.sortable').forEach((header) => {
-  header.addEventListener('click', function () {
-    const column = this.dataset.column;
-    const url = new URL(window.location);
-    const currentSort = url.searchParams.get('sort');
-    const currentOrder = url.searchParams.get('order');
+// /**
+//  * Simple client-side sorting indicator toggle if JS is enabled
+//  * Cycles through: Ascending -> Descending -> Default Order
+//  */
+// document.querySelectorAll('th.sortable').forEach((header) => {
+//   header.addEventListener('click', function () {
+//     const column = this.dataset.column;
+//     const url = new URL(window.location);
+//     const currentSort = url.searchParams.get('sort');
+//     const currentOrder = url.searchParams.get('order');
 
-    if (currentSort === column) {
-      if (currentOrder === 'asc') {
-        url.searchParams.set('sort', column);
-        url.searchParams.set('order', 'desc');
-      } else if (currentOrder === 'desc') {
-        url.searchParams.delete('sort');
-        url.searchParams.delete('order');
-      } else {
-        url.searchParams.set('sort', column);
-        url.searchParams.set('order', 'asc');
-      }
-    } else {
-      url.searchParams.set('sort', column);
-      url.searchParams.set('order', 'asc');
-    }
+//     if (currentSort === column) {
+//       if (currentOrder === 'asc') {
+//         url.searchParams.set('sort', column);
+//         url.searchParams.set('order', 'desc');
+//       } else if (currentOrder === 'desc') {
+//         url.searchParams.delete('sort');
+//         url.searchParams.delete('order');
+//       } else {
+//         url.searchParams.set('sort', column);
+//         url.searchParams.set('order', 'asc');
+//       }
+//     } else {
+//       url.searchParams.set('sort', column);
+//       url.searchParams.set('order', 'asc');
+//     }
 
-    document.querySelectorAll('.search-input').forEach((input) => {
-      if (input.value) {
-        url.searchParams.set(input.name, input.value);
-      } else {
-        if (url.searchParams.has(input.name)) {
-          url.searchParams.delete(input.name);
-        }
-      }
-    });
+//     document.querySelectorAll('.search-input').forEach((input) => {
+//       if (input.value) {
+//         url.searchParams.set(input.name, input.value);
+//       } else {
+//         if (url.searchParams.has(input.name)) {
+//           url.searchParams.delete(input.name);
+//         }
+//       }
+//     });
 
-    window.location.href = url.toString();
-  });
-});
+//     window.location.href = url.toString();
+//   });
+// });
 
-function confirmAction(form) {
-  const action = form.querySelector('button[type="submit"]:focus')?.value;
-  let message = "Are you sure you want to perform this action?";
-  if (action === 'delete') {
-    message = "WARNING: Deleting this user is permanent and cannot be undone. Are you absolutely sure?";
-  } else if (action === 'promote') {
-    message = "Are you sure you want to promote this user to Admin?";
-  } else if (action === 'demote') {
-    message = "Are you sure you want to demote this user to Member?";
-  } else if (action === 'toggle_status') {
-    const currentStatus = json_encode($user_data['is_active']);
-    message = `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this user?`;
-  }
-  return confirm(message);
-}
+// function confirmAction(form) {
+//   const action = form.querySelector('button[type="submit"]:focus')?.value;
+//   let message = "Are you sure you want to perform this action?";
+//   if (action === 'delete') {
+//     message = "WARNING: Deleting this user is permanent and cannot be undone. Are you absolutely sure?";
+//   } else if (action === 'promote') {
+//     message = "Are you sure you want to promote this user to Admin?";
+//   } else if (action === 'demote') {
+//     message = "Are you sure you want to demote this user to Member?";
+//   } else if (action === 'toggle_status') {
+//     const currentStatus = json_encode($user_data['is_active']);
+//     message = `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this user?`;
+//   }
+//   return confirm(message);
+// }
 
-document.querySelectorAll('.actions-section form button[type="submit"]').forEach(button => {
-  button.addEventListener('click', function() {
-    this.form._clickedButton = this;
-  });
-});
+// document.querySelectorAll('.actions-section form button[type="submit"]').forEach(button => {
+//   button.addEventListener('click', function() {
+//     this.form._clickedButton = this;
+//   });
+// });
 
-document.querySelector('.actions-section form').onsubmit = function(event) {
-  const actionButton = event.submitter || this._clickedButton;
-  const action = actionButton ? actionButton.value : null;
-  let message = "Are you sure you want to perform this action?";
+// document.querySelector('.actions-section form').onsubmit = function(event) {
+//   const actionButton = event.submitter || this._clickedButton;
+//   const action = actionButton ? actionButton.value : null;
+//   let message = "Are you sure you want to perform this action?";
 
-  if (action === 'delete') {
-    message = "WARNING: Deleting this user is permanent and cannot be undone. Are you absolutely sure?";
-  } else if (action === 'promote') {
-    message = "Are you sure you want to promote this user to Admin?";
-  } else if (action === 'demote') {
-    message = "Are you sure you want to demote this user to Member?";
-  } else if (action === 'toggle_status') {
-    const currentStatus = json_encode($user_data['is_active']);
-    message = `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this user?`;
-  }
+//   if (action === 'delete') {
+//     message = "WARNING: Deleting this user is permanent and cannot be undone. Are you absolutely sure?";
+//   } else if (action === 'promote') {
+//     message = "Are you sure you want to promote this user to Admin?";
+//   } else if (action === 'demote') {
+//     message = "Are you sure you want to demote this user to Member?";
+//   } else if (action === 'toggle_status') {
+//     const currentStatus = json_encode($user_data['is_active']);
+//     message = `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this user?`;
+//   }
 
-  delete this._clickedButton;
+//   delete this._clickedButton;
 
-  if (!confirm(message)) {
-    event.preventDefault();
-    return false;
-  }
-  return true;
-};
+//   if (!confirm(message)) {
+//     event.preventDefault();
+//     return false;
+//   }
+//   return true;
+// };
 
 /**
  * Mobile menu system initialization

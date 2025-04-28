@@ -179,6 +179,21 @@ function initStageEditor() {
 //   updateDimensionsLabel(dimensions, stage);
 // }
 
+
+// let resizeTimeout;
+// window.addEventListener('resize', () => {
+//   clearTimeout(resizeTimeout);
+//   resizeTimeout = setTimeout(() => {
+//       console.log("--- Window Resize Detected ---"); // Log resize trigger
+//       const currentVenueId = document.getElementById('venue_select')?.value || null;
+//       if (window.plotState && typeof updateStageForVenue === 'function') {
+//           updateStageForVenue(currentVenueId, window.plotState, true);
+//       } else {
+//           console.warn("plotState or updateStageForVenue not available on resize");
+//       }
+//   }, 250);
+// });
+
 /** ---------------------- End In development dynamic stage resizing --------------------------**/
 
 /**
@@ -227,21 +242,6 @@ function updateStageDimensions(dimensions, stage) {
   updateGridOverlay(dimensions, stage);
   updateDimensionsLabel(dimensions, stage);
 }
-
-// --- Ensure the resize handler logs correctly ---
-let resizeTimeout;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-      console.log("--- Window Resize Detected ---"); // Log resize trigger
-      const currentVenueId = document.getElementById('venue_select')?.value || null;
-      if (window.plotState && typeof updateStageForVenue === 'function') {
-          updateStageForVenue(currentVenueId, window.plotState, true);
-      } else {
-          console.warn("plotState or updateStageForVenue not available on resize");
-      }
-  }, 250);
-});
 
 /**
  * Update stage element's dimensions, data attributes, grid overlay, and label.
