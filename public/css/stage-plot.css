@@ -15,7 +15,8 @@
   gap: var(--spacing-lg);
   justify-content: space-between;
   margin: var(--spacing-xl) auto 0;
-  max-width: 1600px;
+  max-width: fit-content;
+  /* max-width: 1600px; */
   padding: var(--spacing-lg);
   transition: all var(--transition-medium);
   width: 100%;
@@ -967,7 +968,8 @@ body.duplicating-element * {
   display: flex;
   gap: var(--spacing-lg);
   margin: 0 auto var(--spacing-lg);
-  max-width: 1600px;
+  /* max-width: 1600px; */
+  max-width: 1309px;
 }
 
 #input-list,

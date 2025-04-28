@@ -48,6 +48,10 @@
   #control-buttons {
     margin-top: var(--spacing-xs);
   }
+
+  #stage-info-container {
+    max-width: 1127px;
+  }
 }
 
 /* -------------------- 1079px --------------------- */
