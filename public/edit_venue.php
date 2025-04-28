@@ -1,7 +1,4 @@
 <?php
-/*
-stagewrite/public/edit_venue.php
-*/
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/private/bootstrap.php';
 
@@ -53,6 +50,9 @@ if ($is_editing) {
 
 // Handle Form Submission (POST request)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Log what we're receiving
+  error_log('Form submitted with data: ' . print_r($_POST, true));
+
   $submitted_data = [
     'venue_id' => !empty($_POST['venue_id']) ? (int)$_POST['venue_id'] : null,
     'venue_name' => trim($_POST['venue_name'] ?? ''),
@@ -64,24 +64,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     'stage_depth' => trim($_POST['stage_depth'] ?? '')
   ];
 
+  // Log the processed data
+  error_log('Processed form data: ' . print_r($submitted_data, true));
+
   // Ensure editing the correct venue ID
   if ($is_editing && $submitted_data['venue_id'] !== $venue_id) {
     $error_message = "Venue ID mismatch. Cannot save changes.";
+    $_SESSION['error_message'] = $error_message;
+    error_log('Venue ID mismatch error: submitted ' . $submitted_data['venue_id'] . ' vs expected ' . $venue_id);
   } else {
     $form_errors = $venueManager->validateVenueData($submitted_data);
 
+    // Log any validation errors
+    if (!empty($form_errors)) {
+      error_log('Validation errors: ' . print_r($form_errors, true));
+    }
+
     if (empty($form_errors)) {
       try {
-        if ($venueManager->saveVenue($submitted_data)) {
+        error_log('Attempting to save venue...');
+        $saveResult = $venueManager->saveVenue($submitted_data);
+        error_log('Save result: ' . ($saveResult ? 'success' : 'failure'));
+
+        if ($saveResult) {
           $_SESSION['success_message'] = $is_editing ? "Venue updated successfully." : "Venue added successfully.";
           header('Location: data_management.php');
           exit;
         } else {
           $error_message = "Failed to save venue. Please try again.";
+          $_SESSION['error_message'] = $error_message;
+          error_log('Venue save returned false without throwing exception');
         }
       } catch (Exception $e) {
         $error_message = "An error occurred: " . $e->getMessage();
+        $_SESSION['error_message'] = $error_message;
         error_log("Error saving venue: " . $e->getMessage());
+        error_log("Exception details: " . print_r($e, true));
       }
     } else {
       $error_message = "Please correct the errors below.";
@@ -103,7 +121,26 @@ include PRIVATE_PATH . '/templates/header.php';
   </div>
 
   <?php if ($error_message): ?>
-    <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
+    <div class="error-message">
+      <p><?= htmlspecialchars($error_message) ?></p>
+
+      <?php if (strpos($error_message, 'An error occurred:') !== false): ?>
+        <div class="error-details">
+          <p><strong>Error Details:</strong></p>
+          <?php
+          // Get the error log file
+          $errorLogPath = ini_get('error_log');
+          if (file_exists($errorLogPath) && is_readable($errorLogPath)) {
+            $logContent = file_get_contents($errorLogPath);
+            $logLines = array_slice(explode("\n", $logContent), -10); // Get last 10 lines
+            echo "<pre>" . htmlspecialchars(implode("\n", $logLines)) . "</pre>";
+          } else {
+            echo "<p>Error log not available. Please check the server logs.</p>";
+          }
+          ?>
+        </div>
+      <?php endif; ?>
+    </div>
   <?php endif; ?>
 
   <form method="POST" action="edit_venue.php<?= $is_editing ? '?venue_id=' . urlencode($venue_id) : '' ?>">
@@ -117,20 +154,20 @@ include PRIVATE_PATH . '/templates/header.php';
 
     <div class="form-group <?= isset($form_errors['venue_street']) ? 'error' : '' ?>">
       <label for="venue_street">Street Address:</label>
-      <input type="text" id="venue_street" name="venue_street" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_street'] ?? '') ?>">
+      <input type="text" id="venue_street" name="venue_street" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_street'] ?? '') ?>" required>
       <?php if (isset($form_errors['venue_street'])): ?><span class="field-error"><?= $form_errors['venue_street'] ?></span><?php endif; ?>
     </div>
 
     <div class="form-row">
       <div class="form-group <?= isset($form_errors['venue_city']) ? 'error' : '' ?>">
         <label for="venue_city">City:</label>
-        <input type="text" id="venue_city" name="venue_city" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_city'] ?? '') ?>">
+        <input type="text" id="venue_city" name="venue_city" maxlength="100" value="<?= htmlspecialchars($venue_data['venue_city'] ?? '') ?>" required>
         <?php if (isset($form_errors['venue_city'])): ?><span class="field-error"><?= $form_errors['venue_city'] ?></span><?php endif; ?>
       </div>
 
       <div class="form-group <?= isset($form_errors['venue_state_id']) ? 'error' : '' ?>">
         <label for="venue_state_id">State:</label>
-        <select id="venue_state_id" name="venue_state_id">
+        <select id="venue_state_id" name="venue_state_id" required>
           <option value="" <?= empty($venue_data['venue_state_id']) ? 'selected' : '' ?>>Select State</option>
           <?php
           $states = $db->fetchAll("SELECT state_id, state_name FROM states ORDER BY state_name");
@@ -145,7 +182,7 @@ include PRIVATE_PATH . '/templates/header.php';
 
       <div class="form-group <?= isset($form_errors['venue_zip']) ? 'error' : '' ?>">
         <label for="venue_zip">ZIP:</label>
-        <input type="text" id="venue_zip" name="venue_zip" maxlength="5" pattern="\d{5}" title="Enter a 5-digit ZIP code" value="<?= htmlspecialchars($venue_data['venue_zip'] ?? '') ?>">
+        <input type="text" id="venue_zip" name="venue_zip" maxlength="5" pattern="\d{5}" title="Enter a 5-digit ZIP code" value="<?= htmlspecialchars($venue_data['venue_zip'] ?? '') ?>" required>
         <?php if (isset($form_errors['venue_zip'])): ?><span class="field-error"><?= $form_errors['venue_zip'] ?></span><?php endif; ?>
       </div>
     </div>
@@ -164,9 +201,15 @@ include PRIVATE_PATH . '/templates/header.php';
       </div>
     </div>
 
-    <div class="form-actions">
+    <div class="venue-form-actions">
       <button type="submit" class="button save-button"><?= $is_editing ? 'Save Changes' : 'Add Venue' ?></button>
-      <a href="data_management.php" class="button cancel-button">Cancel</a>
+      <?php if ($is_editing): ?>
+        <!-- If editing, return to view_venue.php -->
+        <a href="view_venue.php?venue_id=<?= urlencode($venue_id) ?>" class="button cancel-button">Cancel</a>
+      <?php else: ?>
+        <!-- If adding a new venue, return to data_management.php -->
+        <a href="data_management.php" class="button cancel-button">Cancel</a>
+      <?php endif; ?>
     </div>
   </form>
 </div>

@@ -669,7 +669,9 @@ th.sortable {
   }
 }
 
-.form-actions {
+.venue-form-actions {
+  display: flex;
+  gap: var(--spacing-md);
   margin-top: 1rem;
 
   button,

@@ -33,6 +33,22 @@ if ($sortOrder !== 'asc' && $sortOrder !== 'desc') {
 }
 
 $current_page = "Data Management";
+
+// Initialize message variables
+$error_message = '';
+$success_message = '';
+
+// Check for session messages
+if (isset($_SESSION['error_message'])) {
+    $error_message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
+
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
 include PRIVATE_PATH . '/templates/header.php';
 
 $search_members = isset($_GET['search_members']) ? trim($_GET['search_members']) : '';
@@ -42,6 +58,12 @@ $search_venues = isset($_GET['search_venues']) ? trim($_GET['search_venues']) : 
 ?>
 
 <div class="profile-container">
+  <?php if ($error_message): ?>
+    <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
+  <?php endif; ?>
+  <?php if ($success_message): ?>
+    <div class="success-message"><?= htmlspecialchars($success_message) ?></div>
+  <?php endif; ?>
 
   <?php
   // ========================================

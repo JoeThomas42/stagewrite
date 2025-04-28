@@ -39,9 +39,11 @@ try {
   if ($success) {
     echo json_encode(['success' => true]);
   } else {
+    $_SESSION['error_message'] = "User deletion failed: No user found or insufficient permissions.";
     echo json_encode(['error' => 'No user found or deletion not allowed']);
   }
 } catch (Exception $e) {
+  $_SESSION['error_message'] = "Error deleting user: " . $e->getMessage();
   http_response_code(500);
   echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }

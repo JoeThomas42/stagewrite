@@ -32,9 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
           } else {
             $error_message = "Failed to delete venue. It might not exist or an error occurred.";
+            $_SESSION['error_message'] = $error_message;
           }
         } catch (Exception $e) {
           $error_message = "An error occurred: " . $e->getMessage();
+          $_SESSION['error_message'] = $error_message;
           error_log("Error deleting venue $action_venue_id: " . $e->getMessage());
         }
       }

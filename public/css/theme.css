@@ -103,7 +103,10 @@
     background-color: var(--color-background-dark);
   }
   
-  .custom-dropdown-menu,
+  .custom-dropdown-menu {
+    background-color: var(--color-background);
+  }
+  
   table tr:nth-child(odd) {
     background-color: var(--color-background);
 

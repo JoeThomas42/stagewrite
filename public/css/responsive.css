@@ -458,7 +458,7 @@
   }
 
   .search-container .search-input {
-    width: 200px;
+    width: 200px !important;
   }
 
   .user-actions-section form {

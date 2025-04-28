@@ -37,10 +37,13 @@ class VenueManager
   public function saveVenue($venueData)
   {
     $isNew = empty($venueData['venue_id']);
-
+    
+    error_log('Attempting to ' . ($isNew ? 'create' : 'update') . ' venue with data: ' . print_r($venueData, true));
+  
     try {
       if ($isNew) {
         // Insert new venue
+        error_log('Executing INSERT query for new venue');
         $result = $this->db->query(
           "INSERT INTO venues (venue_name, venue_street, venue_city, venue_state_id, venue_zip, stage_width, stage_depth) 
             VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -54,8 +57,15 @@ class VenueManager
             $venueData['stage_depth']
           ]
         );
+        
+        // Check if any rows were affected
+        $rowCount = $result->rowCount();
+        error_log('INSERT query completed with ' . $rowCount . ' rows affected');
+        return $rowCount > 0;
+        
       } else {
         // Update existing venue
+        error_log('Executing UPDATE query for venue ID: ' . $venueData['venue_id']);
         $result = $this->db->query(
           "UPDATE venues SET 
                         venue_name = ?,
@@ -77,12 +87,17 @@ class VenueManager
             $venueData['venue_id']
           ]
         );
+        
+        // Check if any rows were affected
+        $rowCount = $result->rowCount();
+        error_log('UPDATE query completed with ' . $rowCount . ' rows affected');
+        return $rowCount > 0;
       }
-
-      return true;
     } catch (Exception $e) {
-      error_log('Error saving venue: ' . $e->getMessage());
-      return false;
+      error_log('Error in VenueManager::saveVenue: ' . $e->getMessage());
+      error_log('SQL State: ' . $e->getCode());
+      error_log('Stack trace: ' . $e->getTraceAsString());
+      throw $e; // Re-throw to be caught by the calling code
     }
   }
 
@@ -137,29 +152,37 @@ class VenueManager
    */
   public function validateVenueData($data)
   {
+    error_log('Validating venue data: ' . print_r($data, true));
     $errors = [];
-
+  
     if (empty($data['venue_name'])) {
+      error_log('Validation error: venue_name is empty');
       $errors['venue_name'] = 'Venue name is required';
     }
-
+  
     if (empty($data['stage_width'])) {
+      error_log('Validation error: stage_width is empty');
       $errors['stage_width'] = 'Stage width is required';
     } else if (!filter_var($data['stage_width'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 200]])) {
+      error_log('Validation error: stage_width is not a valid integer between 1-200: ' . $data['stage_width']);
       $errors['stage_width'] = 'Stage width must be between 1 and 200';
     }
-
+  
     if (empty($data['stage_depth'])) {
+      error_log('Validation error: stage_depth is empty');
       $errors['stage_depth'] = 'Stage depth is required';
     } else if (!filter_var($data['stage_depth'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 200]])) {
+      error_log('Validation error: stage_depth is not a valid integer between 1-200: ' . $data['stage_depth']);
       $errors['stage_depth'] = 'Stage depth must be between 1 and 200';
     }
-
+  
     // ZIP code validation if provided
     if (!empty($data['venue_zip']) && !preg_match('/^\d{5}$/', $data['venue_zip'])) {
+      error_log('Validation error: venue_zip is not a valid 5-digit code: ' . $data['venue_zip']);
       $errors['venue_zip'] = 'ZIP code must be 5 digits';
     }
-
+  
+    error_log('Validation complete. Errors found: ' . count($errors));
     return $errors;
   }
 }
