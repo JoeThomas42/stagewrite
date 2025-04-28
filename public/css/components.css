@@ -1115,23 +1115,22 @@ th.sortable {
   }
 }
 
-/* Style the separator DIV within the custom dropdown menu */
 .custom-dropdown-menu .custom-dropdown-option.select-separator.disabled {
-  background-color: var(--color-border); /* Use border color for the line */
-  color: var(--color-border);          /* Hide text by matching background */
-  font-size: 1px;                      /* Make text tiny */
-  height: 1px;                         /* Define line thickness */
-  padding: 0;                          /* Remove padding */
-  margin: 5px 2%;                      /* Add vertical space and slight horizontal indent */
-  cursor: default;                     /* Standard cursor */
-  min-height: 1px;                     /* Ensure minimum height */
-  line-height: 1px;                    /* Ensure line height matches */
-  overflow: hidden;                    /* Hide any overflow */
-  width: 96%;                          /* Control width (adjust % for indent) */
+  background-color: var(--color-border);
+  color: var(--color-border);
+  font-size: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 5px 2%;
+  cursor: default;
+  min-height: 1px;
+  line-height: 1px;
+  overflow: hidden;
+  width: 96%;
   box-sizing: border-box;
-  user-select: none;                   /* Prevent text selection */
-  pointer-events: none;                /* Make unclickable */
-  text-indent: -9999px;                /* Push original text ('----') off-screen */
+  user-select: none;
+  pointer-events: none;
+  text-indent: -9999px;
   
   &:hover {
      background-color: var(--color-border); /* Keep background color */
