@@ -385,61 +385,53 @@ function initPasswordChangeModal() {
 
   changePasswordLink.addEventListener('click', function (e) {
     e.preventDefault();
-
     const form = document.getElementById('password-change-form');
     if (form) form.reset();
-
     const successMessage = passwordChangeModal.querySelector('.password-change-success');
     if (successMessage) successMessage.classList.add('hidden');
     if (form) form.classList.remove('hidden');
-
     const errorMessage = document.getElementById('password-change-error');
     if (errorMessage) errorMessage.classList.add('hidden');
-
     openModal(passwordChangeModal);
     initPasswordToggles();
-
     const dropdown = this.closest('.dropdown');
     const menu = dropdown.querySelector('.dropdown-menu');
     if (menu) menu.classList.remove('active');
   });
 
-  const closeButton = passwordChangeModal.querySelector('.close-button');
-  if (closeButton) {
-    closeButton.addEventListener('click', function () {
-      closeModal(passwordChangeModal);
-    });
-  }
-
-  const cancelButton = passwordChangeModal.querySelector('.cancel-button');
-  if (cancelButton) {
-    cancelButton.addEventListener('click', function () {
-      closeModal(passwordChangeModal);
-    });
-  }
-
-  passwordChangeModal.addEventListener('click', function (e) {
-    if (e.target === passwordChangeModal) {
-      closeModal(passwordChangeModal);
-    }
-  });
-
-  const closeSuccessBtn = document.getElementById('close-success-btn');
-  if (closeSuccessBtn) {
-    closeSuccessBtn.addEventListener('click', function () {
-      closeModal(passwordChangeModal);
-    });
-  }
-
   const passwordChangeForm = document.getElementById('password-change-form');
   if (passwordChangeForm) {
     passwordChangeForm.addEventListener('submit', async function (e) {
       e.preventDefault();
+      clearAllErrors(passwordChangeForm);
 
-      const currentPassword = document.getElementById('current_password').value;
-      const newPassword = document.getElementById('new_password').value;
-      const confirmNewPassword = document.getElementById('confirm_new_password').value;
+      const currentPasswordInput = document.getElementById('current_password');
+      const newPasswordInput = document.getElementById('new_password');
+      const confirmNewPasswordInput = document.getElementById('confirm_new_password');
       const errorMessageElement = document.getElementById('password-change-error');
+
+      let isValid = true;
+
+      const requiredFields = [
+        { input: currentPasswordInput, name: 'Current Password' },
+        { input: newPasswordInput, name: 'New Password' },
+        { input: confirmNewPasswordInput, name: 'Confirm New Password' },
+      ];
+
+      requiredFields.forEach((fieldInfo) => {
+        if (fieldInfo.input && !fieldInfo.input.value.trim()) {
+          showFieldError(fieldInfo.input, 'This field is required');
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        return;
+      }
+
+      const currentPassword = currentPasswordInput.value;
+      const newPassword = newPasswordInput.value;
+      const confirmNewPassword = confirmNewPasswordInput.value;
 
       if (errorMessageElement) {
         errorMessageElement.textContent = '';
@@ -451,6 +443,7 @@ function initPasswordChangeModal() {
           errorMessageElement.textContent = 'New password must be at least 8 characters';
           errorMessageElement.classList.remove('hidden');
         }
+        showFieldError(newPasswordInput, 'Minimum 8 characters');
         return;
       }
 
@@ -459,6 +452,7 @@ function initPasswordChangeModal() {
           errorMessageElement.textContent = 'New password must include at least one number';
           errorMessageElement.classList.remove('hidden');
         }
+        showFieldError(newPasswordInput, 'Must include a number');
         return;
       }
 
@@ -467,6 +461,7 @@ function initPasswordChangeModal() {
           errorMessageElement.textContent = 'New passwords do not match';
           errorMessageElement.classList.remove('hidden');
         }
+        showFieldError(confirmNewPasswordInput, 'Passwords do not match');
         return;
       }
 
@@ -488,7 +483,6 @@ function initPasswordChangeModal() {
           passwordChangeForm.classList.add('hidden');
           const successMessage = passwordChangeModal.querySelector('.password-change-success');
           if (successMessage) successMessage.classList.remove('hidden');
-
           if (typeof showNotification === 'function') {
             showNotification('Password changed successfully!', 'success');
           }
@@ -496,6 +490,9 @@ function initPasswordChangeModal() {
           if (errorMessageElement) {
             errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
             errorMessageElement.classList.remove('hidden');
+            if (data.error && data.error.toLowerCase().includes('current password')) {
+              showFieldError(currentPasswordInput, 'Incorrect password');
+            }
           }
         }
       } catch (error) {
@@ -505,6 +502,33 @@ function initPasswordChangeModal() {
           errorMessageElement.classList.remove('hidden');
         }
       }
+    });
+  }
+
+  const closeButton = passwordChangeModal?.querySelector('.close-button');
+  if (closeButton) {
+    closeButton.addEventListener('click', function () {
+      closeModal(passwordChangeModal);
+    });
+  }
+
+  const cancelButton = passwordChangeModal?.querySelector('.cancel-button');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', function () {
+      closeModal(passwordChangeModal);
+    });
+  }
+
+  passwordChangeModal?.addEventListener('click', function (e) {
+    if (e.target === passwordChangeModal) {
+      closeModal(passwordChangeModal);
+    }
+  });
+
+  const closeSuccessBtn = document.getElementById('close-success-btn');
+  if (closeSuccessBtn) {
+    closeSuccessBtn.addEventListener('click', function () {
+      closeModal(passwordChangeModal);
     });
   }
 }
@@ -556,10 +580,8 @@ function initEmailChangeModal() {
 
   changeEmailLink.addEventListener('click', function (e) {
     e.preventDefault();
-
     const form = document.getElementById('email-change-form');
     if (form) form.reset();
-
     fetch('/handlers/get_user_info.php')
       .then((response) => response.json())
       .then((data) => {
@@ -571,68 +593,56 @@ function initEmailChangeModal() {
       .catch((error) => {
         console.error('Error fetching user info:', error);
       });
-
     const successMessage = emailChangeModal.querySelector('.email-change-success');
     if (successMessage) successMessage.classList.add('hidden');
     if (form) form.classList.remove('hidden');
-
     const errorMessage = document.getElementById('email-change-error');
     if (errorMessage) errorMessage.classList.add('hidden');
-
     openModal(emailChangeModal);
     initPasswordToggles();
-
     const dropdown = this.closest('.dropdown');
     const menu = dropdown.querySelector('.dropdown-menu');
     if (menu) menu.classList.remove('active');
   });
 
-  const closeButton = emailChangeModal.querySelector('.close-button');
-  if (closeButton) {
-    closeButton.addEventListener('click', function () {
-      closeModal(emailChangeModal);
-    });
-  }
-
-  const cancelButton = emailChangeModal.querySelector('.cancel-button');
-  if (cancelButton) {
-    cancelButton.addEventListener('click', function () {
-      closeModal(emailChangeModal);
-    });
-  }
-
-  emailChangeModal.addEventListener('click', function (e) {
-    if (e.target === emailChangeModal) {
-      closeModal(emailChangeModal);
-    }
-  });
-
-  const closeSuccessBtn = document.getElementById('close-email-success-btn');
-  if (closeSuccessBtn) {
-    closeSuccessBtn.addEventListener('click', function () {
-      closeModal(emailChangeModal);
-    });
-  }
-
   const emailChangeForm = document.getElementById('email-change-form');
   if (emailChangeForm) {
     emailChangeForm.addEventListener('submit', async function (e) {
       e.preventDefault();
+      clearAllErrors(emailChangeForm);
 
-      const currentPassword = document.getElementById('current_password_email').value;
-      const newEmail = document.getElementById('new_email').value;
+      const currentPasswordInput = document.getElementById('current_password_email');
+      const newEmailInput = document.getElementById('new_email');
       const errorMessageElement = document.getElementById('email-change-error');
+
+      let isValid = true;
+
+      const requiredFields = [
+        { input: currentPasswordInput, name: 'Current Password' },
+        { input: newEmailInput, name: 'New Email' },
+      ];
+
+      requiredFields.forEach((fieldInfo) => {
+        if (fieldInfo.input && !fieldInfo.input.value.trim()) {
+          showFieldError(fieldInfo.input, 'This field is required');
+          isValid = false;
+        }
+      });
+
+      const currentPassword = currentPasswordInput.value;
+      const newEmail = newEmailInput.value.trim();
 
       if (errorMessageElement) {
         errorMessageElement.textContent = '';
         errorMessageElement.classList.add('hidden');
       }
 
-      if (!isValidEmail(newEmail)) {
-        if (errorMessageElement) {
-          errorMessageElement.textContent = 'Please enter a valid email address';
-          errorMessageElement.classList.remove('hidden');
-        }
+      if (isValid && !isValidEmail(newEmail)) {
+        showFieldError(newEmailInput, 'Please enter a valid email address');
+        isValid = false;
+      }
+
+      if (!isValid) {
         return;
       }
 
@@ -654,7 +664,6 @@ function initEmailChangeModal() {
           emailChangeForm.classList.add('hidden');
           const successMessage = emailChangeModal.querySelector('.email-change-success');
           if (successMessage) successMessage.classList.remove('hidden');
-
           if (typeof showNotification === 'function') {
             showNotification('Email changed successfully!', 'success');
           }
@@ -662,6 +671,11 @@ function initEmailChangeModal() {
           if (errorMessageElement) {
             errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
             errorMessageElement.classList.remove('hidden');
+            if (data.error && data.error.toLowerCase().includes('password')) {
+              showFieldError(currentPasswordInput, 'Incorrect password');
+            } else if (data.error && data.error.toLowerCase().includes('email')) {
+              showFieldError(newEmailInput, data.error);
+            }
           }
         }
       } catch (error) {
@@ -673,6 +687,43 @@ function initEmailChangeModal() {
       }
     });
   }
+
+  const closeButton = emailChangeModal?.querySelector('.close-button');
+  if (closeButton) {
+    closeButton.addEventListener('click', function () {
+      closeModal(emailChangeModal);
+    });
+  }
+
+  const cancelButton = emailChangeModal?.querySelector('.cancel-button');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', function () {
+      closeModal(emailChangeModal);
+    });
+  }
+
+  emailChangeModal?.addEventListener('click', function (e) {
+    if (e.target === emailChangeModal) {
+      closeModal(emailChangeModal);
+    }
+  });
+
+  const closeSuccessBtn = document.getElementById('close-email-success-btn');
+  if (closeSuccessBtn) {
+    closeSuccessBtn.addEventListener('click', function () {
+      closeModal(emailChangeModal);
+    });
+  }
+}
+
+/**
+ * Validates if the provided string is a valid email format.
+ * @param {string} email - The email string to validate.
+ * @returns {boolean} True if the email format is valid, false otherwise.
+ */
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 /**
