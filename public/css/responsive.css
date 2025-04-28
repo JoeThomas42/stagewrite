@@ -22,7 +22,7 @@
   }
 
   .accordion-container {
-    width: 205px;
+    width: 208px;
     margin: 0 var(--spacing-xs) var(--spacing-xxs);
     padding: var(--spacing-md) var(--spacing-xs) var(--spacing-xs);
   }
@@ -35,7 +35,7 @@
 }
 
 /* -------------------- 1130px --------------------- */
-@media screen and (max-width: 1130px) {
+@media screen and (max-width: 1134px) {
   /* Hide stage plotting/opening functionality on phones */
   #stage-plot-container,
   #stage-info-container,
