@@ -788,10 +788,17 @@ function handleDrop(e, plotState) {
     finalY = dropYRelativeToStage - elementMarginChrome;
   }
 
-  const maxLeft = stageRect.width - elementWidth;
-  const maxTop = stageRect.height - elementHeight;
-  const constrainedX = Math.max(0, Math.min(finalX, maxLeft));
-  const constrainedY = Math.max(0, Math.min(finalY, maxTop));
+  // Apply different buffer values for different sides like in dragMove
+  const leftBuffer = 0;
+  const topBuffer = 0;
+  const rightBuffer = 30;
+  const bottomBuffer = 30;
+  
+  const maxLeft = stageRect.width - elementWidth - rightBuffer;
+  const maxTop = stageRect.height - elementHeight - bottomBuffer;
+  
+  const constrainedX = Math.max(leftBuffer, Math.min(finalX, maxLeft));
+  const constrainedY = Math.max(topBuffer, Math.min(finalY, maxTop));
 
   const newElementId = plotState.elements.length > 0 ? Math.max(...plotState.elements.map((el) => el.id)) + 1 : 1;
 
