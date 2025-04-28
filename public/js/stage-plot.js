@@ -68,77 +68,129 @@ function initStageEditor() {
   renderElementInfoList(plotState);
 }
 
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-        const currentVenueId = document.getElementById('venue_select')?.value || null;
-        // Assuming plotState is accessible in this scope
-        if (window.plotState && typeof updateStageForVenue === 'function') {
-           // Call the function that recalculates and updates stage dimensions
-           updateStageForVenue(currentVenueId, window.plotState, true); // Pass true to avoid marking as modified on resize
-        }
-    }, 250); // Debounce resize event
-});
-
 /**
- * Calculate stage dimensions in pixels and grid units based on venue dimensions in feet.
+ * Calculate stage dimensions... (Updated Docstring + Logging)
  * Dynamically determines the maximum stage width based on available container space.
  * @param {number} venueWidth - Venue width in feet.
  * @param {number} venueDepth - Venue depth in feet.
- * @returns {Object|null} Object with calculated width, height, gridSize, dimensions in feet, and grid square counts, or null if container not found.
+ * @returns {Object|null} Object with calculated dimensions, or null if containers not found.
  */
 function calculateStageDimensions(venueWidth, venueDepth) {
-  // --- Get Container and Calculate Dynamic Max Width ---
-  const stageContainer = document.getElementById('stage-area'); // The container holding the stage
-  if (!stageContainer) {
-    console.error("Stage container '#stage-area' not found.");
-    return null; // Return null or default dimensions if container isn't ready
+  console.log("--- Calculating Stage Dimensions ---"); // Log start
+  const parentContainer = document.getElementById('stage-plot-container');
+  const elementsPanel = document.getElementById('elements-panel');
+  const stageAreaContainer = document.getElementById('stage-area');
+
+  if (!parentContainer || !elementsPanel || !stageAreaContainer) {
+      console.error("Required containers not found. Parent:", parentContainer, "Panel:", elementsPanel, "Area:", stageAreaContainer);
+      // Fallback to a default width (adjust if needed)
+      const defaultWidth = 300; // Use min width as fallback
+      const defaultAspectRatio = (venueDepth > 0 && venueWidth > 0) ? venueDepth / venueWidth : 3 / 4;
+      const defaultHeight = Math.round(defaultWidth * defaultAspectRatio);
+      console.log("Using fallback dimensions due to missing containers.");
+      return { width: defaultWidth, height: defaultHeight, /* ... other fallback properties */ };
   }
 
-  // Calculate available width - subtract some padding/margins if necessary
-  // Example: Use 95% of the container's width, or container width minus fixed padding
-  const containerPadding = 20; // Adjust based on your actual CSS padding/margins around the stage
-  const availableWidth = stageContainer.offsetWidth - containerPadding;
+  // Get parent width and element panel width
+  const parentWidth = parentContainer.offsetWidth;
+  const panelWidth = elementsPanel.offsetWidth;
 
-  // Set a reasonable minimum and absolute maximum width if needed
-  const minStageWidth = 500; // Minimum width in pixels
-  const absoluteMaxStageWidth = 1200; // Optional absolute cap
+  // Calculate gaps/paddings (ensure these are correct based on actual CSS)
+  const parentStyle = getComputedStyle(parentContainer);
+  const containerGap = parseFloat(parentStyle.gap) || 16; // Default gap
+  const parentPadding = (parseFloat(parentStyle.paddingLeft) || 0) + (parseFloat(parentStyle.paddingRight) || 0);
+  const stageAreaMargin = 0; // Assume no margin collapsing issues
+
+  // Calculate available width
+  const availableWidth = parentWidth - panelWidth - containerGap - parentPadding - stageAreaMargin;
+
+  // Log intermediate values
+  console.log(`Parent Width (#stage-plot-container): ${parentWidth}`);
+  console.log(`Panel Width (#elements-panel): ${panelWidth}`);
+  console.log(`Container Gap: ${containerGap}`);
+  console.log(`Parent Padding: ${parentPadding}`);
+  console.log(`Calculated Available Width: ${availableWidth}`);
+
+  // Set constraints
+  const minStageWidth = 300;
+  const absoluteMaxStageWidth = 1200;
 
   let dynamicMaxStageWidth = Math.max(minStageWidth, availableWidth);
-  if (dynamicMaxStageWidth > absoluteMaxStageWidth) {
-    dynamicMaxStageWidth = absoluteMaxStageWidth;
-  }
-  // --- End Dynamic Width Calculation ---
+  dynamicMaxStageWidth = Math.min(dynamicMaxStageWidth, absoluteMaxStageWidth);
+  console.log(`Constrained Dynamic Max Stage Width: ${dynamicMaxStageWidth}`);
 
+
+  // --- Venue Dimensions Validation ---
   if (!venueWidth || !venueDepth || venueWidth <= 0 || venueDepth <= 0) {
-    // Use default venue dimensions if invalid ones are provided
-    venueWidth = 20;
-    venueDepth = 15;
-    console.warn("Invalid venue dimensions provided, using defaults (20x15).");
+      venueWidth = 20; venueDepth = 15;
+      console.warn("Invalid venue dimensions, using defaults (20x15).");
   }
 
-  // Use the dynamically calculated width
-  const stageWidth = dynamicMaxStageWidth;
-
+  // --- Calculate Stage Size ---
+  const stageWidth = Math.floor(dynamicMaxStageWidth); // Use floor
   const aspectRatio = venueDepth / venueWidth;
   const stageHeight = Math.round(stageWidth * aspectRatio);
+  console.log(`Final Stage Dimensions (px): Width=${stageWidth}, Height=${stageHeight}`);
 
-  // Calculate grid based on the dynamic stage size
-  const gridSizeWidth = stageWidth / (venueWidth / 5); // Size per 5ft square based on width
-  const gridSizeHeight = stageHeight / (venueDepth / 5); // Size per 5ft square based on height
-  const gridSize = Math.min(gridSizeWidth, gridSizeHeight); // Use the smaller scale to fit grid
+
+  // --- Calculate Grid (handle potential division by zero) ---
+  const gridDenomX = venueWidth / 5;
+  const gridDenomY = venueDepth / 5;
+  const gridSizeWidth = gridDenomX > 0 ? stageWidth / gridDenomX : 50;
+  const gridSizeHeight = gridDenomY > 0 ? stageHeight / gridDenomY : 50 * aspectRatio;
+  const gridSize = Math.min(gridSizeWidth, gridSizeHeight);
+  console.log(`Grid Size (px per 5ft): ${gridSize}`);
+
+  console.log("--- End Calculation ---");
 
   return {
-    width: stageWidth,
-    height: stageHeight,
-    gridSize: gridSize,
-    widthInFeet: venueWidth,
-    depthInFeet: venueDepth,
-    gridSquaresX: Math.ceil(venueWidth / 5),
-    gridSquaresY: Math.ceil(venueDepth / 5),
+      width: stageWidth,
+      height: stageHeight,
+      gridSize: gridSize > 0 ? gridSize : 50, // Ensure positive
+      widthInFeet: venueWidth,
+      depthInFeet: venueDepth,
+      gridSquaresX: Math.ceil(venueWidth / 5),
+      gridSquaresY: Math.ceil(venueDepth / 5),
   };
 }
+
+function updateStageDimensions(dimensions, stage) {
+  if (!stage) {
+      console.error("UpdateStageDimensions: Stage element not found.");
+      return;
+  }
+  if (!dimensions || typeof dimensions.width !== 'number' || typeof dimensions.height !== 'number') {
+      console.error("UpdateStageDimensions: Invalid dimensions object received.", dimensions);
+      // stage.style.width = '300px';
+      // stage.style.height = '225px';
+      return;
+  }
+
+  console.log(`Applying Dimensions: Width=${dimensions.width}px, Height=${dimensions.height}px`); // Log applied size
+  // stage.style.width = `${dimensions.width}px`;
+  // stage.style.height = `${dimensions.height}px`;
+  stage.style.setProperty('width', `${dimensions.width}px`, 'important'); // TEST
+  stage.style.setProperty('height', `${dimensions.height}px`, 'important'); // TEST
+  stage.setAttribute('data-stage-width', dimensions.widthInFeet);
+  stage.setAttribute('data-stage-depth', dimensions.depthInFeet);
+  updateGridOverlay(dimensions, stage);
+  updateDimensionsLabel(dimensions, stage);
+}
+
+// --- Ensure the resize handler logs correctly ---
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+      console.log("--- Window Resize Detected ---"); // Log resize trigger
+      const currentVenueId = document.getElementById('venue_select')?.value || null;
+      if (window.plotState && typeof updateStageForVenue === 'function') {
+          updateStageForVenue(currentVenueId, window.plotState, true);
+      } else {
+          console.warn("plotState or updateStageForVenue not available on resize");
+      }
+  }, 250);
+});
 
 /**
  * Update stage element's dimensions, data attributes, grid overlay, and label.

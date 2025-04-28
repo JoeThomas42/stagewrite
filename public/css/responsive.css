@@ -27,15 +27,31 @@
     padding: var(--spacing-md) var(--spacing-xs) var(--spacing-xs);
   }
 
-
   .accordion-content {
     gap: var(--spacing-xs);
     justify-content: flex-start;
   }
+  
+  #stage-controls {
+    padding: var(--spacing-xs);
+  
+    #plot-title {
+      margin-bottom: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    #venue-info-container {
+      gap: var(--spacing-xs);
+    }
+  }
+
+  #control-buttons {
+    margin-top: var(--spacing-xs);
+  }
 }
 
-/* -------------------- 1130px --------------------- */
-@media screen and (max-width: 1070px) {
+/* -------------------- 1079px --------------------- */
+@media screen and (max-width: 1079px) {
   /* Hide stage plotting/opening functionality on phones */
   #stage-plot-container,
   #stage-info-container,

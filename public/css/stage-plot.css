@@ -15,10 +15,10 @@
   gap: var(--spacing-lg);
   justify-content: space-between;
   margin: var(--spacing-xl) auto 0;
-  overflow: hidden;
+  max-width: 1600px;
   padding: var(--spacing-lg);
   transition: all var(--transition-medium);
-  
+  width: 100%;
 }
 
 #stage-plot-container,
@@ -55,8 +55,10 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   display: flex;
-  flex: 1;
+  flex-basis: min-content;
   flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .draggable-element {
@@ -345,16 +347,20 @@
   border-radius: var(--border-radius-md);
   box-shadow: inset var(--shadow-inset-md);
   height: 700px;
+  max-width: 100%;
   overflow: hidden;
   position: relative;
   transition: all var(--transition-medium);
-  width: 900px;
 }
 
 #stage-area {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  min-width: 0;
 }
 
 #stage-controls {
@@ -364,7 +370,7 @@
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  max-width: 900px;
+  max-width: 100%;
   padding: var(--spacing-md);
 
   h2 {
@@ -488,7 +494,7 @@
   display: flex;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-md);
-  max-width: 900px;
+  max-width: 100%;
 }
 
 .action-button {
@@ -961,7 +967,7 @@ body.duplicating-element * {
   display: flex;
   gap: var(--spacing-lg);
   margin: 0 auto var(--spacing-lg);
-  max-width: 1309px;
+  max-width: 1600px;
 }
 
 #input-list,
