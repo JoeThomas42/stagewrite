@@ -788,7 +788,6 @@ function handleDrop(e, plotState) {
     finalY = dropYRelativeToStage - elementMarginChrome;
   }
 
-  // Apply different buffer values for different sides like in dragMove
   const leftBuffer = 0;
   const topBuffer = 0;
   const rightBuffer = 30;

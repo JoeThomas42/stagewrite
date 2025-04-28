@@ -13,20 +13,65 @@
   }
 
   #stage-plot-container {
-    left: 50%;
-    top: 50%;
-    margin-bottom: -190px;
-    position: relative;
-    transform: scale(0.8) translateX(-50%);
-    transform-origin: top left;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+  }
+
+  .accordion-header {
+    padding: var(--spacing-sm);
+  }
+
+  .accordion-container {
+    width: 205px;
+    margin: 0 var(--spacing-xs) var(--spacing-xxs);
+    padding: var(--spacing-md) var(--spacing-xs) var(--spacing-xs);
+  }
+
+
+  .accordion-content {
+    gap: var(--spacing-xs);
+    justify-content: flex-start;
   }
 }
 
-/* -------------------- 1070px --------------------- */
-@media screen and (max-width: 1070px) {
-  #stage-plot-container {
-    margin-bottom: -280px;
-    transform: scale(0.7) translateX(-50%);
+/* -------------------- 1130px --------------------- */
+@media screen and (max-width: 1130px) {
+  /* Hide stage plotting/opening functionality on phones */
+  #stage-plot-container,
+  #stage-info-container,
+  .open-plot-btn  {
+    display: none;
+  }
+
+  /* Stage/Plot Area - Phone Restriction Message */
+  #mobile-restriction-message {
+    background-color: var(--color-background-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+    max-width: 90%;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  #mobile-restriction-message h2 {
+    font-size: var(--font-size-lg);
+    margin-bottom: 1rem;
+  }
+
+  #mobile-restriction-message p {
+    font-size: var(--font-size-md);
+    margin-bottom: 1.5rem;
+  }
+
+  #mobile-restriction-message button a {
+    color: var(--color-white);
   }
 }
 
@@ -87,44 +132,6 @@
 
 /* --------------------932px --------------------- */
 @media screen and (max-width: 932px) {
-  /* Hide stage plotting/opening functionality on phones */
-  #stage-plot-container,
-  #stage-info-container,
-  .open-plot-btn  {
-    display: none;
-  }
-
-  /* Stage/Plot Area - Phone Restriction Message */
-  #mobile-restriction-message {
-    background-color: var(--color-background-light);
-    border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-md);
-    color: var(--color-text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 2rem auto;
-    max-width: 90%;
-    padding: 2rem 1rem;
-    text-align: center;
-  }
-
-  #mobile-restriction-message h2 {
-    font-size: var(--font-size-lg);
-    margin-bottom: 1rem;
-  }
-
-  #mobile-restriction-message p {
-    font-size: var(--font-size-md);
-    margin-bottom: 1.5rem;
-  }
-
-  #mobile-restriction-message button a {
-    color: var(--color-white);
-  }
-
   /* Mobile menu button */
   .mobile-menu-toggle {
     display: block;

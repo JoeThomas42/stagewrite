@@ -120,7 +120,6 @@
   display: flex;
   flex-direction: column;
   margin: 0 var(--spacing-md) var(--spacing-md);
-  max-height: 900px;
   max-width: 340px;
   overflow-y: hidden;
   padding: var(--spacing-md) var(--spacing-md) var(--spacing-xs);
