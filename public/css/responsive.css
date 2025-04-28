@@ -35,7 +35,7 @@
 }
 
 /* -------------------- 1130px --------------------- */
-@media screen and (max-width: 1134px) {
+@media screen and (max-width: 1070px) {
   /* Hide stage plotting/opening functionality on phones */
   #stage-plot-container,
   #stage-info-container,

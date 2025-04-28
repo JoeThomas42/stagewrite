@@ -68,25 +68,66 @@ function initStageEditor() {
   renderElementInfoList(plotState);
 }
 
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const currentVenueId = document.getElementById('venue_select')?.value || null;
+        // Assuming plotState is accessible in this scope
+        if (window.plotState && typeof updateStageForVenue === 'function') {
+           // Call the function that recalculates and updates stage dimensions
+           updateStageForVenue(currentVenueId, window.plotState, true); // Pass true to avoid marking as modified on resize
+        }
+    }, 250); // Debounce resize event
+});
+
 /**
  * Calculate stage dimensions in pixels and grid units based on venue dimensions in feet.
+ * Dynamically determines the maximum stage width based on available container space.
  * @param {number} venueWidth - Venue width in feet.
  * @param {number} venueDepth - Venue depth in feet.
- * @param {number} [maxStageWidth=900] - Maximum stage width in pixels.
- * @returns {Object} Object with calculated width, height, gridSize, dimensions in feet, and grid square counts.
+ * @returns {Object|null} Object with calculated width, height, gridSize, dimensions in feet, and grid square counts, or null if container not found.
  */
-function calculateStageDimensions(venueWidth, venueDepth, maxStageWidth = 900) {
-  if (!venueWidth || !venueDepth || venueWidth <= 0 || venueDepth <= 0) {
-    venueWidth = 20;
-    venueDepth = 15;
+function calculateStageDimensions(venueWidth, venueDepth) {
+  // --- Get Container and Calculate Dynamic Max Width ---
+  const stageContainer = document.getElementById('stage-area'); // The container holding the stage
+  if (!stageContainer) {
+    console.error("Stage container '#stage-area' not found.");
+    return null; // Return null or default dimensions if container isn't ready
   }
 
+  // Calculate available width - subtract some padding/margins if necessary
+  // Example: Use 95% of the container's width, or container width minus fixed padding
+  const containerPadding = 20; // Adjust based on your actual CSS padding/margins around the stage
+  const availableWidth = stageContainer.offsetWidth - containerPadding;
+
+  // Set a reasonable minimum and absolute maximum width if needed
+  const minStageWidth = 500; // Minimum width in pixels
+  const absoluteMaxStageWidth = 1200; // Optional absolute cap
+
+  let dynamicMaxStageWidth = Math.max(minStageWidth, availableWidth);
+  if (dynamicMaxStageWidth > absoluteMaxStageWidth) {
+    dynamicMaxStageWidth = absoluteMaxStageWidth;
+  }
+  // --- End Dynamic Width Calculation ---
+
+  if (!venueWidth || !venueDepth || venueWidth <= 0 || venueDepth <= 0) {
+    // Use default venue dimensions if invalid ones are provided
+    venueWidth = 20;
+    venueDepth = 15;
+    console.warn("Invalid venue dimensions provided, using defaults (20x15).");
+  }
+
+  // Use the dynamically calculated width
+  const stageWidth = dynamicMaxStageWidth;
+
   const aspectRatio = venueDepth / venueWidth;
-  const stageWidth = maxStageWidth;
   const stageHeight = Math.round(stageWidth * aspectRatio);
-  const gridSizeWidth = stageWidth / (venueWidth / 5);
-  const gridSizeHeight = stageHeight / (venueDepth / 5);
-  const gridSize = Math.min(gridSizeWidth, gridSizeHeight);
+
+  // Calculate grid based on the dynamic stage size
+  const gridSizeWidth = stageWidth / (venueWidth / 5); // Size per 5ft square based on width
+  const gridSizeHeight = stageHeight / (venueDepth / 5); // Size per 5ft square based on height
+  const gridSize = Math.min(gridSizeWidth, gridSizeHeight); // Use the smaller scale to fit grid
 
   return {
     width: stageWidth,
