@@ -46,7 +46,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "The default venue cannot be deleted.";
         $action_to_confirm = '';
       } else {
-        $confirm_message = "Are you sure you want to delete this venue? Associated plots will be reassigned to the default venue. This cannot be undone.";
+        $confirm_message = "Are you sure you want to delete this venue? Associated plots will be reassigned to the default venue.<br>This cannot be undone.";
       }
     }
   }
@@ -78,7 +78,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       }
     }
-    
+
     $action_to_confirm = '';
     $confirm_action = '';
   }

@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
           exit;
         } else {
-          $error_message = "Failed to save venue. The database could not process the request.";
+          $error_message = "Failed to save venue. Make sure changes are made before saving.";
           $_SESSION['error_message'] = $error_message;
           error_log('Venue save returned false without throwing exception');
         }
@@ -142,7 +142,7 @@ include PRIVATE_PATH . '/templates/header.php';
             $logLines = array_slice(explode("\n", $logContent), -10); // Get last 10 lines
             echo "<pre>" . htmlspecialchars(implode("\n", $logLines)) . "</pre>";
           } else {
-            echo "<p>Error log not available for detailed information. Please contact system administrator.</p>";
+            echo "<p>Error log not available for detailed information.</p>";
           }
           ?>
         </div>
