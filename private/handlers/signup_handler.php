@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $required_fields = ['first_name', 'last_name', 'email', 'password', 'confirm_password'];
   foreach ($required_fields as $field) {
     if (empty($inputs[$field])) {
-      $errors[$field] = 'required';
+      $errors[$field] = 'This field is required.';
     }
   }
 
@@ -25,31 +25,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   $recaptchaResponse = $_POST['g-recaptcha-response'] ?? null;
   if (empty($recaptchaResponse)) {
-    $errors['recaptcha'] = 'invalid';
+    $errors['recaptcha'] = 'Please complete the reCAPTCHA.';
     $errors['message'] = 'reCAPTCHA verification failed. Please try again.';
   }
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors['email'] = 'invalid';
+    $errors['email'] = 'Please enter a valid email address.';
   }
 
   if (strlen($password) < 8) {
-    $errors['password'] = 'too_short';
+    $errors['password'] = 'Must be at least 8 characters long.';
   } else if (!preg_match('/[0-9]/', $password)) {
-    $errors['password'] = 'no_number';
+    $errors['password'] = 'Must contain at least one number.';
   } else {
     $allowedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{};:\'",./<>?|`~';
     for ($i = 0; $i < strlen($password); $i++) {
       $char = $password[$i];
       if (strpos($allowedChars, $char) === false) {
-        $errors['password'] = 'invalid_char:' . $char;
+        $errors['password'] = $char . ' cannot be used.';
         break;
       }
     }
   }
 
   if ($password !== $confirmPassword) {
-    $errors['confirm_password'] = 'mismatch';
+    $errors['confirm_password'] = 'Passwords do not match.';
   }
 
   if (empty($errors)) {
@@ -84,9 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       );
 
       if ($emailExists) {
-        $errors['email'] = 'exists';
+        $errors['email'] = 'This email is already registered.';
       } else {
-        $errors['general'] = 'database_error';
+        $errors['general'] = 'An error occurred while creating your account. Please try again later.';
       }
       echo json_encode(['errors' => $errors]);
     }
