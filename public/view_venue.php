@@ -16,27 +16,35 @@ $success_message = '';
 $confirm_action = isset($_POST['confirm_action']) ? $_POST['confirm_action'] : '';
 $action_to_confirm = isset($_POST['action_to_confirm']) ? $_POST['action_to_confirm'] : '';
 
+// Check for session messages and transfer them to local variables
+if (isset($_SESSION['success_message'])) {
+  $success_message = $_SESSION['success_message'];
+  unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+  $error_message = $_SESSION['error_message'];
+  unset($_SESSION['error_message']);
+}
+
 // Check if cancel button was clicked - clear variables
 if (isset($_POST['cancel_action'])) {
-  // Clear confirmation variables and don't process other post data
   $action_to_confirm = '';
   $confirm_action = '';
 }
-// Only process other POST data if not canceling
 else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // First step of confirmation
   if (isset($_POST['action']) && empty($confirm_action)) {
     $action = $_POST['action'];
     $action_venue_id = $_POST['venue_id'] ?? null;
 
-    // Store the action for confirmation
     $action_to_confirm = $action;
 
     // Set confirmation message based on action
     if ($action === 'delete') {
       if ($action_venue_id == 1) {
         $error_message = "The default venue cannot be deleted.";
-        $action_to_confirm = ''; // Reset confirmation since we don't need it
+        $action_to_confirm = '';
       } else {
         $confirm_message = "Are you sure you want to delete this venue? Associated plots will be reassigned to the default venue. This cannot be undone.";
       }
@@ -70,7 +78,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       }
     }
-    // Clear the confirmation variables after processing
+    
     $action_to_confirm = '';
     $confirm_action = '';
   }

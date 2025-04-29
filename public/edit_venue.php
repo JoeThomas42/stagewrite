@@ -22,11 +22,6 @@ $form_errors = [];
 
 // Fetch venue data if editing
 if ($is_editing) {
-  if ($venue_id == 1) { // Prevent editing the default venue
-    $_SESSION['error_message'] = "The default venue cannot be edited.";
-    header('Location: data_management.php');
-    exit;
-  }
   $venue_data = $venueManager->getVenue($venue_id);
   if (!$venue_data) {
     $_SESSION['error_message'] = "Venue not found.";
@@ -35,7 +30,6 @@ if ($is_editing) {
   }
   $page_title = "Edit Official Venue";
 } else {
-  // Initialize empty array for adding
   $venue_data = [
     'venue_id' => null,
     'venue_name' => '',
@@ -50,7 +44,7 @@ if ($is_editing) {
 
 // Handle Form Submission (POST request)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Log what we're receiving
+  // Log whats received
   error_log('Form submitted with data: ' . print_r($_POST, true));
 
   $submitted_data = [
@@ -88,7 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($saveResult) {
           $_SESSION['success_message'] = $is_editing ? "Venue updated successfully." : "Venue added successfully.";
-          header('Location: data_management.php');
+
+          if ($is_editing) {
+            header('Location: view_venue.php?venue_id=' . $venue_id);
+          } else {
+            header('Location: data_management.php');
+          }
           exit;
         } else {
           $error_message = "Failed to save venue. The database could not process the request.";
@@ -128,11 +127,10 @@ include PRIVATE_PATH . '/templates/header.php';
         <div class="error-details">
           <p><strong>Error Details:</strong></p>
           <?php
-          // Get the error log file
           $errorLogPath = ini_get('error_log');
           if (file_exists($errorLogPath) && is_readable($errorLogPath)) {
             $logContent = file_get_contents($errorLogPath);
-            $logLines = array_slice(explode("\n", $logContent), -10); // Get last 10 lines
+            $logLines = array_slice(explode("\n", $logContent), -10);
             echo "<pre>" . htmlspecialchars(implode("\n", $logLines)) . "</pre>";
           } else {
             echo "<p>Error log not available for detailed information. Please contact system administrator.</p>";
