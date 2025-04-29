@@ -82,7 +82,7 @@ try {
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
                 h1 { color: #4a6da7; }
                 .message { margin: 20px 0; padding: 15px; background-color: #f5f5f5; border-radius: 5px; }
-                .button { display: inline-block; padding: 10px 20px; background-color: #4a6da7; color: #ffffff;
+                .button { display: inline-block; padding: 10px 20px; background-color:rgb(196, 211, 236); color: #ffffff;
                           text-decoration: none; border-radius: 5px; }
                 .footer { margin-top: 30px; font-size: 12px; color: #999; }
             </style>

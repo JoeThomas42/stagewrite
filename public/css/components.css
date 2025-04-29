@@ -929,6 +929,40 @@ input[type="number"]::-webkit-outer-spin-button {
   background-color: var(--color-success) !important;
 }
 
+/* ------ Reset Password Modal ------ */
+.password-field-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-grey-3);
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: color var(--transition-fast);
+  
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+.password-field-container input[type="password"],
+.password-field-container input[type="text"] {
+  padding-right: 35px;
+}
+
 /* Print-specific styles that will only apply when printing */
 @media print {
   @page {
