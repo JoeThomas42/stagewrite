@@ -302,8 +302,22 @@
   }
   
   /* Profile/Management */
-  .profile-container h2 {
-    margin: 0;
+  .clickable-venue-row {
+    border: 3px solid var(--color-border);
+
+    td {
+      border: none;
+    }
+  }
+
+  .profile-container {
+    margin: var(--spacing-xs) auto;
+    padding: var(--spacing-xs);
+    width: 100%;
+  
+    h2 {
+      margin: 0;
+    }
   }
 
   #add-venue-button {
@@ -342,20 +356,35 @@
   /* Tables */
   table {
     margin-top: 0;
+  }
 
-    th.sortable {
-      flex: 1;
-    }
+  #users-table,
+  #venues-table {
+    margin-top: 60px;
 
     thead {
-      border: none;
-      clip: rect(0 0 0 0);
-      height: 1px;
-      margin: -1px;
+      border-radius: var(--border-radius-lg);
       overflow: hidden;
-      padding: 0;
       position: absolute;
-      width: 1px;
+      left: 5px;
+      right: 5px;
+      top: 180px;
+
+      tr {
+        flex-direction: row;
+        display: flex;
+      }
+      
+      th.sortable {
+        flex: 1;
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        width: fit-content;
+      }
+
+      th:last-child {
+        display: none;
+      }
     }
 
     td {
@@ -381,6 +410,8 @@
     }
 
     .action-cell {
+      display: flex;
+
       &::before {
       content: none;
       }
@@ -588,8 +619,28 @@
     font-size: var(--font-size-sm);
   }
   
-  /* Further refine mobile account UI */
   .user-controls {
     gap: 2rem;
+  }
+
+  #users-table,
+  #venues-table {
+    margin-top: 90px;
+
+    thead {
+      top: 180px;
+    }
+  }
+}
+
+/* ------------------------- 395px -------------------------- */
+@media screen and (max-width: 395px) {
+  
+  #users-table,
+  #venues-table {
+
+    thead {
+      top: 230px;
+    }
   }
 }
