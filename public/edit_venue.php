@@ -20,26 +20,15 @@ $error_message = '';
 $success_message = '';
 $form_errors = [];
 
-// Fetch venue data if editing
-if ($is_editing) {
-  $venue_data = $venueManager->getVenue($venue_id);
-  if (!$venue_data) {
-    $_SESSION['error_message'] = "Venue not found.";
-    header('Location: data_management.php');
-    exit;
-  }
-  $page_title = "Edit Official Venue";
-} else {
-  $venue_data = [
-    'venue_id' => null,
-    'venue_name' => '',
-    'venue_street' => '',
-    'venue_city' => '',
-    'venue_state_id' => '',
-    'venue_zip' => '',
-    'stage_width' => '',
-    'stage_depth' => ''
-  ];
+// Check for error message from session
+if (isset($_SESSION['error_message'])) {
+  $error_message = $_SESSION['error_message'];
+  unset($_SESSION['error_message']);
+}
+
+if (isset($_SESSION['success_message'])) {
+  $success_message = $_SESSION['success_message'];
+  unset($_SESSION['success_message']);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -58,18 +47,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   error_log('Processed form data: ' . print_r($submitted_data, true));
 
-  if ($is_editing && $submitted_data['venue_id'] !== $venue_id) {
+  // First check the state field specifically
+  if (empty($submitted_data['venue_state_id'])) {
+    $form_errors['venue_state_id'] = 'required';
+    $error_message = "State selection is required. Please select a state before submitting.";
+    $venue_data = $submitted_data;
+  } 
+  else if ($is_editing && $submitted_data['venue_id'] !== $venue_id) {
     $error_message = "Venue ID mismatch. Cannot save changes to a different venue ID.";
     $_SESSION['error_message'] = $error_message;
     error_log('Venue ID mismatch error: submitted ' . $submitted_data['venue_id'] . ' vs expected ' . $venue_id);
-  } else {
+  } 
+  else {
+    // Validate form data
     $form_errors = $venueManager->validateVenueData($submitted_data);
 
     if (!empty($form_errors)) {
       error_log('Validation errors: ' . print_r($form_errors, true));
-    }
-
-    if (empty($form_errors)) {
+      $error_message = "Please correct the errors below before submitting.";
+      $venue_data = $submitted_data;
+    } 
+    else {
       try {
         error_log('Attempting to save venue...');
         $saveResult = $venueManager->saveVenue($submitted_data);
@@ -80,16 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $redirect_venue_id = $venue_id;
             $_SESSION['success_message'] = "Venue updated successfully.";
           } else {
-            if (is_array($saveResult) && isset($saveResult['venue_id'])) {
-              $redirect_venue_id = $saveResult['venue_id'];
-            } else {
-              $lookup = $db->fetchOne(
-                "SELECT venue_id FROM venues WHERE venue_name = ? ORDER BY venue_id DESC LIMIT 1",
-                [$submitted_data['venue_name']]
-              );
-              $redirect_venue_id = $lookup ? $lookup['venue_id'] : null;
-            }
-
+            // Look up the venue that was just created
+            $lookup = $db->fetchOne(
+              "SELECT venue_id FROM venues WHERE venue_name = ? ORDER BY venue_id DESC LIMIT 1",
+              [$submitted_data['venue_name']]
+            );
+            $redirect_venue_id = $lookup ? $lookup['venue_id'] : null;
+            
             $_SESSION['success_message'] = "Venue added successfully.";
           }
 
@@ -100,27 +95,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           }
           exit;
         } else {
-          $error_message = "Failed to save venue. Make sure changes are made before saving.";
-          $_SESSION['error_message'] = $error_message;
+          $error_message = "Failed to save venue. Please check all required fields and try again.";
           error_log('Venue save returned false without throwing exception');
         }
       } catch (Exception $e) {
         $error_message = "An error occurred while saving the venue: " . $e->getMessage();
-        $_SESSION['error_message'] = $error_message;
         error_log("Error saving venue: " . $e->getMessage());
         error_log("Exception details: " . print_r($e, true));
       }
-    } else {
-      $error_message = "Please correct the errors below before submitting.";
-      $venue_data = $submitted_data;
     }
   }
+}
+
+// Fetch venue data if editing and no form data is available
+if ($is_editing && !$venue_data) {
+  $venue_data = $venueManager->getVenue($venue_id);
+  if (!$venue_data) {
+    $_SESSION['error_message'] = "Venue not found.";
+    header('Location: data_management.php');
+    exit;
+  }
+  $page_title = "Edit Official Venue";
+} else if (!$venue_data) {
+  $venue_data = [
+    'venue_id' => null,
+    'venue_name' => '',
+    'venue_street' => '',
+    'venue_city' => '',
+    'venue_state_id' => '',
+    'venue_zip' => '',
+    'stage_width' => '',
+    'stage_depth' => ''
+  ];
 }
 
 // Set page title for header
 $current_page = $page_title;
 include PRIVATE_PATH . '/templates/header.php';
 ?>
+
+<!-- Custom styling for required fields and error messages -->
+<style>
+  label[for="venue_state_id"]::after {
+    color: var(--color-danger-light);
+    content: " *";
+    font-weight: bold;
+  }
+  
+  .form-group.error select,
+  .form-group.error .custom-dropdown {
+    border-color: var(--color-danger) !important;
+  }
+  
+  .form-group.error .field-error {
+    display: block !important;
+    visibility: visible !important;
+    color: var(--color-danger);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    position: relative;
+    z-index: 1000;
+  }
+</style>
 
 <div class="profile-container view-container edit-container">
   <div class="profile-header">
@@ -131,22 +167,12 @@ include PRIVATE_PATH . '/templates/header.php';
   <?php if ($error_message): ?>
     <div class="error-message">
       <p><?= htmlspecialchars($error_message) ?></p>
+    </div>
+  <?php endif; ?>
 
-      <?php if (strpos($error_message, 'An error occurred:') !== false): ?>
-        <div class="error-details">
-          <p><strong>Error Details:</strong></p>
-          <?php
-          $errorLogPath = ini_get('error_log');
-          if (file_exists($errorLogPath) && is_readable($errorLogPath)) {
-            $logContent = file_get_contents($errorLogPath);
-            $logLines = array_slice(explode("\n", $logContent), -10); // Get last 10 lines
-            echo "<pre>" . htmlspecialchars(implode("\n", $logLines)) . "</pre>";
-          } else {
-            echo "<p>Error log not available for detailed information.</p>";
-          }
-          ?>
-        </div>
-      <?php endif; ?>
+  <?php if ($success_message): ?>
+    <div class="success-message">
+      <p><?= htmlspecialchars($success_message) ?></p>
     </div>
   <?php endif; ?>
 
@@ -212,16 +238,21 @@ include PRIVATE_PATH . '/templates/header.php';
 
       <div class="form-group <?= isset($form_errors['venue_state_id']) ? 'error' : '' ?>">
         <label for="venue_state_id">State:</label>
-        <select id="venue_state_id" name="venue_state_id" required>
-          <option value="" <?= empty($venue_data['venue_state_id']) ? 'selected' : '' ?>>Select State</option>
+        
+        <select id="venue_state_id" name="venue_state_id_visible">
+          <option value="">Select State</option>
           <?php
           $states = $db->fetchAll("SELECT state_id, state_name FROM states ORDER BY state_name");
           foreach ($states as $state) {
-            $selected = ($venue_data['venue_state_id'] ?? '') == $state['state_id'] ? 'selected' : '';
+            $selected = isset($venue_data['venue_state_id']) && $venue_data['venue_state_id'] == $state['state_id'] ? 'selected' : '';
             echo "<option value='{$state['state_id']}' {$selected}>" . htmlspecialchars($state['state_name']) . "</option>";
           }
           ?>
         </select>
+        
+        <!-- Hidden field that will always be submitted with the form -->
+        <input type="hidden" name="venue_state_id" id="hidden_state_id" value="<?= htmlspecialchars($venue_data['venue_state_id'] ?? '') ?>">
+        
         <?php if (isset($form_errors['venue_state_id'])): ?>
           <span class="field-error">
             <?php
@@ -314,5 +345,103 @@ include PRIVATE_PATH . '/templates/header.php';
     </div>
   </form>
 </div>
+
+<!-- Script to sync the visible dropdown with the hidden field -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const visibleSelect = document.getElementById('venue_state_id');
+  const hiddenInput = document.getElementById('hidden_state_id');
+  
+  if (visibleSelect && hiddenInput) {
+    if (visibleSelect.value) {
+      hiddenInput.value = visibleSelect.value;
+    }
+    
+    visibleSelect.addEventListener('change', function() {
+      hiddenInput.value = this.value;
+    });
+    
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.classList && 
+          e.target.classList.contains('custom-dropdown-option') && 
+          !e.target.classList.contains('disabled')) {
+        
+        const value = e.target.getAttribute('data-value');
+        if (value !== null) {
+          hiddenInput.value = value;
+        }
+      }
+    });
+  }
+  
+  // Form submission handler
+  const venueForm = document.querySelector('form');
+  const stateFormGroup = hiddenInput ? hiddenInput.closest('.form-group') : null;
+  
+  if (venueForm && hiddenInput && stateFormGroup) {
+    venueForm.addEventListener('submit', function(e) {
+      // Check if state is selected
+      if (!hiddenInput.value) {
+        e.preventDefault();
+        
+        stateFormGroup.classList.add('error');
+        
+        let errorSpan = stateFormGroup.querySelector('.field-error');
+        if (!errorSpan) {
+          errorSpan = document.createElement('span');
+          errorSpan.className = 'field-error';
+          errorSpan.textContent = 'State selection is required.';
+          stateFormGroup.appendChild(errorSpan);
+        } else {
+          errorSpan.textContent = 'State selection is required.';
+          errorSpan.style.display = 'block';
+        }
+        
+        // Make the error visible over any custom dropdown
+        errorSpan.style.display = 'block';
+        errorSpan.style.visibility = 'visible';
+        errorSpan.style.position = 'relative';
+        errorSpan.style.zIndex = '1000';
+        
+        let generalError = document.querySelector('.error-message');
+        if (!generalError) {
+          generalError = document.createElement('div');
+          generalError.className = 'error-message';
+          const errorP = document.createElement('p');
+          errorP.textContent = 'State selection is required. Please select a state before submitting.';
+          generalError.appendChild(errorP);
+          venueForm.parentNode.insertBefore(generalError, venueForm);
+        } else {
+          generalError.querySelector('p').textContent = 'State selection is required. Please select a state before submitting.';
+          generalError.style.display = 'block';
+        }
+        
+        stateFormGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+    
+    // monitor the custom dropdown for changes
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.classList && 
+          e.target.classList.contains('custom-dropdown-option') && 
+          !e.target.classList.contains('disabled')) {
+        
+        if (hiddenInput.value) {
+          stateFormGroup.classList.remove('error');
+          const errorSpan = stateFormGroup.querySelector('.field-error');
+          if (errorSpan) {
+            errorSpan.style.display = 'none';
+          }
+          
+          const generalError = document.querySelector('.error-message');
+          if (generalError) {
+            generalError.style.display = 'none';
+          }
+        }
+      }
+    });
+  }
+});
+</script>
 
 <?php include PRIVATE_PATH . '/templates/footer.php'; ?>
