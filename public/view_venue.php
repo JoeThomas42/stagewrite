@@ -16,7 +16,14 @@ $success_message = '';
 $confirm_action = isset($_POST['confirm_action']) ? $_POST['confirm_action'] : '';
 $action_to_confirm = isset($_POST['action_to_confirm']) ? $_POST['action_to_confirm'] : '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Check if cancel button was clicked - clear variables
+if (isset($_POST['cancel_action'])) {
+  // Clear confirmation variables and don't process other post data
+  $action_to_confirm = '';
+  $confirm_action = '';
+}
+// Only process other POST data if not canceling
+else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // First step of confirmation
   if (isset($_POST['action']) && empty($confirm_action)) {
     $action = $_POST['action'];
