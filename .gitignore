@@ -1,7 +1,1 @@
-# Ignore all image files
-*.png
-
-# Ignore all vendor files
-vendor/*
-composer.json
-composer.lock
+private/snapshots/*
