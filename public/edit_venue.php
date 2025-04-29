@@ -161,7 +161,13 @@ include PRIVATE_PATH . '/templates/header.php';
 <div class="profile-container view-container edit-container">
   <div class="profile-header">
     <h1><?= htmlspecialchars($page_title) ?></h1>
-    <a href="data_management.php"><button class="button back-button">Back to Management</button></a>
+    <?php
+      if ($is_editing) {
+        header('Location: view_venue.php?venue_id=' . $venue_id);
+      } else {
+        header('Location: data_management.php');
+      }
+    ?>
   </div>
 
   <?php if ($error_message): ?>

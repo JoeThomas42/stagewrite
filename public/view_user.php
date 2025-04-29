@@ -141,7 +141,7 @@ include PRIVATE_PATH . '/templates/header.php';
 <div class="profile-container view-container">
   <div class="profile-header">
     <h1>View User: <?= htmlspecialchars($user_data['first_name']) ?> <?= htmlspecialchars($user_data['last_name']) ?></h1>
-    <a href="data_management.php"><button class="button back-button">Back to Management</button></a>
+    <a href="data_management.php?target=users"><button class="button back-button">Back to Management</button></a>
   </div>
 
   <?php if ($error_message): ?>
