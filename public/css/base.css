@@ -95,6 +95,10 @@ a {
   text-decoration: none;
 }
 
+#login-modal a {
+  color: var(--color-primary-dark);
+}
+
 img {
   display: block;
   margin: 0 auto;
