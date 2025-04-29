@@ -1,2 +1,2 @@
-private/snapshots/*
-private/config/*
+private/snapshots/*.png
+private/config/config.php
