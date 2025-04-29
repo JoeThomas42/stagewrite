@@ -42,7 +42,6 @@ class VenueManager
   
     try {
       if ($isNew) {
-        // Insert new venue
         error_log('Executing INSERT query for new venue');
         $result = $this->db->query(
           "INSERT INTO venues (venue_name, venue_street, venue_city, venue_state_id, venue_zip, stage_width, stage_depth) 
@@ -58,13 +57,11 @@ class VenueManager
           ]
         );
         
-        // Check if any rows were affected
         $rowCount = $result->rowCount();
         error_log('INSERT query completed with ' . $rowCount . ' rows affected');
         return $rowCount > 0;
         
       } else {
-        // Update existing venue
         error_log('Executing UPDATE query for venue ID: ' . $venueData['venue_id']);
         $result = $this->db->query(
           "UPDATE venues SET 
@@ -97,7 +94,7 @@ class VenueManager
       error_log('Error in VenueManager::saveVenue: ' . $e->getMessage());
       error_log('SQL State: ' . $e->getCode());
       error_log('Stack trace: ' . $e->getTraceAsString());
-      throw $e; // Re-throw to be caught by the calling code
+      throw $e;
     }
   }
 
@@ -118,21 +115,18 @@ class VenueManager
         return false;
       }
 
-      // Check if venue is used in any plots
       $usageCount = $this->db->fetchOne(
         "SELECT COUNT(*) as count FROM saved_plots WHERE venue_id = ?",
         [$venueId]
       );
 
       if ($usageCount && $usageCount['count'] > 0) {
-        // Update saved plots to use default venue (ID 1)
         $this->db->query(
           "UPDATE saved_plots SET venue_id = 1 WHERE venue_id = ?",
           [$venueId]
         );
       }
 
-      // Delete the venue
       $result = $this->db->query(
         "DELETE FROM venues WHERE venue_id = ?",
         [$venueId]
@@ -176,7 +170,6 @@ class VenueManager
       $errors['stage_depth'] = 'Stage depth must be between 1 and 200';
     }
   
-    // ZIP code validation if provided
     if (!empty($data['venue_zip']) && !preg_match('/^\d{5}$/', $data['venue_zip'])) {
       error_log('Validation error: venue_zip is not a valid 5-digit code: ' . $data['venue_zip']);
       $errors['venue_zip'] = 'ZIP code must be 5 digits';
