@@ -22,6 +22,11 @@ $form_errors = [];
 
 // Fetch venue data if editing
 if ($is_editing) {
+  if ($venue_id == 1) { // Prevent editing the default venue
+    $_SESSION['error_message'] = "The default venue cannot be edited.";
+    header('Location: data_management.php');
+    exit;
+  }
   $venue_data = $venueManager->getVenue($venue_id);
   if (!$venue_data) {
     $_SESSION['error_message'] = "Venue not found.";
@@ -30,6 +35,7 @@ if ($is_editing) {
   }
   $page_title = "Edit Official Venue";
 } else {
+  // Initialize empty array for adding
   $venue_data = [
     'venue_id' => null,
     'venue_name' => '',
@@ -44,7 +50,7 @@ if ($is_editing) {
 
 // Handle Form Submission (POST request)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Log whats received
+  // Log what we're receiving
   error_log('Form submitted with data: ' . print_r($_POST, true));
 
   $submitted_data = [
@@ -78,14 +84,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       try {
         error_log('Attempting to save venue...');
         $saveResult = $venueManager->saveVenue($submitted_data);
-        error_log('Save result: ' . ($saveResult ? 'success' : 'failure'));
+        error_log('Save result: ' . print_r($saveResult, true));
 
         if ($saveResult) {
-          $_SESSION['success_message'] = $is_editing ? "Venue updated successfully." : "Venue added successfully.";
-
+          // Determine the venue ID to use for redirection
           if ($is_editing) {
-            header('Location: view_venue.php?venue_id=' . $venue_id);
+            // If editing existing venue, use the original venue_id
+            $redirect_venue_id = $venue_id;
+            $_SESSION['success_message'] = "Venue updated successfully.";
           } else {
+            // If creating new venue, get the new venue_id from the save result
+            // Check if saveResult is an array with venue_id or just a boolean
+            if (is_array($saveResult) && isset($saveResult['venue_id'])) {
+              $redirect_venue_id = $saveResult['venue_id'];
+            } else {
+              // Try to get the newly created venue ID by name lookup if not returned directly
+              $lookup = $db->fetchOne(
+                "SELECT venue_id FROM venues WHERE venue_name = ? ORDER BY venue_id DESC LIMIT 1",
+                [$submitted_data['venue_name']]
+              );
+              $redirect_venue_id = $lookup ? $lookup['venue_id'] : null;
+            }
+
+            $_SESSION['success_message'] = "Venue added successfully.";
+          }
+
+          // Redirect to view_venue.php if we have a venue ID, otherwise fallback to data_management.php
+          if ($redirect_venue_id) {
+            header('Location: view_venue.php?venue_id=' . $redirect_venue_id);
+          } else {
+            // Fallback if we couldn't determine the venue ID
             header('Location: data_management.php');
           }
           exit;
@@ -127,10 +155,11 @@ include PRIVATE_PATH . '/templates/header.php';
         <div class="error-details">
           <p><strong>Error Details:</strong></p>
           <?php
+          // Get the error log file
           $errorLogPath = ini_get('error_log');
           if (file_exists($errorLogPath) && is_readable($errorLogPath)) {
             $logContent = file_get_contents($errorLogPath);
-            $logLines = array_slice(explode("\n", $logContent), -10);
+            $logLines = array_slice(explode("\n", $logContent), -10); // Get last 10 lines
             echo "<pre>" . htmlspecialchars(implode("\n", $logLines)) . "</pre>";
           } else {
             echo "<p>Error log not available for detailed information. Please contact system administrator.</p>";
