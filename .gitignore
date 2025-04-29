@@ -3,4 +3,5 @@
 
 # Ignore all vendor files
 vendor/*
-composer.*
+composer.json
+composer.lock
