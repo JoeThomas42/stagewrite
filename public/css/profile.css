@@ -9,14 +9,11 @@
   background-color: var(--color-background-alt);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
-  box-sizing: border-box;
   flex: 1;
   margin: var(--spacing-xl) auto;
   max-width: 1200px;
-  min-width: 70vw;
   padding: var(--spacing-xl);
   position: relative;
-  width: 100%;
 
   h1 {
     color: #444;
