@@ -362,6 +362,10 @@
   #venues-table {
     margin-top: 60px;
 
+    tbody tr {
+      border: 3px solid var(--color-border);
+    }
+
     thead {
       border-radius: var(--border-radius-lg);
       overflow: hidden;
@@ -371,8 +375,8 @@
       top: 180px;
 
       tr {
-        flex-direction: row;
         display: flex;
+        flex-direction: row;
       }
       
       th.sortable {
