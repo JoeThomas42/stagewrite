@@ -135,22 +135,23 @@ if ($isLoggedIn) {
           <div class="config-field venue-select-container">
             <label for="venue_select">Venue Select:</label>
             <div class="select-with-button">
-              <select id="venue_select" name="venue_id">
-                <option value="" selected>No Venue</option>
-                <?php if (count($venues) > 0): ?>
-                  <optgroup label="Official Venues">
-                    <?php foreach ($venues as $venue): ?>
-                      <option value="<?= $venue['venue_id'] ?>">
+              <select id="venue_select" name="venue_select">
+                <option value="" selected>Select Venue</option>
+                
+                <?php if ($isLoggedIn && count($userVenues) > 0): ?>
+                  <optgroup label="My Venues">
+                    <?php foreach ($userVenues as $venue): ?>
+                      <option value="user_<?= $venue['user_venue_id'] ?>">
                         <?= htmlspecialchars($venue['venue_name']) ?>
                       </option>
                     <?php endforeach; ?>
                   </optgroup>
                 <?php endif; ?>
 
-                <?php if ($isLoggedIn && count($userVenues) > 0): ?>
-                  <optgroup label="My Venues">
-                    <?php foreach ($userVenues as $venue): ?>
-                      <option value="user_<?= $venue['user_venue_id'] ?>">
+                <?php if (count($venues) > 0): ?>
+                  <optgroup label="Official Venues">
+                    <?php foreach ($venues as $venue): ?>
+                      <option value="<?= $venue['venue_id'] ?>">
                         <?= htmlspecialchars($venue['venue_name']) ?>
                       </option>
                     <?php endforeach; ?>
