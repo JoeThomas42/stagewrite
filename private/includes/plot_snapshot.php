@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Enhanced Snapshot Generation
+ * Snapshot Generation
  * @package StageWrite
  */
 
@@ -129,10 +129,12 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
       $relativeWidth = $element['width'] / $referenceUIWidth;
       $relativeHeight = $element['height'] / $referenceUIHeight;
 
-      $x = $relativeX * $snapshotBaseWidth;
-      $y = $relativeY * $snapshotCanvasHeight;
-      $width = $relativeWidth * $snapshotBaseWidth;
-      $height = $relativeHeight * $snapshotCanvasHeight;
+      // Apply the relative positions to the snapshot dimensions
+      // Add a small position offset (5px) to adjust for the apparent alignment issue
+      $x = ($relativeX * $snapshotBaseWidth) + 18;
+      $y = ($relativeY * $snapshotCanvasHeight) + 18;
+      $width = max(1, $relativeWidth * $snapshotBaseWidth);
+      $height = max(1, $relativeHeight * $snapshotCanvasHeight);
 
       // Attempt to load element image
       $elementImagePath = PUBLIC_PATH . '/images/elements/' . $elementDetails['element_image'];
@@ -183,11 +185,12 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
             $resizedImg = flipImage($resizedImg, true);
           }
 
+          // Don't use round() here as it can cause position drift
           imagecopy(
             $image,
             $resizedImg,
-            round($x),
-            round($y),
+            (int)$x,
+            (int)$y,
             0,
             0,
             imagesx($resizedImg),
@@ -203,6 +206,7 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
         drawElementAsRectangle($image, $element, $snapshotBaseWidth, $snapshotCanvasHeight, $referenceUIWidth, $referenceUIHeight);
       }
     }
+
     // --- ADD LABEL DRAWING CODE START ---
     if (!empty($element['label'])) {
       $labelTextColor = imagecolorallocate($image, 30, 30, 30);
@@ -212,15 +216,18 @@ function generatePlotSnapshot($plotId, $elements, $venueId, $userVenueId)
       $labelWidth = imagefontwidth($labelFont) * strlen($labelText);
       $labelHeight = imagefontheight($labelFont);
 
-      $labelX = round($x + ($width / 2) - ($labelWidth / 2));
-      $labelY = round($y + $height + 2);
+      // Adjust label position to match the updated element position
+      // Center the label horizontally relative to the element
+      $labelX = (int)($x + ($width / 2) - ($labelWidth / 2));
+      // Place the label just below the element
+      $labelY = (int)($y + $height + 2);
 
       // Ensure label doesn't go off edges
       if ($labelY + $labelHeight > $snapshotCanvasHeight - 2) {
-        $labelY = round($y - $labelHeight - 2);
+        $labelY = (int)($y - $labelHeight - 2);
       }
       if ($labelY < 2) {
-        $labelY = round($y + ($height / 2) - ($labelHeight / 2));
+        $labelY = (int)($y + ($height / 2) - ($labelHeight / 2));
       }
       $labelX = max(2, min($labelX, $snapshotBaseWidth - $labelWidth - 2));
 
@@ -269,16 +276,32 @@ function drawElementAsRectangle($image, $element, $snapshotWidth, $snapshotHeigh
   $relativeHeight = $element['height'] / $refHeight;
 
   // Calculate actual pixel position/size on the snapshot canvas
-  $x = $relativeX * $snapshotWidth;
-  $y = $relativeY * $snapshotHeight;
+  // Add the same small position offset (5px) for consistency
+  $x = ($relativeX * $snapshotWidth) + 5;
+  $y = ($relativeY * $snapshotHeight) + 5;
   $width = $relativeWidth * $snapshotWidth;
   $height = $relativeHeight * $snapshotHeight;
 
   $borderColor = imagecolorallocate($image, 82, 108, 129);
   $fillColor = imagecolorallocatealpha($image, 103, 134, 159, 30);
 
-  imagefilledrectangle($image, round($x + 1), round($y + 1), round($x + $width - 1), round($y + $height - 1), $fillColor);
-  imagerectangle($image, round($x), round($y), round($x + $width), round($y + $height), $borderColor);
+  // Use integer casting instead of round() to maintain positioning consistency
+  imagefilledrectangle(
+    $image,
+    (int)$x + 1,
+    (int)$y + 1,
+    (int)($x + $width - 1),
+    (int)($y + $height - 1),
+    $fillColor
+  );
+  imagerectangle(
+    $image,
+    (int)$x,
+    (int)$y,
+    (int)($x + $width),
+    (int)($y + $height),
+    $borderColor
+  );
 }
 
 /**
