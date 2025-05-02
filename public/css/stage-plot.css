@@ -366,15 +366,16 @@
 #stage-controls {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   max-width: 100%;
-  padding: var(--spacing-md);
+  overflow: hidden;
+  padding-bottom: var(--spacing-md);
 
   h2 {
-    border-radius: var(--border-radius-lg);
+
   }
 }
 
@@ -402,6 +403,7 @@
 #venue-info-container {
   display: flex;
   flex-direction: row;
+  margin: 0 var(--spacing-md);
   gap: var(--spacing-md);
 }
 
