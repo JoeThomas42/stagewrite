@@ -58,7 +58,6 @@
   flex-basis: min-content;
   flex-direction: column;
   flex-shrink: 0;
-  overflow: hidden;
 }
 
 .draggable-element {
@@ -371,7 +370,6 @@
   display: flex;
   flex-direction: column;
   max-width: 100%;
-  overflow: hidden;
   padding-bottom: var(--spacing-md);
 }
 
