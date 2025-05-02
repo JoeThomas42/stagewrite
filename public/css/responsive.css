@@ -35,7 +35,7 @@
   }
   
   #stage-controls {
-    padding: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
   
     #plot-title {
       margin-bottom: var(--spacing-xs);
@@ -44,6 +44,7 @@
 
     #venue-info-container {
       gap: var(--spacing-xs);
+      margin: 0 var(--spacing-xs);
     }
   }
 
