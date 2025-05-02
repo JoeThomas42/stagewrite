@@ -3,6 +3,11 @@
 */
 
 /* ----------------------- data_management.php ----------------------- */
+.admin-container th {
+  width: 120px;
+} 
+
+
 /* Pagination Styles */
 .pagination-container {
   display: flex;
