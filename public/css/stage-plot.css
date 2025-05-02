@@ -373,10 +373,6 @@
   max-width: 100%;
   overflow: hidden;
   padding-bottom: var(--spacing-md);
-
-  h2 {
-
-  }
 }
 
 #plot-title {
