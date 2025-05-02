@@ -311,6 +311,10 @@
     }
   }
 
+  .admin-container tr {
+    display: table-row;
+  }
+
   .admin-container,
   .portfolio-container {
     margin: var(--spacing-xs) auto;
@@ -631,7 +635,6 @@
 
   #users-table,
   #venues-table {
-    margin-top: 90px;
 
     thead {
       top: 180px;

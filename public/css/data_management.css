@@ -3,8 +3,16 @@
 */
 
 /* ----------------------- data_management.php ----------------------- */
-.admin-container th {
-  width: 120px;
+.admin-container {
+  tr {
+    display: flex;
+  }
+
+  th,
+  td {
+    flex: 1;
+    width: 100%;
+  }
 } 
 
 
@@ -295,7 +303,6 @@
 th.sortable {
   background-color: var(--color-primary);
   cursor: pointer;
-  padding-right: 1.5rem;
   position: relative;
   user-select: none;
   transition: all var(--transition-fast);
