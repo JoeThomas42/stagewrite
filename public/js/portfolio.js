@@ -1,6 +1,6 @@
 /**
- * StageWrite Profile Management
- * Handles user profile features including venue management and plot operations
+ * StageWrite portfolio Management
+ * Handles user portfolio features including venue management and plot operations
  */
 
 /**
@@ -38,17 +38,17 @@ async function deleteUserVenue(venueId, venueName, rowElement) {
     if (data.success) {
       rowElement.remove();
 
-      const venuesTable = document.getElementById('profile-venues-table');
+      const venuesTable = document.getElementById('portfolio-venues-table');
       if (venuesTable && venuesTable.rows.length <= 1) {
-        const venueSection = document.querySelector('.profile-section:nth-of-type(2)');
+        const venueSection = document.querySelector('.portfolio-section:nth-of-type(2)');
         venueSection.innerHTML = `
                     <div class="section-header">
                         <h2>Your Custom Venues</h2>
-                        <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
+                        <button id="portfolio-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <div class="empty-section">
                         <p>You haven't created any custom venues yet.</p>
-                        <button id="profile-add-venue-empty" class="primary-button">Add Custom Venue</button>
+                        <button id="portfolio-add-venue-empty" class="primary-button">Add Custom Venue</button>
                     </div>
                 `;
         initUserVenueModal();
@@ -65,7 +65,7 @@ async function deleteUserVenue(venueId, venueName, rowElement) {
 }
 
 /**
- * Initialize all profile page functionality
+ * Initialize all portfolio page functionality
  */
 function initProfileFunctionality() {
   initUserVenueModal();
@@ -86,7 +86,7 @@ function initUserVenueModal() {
   if (!modal) return;
 
   const form = document.getElementById('user-venue-form');
-  const addButtons = [document.getElementById('profile-add-venue-button'), document.getElementById('profile-add-venue-empty')];
+  const addButtons = [document.getElementById('portfolio-add-venue-button'), document.getElementById('portfolio-add-venue-empty')];
 
   addButtons.forEach((button) => {
     if (button) {
@@ -304,7 +304,7 @@ function initVenueDetailModal() {
  * @param {string|number} [venue.stage_depth] - The stage depth.
  */
 function updateVenueRow(venue) {
-  const venuesTable = document.getElementById('profile-venues-table');
+  const venuesTable = document.getElementById('portfolio-venues-table');
   if (!venuesTable) return;
 
   const rows = venuesTable.querySelectorAll('tr');
@@ -351,19 +351,19 @@ function updateVenueRow(venue) {
  * @param {string} [venue.venue_zip] - The zip code of the venue.
  */
 function addVenueRow(venue) {
-  const venuesTable = document.getElementById('profile-venues-table');
+  const venuesTable = document.getElementById('portfolio-venues-table');
 
-  const venueSection = document.querySelector('.profile-section:nth-of-type(2)');
+  const venueSection = document.querySelector('.portfolio-section:nth-of-type(2)');
   const emptySection = venueSection.querySelector('.empty-section');
 
   if (emptySection) {
     venueSection.innerHTML = `
       <div class="section-header">
         <h2>Your Custom Venues</h2>
-        <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
+        <button id="portfolio-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
       </div>
       <div class="venues-table-container">
-        <table id="profile-venues-table">
+        <table id="portfolio-venues-table">
           <tr>
             <th>Name</th>
             <th>Location</th>
@@ -373,7 +373,7 @@ function addVenueRow(venue) {
       </div>
     `;
 
-    const addButton = document.getElementById('profile-add-venue-button');
+    const addButton = document.getElementById('portfolio-add-venue-button');
     if (addButton) {
       addButton.addEventListener('click', () => {
         const modal = document.getElementById('add-venue-modal');
@@ -497,7 +497,7 @@ function initPlotDeletion() {
 
                 const plotsGrid = document.querySelector('.plots-grid');
                 if (plotsGrid && plotsGrid.children.length === 0) {
-                  const plotSection = document.querySelector('.profile-section:first-of-type');
+                  const plotSection = document.querySelector('.portfolio-section:first-of-type');
                   plotSection.innerHTML = `
                   <div class="section-header">
                     <h2>Your Saved Plots</h2>
@@ -611,7 +611,7 @@ function initSnapshotModal() {
 }
 
 /**
- * Initialize share plot functionality for the profile page
+ * Initialize share plot functionality for the portfolio page
  * Sets up share buttons to fetch plot data and open the share modal
  */
 function initProfileSharePlot() {

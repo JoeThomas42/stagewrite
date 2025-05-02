@@ -61,8 +61,8 @@ $userVenues = $db->fetchAll("
 
 ?>
 
-<div class="profile-container">
-    <div class="profile-header">
+<div class="portfolio-container">
+    <div class="portfolio-header">
         <h2>Your Portfolio</h2>
         <div class="user-info">
             <div class="user-name"><?= htmlspecialchars($user['first_name']) ?> <?= htmlspecialchars($user['last_name']) ?></div>
@@ -70,7 +70,7 @@ $userVenues = $db->fetchAll("
     </div>
 
     <!-- Saved Plots Section -->
-    <div class="profile-section">
+    <div class="portfolio-section">
         <div class="section-header">
             <h2>Your Saved Plots</h2>
         </div>
@@ -135,22 +135,22 @@ $userVenues = $db->fetchAll("
     </div>
 
     <!-- Custom Venues Section -->
-    <div class="profile-section">
+    <div class="portfolio-section">
         <div class="section-header">
             <h2>Your Custom Venues
                 <span> - Click on a venue to edit or remove</span>
             </h2>
-            <button id="profile-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
+            <button id="portfolio-add-venue-button" class="small-button" title="Add New Venue"><i class="fa-solid fa-plus"></i></button>
         </div>
         
         <?php if (empty($userVenues)): ?>
             <div class="empty-section">
                 <p>You haven't created any custom venues yet.</p>
-                <button id="profile-add-venue-empty" class="primary-button">Add Custom Venue</button>
+                <button id="portfolio-add-venue-empty" class="primary-button">Add Custom Venue</button>
             </div>
         <?php else: ?>
             <div class="venues-table-container">
-                <table id="profile-venues-table">
+                <table id="portfolio-venues-table">
                     <tr>
                         <th class="med-column">Name</th>
                         <th class="lg-column">Address</th>
@@ -375,9 +375,6 @@ $userVenues = $db->fetchAll("
         <div class="modal-notification-area"></div>
     </div>
 </div>
-
-<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!! IS THIS NEEDED?? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
-<script src="<?= JS_PATH ?>/profile.js" defer></script>
 
 <?php
 include PRIVATE_PATH . '/templates/footer.php';

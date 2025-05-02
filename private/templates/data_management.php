@@ -202,7 +202,7 @@ function columnHeader($label, $column, $current_sort, $current_order, $search = 
 }
 ?>
 
-<div class="profile-container">
+<div class="admin-container">
   <?php if ($error_message): ?>
     <div class="error-message"><?= htmlspecialchars($error_message) ?></div>
   <?php endif; ?>

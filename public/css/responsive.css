@@ -7,7 +7,7 @@
 
 /* -------------------- 1320px --------------------- */
 @media screen and (max-width: 1320px) {
-  .profile-container,
+  .portfolio-container,
   #stage-info-container {
     width: 98%;
   }
@@ -302,7 +302,7 @@
     width: 100%;
   }
   
-  /* Profile/Management */
+  /* portfolio/Management */
   .clickable-venue-row {
     border: 3px solid var(--color-border);
 
@@ -311,7 +311,8 @@
     }
   }
 
-  .profile-container {
+  .admin-container,
+  .portfolio-container {
     margin: var(--spacing-xs) auto;
     padding: var(--spacing-xs);
     width: 100%;
@@ -329,18 +330,18 @@
     grid-template-columns: 1fr;
   }
   
-  #profile-venues-table th {
+  #portfolio-venues-table th {
     display: none;
   }
   
-  #profile-venues-table td {
+  #portfolio-venues-table td {
     display: block;
     text-align: right;
     padding-left: 50%;
     position: relative;
   }
   
-  #profile-venues-table td::before {
+  #portfolio-venues-table td::before {
     content: attr(data-label);
     position: absolute;
     left: var(--spacing-md);

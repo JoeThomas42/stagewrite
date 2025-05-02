@@ -17,5 +17,5 @@ $user = [
     'role_id'     => $_SESSION['role_id']
 ];
 
-// Include the profile template
-include PRIVATE_PATH . '/templates/profile.php';
+// Include the portfolio template
+include PRIVATE_PATH . '/templates/portfolio.php';

@@ -101,8 +101,8 @@ $current_page = "View Venue";
 include PRIVATE_PATH . '/templates/header.php';
 ?>
 
-<div class="profile-container view-container">
-  <div class="profile-header">
+<div class="admin-container view-container">
+  <div class="view-header">
     <h1>View Venue: <?= htmlspecialchars($venue_data['venue_name']) ?></h1>
     <a href="data_management.php?target=venues"><button class="button back-button">Back to Management</button></a>
   </div>

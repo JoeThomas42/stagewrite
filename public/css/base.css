@@ -224,7 +224,8 @@ ul {
   width: 100%;
 }
 
-.profile-container,
+.admin-container,
+.portfolio-container,
 #stage-info-container {
   max-width: 1200px;
   width: 100%;

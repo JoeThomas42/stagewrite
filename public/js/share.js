@@ -4,7 +4,7 @@
 
 /**
  * Initialize print and share functionality
- * @param {Object} [initialPlotState] - Optional initial plot state, primarily for profile page usage.
+ * @param {Object} [initialPlotState] - Optional initial plot state, primarily for portfolio page usage.
  */
 function initPrintAndShare(initialPlotState) {
   if (window.printShareInitialized) {

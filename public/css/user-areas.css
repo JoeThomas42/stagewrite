@@ -4,8 +4,9 @@
 
 @import url('_variables.css');
 
-/* -------------------- Profile Container --------------------- */
-.profile-container {
+/* -------------------- portfolio Container --------------------- */
+.portfolio-container,
+.admin-container {
   background-color: var(--color-background-alt);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
@@ -23,7 +24,7 @@
   }
 }
 
-.profile-header {
+.portfolio-header {
   align-items: center;
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
@@ -45,7 +46,7 @@
   font-weight: 600;
 }
 
-.profile-section {
+.portfolio-section {
   background-color: var(--color-background-light);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);

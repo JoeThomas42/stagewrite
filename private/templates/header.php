@@ -63,7 +63,7 @@
                 </a>
               </li>
               <li>
-                <a href="<?= WEB_ROOT ?>/profile.php" class="<?= $current_page === 'Portfolio' ? 'current-page' : '' ?>">
+                <a href="<?= WEB_ROOT ?>/portfolio.php" class="<?= $current_page === 'Portfolio' ? 'current-page' : '' ?>">
                   Portfolio
                 </a>
               </li>

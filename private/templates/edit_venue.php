@@ -158,8 +158,8 @@ include PRIVATE_PATH . '/templates/header.php';
   }
 </style>
 
-<div class="profile-container view-container edit-container">
-  <div class="profile-header">
+<div class="admin-container view-container edit-container">
+  <div class="view-header">
     <h1><?= htmlspecialchars($page_title) ?></h1>
     <?php
       if ($is_editing) {

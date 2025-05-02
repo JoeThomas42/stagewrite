@@ -68,7 +68,7 @@
   
   /* ----- Modals ----- */
   .modal-content h3,
-  .profile-container h3{
+  .portfolio-container h3{
     color: var(--color-text);
   }
   
@@ -283,7 +283,7 @@
     background-color: var(--color-background-light);
   }
 
-  .profile-container,
+  .portfolio-container,
   #stage-plot-container,
   .input-list-section,
   .element-info {
@@ -358,7 +358,7 @@
       color: var(--color-grey-3);
   }
   
-  /* ----- Profile ----- */
+  /* ----- portfolio ----- */
   .detail-label {
     color: var(--color-primary-lightest);
   }

@@ -138,8 +138,8 @@ $current_page = "View User";
 include PRIVATE_PATH . '/templates/header.php';
 ?>
 
-<div class="profile-container view-container">
-  <div class="profile-header">
+<div class="admin-container view-container">
+  <div class="view-header">
     <h1>View User: <?= htmlspecialchars($user_data['first_name']) ?> <?= htmlspecialchars($user_data['last_name']) ?></h1>
     <a href="data_management.php?target=users"><button class="button back-button">Back to Management</button></a>
   </div>

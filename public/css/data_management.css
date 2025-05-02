@@ -379,7 +379,7 @@ button[disabled] {
   max-width: 800px;
 }
 
-.profile-header {
+.view-header {
   margin-bottom: 1.5rem;
   align-items: center;
 
@@ -458,7 +458,7 @@ button[disabled] {
   max-width: 900px;
 }
 
-.profile-header {
+.view-header {
   margin-bottom: 1.5rem;
   align-items: center;
 
