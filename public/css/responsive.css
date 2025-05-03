@@ -7,6 +7,18 @@
 
 /* -------------------- 1320px --------------------- */
 @media screen and (max-width: 1320px) {
+  .header-container {
+    padding: 0;
+  }
+
+  #page-wrapper {
+    padding-top: 3rem;
+  
+    .notification-area.pinned {
+      top: 75px;
+    }
+  }
+
   .portfolio-container,
   #stage-info-container {
     width: 98%;
