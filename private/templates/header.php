@@ -169,6 +169,8 @@
             <button type="submit">Login</button>
           </form>
           <p>Don't have an account? <a href="#" id="switch-to-signup">Create one</a></p>
+
+          <div class="modal-notification-area"></div>
         </div>
 
         <!-- Forgot Password Form - initially hidden -->
@@ -194,6 +196,8 @@
             </div>
             <button type="button" id="reset-back-to-login" class="primary-button">Back to Login</button>
           </div>
+
+          <div class="modal-notification-area"></div>
         </div>
 
         <!-- Signup Form - initially hidden -->
@@ -245,6 +249,8 @@
             <button type="submit">Sign Up</button>
           </form>
           <p>Already have an account? <a href="#" id="switch-to-login">Login</a></p>
+
+          <div class="modal-notification-area"></div>
         </div>
       </div>
     </div>
@@ -363,8 +369,6 @@
             </button>
           </div>
         </div>
-
-        <div id="delete-account-error" class="error-message hidden"></div>
 
         <div class="form-actions">
           <button type="submit" id="confirm-delete-btn" class="delete-button">Delete Account</button>

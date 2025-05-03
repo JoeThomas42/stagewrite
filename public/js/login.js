@@ -121,10 +121,10 @@ function setupFormSubmission(form, endpoint) {
         submitButton.textContent = originalText;
 
         if (data.success) {
-          showNotification('Action successful!', 'success'); // Generalized success message
+          showNotification('Success!', 'success');
 
           setTimeout(() => {
-            window.location.reload(); // Reloads page on success for both login/signup
+            window.location.reload();
           }, 1000);
         } else if (data.errors) {
           Object.keys(data.errors).forEach((field) => {
@@ -155,6 +155,7 @@ function setupFormSubmission(form, endpoint) {
               }
 
               showFieldError(fieldElement, errorMessage);
+              showNotification("Check your fields!", 'error');
             }
           });
         }

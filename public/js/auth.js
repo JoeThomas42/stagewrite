@@ -104,8 +104,9 @@ function initAuthForms() {
       const email = document.getElementById('reset_email').value.trim();
 
       if (!email) {
-        if (resetErrorText) resetErrorText.textContent = 'Please enter a valid email address';
+        showNotification('Please enter a valid email address', 'error');
         if (errorMessage) errorMessage.classList.remove('hidden');
+        if (resetErrorText) resetErrorText.textContent = 'Please enter a valid email address';
         return;
       }
 
@@ -126,11 +127,13 @@ function initAuthForms() {
           if (successMessage) successMessage.classList.remove('hidden');
           if (errorMessage) errorMessage.classList.add('hidden');
         } else {
+          showNotification(data.error || 'An error occurred. Please try again.', 'error');
           if (resetErrorText) resetErrorText.textContent = data.error || 'An error occurred. Please try again.';
           if (errorMessage) errorMessage.classList.remove('hidden');
         }
       } catch (error) {
         console.error('Error:', error);
+        showNotification('Network error. Please try again later.', 'error');
         if (resetErrorText) resetErrorText.textContent = 'Network error. Please try again later.';
         if (errorMessage) errorMessage.classList.remove('hidden');
       }
@@ -195,18 +198,24 @@ function initSignupForm() {
           }
 
           if (errorType === 'required') {
-            showFieldError(inputField, 'This field is required');
+            showFieldError(inputField);
+            showNotification('Please fill in all required fields', 'error');
           } else if (field === 'email' && errorType === 'invalid') {
-            showFieldError(inputField, 'Please enter a valid email address');
+            showFieldError(inputField);
+            showNotification('Please enter a valid email address', 'error');
           } else if (field === 'email' && errorType === 'exists') {
             showFieldError(inputField, 'This email is already registered');
+            showNotification('Invalid email', 'error');
           } else if (field === 'password' && (errorType === 'too_short' || errorType === 'no_number')) {
             showFieldError(inputField, 'Must be 8 characters and include at least one number');
+            showNotification('Invalid Password', 'error');
           } else if (field === 'password' && errorType.startsWith('invalid_char:')) {
             const invalidChar = errorType.split(':')[1];
             showFieldError(inputField, `'${invalidChar}' cannot be used`);
+            showNotification('Invalid Password', 'error');
           } else if (field === 'confirm_password' && errorType === 'mismatch') {
-            showFieldError(inputField, 'Passwords do not match');
+            showFieldError(inputField);
+            showNotification('Passwords do not match', 'error');
           }
         }
       } else if (data.success) {
@@ -322,11 +331,14 @@ function initLoginForm() {
           if (!inputField) continue;
 
           if (errorType === 'required') {
-            showFieldError(inputField, 'Required');
+            showFieldError(inputField);
+            showNotification('Please fill in all required fields', 'error');
           } else if (field === 'email' && errorType === 'invalid') {
-            showFieldError(inputField, 'Invalid email format');
+            showFieldError(inputField);
+            showNotification('Please enter a valid email address', 'error');
           } else if (errorType === 'invalid_credentials') {
-            showFieldError(inputField, 'Invalid email or password');
+            showFieldError(inputField);
+            showNotification('Invalid email or password', 'error');
           }
         }
       } else if (data.success) {
@@ -345,7 +357,7 @@ function initLoginForm() {
 
       if (submitButton) {
         submitButton.disabled = false;
-        submitButton.textContent = originalButtonText || 'Login'; // Fallback text
+        submitButton.textContent = originalButtonText || 'Login';
       }
 
       const errorDiv = document.createElement('div');
@@ -420,7 +432,8 @@ function initPasswordChangeModal() {
 
       requiredFields.forEach((fieldInfo) => {
         if (fieldInfo.input && !fieldInfo.input.value.trim()) {
-          showFieldError(fieldInfo.input, 'This field is required');
+          showNotification(`${fieldInfo.name} is required.`, 'error');
+          showFieldError(fieldInfo.input);
           isValid = false;
         }
       });
@@ -439,29 +452,20 @@ function initPasswordChangeModal() {
       }
 
       if (newPassword.length < 8) {
-        if (errorMessageElement) {
-          errorMessageElement.textContent = 'New password must be at least 8 characters';
-          errorMessageElement.classList.remove('hidden');
-        }
-        showFieldError(newPasswordInput, 'Minimum 8 characters');
+        showNotification('New password must be at least 8 characters.', 'error');
+        showFieldError(newPasswordInput);
         return;
       }
 
       if (!/[0-9]/.test(newPassword)) {
-        if (errorMessageElement) {
-          errorMessageElement.textContent = 'New password must include at least one number';
-          errorMessageElement.classList.remove('hidden');
-        }
-        showFieldError(newPasswordInput, 'Must include a number');
+        showNotification('New password must include at least one number.', 'error');
+        showFieldError(newPasswordInput);
         return;
       }
 
       if (newPassword !== confirmNewPassword) {
-        if (errorMessageElement) {
-          errorMessageElement.textContent = 'New passwords do not match';
-          errorMessageElement.classList.remove('hidden');
-        }
-        showFieldError(confirmNewPasswordInput, 'Passwords do not match');
+        showNotification('New passwords do not match.', 'error');
+        showFieldError(confirmNewPasswordInput);
         return;
       }
 
@@ -487,16 +491,19 @@ function initPasswordChangeModal() {
             showNotification('Password changed successfully!', 'success');
           }
         } else {
+          showNotification(data.error || 'An error occurred. Please try again.', 'error');
           if (errorMessageElement) {
             errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
             errorMessageElement.classList.remove('hidden');
             if (data.error && data.error.toLowerCase().includes('current password')) {
-              showFieldError(currentPasswordInput, 'Incorrect password');
+              showFieldError(currentPasswordInput);
+              showNotification('Incorrect password. Please try again.', 'error');
             }
           }
         }
       } catch (error) {
         console.error('Error:', error);
+        showNotification('Network error. Please try again later.', 'error');
         if (errorMessageElement) {
           errorMessageElement.textContent = 'Network error. Please try again later.';
           errorMessageElement.classList.remove('hidden');
@@ -542,25 +549,21 @@ function initPasswordToggles() {
   const toggleButtons = document.querySelectorAll('.password-toggle');
 
   toggleButtons.forEach((button) => {
-    // Clone the button to remove any existing event listeners
     const newButton = button.cloneNode(true);
     button.parentNode.replaceChild(newButton, button);
 
     newButton.addEventListener('click', function () {
       const container = this.parentNode;
-      // Find the input field within the same container as the button
       const passwordField = container.querySelector('input[type="password"], input[type="text"]');
-      if (!passwordField) return; // Exit if no password field found
+      if (!passwordField) return;
 
       const fieldType = passwordField.getAttribute('type');
 
       if (fieldType === 'password') {
         passwordField.setAttribute('type', 'text');
-        // Update the icon to show the 'slashed eye'
         this.innerHTML = '<i class="fas fa-eye-slash"></i>';
       } else {
         passwordField.setAttribute('type', 'password');
-        // Update the icon to show the 'eye'
         this.innerHTML = '<i class="fas fa-eye"></i>';
       }
     });
@@ -624,7 +627,8 @@ function initEmailChangeModal() {
 
       requiredFields.forEach((fieldInfo) => {
         if (fieldInfo.input && !fieldInfo.input.value.trim()) {
-          showFieldError(fieldInfo.input, 'This field is required');
+          showNotification(`${fieldInfo.name} is required.`, 'error');
+          showFieldError(fieldInfo.input);
           isValid = false;
         }
       });
@@ -638,7 +642,8 @@ function initEmailChangeModal() {
       }
 
       if (isValid && !isValidEmail(newEmail)) {
-        showFieldError(newEmailInput, 'Please enter a valid email address');
+        showNotification('Please enter a valid email address.', 'error');
+        showFieldError(newEmailInput);
         isValid = false;
       }
 
@@ -668,18 +673,22 @@ function initEmailChangeModal() {
             showNotification('Email changed successfully!', 'success');
           }
         } else {
+          showNotification(data.error || 'An error occurred. Please try again.', 'error');
           if (errorMessageElement) {
             errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
             errorMessageElement.classList.remove('hidden');
             if (data.error && data.error.toLowerCase().includes('password')) {
-              showFieldError(currentPasswordInput, 'Incorrect password');
+              showFieldError(currentPasswordInput);
+              showNotification('Incorrect password. Please try again.', 'error');
             } else if (data.error && data.error.toLowerCase().includes('email')) {
-              showFieldError(newEmailInput, data.error);
+              showFieldError(newEmailInput);
+              showNotification(data.error, 'error');
             }
           }
         }
       } catch (error) {
         console.error('Error:', error);
+        showNotification('Network error. Please try again later.', 'error');
         if (errorMessageElement) {
           errorMessageElement.textContent = 'Network error. Please try again later.';
           errorMessageElement.classList.remove('hidden');
@@ -727,16 +736,6 @@ function isValidEmail(email) {
 }
 
 /**
- * Validates if the provided string is a valid email format.
- * @param {string} email - The email string to validate.
- * @returns {boolean} True if the email format is valid, false otherwise.
- */
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-/**
  * Initializes account deletion feature.
  * Handles opening the deletion confirmation modal, form submission via fetch,
  * password validation, error display, and redirection upon successful deletion.
@@ -753,9 +752,6 @@ function initAccountDeletion() {
 
     const form = document.getElementById('delete-account-form');
     if (form) form.reset();
-
-    const errorMessage = document.getElementById('delete-account-error');
-    if (errorMessage) errorMessage.classList.add('hidden');
 
     openModal(deleteAccountModal);
     initPasswordToggles();
@@ -795,20 +791,14 @@ function initAccountDeletion() {
       setupConfirmButton(
         confirmDeleteBtn,
         async function () {
-          const password = document.getElementById('delete_account_password').value;
+          const passwordInput = document.getElementById('delete_account_password');
+          const password = passwordInput.value;
           const errorMessageElement = document.getElementById('delete-account-error');
 
-          if (errorMessageElement) {
-            errorMessageElement.textContent = '';
-            errorMessageElement.classList.add('hidden');
-          }
-
           if (!password) {
-            if (errorMessageElement) {
-              errorMessageElement.textContent = 'Password is required';
-              errorMessageElement.classList.remove('hidden');
-            }
-            // Reset the confirm button state if validation fails
+            showNotification('Password is required to confirm deletion.', 'error');
+            showFieldError(passwordInput);
+
             if (confirmDeleteBtn._resetConfirmState) {
               confirmDeleteBtn._resetConfirmState();
             }
@@ -836,22 +826,21 @@ function initAccountDeletion() {
                 window.location.href = '/';
               }, 2000);
             } else {
-              if (errorMessageElement) {
-                errorMessageElement.textContent = data.error || 'An error occurred. Please try again.';
-                errorMessageElement.classList.remove('hidden');
+              showNotification(data.error || 'An error occurred. Please try again.', 'error');
+              if (data.error && data.error.toLowerCase().includes('password')) {
+                showNotification('Incorrect password. Please try again.', 'error');
+                showFieldError(passwordInput);
               }
-              // Reset the confirm button state on error
               if (confirmDeleteBtn._resetConfirmState) {
                 confirmDeleteBtn._resetConfirmState();
               }
             }
           } catch (error) {
             console.error('Error:', error);
+            showNotification('Network error. Please try again later.', 'error');
             if (errorMessageElement) {
               errorMessageElement.textContent = 'Network error. Please try again later.';
-              errorMessageElement.classList.remove('hidden');
             }
-            // Reset the confirm button state on network error
             if (confirmDeleteBtn._resetConfirmState) {
               confirmDeleteBtn._resetConfirmState();
             }
