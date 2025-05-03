@@ -101,6 +101,7 @@ function initTouchDragFromList(plotState) {
             elementNameElement.remove();
         }
 
+        touchDragElement.style.transform = 'scale(1.15)';
         touchDragElement.style.position = 'fixed';
         touchDragElement.style.zIndex = '10000';
         touchDragElement.style.pointerEvents = 'none';
