@@ -39,6 +39,7 @@ $instrumentSubcategories = [
   3 => "Keys",
   4 => "Brass",
   5 => "Wood Wind",
+  6 => "DJ",
   10 => "Other"
 ];
 $instrumentsCategoryId = 3;
