@@ -6,8 +6,8 @@ if (isset($_GET['notfound']) && $_GET['notfound'] == 1) {
   $_SESSION['show_not_found_notification'] = true;
   $cleanUrl = strtok($_SERVER['REQUEST_URI'], '?');
   if ($cleanUrl !== '/') {
-      header("Location: /");
-      exit;
+    header("Location: /");
+    exit;
   }
 }
 
@@ -21,9 +21,10 @@ $db = Database::getInstance();
 $userObj = new User();
 $isLoggedIn = $userObj->isLoggedIn();
 
-// Get elements and categories
-$elements = $db->fetchAll("SELECT e.*, c.category_name FROM elements e 
-                          JOIN element_categories c ON e.category_id = c.category_id 
+// Get elements and categories, including sub_category_id for elements
+$elements = $db->fetchAll("SELECT e.*, c.category_name, e.sub_category_id
+                          FROM elements e
+                          JOIN element_categories c ON e.category_id = c.category_id
                           ORDER BY c.category_name, e.element_name");
 
 // Fetch categories, ensuring Favorites (ID 1) is handled separately
@@ -31,8 +32,18 @@ $allCategories = $db->fetchAll("SELECT * FROM element_categories ORDER BY catego
 $favoritesCategory = null;
 $otherCategories = [];
 
+// Define Instrument Subcategories (Map ID to Title)
+$instrumentSubcategories = [
+  1 => "String",
+  2 => "Percussion",
+  3 => "Keys",
+  4 => "Brass",
+  5 => "Wood Wind",
+  10 => "Other"
+];
+$instrumentsCategoryId = 3;
+
 foreach ($allCategories as $category) {
-  // --- Assuming Favorites category has ID 1 ---
   if ($category['category_id'] == 1) {
     $favoritesCategory = $category;
   } else {
@@ -47,24 +58,23 @@ $venues = $db->fetchAll("SELECT venue_id, venue_name FROM venues ORDER BY venue_
 $userVenues = [];
 if ($isLoggedIn) {
   $userVenues = $db->fetchAll(
-    "SELECT user_venue_id, venue_name, stage_width, stage_depth FROM user_venues 
+    "SELECT user_venue_id, venue_name, stage_width, stage_depth FROM user_venues
                                 WHERE user_id = ? ORDER BY venue_name",
     [$_SESSION['user_id']]
   );
 }
 ?>
 
-<!-- Mobile Restriction -->
 <div id="mobile-restriction-message">
-    <h2>Desktop Or Tablet Required</h2>
-    <p>The stage plotting feature requires a larger screen for optimal use.</p>
-    <p>Please access this feature from a tablet (landscape mode) or desktop computer.</p>
-    <p>You can still view and manage your saved plots in the Portfolio section.</p>
-    <?php if ($isLoggedIn): ?>
-        <button class="primary-button"><a href="portfolio.php" style="color: inherit; text-decoration: none;">Go to Portfolio</a></button>
-    <?php else: ?>
-        <button id="mobile-login-trigger" class="primary-button">Login or Signup</button>
-    <?php endif; ?>
+  <h2>Desktop Or Tablet Required</h2>
+  <p>The stage plotting feature requires a larger screen for optimal use.</p>
+  <p>Please access this feature from a tablet (landscape mode) or desktop computer.</p>
+  <p>You can still view and manage your saved plots in the Portfolio section.</p>
+  <?php if ($isLoggedIn): ?>
+    <button class="primary-button"><a href="portfolio.php" style="color: inherit; text-decoration: none;">Go to Portfolio</a></button>
+  <?php else: ?>
+    <button id="mobile-login-trigger" class="primary-button">Login or Signup</button>
+  <?php endif; ?>
 </div>
 
 <div id="stage-plot-container">
@@ -85,7 +95,7 @@ if ($isLoggedIn) {
             <span class="accordion-icon"></span>
           </h3>
           <div class="accordion-content elements-grid <?= $isExpanded ? 'expanded' : '' ?>">
-            <!-- Content populated by JS and PHP -->
+            <p class="no-favorites-message">No favorites yet. Click the ☆ icon on any element.</p>
           </div>
         </div>
       <?php endif; ?>
@@ -94,42 +104,78 @@ if ($isLoggedIn) {
       // Render other categories - all collapsed initially
       foreach ($otherCategories as $currentCategory):
         $isExpanded = false; // Other categories start collapsed
+        $categoryId = $currentCategory['category_id'];
       ?>
-        <div class="category-section accordion-item" data-category-id="<?= $currentCategory['category_id'] ?>">
+        <div class="category-section accordion-item" data-category-id="<?= $categoryId ?>">
           <h3 class="accordion-header <?= $isExpanded ? 'active' : '' ?>">
             <?= htmlspecialchars($currentCategory['category_name']) ?>
             <span class="accordion-icon"></span>
           </h3>
           <div class="accordion-content elements-grid <?= $isExpanded ? 'expanded' : '' ?>">
             <?php
-            // Loop through elements for this category
-            foreach ($elements as $element):
-              if ($element['category_id'] == $currentCategory['category_id']):
+            // Filter elements for the current category
+            $categoryElements = array_filter($elements, function ($el) use ($categoryId) {
+              return $el['category_id'] == $categoryId;
+            });
+
+            // Special handling for Instruments category (ID 3)
+            if ($categoryId == $instrumentsCategoryId) {
+              // Group elements by subcategory
+              $elementsBySubcategory = [];
+              foreach ($categoryElements as $element) {
+                $subCatId = $element['sub_category_id'] ?? 10; // Default to 'Other' if null
+                if (!isset($elementsBySubcategory[$subCatId])) {
+                  $elementsBySubcategory[$subCatId] = [];
+                }
+                $elementsBySubcategory[$subCatId][] = $element;
+              }
+
+              // Iterate through defined subcategories and render if elements exist
+              foreach ($instrumentSubcategories as $subCatId => $subCatTitle) {
+                if (isset($elementsBySubcategory[$subCatId]) && count($elementsBySubcategory[$subCatId]) > 0) {
+                  echo '<h4 class="subcategory-header">' . htmlspecialchars($subCatTitle) . '</h4>';
+                  foreach ($elementsBySubcategory[$subCatId] as $element):
             ?>
+                    <div class="draggable-element"
+                      data-element-id="<?= $element['element_id'] ?>"
+                      data-element-name="<?= htmlspecialchars($element['element_name']) ?>"
+                      data-category-id="<?= $element['category_id'] ?>"
+                      data-image="<?= htmlspecialchars($element['element_image']) ?>"
+                      data-sub-category-id="<?= $element['sub_category_id'] ?? '' ?>">
+                      <img src="/images/elements/<?= htmlspecialchars($element['element_image']) ?>"
+                        alt="<?= htmlspecialchars($element['element_name']) ?>">
+                      <div class="element-name"><?= htmlspecialchars($element['element_name']) ?></div>
+                    </div>
+                <?php
+                  endforeach;
+                }
+              }
+            } else {
+              // Default rendering for other categories
+              foreach ($categoryElements as $element):
+                ?>
                 <div class="draggable-element"
                   data-element-id="<?= $element['element_id'] ?>"
                   data-element-name="<?= htmlspecialchars($element['element_name']) ?>"
                   data-category-id="<?= $element['category_id'] ?>"
-                  data-image="<?= htmlspecialchars($element['element_image']) ?>">
+                  data-image="<?= htmlspecialchars($element['element_image']) ?>"
+                  data-sub-category-id="<?= $element['sub_category_id'] ?? '' ?>">
                   <img src="/images/elements/<?= htmlspecialchars($element['element_image']) ?>"
                     alt="<?= htmlspecialchars($element['element_name']) ?>">
                   <div class="element-name"><?= htmlspecialchars($element['element_name']) ?></div>
                 </div>
             <?php
-              endif;
-            endforeach;
+              endforeach;
+            } // End of category type check
             ?>
           </div>
-        </div>
-      <?php endforeach; ?>
+        </div> <?php endforeach; ?>
     </div>
   </div>
-
   <div id="stage-area">
     <div id="stage-controls">
       <h2 id="plot-title">New Plot</h2>
 
-      <!-- Plot configuration panel -->
       <div id="venue-info-container">
         <div class="venue-config-panel">
           <div class="config-field venue-select-container">
@@ -137,7 +183,7 @@ if ($isLoggedIn) {
             <div class="select-with-button">
               <select id="venue_select" name="venue_select">
                 <option value="" selected>Select Venue</option>
-                
+
                 <?php if ($isLoggedIn && count($userVenues) > 0): ?>
                   <optgroup label="My Venues">
                     <?php foreach ($userVenues as $venue): ?>
@@ -187,7 +233,6 @@ if ($isLoggedIn) {
       </div>
     </div>
 
-    <!-- Plot Control Buttons -->
     <div id="control-buttons">
       <div id="edit-buttons">
         <button id="new-plot" class="action-button" title="New Plot"><i class="fa-solid fa-file-circle-plus"></i></button>
@@ -207,9 +252,9 @@ if ($isLoggedIn) {
     </div>
 
     <div id="stage"
-      data-venue-id="<?= $venue['venue_id'] ?>"
-      data-stage-width="<?= $venue['stage_width'] ?>"
-      data-stage-depth="<?= $venue['stage_depth'] ?>">
+      data-venue-id="<?= $venue['venue_id'] ?? '' ?>"
+      data-stage-width="<?= $venue['stage_width'] ?? '20' ?>"
+      data-stage-depth="<?= $venue['stage_depth'] ?? '15' ?>">
       <div id="stage-tips">
         <div class="tip-item">Lasso or <kbd>Shift</kbd> + <span class="action-icon"><i class="fa-solid fa-hand-pointer"></i></span> = Multi-select</div>
         <div class="tip-item"> | </div>
@@ -219,8 +264,6 @@ if ($isLoggedIn) {
     </div>
   </div>
 </div>
-
-<!-- Input / Elements List Section -->
 <div id="stage-info-container">
   <div class="input-list-section">
     <h2>Aux Input List</h2>
@@ -236,14 +279,13 @@ if ($isLoggedIn) {
   <div class="element-info">
     <h2>Stage Element List</h2>
     <p>Click on an element to edit or remove</p>
-    
+
     <ol id="element-info-list">
       <li class="no-elements-message">No elements placed yet.</li>
     </ol>
   </div>
 </div>
 
-<!-- Element Properties Modal -->
 <div id="element-props-modal" class="modal hidden">
   <div class="modal-content">
     <span class="close-button">&times;</span>
@@ -271,7 +313,6 @@ if ($isLoggedIn) {
   </div>
 </div>
 
-<!-- Add Custom Venue Modal -->
 <?php if ($isLoggedIn): ?>
   <div id="add-venue-modal" class="modal hidden">
     <div class="modal-content">
@@ -293,7 +334,7 @@ if ($isLoggedIn) {
             <label for="venue_city">City:</label>
             <input type="text" id="venue_city" name="venue_city" maxlength="100">
           </div>
-          
+
           <div class="form-group">
             <label for="venue_state_id">State:</label>
             <select id="venue_state_id" name="venue_state_id">
@@ -335,14 +376,12 @@ if ($isLoggedIn) {
   </div>
 <?php endif; ?>
 
-<!-- Save Plot Modal -->
 <?php if ($isLoggedIn): ?>
   <div id="save-plot-modal" class="modal hidden">
     <div class="modal-content">
       <span class="close-button">&times;</span>
       <h2>Save Plot</h2>
 
-      <!-- New plot name input -->
       <div class="new-plot-section">
         <form id="save-new-plot-form">
           <label for="plot_name">Plot Name:</label>
@@ -353,12 +392,10 @@ if ($isLoggedIn) {
         </form>
       </div>
 
-      <!-- Existing plots section -->
       <div class="existing-plots-section">
         <h2>Overwrite Existing Plot</h2>
         <p>Use new name entered above or leave empty to reuse existing name</p>
         <div class="existing-plots-list">
-          <!-- Will be populated via JavaScript -->
           <p class="loading-message">Loading your saved plots...</p>
         </div>
       </div>
@@ -370,13 +407,11 @@ if ($isLoggedIn) {
     </div>
   </div>
 
-  <!-- Load Plot Modal -->
   <div id="my-plots-modal" class="modal hidden">
     <div class="modal-content">
       <span class="close-button">&times;</span>
       <h2>My Plots</h2>
       <div class="saved-plots-list">
-        <!-- Will be populated via Javascript -->
         <p class="loading-message">Loading your saved plots...</p>
       </div>
       <div class="form-actions">
@@ -386,7 +421,6 @@ if ($isLoggedIn) {
     </div>
   </div>
 
-  <!-- Print/Share Modal -->
   <div id="share-plot-modal" class="modal hidden">
     <div class="modal-content">
       <span class="close-button">&times;</span>
@@ -418,7 +452,6 @@ if ($isLoggedIn) {
         </div>
       </div>
 
-      <!-- Email sharing form, initially hidden -->
       <div id="email-share-form" class="hidden">
         <div class="form-group">
           <label for="share_email">Recipient Email:</label>

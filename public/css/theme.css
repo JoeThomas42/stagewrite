@@ -278,6 +278,10 @@
       }
     }
   }
+
+  .subcategory-header {
+    color: var(--color-text-light);
+  }
   
   .search-container {
     background-color: var(--color-background-light);

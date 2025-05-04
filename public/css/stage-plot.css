@@ -239,6 +239,18 @@
   z-index: 1000;
 }
 
+.subcategory-header {
+  grid-column: 1 / -1;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
 /* Favorite button styling */
 .favorite-button {
   background-color: transparent;
