@@ -36,7 +36,7 @@ function initTouchInteraction() {
  * @param {Object} plotState - The global plot state object.
  */
 function detectTouchDevice(plotState) {
-  plotState.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+  plotState.isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   console.log('Touch device detected:', plotState.isTouchDevice);
 }
 
