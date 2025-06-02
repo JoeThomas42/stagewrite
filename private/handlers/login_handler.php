@@ -19,6 +19,40 @@ try {
     exit;
   }
 
+  // Validate reCAPTCHA
+  if (empty($_POST['g-recaptcha-response'])) {
+    echo json_encode(['errors' => ['recaptcha' => 'Please complete the CAPTCHA']]);
+    exit;
+  }
+
+  // Verify reCAPTCHA with Google
+  $recaptchaResponse = $_POST['g-recaptcha-response'];
+  $recaptchaSecret = RECAPTCHA_SECRET_KEY;
+  $recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
+
+  $recaptchaData = [
+    'secret' => $recaptchaSecret,
+    'response' => $recaptchaResponse,
+    'remoteip' => $_SERVER['REMOTE_ADDR']
+  ];
+
+  $recaptchaOptions = [
+    'http' => [
+      'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method' => 'POST',
+      'content' => http_build_query($recaptchaData)
+    ]
+  ];
+
+  $recaptchaContext = stream_context_create($recaptchaOptions);
+  $recaptchaResult = file_get_contents($recaptchaUrl, false, $recaptchaContext);
+  $recaptchaJson = json_decode($recaptchaResult);
+
+  if (!$recaptchaJson->success) {
+    echo json_encode(['errors' => ['recaptcha' => 'reCAPTCHA verification failed']]);
+    exit;
+  }
+
   $email = isset($_POST['email']) ? trim($_POST['email']) : '';
   $password = isset($_POST['password']) ? $_POST['password'] : '';
 

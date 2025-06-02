@@ -166,6 +166,10 @@
               <label for="stay_logged_in" class="checkbox-label">Stay logged in</label>
             </div>
 
+            <!-- reCAPTCHA  -->
+            <div class="g-recaptcha" data-theme="dark" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+            <div id="login-recaptcha-error" class="field-error" style="display: none;">Please complete the CAPTCHA.</div>
+
             <button type="submit">Login</button>
           </form>
           <p>Don't have an account? <a href="#" id="switch-to-signup">Create one</a></p>
